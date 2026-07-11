@@ -212,8 +212,9 @@
           <div class="search-box">
             <input id="customerSearch" type="search" placeholder="بحث برقم العميل أو الاسم أو المندوب...">
           </div>
-          <button id="addCustomerBtn" class="primary-btn">إضافة عميل</button>
+          <button id="addCustomerBtn" class="primary-btn customer-manage-action">إضافة عميل</button>
         </div>
+        <div id="customersStatus" class="data-status hidden"></div>
 
         <div class="filters-row">
           <select id="typeFilter">
@@ -246,6 +247,14 @@
             </thead>
             <tbody id="customersTableBody"></tbody>
           </table>
+        </div>
+        <div class="table-pagination" id="customersPagination">
+          <span id="customersPaginationInfo">0 عميل</span>
+          <div>
+            <button id="customersPrevPage" class="secondary-btn compact-btn" type="button">السابق</button>
+            <span id="customersPageNumber">1</span>
+            <button id="customersNextPage" class="secondary-btn compact-btn" type="button">التالي</button>
+          </div>
         </div>
       </section>
 
@@ -769,6 +778,7 @@
   <script src="assets/js/permissions.js"></script>
   <script src="assets/js/auth-session.js"></script>
   <script src="assets/js/reference-data-service.js"></script>
+  <script src="assets/js/customers-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

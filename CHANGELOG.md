@@ -1,10 +1,4 @@
-# KYUM Phase 07 — Reference Data Supabase
-
-## Root Cause Fix
-
-The favicon stopped working because Phase 06 replaced `index.html` using an older
-baseline that did not contain the approved favicon links. The favicon links have
-been restored in the Phase 07 `index.html`.
+# KYUM Phase 08 — Customers Supabase CRUD
 
 ## Modified/New Files
 
@@ -12,16 +6,24 @@ been restored in the Phase 07 `index.html`.
 - `assets/css/style.css`
 - `assets/js/app.js`
 - `assets/js/permissions.js`
-- `assets/js/reference-data-service.js`
-- `supabase/migrations/phase07_reference_data_audit.sql`
+- `assets/js/customers-service.js`
+- `supabase/migrations/phase08_customer_audit.sql`
 
-## Features
+## Implemented
 
-- Live loading of sales representatives from Supabase.
-- Live loading of interest categories and no-sale reasons.
-- Add/edit/activate/deactivate representatives.
-- Add/edit/activate/deactivate reference items.
-- Duplicate protection through database unique constraints.
-- Management-only edit controls.
-- Loading and connection error states.
-- Audit-log insertion policy for Phase 07 operations.
+- Supabase is now the only production source for customer records.
+- Live customer loading under existing RLS rules.
+- Add and edit customers in Supabase.
+- Delete customers for management roles only.
+- Unique mobile validation in the UI and database.
+- Customer-interest relationship persistence.
+- Representative and no-sale-reason UUID relationships.
+- Client-side search, filters and pagination.
+- Role-aware add, edit and delete controls.
+- Customer action audit logging.
+- Dashboard customer indicators refresh from live customer data.
+
+## Scope Note
+
+Follow-ups and quotations still use their previous temporary source until
+Phases 09 and 10. Customer CRUD itself no longer uses LocalStorage.
