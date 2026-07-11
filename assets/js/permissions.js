@@ -28,6 +28,13 @@ window.CustomerPermissions = Object.freeze({
       button.classList.toggle("hidden", !this.can(role, "manage_settings"));
     });
 
+    document.querySelectorAll(".customer-manage-action").forEach(button => {
+      button.classList.toggle(
+        "hidden",
+        !["super_admin", "sales_manager", "sales_representative"].includes(role)
+      );
+    });
+
     if (privacyGroup) {
       privacyGroup.classList.toggle(
         "hidden",

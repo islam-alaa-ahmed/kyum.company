@@ -118,7 +118,11 @@ const seedQuotations = [
   }
 ];
 
-let customers = loadCustomers();
+let customers = [];
+let customersLoaded = false;
+let customersLoading = false;
+let customersPage = 1;
+const CUSTOMERS_PAGE_SIZE = 10;
 let followups = loadFollowups();
 let quotations = loadQuotations();
 let editingId = null;
@@ -154,12 +158,7 @@ const pageMeta = {
 };
 
 function loadCustomers() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(stored) ? stored : seedCustomers;
-  } catch {
-    return seedCustomers;
-  }
+  return [];
 }
 
 
@@ -259,7 +258,7 @@ function statusLabel(status) {
 }
 
 function saveCustomers() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
+  // Customers use Supabase as the only production data source from Phase 08.
 }
 
 
@@ -280,11 +279,9 @@ function isValidSaudiMobile(value) {
   return /^05\d{8}$/.test(normalizePhone(value));
 }
 
-function findCustomerByPhone(phone, excludeId = null) {
+async function findCustomerByPhone(phone, excludeId = null) {
   const normalized = normalizePhone(phone);
-  return customers.find(customer =>
-    normalizePhone(customer.phone) === normalized && customer.id !== excludeId
-  );
+  return window.CustomersService.findByPhone(normalized, excludeId);
 }
 
 function nextCustomerId() {
@@ -336,7 +333,9 @@ function refreshReferenceOptions() {
 
   replaceSelectOptions(
     document.getElementById("customerInterest"),
-    interests.map(value => ({ label: value, value }))
+    interestRecords
+      .filter(item => item.is_active)
+      .map(item => ({ label: item.name, value: item.id }))
   );
 
   ["repFilter", "followupRepFilter", "quotationRepFilter", "dashboardRepFilter"].forEach(id => {
@@ -354,9 +353,14 @@ function refreshReferenceOptions() {
     );
   });
 
+  const authProfile = window.CustomerAuth?.getState?.().profile;
+  const customerRepresentativeOptions = authProfile?.role === "sales_representative"
+    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
+    : representatives;
+
   replaceSelectOptions(
     document.getElementById("customerRepresentative"),
-    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+    customerRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
   replaceSelectOptions(
     document.getElementById("followupRepresentative"),
@@ -369,7 +373,11 @@ function refreshReferenceOptions() {
 
   replaceSelectOptions(
     document.getElementById("noSaleReason"),
-    noSaleReasons.map(value => ({ label: value, value }))
+    reasonRecords
+      .filter(item => item.is_active)
+      .map(item => ({ label: item.name, value: item.id })),
+    "بدون سبب",
+    ""
   );
   replaceSelectOptions(
     document.getElementById("followupNoSaleReason"),
@@ -458,7 +466,10 @@ function switchView(name) {
   document.getElementById("pageSubtitle").textContent = pageMeta[name][1];
 
   if (name === "dashboard") renderDashboard();
-  if (name === "customers") renderCustomers();
+  if (name === "customers") {
+    loadCustomersFromSupabase();
+    renderCustomers();
+  }
   if (name === "followups") renderFollowups();
   if (name === "quotations") renderQuotations();
   if (name === "representatives") {
@@ -745,6 +756,42 @@ function renderActivityTrend(data) {
     </div>`;
 }
 
+function canManageCustomers() {
+  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+}
+
+function canDeleteCustomers() {
+  return ["super_admin", "sales_manager"].includes(currentRole());
+}
+
+async function loadCustomersFromSupabase(force = false) {
+  if (customersLoading || (customersLoaded && !force)) return;
+  if (!window.CustomersService || !window.customerSupabase) return;
+
+  customersLoading = true;
+  showDataStatus("customersStatus", "جاري تحميل العملاء من Supabase...", "info");
+
+  try {
+    customers = await window.CustomersService.listCustomers();
+    customersLoaded = true;
+    customersPage = 1;
+    showDataStatus("customersStatus", "");
+    refreshReferenceOptions();
+    renderCustomers();
+    renderDashboard();
+    renderRepresentatives();
+  } catch (error) {
+    console.error("Customer loading failed:", error);
+    showDataStatus(
+      "customersStatus",
+      error instanceof Error ? error.message : "تعذر تحميل العملاء.",
+      "error"
+    );
+  } finally {
+    customersLoading = false;
+  }
+}
+
 function filteredCustomers() {
   const query = document.getElementById("customerSearch").value.trim().toLowerCase();
   const type = document.getElementById("typeFilter").value;
@@ -768,36 +815,58 @@ function filteredCustomers() {
 }
 
 function renderCustomers() {
-  const rows = filteredCustomers();
+  const allRows = filteredCustomers();
   const body = document.getElementById("customersTableBody");
+  const pageCount = Math.max(1, Math.ceil(allRows.length / CUSTOMERS_PAGE_SIZE));
+
+  if (customersPage > pageCount) customersPage = pageCount;
+  const start = (customersPage - 1) * CUSTOMERS_PAGE_SIZE;
+  const rows = allRows.slice(start, start + CUSTOMERS_PAGE_SIZE);
+
+  const addButton = document.getElementById("addCustomerBtn");
+  addButton?.classList.toggle("hidden", !canManageCustomers());
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="9" class="empty-state">لا توجد نتائج مطابقة.</td></tr>`;
-    return;
+    body.innerHTML = `<tr><td colspan="9" class="empty-state">${
+      customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء..."
+    }</td></tr>`;
+  } else {
+    body.innerHTML = rows.map(customer => `
+      <tr>
+        <td>
+          <strong>${escapeHtml(customer.phone || "—")}</strong>
+          ${customer.customerNumber ? `<br><small>${escapeHtml(customer.customerNumber)}</small>` : ""}
+        </td>
+        <td>
+          <strong>${escapeHtml(customer.name)}</strong><br>
+          <small>${customer.city ? escapeHtml(customer.city) : ""}</small>
+        </td>
+        <td><span class="badge">${escapeHtml(customer.type)}</span></td>
+        <td>${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—"}</td>
+        <td>${escapeHtml(customer.representative || "—")}</td>
+        <td>${formatDate(customer.contactDate)}</td>
+        <td>${escapeHtml(customer.quotationNumber || "—")}</td>
+        <td>${escapeHtml(customer.noSaleReason || "—")}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" data-details="${customer.id}">عرض</button>
+            <button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>
+            ${canManageCustomers() ? `<button class="edit-btn" data-edit="${customer.id}">تعديل</button>` : ""}
+            ${canDeleteCustomers() ? `<button class="delete-btn" data-delete="${customer.id}">حذف</button>` : ""}
+          </div>
+        </td>
+      </tr>`).join("");
   }
 
-  body.innerHTML = rows.map(customer => `
-    <tr>
-      <td><strong>${escapeHtml(customer.phone || "—")}</strong></td>
-      <td>
-        <strong>${escapeHtml(customer.name)}</strong><br>
-        <small>${customer.city ? escapeHtml(customer.city) : ""}</small>
-      </td>
-      <td><span class="badge">${escapeHtml(customer.type)}</span></td>
-      <td>${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("")}</td>
-      <td>${escapeHtml(customer.representative)}</td>
-      <td>${formatDate(customer.contactDate)}</td>
-      <td>${escapeHtml(customer.quotationNumber || "—")}</td>
-      <td>${escapeHtml(customer.noSaleReason || "—")}</td>
-      <td>
-        <div class="row-actions">
-          <button class="edit-btn" data-details="${customer.id}">عرض</button>
-          <button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>
-          <button class="edit-btn" data-edit="${customer.id}">تعديل</button>
-          <button class="delete-btn" data-delete="${customer.id}">حذف</button>
-        </div>
-      </td>
-    </tr>`).join("");
+  const info = document.getElementById("customersPaginationInfo");
+  const pageNumber = document.getElementById("customersPageNumber");
+  const prev = document.getElementById("customersPrevPage");
+  const next = document.getElementById("customersNextPage");
+
+  if (info) info.textContent = `${allRows.length} عميل`;
+  if (pageNumber) pageNumber.textContent = `${customersPage} / ${pageCount}`;
+  if (prev) prev.disabled = customersPage <= 1;
+  if (next) next.disabled = customersPage >= pageCount;
 }
 
 function currentRole() {
@@ -945,19 +1014,19 @@ async function saveReferenceForm(event) {
 function openCustomerDialog(customer = null) {
   editingId = customer?.id || null;
   document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
-  document.getElementById("customerId").value = customer?.id || nextCustomerId();
+  document.getElementById("customerId").value = customer?.id || "";
   document.getElementById("customerName").value = customer?.name || "";
   document.getElementById("customerType").value = customer?.type || "شركة";
   document.getElementById("customerPhone").value = customer?.phone || "";
   document.getElementById("customerCity").value = customer?.city || "";
-  document.getElementById("customerRepresentative").value = customer?.representative || representatives[0]?.name || "";
+  document.getElementById("customerRepresentative").value = customer?.representativeId || representatives[0]?.uuid || "";
   document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
   document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
-  document.getElementById("noSaleReason").value = customer?.noSaleReason || noSaleReasons[0] || "";
+  document.getElementById("noSaleReason").value = customer?.noSaleReasonId || "";
   document.getElementById("customerNotes").value = customer?.notes || "";
 
   [...document.getElementById("customerInterest").options].forEach(option => {
-    option.selected = customer ? customer.interests.includes(option.value) : false;
+    option.selected = customer ? customer.interestIds.includes(option.value) : false;
   });
 
   document.getElementById("customerDialog").showModal();
@@ -969,11 +1038,18 @@ function closeCustomerDialog() {
   editingId = null;
 }
 
-function handleCustomerSubmit(event) {
+async function handleCustomerSubmit(event) {
   event.preventDefault();
 
-  const selectedInterests = [...document.getElementById("customerInterest").selectedOptions].map(o => o.value);
-  if (!selectedInterests.length) {
+  if (!canManageCustomers()) {
+    alert("لا توجد صلاحية لتعديل بيانات العملاء.");
+    return;
+  }
+
+  const selectedInterestIds = [...document.getElementById("customerInterest").selectedOptions]
+    .map(option => option.value);
+
+  if (!selectedInterestIds.length) {
     alert("اختر مجال اهتمام واحدًا على الأقل.");
     return;
   }
@@ -987,52 +1063,65 @@ function handleCustomerSubmit(event) {
     return;
   }
 
-  const duplicateCustomer = findCustomerByPhone(normalizedPhone, editingId);
-  if (duplicateCustomer) {
-    alert(`لا يمكن حفظ العميل. رقم الجوال ${normalizedPhone} مسجل بالفعل باسم: ${duplicateCustomer.name}`);
-    document.getElementById("customerPhone").focus();
+  try {
+    const duplicateCustomer = await findCustomerByPhone(normalizedPhone, editingId);
+    if (duplicateCustomer) {
+      alert(`لا يمكن حفظ العميل. رقم الجوال ${normalizedPhone} مسجل بالفعل باسم: ${duplicateCustomer.customer_name}`);
+      document.getElementById("customerPhone").focus();
+      return;
+    }
+
+    const submitButton = event.submitter;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "جاري الحفظ...";
+    }
+
+    await window.CustomersService.saveCustomer({
+      id: editingId,
+      name: document.getElementById("customerName").value,
+      type: document.getElementById("customerType").value,
+      phone: normalizedPhone,
+      city: document.getElementById("customerCity").value,
+      interestIds: selectedInterestIds,
+      representativeId: document.getElementById("customerRepresentative").value,
+      contactDate: document.getElementById("contactDate").value,
+      quotationNumber: document.getElementById("quotationNumber").value,
+      noSaleReasonId: document.getElementById("noSaleReason").value || null,
+      notes: document.getElementById("customerNotes").value
+    });
+
+    closeCustomerDialog();
+    customersLoaded = false;
+    await loadCustomersFromSupabase(true);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حفظ العميل.");
+  } finally {
+    const submitButton = event.submitter;
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "حفظ العميل";
+    }
+  }
+}
+
+async function deleteCustomer(id) {
+  if (!canDeleteCustomers()) {
+    alert("حذف العملاء متاح للإدارة فقط.");
     return;
   }
 
-  const customer = {
-    id: document.getElementById("customerId").value,
-    name: document.getElementById("customerName").value.trim(),
-    type: document.getElementById("customerType").value,
-    phone: normalizedPhone,
-    city: document.getElementById("customerCity").value.trim(),
-    interests: selectedInterests,
-    representative: document.getElementById("customerRepresentative").value,
-    contactDate: document.getElementById("contactDate").value,
-    quotationNumber: document.getElementById("quotationNumber").value.trim(),
-    noSaleReason: document.getElementById("noSaleReason").value,
-    notes: document.getElementById("customerNotes").value.trim()
-  };
-
-  if (editingId) {
-    customers = customers.map(item => item.id === editingId ? customer : item);
-  } else {
-    customers.unshift(customer);
-  }
-
-  saveCustomers();
-  closeCustomerDialog();
-  renderCustomers();
-  renderDashboard();
-}
-
-function deleteCustomer(id) {
   const customer = customers.find(item => item.id === id);
   if (!customer) return;
-  if (!confirm(`هل تريد حذف العميل: ${customer.name}؟`)) return;
+  if (!confirm(`هل تريد حذف العميل: ${customer.name}؟ سيتم حذف السجلات المرتبطة به وفق قواعد قاعدة البيانات.`)) return;
 
-  customers = customers.filter(item => item.id !== id);
-  followups = followups.filter(item => item.customerId !== id);
-  quotations = quotations.filter(item => item.customerId !== id);
-  saveCustomers();
-  saveFollowups();
-  saveQuotations();
-  renderCustomers();
-  renderDashboard();
+  try {
+    await window.CustomersService.deleteCustomer(customer.id, customer.name);
+    customersLoaded = false;
+    await loadCustomersFromSupabase(true);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حذف العميل.");
+  }
 }
 
 
@@ -1489,8 +1578,14 @@ document.getElementById("cancelDialogBtn").addEventListener("click", closeCustom
 document.getElementById("customerForm").addEventListener("submit", handleCustomerSubmit);
 
 ["customerSearch", "typeFilter", "interestFilter", "repFilter"].forEach(id => {
-  document.getElementById(id).addEventListener("input", renderCustomers);
-  document.getElementById(id).addEventListener("change", renderCustomers);
+  document.getElementById(id).addEventListener("input", () => {
+    customersPage = 1;
+    renderCustomers();
+  });
+  document.getElementById(id).addEventListener("change", () => {
+    customersPage = 1;
+    renderCustomers();
+  });
 });
 
 ["followupSearch", "followupStatusFilter", "followupRepFilter"].forEach(id => {
@@ -1575,7 +1670,24 @@ document.getElementById("settingsView")?.addEventListener("click", event => {
 
 window.addEventListener("customer-auth-ready", async () => {
   await loadReferenceDataFromSupabase(true);
+  await loadCustomersFromSupabase(true);
   renderDashboard();
+});
+
+
+document.getElementById("customersPrevPage")?.addEventListener("click", () => {
+  if (customersPage > 1) {
+    customersPage -= 1;
+    renderCustomers();
+  }
+});
+
+document.getElementById("customersNextPage")?.addEventListener("click", () => {
+  const pageCount = Math.max(1, Math.ceil(filteredCustomers().length / CUSTOMERS_PAGE_SIZE));
+  if (customersPage < pageCount) {
+    customersPage += 1;
+    renderCustomers();
+  }
 });
 
 setOptions();
