@@ -112,3 +112,14 @@
 عند فك ضغط هذه المرحلة يظهر المجلد:
 
 `customer-management-v1.0-phase4-dashboard-reports`
+
+
+## Phase 5A — Enterprise Database & Auth Foundation
+
+- Added dedicated Supabase configuration and client bootstrap.
+- Added enterprise roles and user profiles.
+- Added secure role-aware RLS policies.
+- Added audit log foundation.
+- Added future-ready CRM entities for contacts, tasks, orders, invoices, projects, contracts, installed assets, services, complaints and collections.
+- Added verification SQL.
+- Live CRUD activation is deferred to Phase 5B until the complete Publishable Key is configured.
