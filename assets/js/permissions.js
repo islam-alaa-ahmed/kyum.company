@@ -58,6 +58,6 @@ window.CustomerPermissions = {
     document.querySelectorAll(".customer-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_customers")));
     document.querySelectorAll(".followup-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_followups")));
     document.querySelectorAll(".quotation-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_quotations")));
-    document.querySelectorAll(".users-manage-action,.permissions-manage-action").forEach(b => b.classList.toggle("hidden", role !== "super_admin"));
+    document.querySelectorAll(".users-manage-action,.permissions-manage-action,.backup-manage-action,.system-settings-manage-action").forEach(b => b.classList.toggle("hidden", role !== "super_admin"));
   }
 };

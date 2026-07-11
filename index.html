@@ -469,21 +469,158 @@
       </section>
 
       <section id="backupsView" class="view-section hidden">
-        <div class="module-placeholder">
-          <div class="module-placeholder-icon">B</div>
-          <h3>النسخ الاحتياطي</h3>
-          <p>إدارة النسخ الاحتياطية، التصدير، والاستعادة الآمنة للبيانات.</p>
-          <span>سيتم تنفيذها بعد اكتمال نقل البيانات التشغيلية إلى Supabase.</span>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">مركز النسخ الاحتياطي</h3>
+            <p class="section-note">تصدير نسخة كاملة من بيانات النظام والتحقق منها واستعادتها بأمان.</p>
+          </div>
+          <button id="createBackupBtn" class="primary-btn backup-manage-action">إنشاء نسخة احتياطية</button>
         </div>
+
+        <div id="backupStatus" class="data-status hidden"></div>
+
+        <div class="backup-overview-grid">
+          <article class="panel backup-action-card">
+            <div class="backup-card-icon">↓</div>
+            <h3>تصدير نسخة جديدة</h3>
+            <p>تنزيل ملف JSON يحتوي على بيانات العملاء والمتابعات والعروض والبيانات المرجعية والإعدادات.</p>
+            <button id="downloadBackupBtn" class="primary-btn backup-manage-action">تصدير وتنزيل</button>
+          </article>
+
+          <article class="panel backup-action-card">
+            <div class="backup-card-icon">✓</div>
+            <h3>التحقق من نسخة</h3>
+            <p>اختيار ملف نسخة احتياطية وفحص الإصدار والجداول وعدد السجلات قبل الاستعادة.</p>
+            <label class="file-picker-btn">
+              اختيار ملف
+              <input id="backupFileInput" type="file" accept=".json,application/json">
+            </label>
+          </article>
+
+          <article class="panel backup-action-card danger-zone">
+            <div class="backup-card-icon">↺</div>
+            <h3>استعادة البيانات</h3>
+            <p>استعادة الملف الذي تم التحقق منه. العملية متاحة لمدير النظام فقط وتتطلب تأكيدًا إضافيًا.</p>
+            <button id="restoreBackupBtn" class="delete-btn backup-manage-action" disabled>استعادة النسخة</button>
+          </article>
+        </div>
+
+        <article id="backupInspectionPanel" class="panel backup-inspection hidden">
+          <div class="panel-header">
+            <div>
+              <h3>نتيجة فحص النسخة</h3>
+              <p id="backupInspectionSummary">لم يتم اختيار ملف.</p>
+            </div>
+          </div>
+          <div id="backupTableCounts" class="backup-counts-grid"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>سجل النسخ والاستعادة</h3>
+              <p>آخر العمليات المسجلة في قاعدة البيانات.</p>
+            </div>
+            <button id="refreshBackupHistoryBtn" class="secondary-btn">تحديث</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>العملية</th>
+                  <th>اسم الملف</th>
+                  <th>عدد السجلات</th>
+                  <th>المستخدم</th>
+                  <th>الحالة</th>
+                  <th>التاريخ</th>
+                </tr>
+              </thead>
+              <tbody id="backupHistoryBody"></tbody>
+            </table>
+          </div>
+        </article>
       </section>
 
       <section id="systemSettingsView" class="view-section hidden">
-        <div class="module-placeholder">
-          <div class="module-placeholder-icon">S</div>
-          <h3>إعدادات النظام</h3>
-          <p>بيانات الشركة، إعدادات العرض، وخيارات النظام العامة.</p>
-          <span>سيتم تنفيذ الإعدادات الديناميكية في مرحلة مستقلة.</span>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">إعدادات النظام</h3>
+            <p class="section-note">بيانات الشركة والإعدادات العامة الظاهرة داخل البرنامج.</p>
+          </div>
+          <button id="saveSystemSettingsBtn" class="primary-btn system-settings-manage-action">حفظ الإعدادات</button>
         </div>
+
+        <div id="systemSettingsStatus" class="data-status hidden"></div>
+
+        <form id="systemSettingsForm" class="settings-form-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>بيانات الشركة</h3>
+                <p>الهوية الأساسية المستخدمة في النظام والتقارير.</p>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label>
+                اسم الشركة بالعربية
+                <input id="companyNameAr" maxlength="200">
+              </label>
+              <label>
+                اسم الشركة بالإنجليزية
+                <input id="companyNameEn" maxlength="200">
+              </label>
+              <label>
+                البريد الإلكتروني
+                <input id="companyEmail" type="email" maxlength="200">
+              </label>
+              <label>
+                رقم الجوال
+                <input id="companyPhone" maxlength="30">
+              </label>
+              <label class="full-width">
+                العنوان
+                <input id="companyAddress" maxlength="300">
+              </label>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>الإعدادات العامة</h3>
+                <p>العملة والمنطقة الزمنية وتنسيق العرض.</p>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label>
+                العملة
+                <select id="systemCurrency">
+                  <option value="SAR">SAR — ريال سعودي</option>
+                  <option value="USD">USD — دولار أمريكي</option>
+                </select>
+              </label>
+              <label>
+                المنطقة الزمنية
+                <select id="systemTimezone">
+                  <option value="Asia/Riyadh">Asia/Riyadh</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </label>
+              <label>
+                عدد السجلات في الصفحة
+                <select id="systemPageSize">
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+              <label>
+                مدة الجلسة بالدقائق
+                <input id="systemSessionTimeout" type="number" min="15" max="1440">
+              </label>
+            </div>
+          </article>
+        </form>
       </section>
 
     </main>
@@ -857,6 +994,8 @@
   <script src="assets/js/users-service.js"></script>
   <script src="assets/js/permissions-service.js"></script>
   <script src="assets/js/activity-service.js"></script>
+  <script src="assets/js/backup-service.js"></script>
+  <script src="assets/js/system-settings-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

@@ -142,6 +142,11 @@ let rolePermissionRows = [];
 let permissionsLoaded = false;
 let activityRecords = [];
 let activityLoaded = false;
+let selectedBackupPayload = null;
+let backupHistoryRecords = [];
+let backupHistoryLoaded = false;
+let systemSettingsLoaded = false;
+
 
 let editingId = null;
 let editingFollowupId = null;
@@ -481,6 +486,13 @@ function switchView(name) {
   }
   if (name === "activityLog") {
     loadActivity();
+  }
+
+  if (name === "backups") {
+    loadBackupHistory();
+  }
+  if (name === "systemSettings") {
+    loadSystemSettings();
   }
 
   document.getElementById("pageTitle").textContent = pageMeta[name][0];
@@ -982,6 +994,259 @@ function renderActivity() {
     return (!search || text.includes(search)) && (!action || item.action === action);
   });
   body.innerHTML = rows.length ? rows.map(item => `<tr><td>${escapeHtml(item.user?.full_name || item.user?.email || "مستخدم محذوف")}</td><td><span class="badge">${escapeHtml(item.action)}</span></td><td>${escapeHtml(item.entity_type)}</td><td class="activity-details">${escapeHtml(JSON.stringify(item.new_data || {}))}</td><td>${new Date(item.created_at).toLocaleString("ar-SA")}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-state">لا توجد عمليات مطابقة.</td></tr>`;
+}
+
+function canManageBackupAndSettings() {
+  return currentRole() === "super_admin";
+}
+
+function downloadJsonFile(fileName, payload) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8"
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function backupOperationLabel(value) {
+  return value === "export" ? "تصدير" : value === "restore" ? "استعادة" : value;
+}
+
+async function exportBackup() {
+  if (!canManageBackupAndSettings()) {
+    alert("النسخ الاحتياطي متاح لمدير النظام فقط.");
+    return;
+  }
+
+  const buttons = [
+    document.getElementById("createBackupBtn"),
+    document.getElementById("downloadBackupBtn")
+  ].filter(Boolean);
+
+  buttons.forEach(button => {
+    button.disabled = true;
+    button.textContent = "جاري تجهيز النسخة...";
+  });
+
+  showDataStatus("backupStatus", "جاري تجميع بيانات النظام...", "info");
+
+  try {
+    const result = await window.BackupService.createBackup();
+    downloadJsonFile(result.file_name, result.backup);
+    showDataStatus(
+      "backupStatus",
+      `تم إنشاء النسخة وتنزيلها بنجاح — ${result.total_records} سجل.`,
+      "success"
+    );
+    backupHistoryLoaded = false;
+    await loadBackupHistory(true);
+  } catch (error) {
+    showDataStatus("backupStatus", error.message || "تعذر إنشاء النسخة.", "error");
+  } finally {
+    buttons.forEach((button, index) => {
+      button.disabled = false;
+      button.textContent = index === 0 ? "إنشاء نسخة احتياطية" : "تصدير وتنزيل";
+    });
+  }
+}
+
+async function inspectBackupFile(file) {
+  selectedBackupPayload = null;
+  document.getElementById("restoreBackupBtn").disabled = true;
+
+  if (!file) {
+    document.getElementById("backupInspectionPanel").classList.add("hidden");
+    return;
+  }
+
+  showDataStatus("backupStatus", "جاري قراءة وفحص ملف النسخة...", "info");
+
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const result = await window.BackupService.validateBackup(payload);
+
+    selectedBackupPayload = payload;
+    document.getElementById("restoreBackupBtn").disabled = !canManageBackupAndSettings();
+    document.getElementById("backupInspectionPanel").classList.remove("hidden");
+    document.getElementById("backupInspectionSummary").textContent =
+      `الملف صالح — الإصدار ${result.version} — إجمالي ${result.total_records} سجل.`;
+
+    document.getElementById("backupTableCounts").innerHTML =
+      Object.entries(result.table_counts)
+        .map(([table, count]) => `
+          <article><span>${escapeHtml(table)}</span><strong>${count}</strong></article>
+        `).join("");
+
+    showDataStatus("backupStatus", "تم التحقق من ملف النسخة بنجاح.", "success");
+  } catch (error) {
+    document.getElementById("backupInspectionPanel").classList.add("hidden");
+    showDataStatus("backupStatus", error.message || "ملف النسخة غير صالح.", "error");
+  }
+}
+
+async function restoreSelectedBackup() {
+  if (!selectedBackupPayload) {
+    alert("اختر ملف نسخة احتياطية صالحًا أولًا.");
+    return;
+  }
+
+  const phrase = prompt('اكتب العبارة التالية للتأكيد:\nRESTORE KYUM DATA');
+  if (phrase !== "RESTORE KYUM DATA") {
+    alert("لم يتم تنفيذ الاستعادة لأن عبارة التأكيد غير مطابقة.");
+    return;
+  }
+
+  if (!confirm("سيتم استبدال البيانات التشغيلية الحالية ببيانات النسخة. هل تريد المتابعة؟")) {
+    return;
+  }
+
+  const button = document.getElementById("restoreBackupBtn");
+  button.disabled = true;
+  button.textContent = "جاري الاستعادة...";
+  showDataStatus("backupStatus", "جاري استعادة البيانات. لا تغلق الصفحة...", "info");
+
+  try {
+    const result = await window.BackupService.restoreBackup(
+      selectedBackupPayload,
+      phrase
+    );
+
+    showDataStatus(
+      "backupStatus",
+      `تمت الاستعادة بنجاح — ${result.total_records} سجل.`,
+      "success"
+    );
+
+    customersLoaded = false;
+    followupsLoaded = false;
+    quotationsLoaded = false;
+    referenceDataLoaded = false;
+    usersLoaded = false;
+    backupHistoryLoaded = false;
+
+    await loadReferenceDataFromSupabase(true);
+    await loadCustomersFromSupabase(true);
+    await loadFollowupsFromSupabase(true);
+    await loadQuotationsFromSupabase(true);
+    await loadUsersFromSupabase(true);
+    await loadBackupHistory(true);
+  } catch (error) {
+    showDataStatus("backupStatus", error.message || "فشلت استعادة النسخة.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "استعادة النسخة";
+  }
+}
+
+async function loadBackupHistory(force = false) {
+  if (backupHistoryLoaded && !force) return;
+  if (!window.BackupService) return;
+
+  try {
+    backupHistoryRecords = await window.BackupService.listHistory();
+    backupHistoryLoaded = true;
+    renderBackupHistory();
+  } catch (error) {
+    showDataStatus("backupStatus", error.message || "تعذر تحميل سجل النسخ.", "error");
+  }
+}
+
+function renderBackupHistory() {
+  const body = document.getElementById("backupHistoryBody");
+  if (!body) return;
+
+  body.innerHTML = backupHistoryRecords.length
+    ? backupHistoryRecords.map(item => `
+      <tr>
+        <td><span class="badge">${escapeHtml(backupOperationLabel(item.operation_type))}</span></td>
+        <td>${escapeHtml(item.file_name || "—")}</td>
+        <td>${Number(item.total_records || 0)}</td>
+        <td>${escapeHtml(item.user?.full_name || item.user?.email || "—")}</td>
+        <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(item.status)}</span></td>
+        <td>${new Date(item.created_at).toLocaleString("ar-SA")}</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="6" class="empty-state">لا توجد عمليات نسخ أو استعادة مسجلة.</td></tr>`;
+}
+
+async function loadSystemSettings(force = false) {
+  if (systemSettingsLoaded && !force) return;
+  if (!window.SystemSettingsService) return;
+
+  showDataStatus("systemSettingsStatus", "جاري تحميل الإعدادات...", "info");
+
+  try {
+    const settings = await window.SystemSettingsService.loadSettings();
+
+    document.getElementById("companyNameAr").value = settings.company_name_ar || "شركة كيوم للتجارة";
+    document.getElementById("companyNameEn").value = settings.company_name_en || "KYUM Company";
+    document.getElementById("companyEmail").value = settings.company_email || "";
+    document.getElementById("companyPhone").value = settings.company_phone || "";
+    document.getElementById("companyAddress").value = settings.company_address || "";
+    document.getElementById("systemCurrency").value = settings.currency || "SAR";
+    document.getElementById("systemTimezone").value = settings.timezone || "Asia/Riyadh";
+    document.getElementById("systemPageSize").value = settings.page_size || "10";
+    document.getElementById("systemSessionTimeout").value =
+      settings.session_timeout_minutes || "480";
+
+    systemSettingsLoaded = true;
+    showDataStatus("systemSettingsStatus", "");
+  } catch (error) {
+    showDataStatus(
+      "systemSettingsStatus",
+      error.message || "تعذر تحميل إعدادات النظام.",
+      "error"
+    );
+  }
+}
+
+async function saveSystemSettings(event) {
+  event?.preventDefault();
+
+  if (!canManageBackupAndSettings()) {
+    alert("تعديل إعدادات النظام متاح لمدير النظام فقط.");
+    return;
+  }
+
+  const button = document.getElementById("saveSystemSettingsBtn");
+  button.disabled = true;
+  button.textContent = "جاري الحفظ...";
+
+  try {
+    const settings = {
+      company_name_ar: document.getElementById("companyNameAr").value.trim(),
+      company_name_en: document.getElementById("companyNameEn").value.trim(),
+      company_email: document.getElementById("companyEmail").value.trim(),
+      company_phone: document.getElementById("companyPhone").value.trim(),
+      company_address: document.getElementById("companyAddress").value.trim(),
+      currency: document.getElementById("systemCurrency").value,
+      timezone: document.getElementById("systemTimezone").value,
+      page_size: document.getElementById("systemPageSize").value,
+      session_timeout_minutes: document.getElementById("systemSessionTimeout").value
+    };
+
+    await window.SystemSettingsService.saveSettings(settings);
+    showDataStatus("systemSettingsStatus", "تم حفظ إعدادات النظام بنجاح.", "success");
+
+    const brand = document.querySelector(".sidebar-brand strong");
+    if (brand && settings.company_name_en) brand.textContent = settings.company_name_en;
+  } catch (error) {
+    showDataStatus(
+      "systemSettingsStatus",
+      error.message || "تعذر حفظ إعدادات النظام.",
+      "error"
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = "حفظ الإعدادات";
+  }
 }
 
 function canManageCustomers() {
@@ -2195,5 +2460,16 @@ document.getElementById("refreshActivityBtn")?.addEventListener("click", () => l
   document.getElementById(id)?.addEventListener("input", renderActivity);
   document.getElementById(id)?.addEventListener("change", renderActivity);
 });
+
+
+document.getElementById("createBackupBtn")?.addEventListener("click", exportBackup);
+document.getElementById("downloadBackupBtn")?.addEventListener("click", exportBackup);
+document.getElementById("backupFileInput")?.addEventListener("change", event => {
+  inspectBackupFile(event.target.files?.[0] || null);
+});
+document.getElementById("restoreBackupBtn")?.addEventListener("click", restoreSelectedBackup);
+document.getElementById("refreshBackupHistoryBtn")?.addEventListener("click", () => loadBackupHistory(true));
+document.getElementById("saveSystemSettingsBtn")?.addEventListener("click", saveSystemSettings);
+document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSystemSettings);
 
 setOptions();

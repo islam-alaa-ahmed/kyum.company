@@ -1,10 +1,25 @@
-# KYUM Phase 11 Enum Hotfix
+# KYUM Phase 12 — Backup Center & System Settings
 
-## Root Cause
-PostgreSQL does not allow a newly-added enum value to be used before the
-transaction that created it is committed.
+## Modified/New Files
 
-## Fix
-- Add `sales_supervisor` and `customer_service`.
-- Commit the enum changes.
-- Start a new transaction for the remaining Phase 11 migration.
+- `index.html`
+- `assets/css/style.css`
+- `assets/js/app.js`
+- `assets/js/permissions.js`
+- `assets/js/backup-service.js`
+- `assets/js/system-settings-service.js`
+- `supabase/migrations/phase12_backup_system_settings.sql`
+- `supabase/functions/backup-admin/index.ts`
+- `PHASE12_SETUP.md`
+
+## Implemented
+
+- Full JSON backup export for operational and configuration tables.
+- Backup file validation before restore.
+- Super-Admin-only restore with typed confirmation phrase.
+- Backup and restore operation history.
+- Company identity settings.
+- Currency, timezone, page size and session timeout settings.
+- Database RLS for backup history and system settings.
+- Secure server-side backup operations through a Supabase Edge Function.
+- No Service Role key is exposed in GitHub Pages.
