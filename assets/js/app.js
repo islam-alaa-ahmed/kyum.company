@@ -1195,18 +1195,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-document.getElementById("loginForm").addEventListener("submit", event => {
-  event.preventDefault();
-  document.getElementById("loginView").classList.add("hidden");
-  document.getElementById("appView").classList.remove("hidden");
-  renderDashboard();
-});
-
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  document.getElementById("appView").classList.add("hidden");
-  document.getElementById("loginView").classList.remove("hidden");
-});
-
 document.querySelectorAll(".nav-item").forEach(button => {
   button.addEventListener("click", () => switchView(button.dataset.view));
 });
