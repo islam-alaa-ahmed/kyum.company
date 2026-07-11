@@ -290,3 +290,11 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .table-pagination{align-items:stretch;flex-direction:column}
   .table-pagination>div{justify-content:space-between}
 }
+
+
+#followupsPageNumber{
+  min-width:58px;
+  text-align:center;
+  font-weight:700;
+  color:var(--text)
+}
