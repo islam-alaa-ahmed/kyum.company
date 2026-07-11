@@ -306,3 +306,18 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   font-weight:700;
   color:var(--text)
 }
+
+.users-filters{grid-template-columns:2fr 1fr 1fr}
+.permissions-role-bar{display:flex;justify-content:flex-start;margin-bottom:16px}
+.permissions-role-bar label{min-width:280px}
+.permissions-matrix{display:grid;gap:18px}
+.permission-group{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.permission-group h4{margin:0 0 12px}
+.permission-table{display:grid;gap:4px}
+.permission-row{display:grid;grid-template-columns:minmax(180px,2fr) repeat(5,minmax(55px,.6fr));align-items:center;gap:8px;padding:10px;border-radius:10px}
+.permission-row:nth-child(even){background:var(--surface-2)}
+.permission-header{font-size:12px;color:var(--muted);font-weight:700}
+.permission-row input[type="checkbox"]{width:18px;height:18px;margin:auto;accent-color:var(--primary)}
+.activity-details{max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;font-size:11px}
+#userDialog{max-width:760px}
+@media(max-width:800px){.users-filters{grid-template-columns:1fr}.permission-table{overflow-x:auto}.permission-row{min-width:680px}}

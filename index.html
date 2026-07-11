@@ -411,29 +411,60 @@
       </section>
 
       <section id="usersView" class="view-section hidden">
-        <div class="module-placeholder">
-          <div class="module-placeholder-icon">U</div>
-          <h3>إدارة المستخدمين</h3>
-          <p>إضافة المستخدمين، تفعيل الحسابات، وربط المستخدم بمندوب المبيعات.</p>
-          <span>سيتم تنفيذ الوظائف الكاملة في مرحلة مستقلة.</span>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">إدارة المستخدمين</h3>
+            <p class="section-note">إدارة حسابات الدخول والأدوار وربط المستخدم بمندوب المبيعات.</p>
+          </div>
+          <button id="addUserBtn" class="primary-btn users-manage-action">إضافة مستخدم</button>
+        </div>
+        <div class="filters-grid users-filters">
+          <label>بحث<input id="usersSearch" type="search" placeholder="الاسم أو البريد"></label>
+          <label>الدور<select id="usersRoleFilter"><option value="">كل الأدوار</option></select></label>
+          <label>الحالة<select id="usersStatusFilter"><option value="">كل الحالات</option><option value="active">نشط</option><option value="inactive">غير نشط</option></select></label>
+        </div>
+        <div id="usersStatus" class="data-status hidden"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>المندوب المرتبط</th><th>الحالة</th><th>آخر دخول</th><th>الإجراءات</th></tr></thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
         </div>
       </section>
 
       <section id="permissionsView" class="view-section hidden">
-        <div class="module-placeholder">
-          <div class="module-placeholder-icon">P</div>
-          <h3>إدارة الصلاحيات</h3>
-          <p>تحديد الشاشات والعمليات المسموحة لكل دور ومستخدم.</p>
-          <span>سيتم تنفيذ محرك الصلاحيات الكامل في مرحلة مستقلة.</span>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">إدارة الصلاحيات</h3>
+            <p class="section-note">صلاحيات العرض والإضافة والتعديل والحذف والتصدير لكل دور.</p>
+          </div>
+          <button id="savePermissionsBtn" class="primary-btn permissions-manage-action">حفظ الصلاحيات</button>
         </div>
+        <div class="permissions-role-bar">
+          <label>اختر الدور<select id="permissionsRoleSelect"></select></label>
+        </div>
+        <div id="permissionsStatus" class="data-status hidden"></div>
+        <div id="permissionsMatrix" class="permissions-matrix"></div>
       </section>
 
       <section id="activityLogView" class="view-section hidden">
-        <div class="module-placeholder">
-          <div class="module-placeholder-icon">A</div>
-          <h3>سجل النشاط</h3>
-          <p>عرض عمليات الإضافة والتعديل والحذف وتغييرات الصلاحيات.</p>
-          <span>الجدول موجود في قاعدة البيانات وسيتم ربط الشاشة لاحقًا.</span>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">سجل النشاط</h3>
+            <p class="section-note">العمليات التي تمت داخل النظام مع المستخدم والتاريخ.</p>
+          </div>
+          <button id="refreshActivityBtn" class="secondary-btn">تحديث</button>
+        </div>
+        <div class="filters-grid">
+          <label>بحث<input id="activitySearch" type="search" placeholder="المستخدم أو العملية"></label>
+          <label>نوع العملية<select id="activityActionFilter"><option value="">كل العمليات</option><option value="insert">إضافة</option><option value="update">تعديل</option><option value="delete">حذف</option><option value="login">دخول</option><option value="logout">خروج</option></select></label>
+        </div>
+        <div id="activityStatus" class="data-status hidden"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>المستخدم</th><th>العملية</th><th>القسم</th><th>التفاصيل</th><th>التاريخ والوقت</th></tr></thead>
+            <tbody id="activityTableBody"></tbody>
+          </table>
         </div>
       </section>
 
@@ -790,6 +821,30 @@
     </form>
   </dialog>
 
+
+  <dialog id="userDialog">
+    <form id="userForm" method="dialog">
+      <div class="dialog-header">
+        <div><h3 id="userDialogTitle">إضافة مستخدم</h3><p>إنشاء حساب Supabase Auth وربطه بملف المستخدم.</p></div>
+        <button id="closeUserDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <input id="userProfileId" type="hidden">
+      <div class="form-grid">
+        <label>الاسم الكامل<input id="userFullName" required maxlength="150"></label>
+        <label>البريد الإلكتروني<input id="userEmail" type="email" required maxlength="200"></label>
+        <label id="userPasswordLabel">كلمة المرور المؤقتة<input id="userPassword" type="password" minlength="8" autocomplete="new-password"></label>
+        <label>الدور<select id="userRole" required></select></label>
+        <label>مندوب المبيعات المرتبط<select id="userRepresentative"><option value="">بدون ربط</option></select></label>
+        <label>حالة الحساب<select id="userActive"><option value="true">نشط</option><option value="false">غير نشط</option></select></label>
+        <label>تغيير كلمة المرور عند أول دخول<select id="userMustChangePassword"><option value="true">نعم</option><option value="false">لا</option></select></label>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelUserDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ المستخدم</button>
+      </div>
+    </form>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
@@ -799,6 +854,9 @@
   <script src="assets/js/customers-service.js"></script>
   <script src="assets/js/followups-service.js"></script>
   <script src="assets/js/quotations-service.js"></script>
+  <script src="assets/js/users-service.js"></script>
+  <script src="assets/js/permissions-service.js"></script>
+  <script src="assets/js/activity-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

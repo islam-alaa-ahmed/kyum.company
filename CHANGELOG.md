@@ -1,36 +1,24 @@
-# KYUM Phase 10 — Quotations Supabase
+# KYUM Phase 11 — Users & Permissions Enterprise
 
 ## Modified/New Files
-
-- `index.html`
-- `assets/css/style.css`
-- `assets/js/app.js`
-- `assets/js/permissions.js`
-- `assets/js/quotations-service.js`
-- `supabase/migrations/phase10_quotations_audit.sql`
+- index.html
+- assets/css/style.css
+- assets/js/app.js
+- assets/js/auth-session.js
+- assets/js/permissions.js
+- assets/js/users-service.js
+- assets/js/permissions-service.js
+- assets/js/activity-service.js
+- supabase/migrations/phase11_users_permissions.sql
+- supabase/functions/manage-user/index.ts
+- PHASE11_SETUP.md
 
 ## Implemented
-
-- Supabase is now the only production source for quotations.
-- Live quotation loading under existing RLS policies.
-- Add, edit and delete quotations.
-- Unique quotation-number validation in the UI and database.
-- UUID relationships for customer, representative and rejection reason.
-- Quotation statuses and accepted/rejected value calculations.
-- Conversion-rate calculation from live quotation data.
-- Search, status filter, representative filter and pagination.
-- Automatic update of the customer's latest quotation number.
-- Automatic rejected-reason update when a quotation is rejected.
-- Recalculation of the customer's latest quotation after deletion.
-- Role-aware quotation controls.
-- Quotation audit logging.
-- Customer profile quotation history now uses Supabase data.
-- Dashboard quotation indicators now use Supabase data.
-
-## Core Data Status
-
-The three core operational modules now use Supabase as their production source:
-
-- Customers
-- Follow-ups
-- Quotations
+- Secure user creation through a Supabase Edge Function.
+- User role, status and representative assignment management.
+- Temporary password reset.
+- Sales Supervisor and Customer Service roles.
+- Dynamic screen-permission matrix.
+- View/Add/Edit/Delete/Export permissions.
+- Database-driven sidebar visibility.
+- Live activity-log screen.

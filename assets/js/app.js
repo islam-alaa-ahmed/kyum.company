@@ -133,6 +133,16 @@ let quotationsLoaded = false;
 let quotationsLoading = false;
 let quotationsPage = 1;
 const QUOTATIONS_PAGE_SIZE = 10;
+let userRecords = [];
+let usersLoaded = false;
+let usersLoading = false;
+let editingUserId = null;
+let permissionScreens = [];
+let rolePermissionRows = [];
+let permissionsLoaded = false;
+let activityRecords = [];
+let activityLoaded = false;
+
 let editingId = null;
 let editingFollowupId = null;
 let editingQuotationId = null;
@@ -460,6 +470,19 @@ function switchView(name) {
     localStorage.setItem(`kyum-nav-group-${activeGroup.dataset.navGroup}`, "open");
   }
 
+  if (name === "users") {
+    populateSecurityOptions();
+    loadUsersFromSupabase();
+    renderUsers();
+  }
+  if (name === "permissions") {
+    populateSecurityOptions();
+    loadPermissionsMatrix();
+  }
+  if (name === "activityLog") {
+    loadActivity();
+  }
+
   document.getElementById("pageTitle").textContent = pageMeta[name][0];
   document.getElementById("pageSubtitle").textContent = pageMeta[name][1];
 
@@ -758,6 +781,207 @@ function renderActivityTrend(data) {
           <span class="trend-day-label">${formatDate(date)}</span>
         </div>`).join("")}
     </div>`;
+}
+
+function roleLabel(role) {
+  return window.CustomerPermissions?.roleLabels?.[role] || role;
+}
+
+function populateSecurityOptions() {
+  const roles = (window.CustomerPermissions?.roleOptions || []).map(role => ({ label: roleLabel(role), value: role }));
+  replaceSelectOptions(document.getElementById("userRole"), roles);
+  replaceSelectOptions(document.getElementById("usersRoleFilter"), roles, "كل الأدوار", document.getElementById("usersRoleFilter")?.value || "");
+  replaceSelectOptions(document.getElementById("permissionsRoleSelect"), roles, null, document.getElementById("permissionsRoleSelect")?.value || "sales_manager");
+  replaceSelectOptions(
+    document.getElementById("userRepresentative"),
+    representativeRecords.map(rep => ({ label: rep.full_name, value: rep.id })),
+    "بدون ربط",
+    document.getElementById("userRepresentative")?.value || ""
+  );
+}
+
+async function loadUsersFromSupabase(force = false) {
+  if (usersLoading || (usersLoaded && !force) || !window.UsersService) return;
+  usersLoading = true;
+  showDataStatus("usersStatus", "جاري تحميل المستخدمين...", "info");
+  try {
+    userRecords = await window.UsersService.listUsers();
+    usersLoaded = true;
+    showDataStatus("usersStatus", "");
+    renderUsers();
+  } catch (error) {
+    showDataStatus("usersStatus", error.message || "تعذر تحميل المستخدمين.", "error");
+  } finally {
+    usersLoading = false;
+  }
+}
+
+function renderUsers() {
+  const body = document.getElementById("usersTableBody");
+  if (!body) return;
+  const search = (document.getElementById("usersSearch")?.value || "").trim().toLowerCase();
+  const role = document.getElementById("usersRoleFilter")?.value || "";
+  const status = document.getElementById("usersStatusFilter")?.value || "";
+  const rows = userRecords.filter(user => {
+    const matchesText = !search || `${user.full_name || ""} ${user.email || ""}`.toLowerCase().includes(search);
+    const matchesRole = !role || user.role === role;
+    const matchesStatus = !status || (status === "active" ? user.is_active : !user.is_active);
+    return matchesText && matchesRole && matchesStatus;
+  });
+
+  body.innerHTML = rows.length ? rows.map(user => `
+    <tr>
+      <td><strong>${escapeHtml(user.full_name || "بدون اسم")}</strong></td>
+      <td>${escapeHtml(user.email || "—")}</td>
+      <td><span class="badge">${escapeHtml(roleLabel(user.role))}</span></td>
+      <td>${escapeHtml(user.representative?.full_name || "—")}</td>
+      <td><span class="record-status ${user.is_active ? "active" : "inactive"}">${user.is_active ? "نشط" : "غير نشط"}</span></td>
+      <td>${user.last_login_at ? new Date(user.last_login_at).toLocaleString("ar-SA") : "لم يسجل الدخول"}</td>
+      <td><div class="row-actions"><button class="edit-btn" data-edit-user="${user.id}">تعديل</button><button class="secondary-btn compact-btn" data-reset-password="${user.id}">كلمة مرور مؤقتة</button></div></td>
+    </tr>`).join("") : `<tr><td colspan="7" class="empty-state">لا توجد نتائج.</td></tr>`;
+}
+
+function openUserDialog(user = null) {
+  editingUserId = user?.id || null;
+  document.getElementById("userDialogTitle").textContent = user ? "تعديل المستخدم" : "إضافة مستخدم";
+  document.getElementById("userFullName").value = user?.full_name || "";
+  document.getElementById("userEmail").value = user?.email || "";
+  document.getElementById("userEmail").disabled = Boolean(user);
+  document.getElementById("userPassword").value = "";
+  document.getElementById("userPassword").required = !user;
+  document.getElementById("userPasswordLabel").classList.toggle("hidden", Boolean(user));
+  document.getElementById("userRole").value = user?.role || "viewer";
+  document.getElementById("userRepresentative").value = user?.representative_id || "";
+  document.getElementById("userActive").value = String(user?.is_active ?? true);
+  document.getElementById("userMustChangePassword").value = String(user?.must_change_password ?? true);
+  document.getElementById("userDialog").showModal();
+}
+
+function closeUserDialog() {
+  document.getElementById("userDialog").close();
+  document.getElementById("userForm").reset();
+  document.getElementById("userEmail").disabled = false;
+  editingUserId = null;
+}
+
+async function saveUserForm(event) {
+  event.preventDefault();
+  const button = event.submitter;
+  try {
+    if (button) { button.disabled = true; button.textContent = "جاري الحفظ..."; }
+    const payload = {
+      id: editingUserId,
+      fullName: document.getElementById("userFullName").value,
+      email: document.getElementById("userEmail").value,
+      password: document.getElementById("userPassword").value,
+      role: document.getElementById("userRole").value,
+      representativeId: document.getElementById("userRepresentative").value || null,
+      isActive: document.getElementById("userActive").value === "true",
+      mustChangePassword: document.getElementById("userMustChangePassword").value === "true"
+    };
+    if (editingUserId) await window.UsersService.updateUser(payload);
+    else await window.UsersService.createUser(payload);
+    closeUserDialog();
+    usersLoaded = false;
+    await loadUsersFromSupabase(true);
+  } catch (error) {
+    alert(error.message || "تعذر حفظ المستخدم.");
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "حفظ المستخدم"; }
+  }
+}
+
+async function resetUserPassword(userId) {
+  const password = prompt("أدخل كلمة مرور مؤقتة من 8 أحرف على الأقل:");
+  if (!password) return;
+  if (password.length < 8) return alert("كلمة المرور قصيرة.");
+  try {
+    await window.UsersService.resetPassword(userId, password);
+    alert("تم تحديث كلمة المرور المؤقتة.");
+  } catch (error) {
+    alert(error.message || "تعذر إعادة تعيين كلمة المرور.");
+  }
+}
+
+async function loadPermissionsMatrix(force = false) {
+  if (permissionsLoaded && !force) return;
+  showDataStatus("permissionsStatus", "جاري تحميل الصلاحيات...", "info");
+  try {
+    permissionScreens = await window.PermissionsService.listScreens();
+    permissionsLoaded = true;
+    await loadRolePermissions(document.getElementById("permissionsRoleSelect")?.value || "sales_manager");
+    showDataStatus("permissionsStatus", "");
+  } catch (error) {
+    showDataStatus("permissionsStatus", error.message || "تعذر تحميل الصلاحيات.", "error");
+  }
+}
+
+async function loadRolePermissions(role) {
+  rolePermissionRows = await window.PermissionsService.getRolePermissions(role);
+  renderPermissionsMatrix(role);
+}
+
+function renderPermissionsMatrix(role) {
+  const container = document.getElementById("permissionsMatrix");
+  if (!container) return;
+  const map = new Map(rolePermissionRows.map(row => [row.screen_key, row]));
+  const groups = [...new Set(permissionScreens.map(screen => screen.group_name))];
+  container.innerHTML = groups.map(group => `
+    <section class="permission-group"><h4>${escapeHtml(group)}</h4><div class="permission-table">
+      <div class="permission-row permission-header"><strong>الشاشة</strong><span>عرض</span><span>إضافة</span><span>تعديل</span><span>حذف</span><span>تصدير</span></div>
+      ${permissionScreens.filter(screen => screen.group_name === group).map(screen => {
+        const row = map.get(screen.screen_key) || {};
+        return `<div class="permission-row" data-screen-key="${screen.screen_key}"><strong>${escapeHtml(screen.screen_name)}</strong>${
+          ["can_view","can_add","can_edit","can_delete","can_export"].map(key =>
+            `<input type="checkbox" data-permission="${key}" ${(role === "super_admin" || row[key]) ? "checked" : ""} ${role === "super_admin" ? "disabled" : ""}>`
+          ).join("")
+        }</div>`;
+      }).join("")}
+    </div></section>`).join("");
+}
+
+async function savePermissions() {
+  const role = document.getElementById("permissionsRoleSelect").value;
+  if (role === "super_admin") return alert("مدير النظام يمتلك كل الصلاحيات تلقائيًا.");
+  const rows = [...document.querySelectorAll(".permission-row[data-screen-key]")].map(row => ({
+    screenKey: row.dataset.screenKey,
+    canView: row.querySelector('[data-permission="can_view"]').checked,
+    canAdd: row.querySelector('[data-permission="can_add"]').checked,
+    canEdit: row.querySelector('[data-permission="can_edit"]').checked,
+    canDelete: row.querySelector('[data-permission="can_delete"]').checked,
+    canExport: row.querySelector('[data-permission="can_export"]').checked
+  }));
+  try {
+    await window.PermissionsService.saveRolePermissions(role, rows);
+    showDataStatus("permissionsStatus", "تم حفظ الصلاحيات بنجاح.", "success");
+  } catch (error) {
+    showDataStatus("permissionsStatus", error.message || "تعذر حفظ الصلاحيات.", "error");
+  }
+}
+
+async function loadActivity(force = false) {
+  if (activityLoaded && !force) return;
+  showDataStatus("activityStatus", "جاري تحميل سجل النشاط...", "info");
+  try {
+    activityRecords = await window.ActivityService.listActivity();
+    activityLoaded = true;
+    showDataStatus("activityStatus", "");
+    renderActivity();
+  } catch (error) {
+    showDataStatus("activityStatus", error.message || "تعذر تحميل سجل النشاط.", "error");
+  }
+}
+
+function renderActivity() {
+  const body = document.getElementById("activityTableBody");
+  if (!body) return;
+  const search = (document.getElementById("activitySearch")?.value || "").toLowerCase();
+  const action = document.getElementById("activityActionFilter")?.value || "";
+  const rows = activityRecords.filter(item => {
+    const text = `${item.user?.full_name || ""} ${item.user?.email || ""} ${item.action} ${item.entity_type} ${JSON.stringify(item.new_data || {})}`.toLowerCase();
+    return (!search || text.includes(search)) && (!action || item.action === action);
+  });
+  body.innerHTML = rows.length ? rows.map(item => `<tr><td>${escapeHtml(item.user?.full_name || item.user?.email || "مستخدم محذوف")}</td><td><span class="badge">${escapeHtml(item.action)}</span></td><td>${escapeHtml(item.entity_type)}</td><td class="activity-details">${escapeHtml(JSON.stringify(item.new_data || {}))}</td><td>${new Date(item.created_at).toLocaleString("ar-SA")}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-state">لا توجد عمليات مطابقة.</td></tr>`;
 }
 
 function canManageCustomers() {
@@ -1885,6 +2109,7 @@ window.addEventListener("customer-auth-ready", async () => {
   await loadCustomersFromSupabase(true);
   await loadFollowupsFromSupabase(true);
   await loadQuotationsFromSupabase(true);
+  populateSecurityOptions();
   renderDashboard();
 });
 
@@ -1938,6 +2163,37 @@ document.getElementById("quotationsNextPage")?.addEventListener("click", () => {
     quotationsPage += 1;
     renderQuotations();
   }
+});
+
+
+document.getElementById("addUserBtn")?.addEventListener("click", () => openUserDialog());
+document.getElementById("closeUserDialogBtn")?.addEventListener("click", closeUserDialog);
+document.getElementById("cancelUserDialogBtn")?.addEventListener("click", closeUserDialog);
+document.getElementById("userForm")?.addEventListener("submit", saveUserForm);
+
+document.getElementById("usersTableBody")?.addEventListener("click", event => {
+  const editId = event.target.dataset.editUser;
+  const resetId = event.target.dataset.resetPassword;
+  if (editId) {
+    const user = userRecords.find(item => item.id === editId);
+    if (user) openUserDialog(user);
+  }
+  if (resetId) resetUserPassword(resetId);
+});
+
+["usersSearch","usersRoleFilter","usersStatusFilter"].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", renderUsers);
+  document.getElementById(id)?.addEventListener("change", renderUsers);
+});
+
+document.getElementById("permissionsRoleSelect")?.addEventListener("change", event => {
+  loadRolePermissions(event.target.value).catch(error => showDataStatus("permissionsStatus", error.message, "error"));
+});
+document.getElementById("savePermissionsBtn")?.addEventListener("click", savePermissions);
+document.getElementById("refreshActivityBtn")?.addEventListener("click", () => loadActivity(true));
+["activitySearch","activityActionFilter"].forEach(id => {
+  document.getElementById(id)?.addEventListener("input", renderActivity);
+  document.getElementById(id)?.addEventListener("change", renderActivity);
 });
 
 setOptions();
