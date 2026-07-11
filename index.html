@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>نظام إدارة ومتابعة العملاء</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <section id="loginView" class="login-shell">
+    <div class="login-card">
+      <div class="brand-mark">CRM</div>
+      <h1>نظام إدارة ومتابعة العملاء</h1>
+      <p>Customer Management v1.0</p>
+      <form id="loginForm">
+        <label>
+          البريد الإلكتروني
+          <input id="loginEmail" type="email" value="admin@company.com" required>
+        </label>
+        <label>
+          كلمة المرور
+          <input id="loginPassword" type="password" value="admin123" required>
+        </label>
+        <button class="primary-btn" type="submit">تسجيل الدخول</button>
+        <small>نسخة المرحلة الأولى تعمل محليًا للتجربة. بيانات الدخول الافتراضية ظاهرة داخل الحقول.</small>
+      </form>
+    </div>
+  </section>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark small">CRM</div>
+        <div>
+          <strong>إدارة العملاء</strong>
+          <span>Phase 1</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard">لوحة التحكم</button>
+        <button class="nav-item" data-view="customers">العملاء</button>
+        <button class="nav-item" data-view="followups">المتابعات</button>
+        <button class="nav-item" data-view="quotations">عروض الأسعار</button>
+        <button class="nav-item" data-view="representatives">المندوبون</button>
+        <button class="nav-item" data-view="settings">الإعدادات</button>
+      </nav>
+      <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">لوحة التحكم</h2>
+          <p id="pageSubtitle">ملخص بيانات العملاء والمتابعة</p>
+        </div>
+        <div class="user-chip">
+          <span class="avatar">أ</span>
+          <div>
+            <strong>مدير النظام</strong>
+            <small>admin@company.com</small>
+          </div>
+        </div>
+      </header>
+
+      
+      <section id="dashboardView" class="view-section">
+        <div class="dashboard-filter-bar">
+          <div>
+            <h3 class="section-title">لوحة التحليل والمتابعة</h3>
+            <p class="section-note">استخدم الفلاتر لتحديث جميع المؤشرات والتحليلات في نفس الوقت.</p>
+          </div>
+          <div class="dashboard-filters">
+            <select id="dashboardRepFilter">
+              <option value="">كل المندوبين</option>
+            </select>
+            <select id="dashboardTypeFilter">
+              <option value="">كل أنواع العملاء</option>
+              <option value="شركة">شركة</option>
+              <option value="فردي">فردي</option>
+            </select>
+            <select id="dashboardInterestFilter">
+              <option value="">كل مجالات الاهتمام</option>
+            </select>
+            <input id="dashboardDateFrom" type="date" aria-label="من تاريخ">
+            <input id="dashboardDateTo" type="date" aria-label="إلى تاريخ">
+            <button id="resetDashboardFilters" class="secondary-btn">إعادة تعيين</button>
+          </div>
+        </div>
+
+        <div id="dashboardPeriodLabel" class="period-label"></div>
+        <div id="statsGrid" class="stats-grid dashboard-stats"></div>
+
+        <div class="analytics-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>أداء المندوبين</h3>
+                <p>العملاء، المتابعات، العروض، ونسبة التحويل</p>
+              </div>
+            </div>
+            <div id="representativePerformance" class="performance-list"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>مجالات الاهتمام الأكثر طلبًا</h3>
+                <p>توزيع العملاء حسب النشاط المطلوب</p>
+              </div>
+            </div>
+            <div id="interestAnalytics" class="bar-chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>حالات عروض الأسعار</h3>
+                <p>توزيع العروض حسب الحالة الحالية</p>
+              </div>
+            </div>
+            <div id="quotationStatusAnalytics" class="bar-chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>أسباب عدم البيع</h3>
+                <p>الأسباب الأكثر تكرارًا داخل الفترة</p>
+              </div>
+            </div>
+            <div id="noSaleReasonAnalytics" class="bar-chart"></div>
+          </article>
+
+          <article class="panel full-span-panel">
+            <div class="panel-header">
+              <div>
+                <h3>اتجاه النشاط خلال الفترة</h3>
+                <p>العملاء الجدد، المتابعات، وعروض الأسعار حسب التاريخ</p>
+              </div>
+            </div>
+            <div id="activityTrend" class="trend-chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <h3>أحدث العملاء</h3>
+              <button class="text-btn" data-open-customers>عرض الكل</button>
+            </div>
+            <div id="recentCustomers"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <h3>المتابعات التي تحتاج انتباه</h3>
+              <button class="text-btn" data-open-followups>عرض المتابعات</button>
+            </div>
+            <div id="attentionFollowups"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="customersView" class="view-section hidden">
+        <div class="actions-row">
+          <div class="search-box">
+            <input id="customerSearch" type="search" placeholder="بحث برقم العميل أو الاسم أو المندوب...">
+          </div>
+          <button id="addCustomerBtn" class="primary-btn">إضافة عميل</button>
+        </div>
+
+        <div class="filters-row">
+          <select id="typeFilter">
+            <option value="">كل التصنيفات</option>
+            <option value="شركة">شركة</option>
+            <option value="فردي">فردي</option>
+          </select>
+          <select id="interestFilter">
+            <option value="">كل مجالات الاهتمام</option>
+          </select>
+          <select id="repFilter">
+            <option value="">كل المندوبين</option>
+          </select>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>رقم العميل (الجوال)</th>
+                <th>اسم العميل</th>
+                <th>التصنيف</th>
+                <th>مجال الاهتمام</th>
+                <th>المندوب</th>
+                <th>تاريخ التواصل</th>
+                <th>رقم عرض السعر</th>
+                <th>سبب عدم البيع</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section id="followupsView" class="view-section hidden">
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">سجل متابعات العملاء</h3>
+            <p class="section-note">كل تواصل مع العميل يُحفظ كسجل مستقل دون حذف التاريخ السابق.</p>
+          </div>
+          <button id="addFollowupBtn" class="primary-btn">إضافة متابعة</button>
+        </div>
+
+        <div class="followup-stats" id="followupStats"></div>
+
+        <div class="filters-row followup-filters">
+          <input id="followupSearch" type="search" placeholder="بحث باسم العميل أو رقم الجوال أو المندوب...">
+          <select id="followupStatusFilter">
+            <option value="">كل المتابعات</option>
+            <option value="today">متابعات اليوم</option>
+            <option value="overdue">متابعات متأخرة</option>
+            <option value="upcoming">متابعات قادمة</option>
+            <option value="completed">متابعات مكتملة</option>
+          </select>
+          <select id="followupRepFilter">
+            <option value="">كل المندوبين</option>
+          </select>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>العميل</th>
+                <th>رقم العميل</th>
+                <th>تاريخ التواصل</th>
+                <th>طريقة التواصل</th>
+                <th>المندوب</th>
+                <th>نتيجة التواصل</th>
+                <th>عرض السعر</th>
+                <th>المتابعة القادمة</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="followupsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section id="quotationsView" class="view-section hidden">
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">إدارة عروض الأسعار</h3>
+            <p class="section-note">تسجيل عروض الأسعار وربطها بالعملاء ومتابعة حالتها وقيمتها.</p>
+          </div>
+          <button id="addQuotationBtn" class="primary-btn">إضافة عرض سعر</button>
+        </div>
+
+        <div id="quotationStats" class="followup-stats"></div>
+
+        <div class="filters-row quotation-filters">
+          <input id="quotationSearch" type="search" placeholder="بحث برقم العرض أو العميل أو المندوب...">
+          <select id="quotationStatusFilter">
+            <option value="">كل الحالات</option>
+            <option value="تحت التجهيز">تحت التجهيز</option>
+            <option value="تم الإرسال">تم الإرسال</option>
+            <option value="تحت المراجعة">تحت المراجعة</option>
+            <option value="مقبول">مقبول</option>
+            <option value="مرفوض">مرفوض</option>
+            <option value="ملغي">ملغي</option>
+          </select>
+          <select id="quotationRepFilter">
+            <option value="">كل المندوبين</option>
+          </select>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>رقم العرض</th>
+                <th>العميل</th>
+                <th>رقم العميل</th>
+                <th>المندوب</th>
+                <th>تاريخ العرض</th>
+                <th>القيمة</th>
+                <th>الحالة</th>
+                <th>تاريخ الانتهاء</th>
+                <th>سبب الرفض</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="quotationsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="representativesView" class="view-section hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>المندوبون</h3>
+          </div>
+          <div id="representativesGrid" class="representatives-grid"></div>
+        </div>
+      </section>
+
+      <section id="settingsView" class="view-section hidden">
+        <div class="settings-grid">
+          <article class="panel">
+            <h3>مجالات الاهتمام</h3>
+            <p>يمكن إضافة مجالات جديدة لاحقًا من قاعدة البيانات.</p>
+            <div id="settingsInterests" class="tag-list"></div>
+          </article>
+          <article class="panel">
+            <h3>أسباب عدم البيع</h3>
+            <p>قائمة أولية قابلة للتوسع.</p>
+            <div id="settingsReasons" class="tag-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="customerDialog">
+    <form id="customerForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="dialogTitle">إضافة عميل جديد</h3>
+          <p>أدخل البيانات الأساسية للعميل</p>
+        </div>
+        <button id="closeDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+
+      <input id="customerId" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          اسم العميل
+          <input id="customerName" required>
+        </label>
+
+        <label>
+          تصنيف العميل
+          <select id="customerType" required>
+            <option value="شركة">شركة</option>
+            <option value="فردي">فردي</option>
+          </select>
+        </label>
+
+        <label>
+          رقم العميل (الجوال)
+          <input id="customerPhone" inputmode="tel" placeholder="05XXXXXXXX" required>
+          <small>رقم الجوال هو المرجع الأساسي للعميل ولا يمكن تكراره.</small>
+        </label>
+
+        <label>
+          المدينة
+          <input id="customerCity">
+        </label>
+
+        <label class="full-width">
+          مجال الاهتمام
+          <select id="customerInterest" multiple required></select>
+          <small>يمكن اختيار أكثر من مجال باستخدام Ctrl في الكمبيوتر.</small>
+        </label>
+
+        <label>
+          المندوب المسؤول
+          <select id="customerRepresentative" required></select>
+        </label>
+
+        <label>
+          تاريخ التواصل
+          <input id="contactDate" type="date">
+        </label>
+
+        <label>
+          رقم عرض السعر
+          <input id="quotationNumber">
+        </label>
+
+        <label>
+          سبب عدم البيع
+          <select id="noSaleReason"></select>
+        </label>
+
+        <label class="full-width">
+          ملاحظات
+          <textarea id="customerNotes" rows="4"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="cancelDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ العميل</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <dialog id="followupDialog">
+    <form id="followupForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="followupDialogTitle">إضافة متابعة جديدة</h3>
+          <p>سيتم الاحتفاظ بكل متابعة داخل سجل العميل.</p>
+        </div>
+        <button id="closeFollowupDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+
+      <input id="followupId" type="hidden">
+
+      <div class="form-grid">
+        <label class="full-width">
+          العميل
+          <select id="followupCustomer" required></select>
+        </label>
+
+        <label>
+          تاريخ التواصل
+          <input id="followupContactDate" type="date" required>
+        </label>
+
+        <label>
+          طريقة التواصل
+          <select id="followupMethod" required>
+            <option value="اتصال">اتصال</option>
+            <option value="واتساب">واتساب</option>
+            <option value="زيارة">زيارة</option>
+            <option value="بريد إلكتروني">بريد إلكتروني</option>
+            <option value="اجتماع">اجتماع</option>
+          </select>
+        </label>
+
+        <label>
+          المندوب المسؤول
+          <select id="followupRepresentative" required></select>
+        </label>
+
+        <label>
+          نتيجة التواصل
+          <select id="followupResult" required>
+            <option value="تم التواصل">تم التواصل</option>
+            <option value="لم يتم الرد">لم يتم الرد</option>
+            <option value="طلب عرض سعر">طلب عرض سعر</option>
+            <option value="تم إرسال عرض سعر">تم إرسال عرض سعر</option>
+            <option value="تفاوض">تفاوض</option>
+            <option value="تم البيع">تم البيع</option>
+            <option value="لم يتم البيع">لم يتم البيع</option>
+            <option value="مؤجل">مؤجل</option>
+          </select>
+        </label>
+
+        <label>
+          رقم عرض السعر
+          <input id="followupQuotationNumber">
+        </label>
+
+        <label>
+          سبب عدم البيع
+          <select id="followupNoSaleReason"></select>
+        </label>
+
+        <label>
+          تاريخ المتابعة القادمة
+          <input id="nextFollowupDate" type="date">
+        </label>
+
+        <label>
+          حالة المتابعة
+          <select id="followupCompleted">
+            <option value="false">مفتوحة</option>
+            <option value="true">مكتملة</option>
+          </select>
+        </label>
+
+        <label class="full-width">
+          ملاحظات المتابعة
+          <textarea id="followupNotes" rows="4"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="cancelFollowupDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ المتابعة</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="customerDetailsDialog">
+    <div class="details-dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="customerDetailsTitle">ملف العميل</h3>
+          <p id="customerDetailsSubtitle"></p>
+        </div>
+        <button id="closeCustomerDetailsBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <div id="customerDetailsContent"></div>
+    </div>
+  </dialog>
+
+
+  <dialog id="quotationDialog">
+    <form id="quotationForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="quotationDialogTitle">إضافة عرض سعر</h3>
+          <p>أدخل بيانات العرض واربطه بالعميل والمندوب.</p>
+        </div>
+        <button id="closeQuotationDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+
+      <input id="quotationId" type="hidden">
+
+      <div class="form-grid">
+        <label>
+          رقم عرض السعر
+          <input id="quotationCode" required>
+        </label>
+
+        <label>
+          العميل
+          <select id="quotationCustomer" required></select>
+        </label>
+
+        <label>
+          المندوب المسؤول
+          <select id="quotationRepresentative" required></select>
+        </label>
+
+        <label>
+          تاريخ العرض
+          <input id="quotationDate" type="date" required>
+        </label>
+
+        <label>
+          قيمة العرض
+          <input id="quotationAmount" type="number" min="0" step="0.01" required>
+        </label>
+
+        <label>
+          حالة العرض
+          <select id="quotationStatus" required>
+            <option value="تحت التجهيز">تحت التجهيز</option>
+            <option value="تم الإرسال">تم الإرسال</option>
+            <option value="تحت المراجعة">تحت المراجعة</option>
+            <option value="مقبول">مقبول</option>
+            <option value="مرفوض">مرفوض</option>
+            <option value="ملغي">ملغي</option>
+          </select>
+        </label>
+
+        <label>
+          تاريخ انتهاء العرض
+          <input id="quotationExpiryDate" type="date">
+        </label>
+
+        <label>
+          سبب الرفض
+          <select id="quotationRejectionReason"></select>
+        </label>
+
+        <label class="full-width">
+          تفاصيل العرض
+          <textarea id="quotationDescription" rows="3" placeholder="وصف مختصر للأجهزة أو الخدمات المشمولة في العرض"></textarea>
+        </label>
+
+        <label class="full-width">
+          ملاحظات
+          <textarea id="quotationNotes" rows="3"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="cancelQuotationDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ عرض السعر</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
