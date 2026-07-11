@@ -321,9 +321,10 @@
             <h3 class="section-title">إدارة عروض الأسعار</h3>
             <p class="section-note">تسجيل عروض الأسعار وربطها بالعملاء ومتابعة حالتها وقيمتها.</p>
           </div>
-          <button id="addQuotationBtn" class="primary-btn">إضافة عرض سعر</button>
+          <button id="addQuotationBtn" class="primary-btn quotation-manage-action">إضافة عرض سعر</button>
         </div>
 
+        <div id="quotationsStatus" class="data-status hidden"></div>
         <div id="quotationStats" class="followup-stats"></div>
 
         <div class="filters-row quotation-filters">
@@ -360,6 +361,14 @@
             </thead>
             <tbody id="quotationsTableBody"></tbody>
           </table>
+        </div>
+        <div class="table-pagination" id="quotationsPagination">
+          <span id="quotationsPaginationInfo">0 عرض</span>
+          <div>
+            <button id="quotationsPrevPage" class="secondary-btn compact-btn" type="button">السابق</button>
+            <span id="quotationsPageNumber">1</span>
+            <button id="quotationsNextPage" class="secondary-btn compact-btn" type="button">التالي</button>
+          </div>
         </div>
       </section>
 
@@ -789,6 +798,7 @@
   <script src="assets/js/reference-data-service.js"></script>
   <script src="assets/js/customers-service.js"></script>
   <script src="assets/js/followups-service.js"></script>
+  <script src="assets/js/quotations-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

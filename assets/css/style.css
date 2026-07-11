@@ -298,3 +298,11 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   font-weight:700;
   color:var(--text)
 }
+
+
+#quotationsPageNumber{
+  min-width:58px;
+  text-align:center;
+  font-weight:700;
+  color:var(--text)
+}

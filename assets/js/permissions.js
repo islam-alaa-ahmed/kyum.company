@@ -42,6 +42,13 @@ window.CustomerPermissions = Object.freeze({
       );
     });
 
+    document.querySelectorAll(".quotation-manage-action").forEach(button => {
+      button.classList.toggle(
+        "hidden",
+        !["super_admin", "sales_manager", "sales_representative"].includes(role)
+      );
+    });
+
     if (privacyGroup) {
       privacyGroup.classList.toggle(
         "hidden",

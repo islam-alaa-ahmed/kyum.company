@@ -128,7 +128,11 @@ let followupsLoaded = false;
 let followupsLoading = false;
 let followupsPage = 1;
 const FOLLOWUPS_PAGE_SIZE = 10;
-let quotations = loadQuotations();
+let quotations = [];
+let quotationsLoaded = false;
+let quotationsLoading = false;
+let quotationsPage = 1;
+const QUOTATIONS_PAGE_SIZE = 10;
 let editingId = null;
 let editingFollowupId = null;
 let editingQuotationId = null;
@@ -168,24 +172,11 @@ function loadCustomers() {
 
 
 function loadQuotations() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(QUOTATIONS_STORAGE_KEY));
-    return Array.isArray(stored) ? stored : seedQuotations;
-  } catch {
-    return seedQuotations;
-  }
+  return [];
 }
 
 function saveQuotations() {
-  localStorage.setItem(QUOTATIONS_STORAGE_KEY, JSON.stringify(quotations));
-}
-
-function nextQuotationId() {
-  const max = quotations.reduce((highest, item) => {
-    const value = Number(String(item.id).replace(/\D/g, "")) || 0;
-    return Math.max(highest, value);
-  }, 0);
-  return `QID${String(max + 1).padStart(6, "0")}`;
+  // Quotations use Supabase as the only production data source from Phase 10.
 }
 
 function nextQuotationCode() {
@@ -361,9 +352,13 @@ function refreshReferenceOptions() {
     document.getElementById("followupRepresentative"),
     followupRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
+  const quotationRepresentativeOptions = authProfile?.role === "sales_representative"
+    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
+    : representatives;
+
   replaceSelectOptions(
     document.getElementById("quotationRepresentative"),
-    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+    quotationRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
 
   replaceSelectOptions(
@@ -384,7 +379,11 @@ function refreshReferenceOptions() {
   );
   replaceSelectOptions(
     document.getElementById("quotationRejectionReason"),
-    noSaleReasons.map(value => ({ label: value, value }))
+    reasonRecords
+      .filter(item => item.is_active)
+      .map(item => ({ label: item.name, value: item.id })),
+    "اختر سبب الرفض",
+    ""
   );
 
   replaceSelectOptions(
@@ -473,7 +472,10 @@ function switchView(name) {
     loadFollowupsFromSupabase();
     renderFollowups();
   }
-  if (name === "quotations") renderQuotations();
+  if (name === "quotations") {
+    loadQuotationsFromSupabase();
+    renderQuotations();
+  }
   if (name === "representatives") {
     loadReferenceDataFromSupabase();
     renderRepresentatives();
@@ -1425,6 +1427,37 @@ function showCustomerDetails(customerId) {
 }
 
 
+function canManageQuotations() {
+  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+}
+
+async function loadQuotationsFromSupabase(force = false) {
+  if (quotationsLoading || (quotationsLoaded && !force)) return;
+  if (!window.QuotationsService || !window.customerSupabase) return;
+
+  quotationsLoading = true;
+  showDataStatus("quotationsStatus", "جاري تحميل عروض الأسعار من Supabase...", "info");
+
+  try {
+    quotations = await window.QuotationsService.listQuotations();
+    quotationsLoaded = true;
+    quotationsPage = 1;
+    showDataStatus("quotationsStatus", "");
+    renderQuotations();
+    renderCustomers();
+    renderDashboard();
+  } catch (error) {
+    console.error("Quotation loading failed:", error);
+    showDataStatus(
+      "quotationsStatus",
+      error instanceof Error ? error.message : "تعذر تحميل عروض الأسعار.",
+      "error"
+    );
+  } finally {
+    quotationsLoading = false;
+  }
+}
+
 function filteredQuotations() {
   const query = document.getElementById("quotationSearch").value.trim().toLowerCase();
   const status = document.getElementById("quotationStatusFilter").value;
@@ -1454,47 +1487,73 @@ function renderQuotations() {
   const accepted = quotations.filter(item => item.status === "مقبول");
   const acceptedValue = accepted.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const rejected = quotations.filter(item => item.status === "مرفوض").length;
+  const conversionRate = quotations.length
+    ? (accepted.length / quotations.length) * 100
+    : 0;
 
   document.getElementById("quotationStats").innerHTML = [
     ["إجمالي العروض", quotations.length],
     ["إجمالي القيمة", formatCurrency(totalValue)],
     ["العروض المقبولة", accepted.length],
     ["قيمة العروض المقبولة", formatCurrency(acceptedValue)],
-    ["العروض المرفوضة", rejected]
+    ["العروض المرفوضة", rejected],
+    ["نسبة التحويل", `${conversionRate.toFixed(1)}%`]
   ].map(([label, value]) =>
     `<article class="followup-stat"><span>${label}</span><strong>${value}</strong></article>`
   ).join("");
 
-  const rows = filteredQuotations();
+  const allRows = filteredQuotations();
   const body = document.getElementById("quotationsTableBody");
+  const pageCount = Math.max(1, Math.ceil(allRows.length / QUOTATIONS_PAGE_SIZE));
+
+  if (quotationsPage > pageCount) quotationsPage = pageCount;
+  const start = (quotationsPage - 1) * QUOTATIONS_PAGE_SIZE;
+  const rows = allRows.slice(start, start + QUOTATIONS_PAGE_SIZE);
+
+  document.getElementById("addQuotationBtn")
+    ?.classList.toggle("hidden", !canManageQuotations());
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="10" class="empty-state">لا توجد عروض أسعار مطابقة.</td></tr>`;
-    return;
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${
+      quotationsLoaded ? "لا توجد عروض أسعار مطابقة." : "جاري تحميل عروض الأسعار..."
+    }</td></tr>`;
+  } else {
+    body.innerHTML = rows.map(item => {
+      const customer = customerById(item.customerId);
+      const customerName = customer?.name || item.customerName || "عميل غير معروف";
+      const customerPhone = customer?.phone || item.customerPhone || "—";
+      const statusClass = quotationStatusClass(item.status);
+
+      return `
+        <tr>
+          <td><strong>${escapeHtml(item.code)}</strong></td>
+          <td>${escapeHtml(customerName)}</td>
+          <td>${escapeHtml(customerPhone)}</td>
+          <td>${escapeHtml(item.representative || "—")}</td>
+          <td>${formatDate(item.quotationDate)}</td>
+          <td class="quotation-value">${formatCurrency(item.amount)}</td>
+          <td><span class="quotation-status quotation-status-${statusClass}">${escapeHtml(item.status)}</span></td>
+          <td>${formatDate(item.expiryDate)}</td>
+          <td>${escapeHtml(item.rejectionReason || "—")}</td>
+          <td>
+            <div class="row-actions">
+              ${canManageQuotations() ? `<button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>` : ""}
+              ${canManageQuotations() ? `<button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>` : ""}
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
   }
 
-  body.innerHTML = rows.map(item => {
-    const customer = customerById(item.customerId);
-    const statusClass = quotationStatusClass(item.status);
-    return `
-      <tr>
-        <td><strong>${escapeHtml(item.code)}</strong></td>
-        <td>${escapeHtml(customer.name)}</td>
-        <td>${escapeHtml(customer.phone)}</td>
-        <td>${escapeHtml(item.representative)}</td>
-        <td>${formatDate(item.quotationDate)}</td>
-        <td class="quotation-value">${formatCurrency(item.amount)}</td>
-        <td><span class="quotation-status quotation-status-${statusClass}">${escapeHtml(item.status)}</span></td>
-        <td>${formatDate(item.expiryDate)}</td>
-        <td>${escapeHtml(item.rejectionReason || "—")}</td>
-        <td>
-          <div class="row-actions">
-            <button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>
-            <button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>
-          </div>
-        </td>
-      </tr>`;
-  }).join("");
+  const info = document.getElementById("quotationsPaginationInfo");
+  const pageNumber = document.getElementById("quotationsPageNumber");
+  const prev = document.getElementById("quotationsPrevPage");
+  const next = document.getElementById("quotationsNextPage");
+
+  if (info) info.textContent = `${allRows.length} عرض`;
+  if (pageNumber) pageNumber.textContent = `${quotationsPage} / ${pageCount}`;
+  if (prev) prev.disabled = quotationsPage <= 1;
+  if (next) next.disabled = quotationsPage >= pageCount;
 }
 
 function openQuotationDialog(quotation = null, customerId = null) {
@@ -1502,18 +1561,21 @@ function openQuotationDialog(quotation = null, customerId = null) {
   document.getElementById("quotationDialogTitle").textContent =
     quotation ? "تعديل عرض السعر" : "إضافة عرض سعر";
 
-  document.getElementById("quotationId").value = quotation?.id || nextQuotationId();
+  document.getElementById("quotationId").value = quotation?.id || "";
   document.getElementById("quotationCode").value = quotation?.code || nextQuotationCode();
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";
   document.getElementById("quotationRepresentative").value =
-    quotation?.representative || customerById(customerId)?.representative || representatives[0]?.name || "";
+    quotation?.representativeId
+    || customerById(customerId)?.representativeId
+    || representatives[0]?.uuid
+    || "";
   document.getElementById("quotationDate").value = quotation?.quotationDate || todayIso();
   document.getElementById("quotationAmount").value = quotation?.amount ?? "";
   document.getElementById("quotationStatus").value = quotation?.status || "تحت التجهيز";
   document.getElementById("quotationExpiryDate").value = quotation?.expiryDate || "";
   document.getElementById("quotationRejectionReason").value =
-    quotation?.rejectionReason || noSaleReasons[0] || "";
+    quotation?.rejectionReasonId || "";
   document.getElementById("quotationDescription").value = quotation?.description || "";
   document.getElementById("quotationNotes").value = quotation?.notes || "";
 
@@ -1526,67 +1588,119 @@ function closeQuotationDialog() {
   editingQuotationId = null;
 }
 
-function handleQuotationSubmit(event) {
+async function handleQuotationSubmit(event) {
   event.preventDefault();
 
-  const code = document.getElementById("quotationCode").value.trim();
-  const duplicate = quotations.find(item =>
-    item.code.toLowerCase() === code.toLowerCase() && item.id !== editingQuotationId
-  );
+  if (!canManageQuotations()) {
+    alert("لا توجد صلاحية لإدارة عروض الأسعار.");
+    return;
+  }
 
-  if (duplicate) {
-    alert(`رقم عرض السعر ${code} مسجل بالفعل ولا يمكن تكراره.`);
+  const code = document.getElementById("quotationCode").value.trim();
+  const customerId = document.getElementById("quotationCustomer").value;
+  const representativeId = document.getElementById("quotationRepresentative").value;
+  const status = document.getElementById("quotationStatus").value;
+  const rejectionReasonId = document.getElementById("quotationRejectionReason").value || null;
+  const amount = Number(document.getElementById("quotationAmount").value || 0);
+
+  if (!code) {
+    alert("أدخل رقم عرض السعر.");
     document.getElementById("quotationCode").focus();
     return;
   }
 
-  const item = {
-    id: document.getElementById("quotationId").value,
-    code,
-    customerId: document.getElementById("quotationCustomer").value,
-    representative: document.getElementById("quotationRepresentative").value,
-    quotationDate: document.getElementById("quotationDate").value,
-    amount: Number(document.getElementById("quotationAmount").value || 0),
-    status: document.getElementById("quotationStatus").value,
-    expiryDate: document.getElementById("quotationExpiryDate").value,
-    rejectionReason: document.getElementById("quotationStatus").value === "مرفوض"
-      ? document.getElementById("quotationRejectionReason").value
-      : "",
-    description: document.getElementById("quotationDescription").value.trim(),
-    notes: document.getElementById("quotationNotes").value.trim()
-  };
-
-  if (editingQuotationId) {
-    quotations = quotations.map(existing => existing.id === editingQuotationId ? item : existing);
-  } else {
-    quotations.unshift(item);
+  if (!customerId) {
+    alert("اختر العميل.");
+    return;
   }
 
-  const customer = customerById(item.customerId);
-  if (customer) {
-    customer.quotationNumber = item.code;
-    if (item.status === "مرفوض" && item.rejectionReason) {
-      customer.noSaleReason = item.rejectionReason;
+  if (!representativeId) {
+    alert("اختر المندوب المسؤول.");
+    return;
+  }
+
+  if (amount < 0) {
+    alert("قيمة عرض السعر لا يمكن أن تكون سالبة.");
+    return;
+  }
+
+  if (status === "مرفوض" && !rejectionReasonId) {
+    alert("اختر سبب رفض عرض السعر.");
+    document.getElementById("quotationRejectionReason").focus();
+    return;
+  }
+
+  const submitButton = event.submitter;
+
+  try {
+    const duplicate = await window.QuotationsService.findByNumber(code, editingQuotationId);
+
+    if (duplicate) {
+      alert(`رقم عرض السعر ${code} مسجل بالفعل ولا يمكن تكراره.`);
+      document.getElementById("quotationCode").focus();
+      return;
+    }
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "جاري الحفظ...";
+    }
+
+    await window.QuotationsService.saveQuotation({
+      id: editingQuotationId,
+      code,
+      customerId,
+      representativeId,
+      quotationDate: document.getElementById("quotationDate").value,
+      amount,
+      status,
+      expiryDate: document.getElementById("quotationExpiryDate").value,
+      rejectionReasonId,
+      description: document.getElementById("quotationDescription").value,
+      notes: document.getElementById("quotationNotes").value
+    });
+
+    closeQuotationDialog();
+    quotationsLoaded = false;
+    customersLoaded = false;
+
+    await Promise.all([
+      loadQuotationsFromSupabase(true),
+      loadCustomersFromSupabase(true)
+    ]);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حفظ عرض السعر.");
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "حفظ عرض السعر";
     }
   }
-
-  saveQuotations();
-  saveCustomers();
-  closeQuotationDialog();
-  renderQuotations();
-  renderCustomers();
-  renderDashboard();
 }
 
-function deleteQuotation(id) {
+async function deleteQuotation(id) {
+  if (!canManageQuotations()) {
+    alert("لا توجد صلاحية لحذف عروض الأسعار.");
+    return;
+  }
+
   const item = quotations.find(quotation => quotation.id === id);
   if (!item) return;
+
   if (!confirm(`هل تريد حذف عرض السعر ${item.code}؟`)) return;
 
-  quotations = quotations.filter(quotation => quotation.id !== id);
-  saveQuotations();
-  renderQuotations();
-  renderDashboard();
+  try {
+    await window.QuotationsService.deleteQuotation(item);
+    quotationsLoaded = false;
+    customersLoaded = false;
+
+    await Promise.all([
+      loadQuotationsFromSupabase(true),
+      loadCustomersFromSupabase(true)
+    ]);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حذف عرض السعر.");
+  }
 }
 
 
@@ -1685,8 +1799,15 @@ document.getElementById("customerForm").addEventListener("submit", handleCustome
 });
 
 ["quotationSearch", "quotationStatusFilter", "quotationRepFilter"].forEach(id => {
-  document.getElementById(id).addEventListener("input", renderQuotations);
-  document.getElementById(id).addEventListener("change", renderQuotations);
+  document.getElementById(id).addEventListener("input", () => {
+    quotationsPage = 1;
+    renderQuotations();
+  });
+
+  document.getElementById(id).addEventListener("change", () => {
+    quotationsPage = 1;
+    renderQuotations();
+  });
 });
 
 document.getElementById("customersTableBody").addEventListener("click", event => {
@@ -1763,6 +1884,7 @@ window.addEventListener("customer-auth-ready", async () => {
   await loadReferenceDataFromSupabase(true);
   await loadCustomersFromSupabase(true);
   await loadFollowupsFromSupabase(true);
+  await loadQuotationsFromSupabase(true);
   renderDashboard();
 });
 
@@ -1795,6 +1917,26 @@ document.getElementById("followupsNextPage")?.addEventListener("click", () => {
   if (followupsPage < pageCount) {
     followupsPage += 1;
     renderFollowups();
+  }
+});
+
+
+document.getElementById("quotationsPrevPage")?.addEventListener("click", () => {
+  if (quotationsPage > 1) {
+    quotationsPage -= 1;
+    renderQuotations();
+  }
+});
+
+document.getElementById("quotationsNextPage")?.addEventListener("click", () => {
+  const pageCount = Math.max(
+    1,
+    Math.ceil(filteredQuotations().length / QUOTATIONS_PAGE_SIZE)
+  );
+
+  if (quotationsPage < pageCount) {
+    quotationsPage += 1;
+    renderQuotations();
   }
 });
 
