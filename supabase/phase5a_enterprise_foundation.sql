@@ -630,9 +630,12 @@ with check (
 );
 
 -- Management-only write access for financial/service future modules.
+-- Policy names are SQL identifiers, so format() must use %I, not %L.
 do $$
 declare
   table_name text;
+  read_policy_name text;
+  write_policy_name text;
 begin
   foreach table_name in array array[
     'sales_orders',
@@ -646,19 +649,40 @@ begin
     'crm_attachments'
   ]
   loop
+    read_policy_name := table_name || ' read authorized';
+    write_policy_name := table_name || ' management write';
+
     execute format(
-      'create policy %L on public.%I for select to authenticated using (
-        public.is_management_user() or public.current_user_role() = ''viewer''
-      )',
-      table_name || ' read authorized',
+      'drop policy if exists %I on public.%I',
+      read_policy_name,
       table_name
     );
 
     execute format(
-      'create policy %L on public.%I for all to authenticated
+      'drop policy if exists %I on public.%I',
+      write_policy_name,
+      table_name
+    );
+
+    execute format(
+      'create policy %I on public.%I
+       for select
+       to authenticated
+       using (
+         public.is_management_user()
+         or public.current_user_role() = ''viewer''
+       )',
+      read_policy_name,
+      table_name
+    );
+
+    execute format(
+      'create policy %I on public.%I
+       for all
+       to authenticated
        using (public.is_management_user())
        with check (public.is_management_user())',
-      table_name || ' management write',
+      write_policy_name,
       table_name
     );
   end loop;
