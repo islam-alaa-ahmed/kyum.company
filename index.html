@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
+  <link rel="icon" href="assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <title>نظام إدارة ومتابعة العملاء</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -341,25 +346,39 @@
       </section>
 
       <section id="representativesView" class="view-section hidden">
-        <div class="panel">
-          <div class="panel-header">
-            <h3>المندوبون</h3>
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">مندوبو المبيعات</h3>
+            <p class="section-note">البيانات محمّلة مباشرة من Supabase.</p>
           </div>
-          <div id="representativesGrid" class="representatives-grid"></div>
+          <button id="addRepresentativeBtn" class="primary-btn reference-manage-action">إضافة مندوب</button>
         </div>
+        <div id="representativesStatus" class="data-status hidden"></div>
+        <div id="representativesGrid" class="representatives-grid"></div>
       </section>
 
       <section id="settingsView" class="view-section hidden">
-        <div class="settings-grid">
+        <div id="referenceDataStatus" class="data-status hidden"></div>
+        <div class="settings-grid reference-settings-grid">
           <article class="panel">
-            <h3>مجالات اهتمام العملاء</h3>
-            <p>يمكن إضافة مجالات جديدة لاحقًا من قاعدة البيانات.</p>
-            <div id="settingsInterests" class="tag-list"></div>
+            <div class="panel-header">
+              <div>
+                <h3>مجالات اهتمام العملاء</h3>
+                <p>إضافة وتعديل وتفعيل مجالات الاهتمام.</p>
+              </div>
+              <button class="primary-btn compact-btn reference-manage-action" data-add-reference="interest">إضافة</button>
+            </div>
+            <div id="settingsInterests" class="reference-list"></div>
           </article>
           <article class="panel">
-            <h3>أسباب عدم البيع</h3>
-            <p>قائمة أولية قابلة للتوسع.</p>
-            <div id="settingsReasons" class="tag-list"></div>
+            <div class="panel-header">
+              <div>
+                <h3>أسباب عدم البيع</h3>
+                <p>إدارة الأسباب المستخدمة في العملاء والعروض.</p>
+              </div>
+              <button class="primary-btn compact-btn reference-manage-action" data-add-reference="reason">إضافة</button>
+            </div>
+            <div id="settingsReasons" class="reference-list"></div>
           </article>
         </div>
       </section>
@@ -670,11 +689,86 @@
     </form>
   </dialog>
 
+
+  <dialog id="representativeDialog">
+    <form id="representativeForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="representativeDialogTitle">إضافة مندوب مبيعات</h3>
+          <p>يتم الحفظ مباشرة في Supabase.</p>
+        </div>
+        <button id="closeRepresentativeDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <input id="representativeId" type="hidden">
+      <div class="form-grid">
+        <label>
+          كود المندوب
+          <input id="representativeCode" required maxlength="30">
+        </label>
+        <label>
+          اسم المندوب
+          <input id="representativeName" required maxlength="150">
+        </label>
+        <label>
+          رقم الجوال
+          <input id="representativePhone" inputmode="tel" maxlength="30">
+        </label>
+        <label>
+          البريد الإلكتروني
+          <input id="representativeEmail" type="email" maxlength="200">
+        </label>
+        <label>
+          حالة المندوب
+          <select id="representativeActive">
+            <option value="true">نشط</option>
+            <option value="false">غير نشط</option>
+          </select>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelRepresentativeDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ المندوب</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="referenceItemDialog">
+    <form id="referenceItemForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3 id="referenceDialogTitle">إضافة بيانات مرجعية</h3>
+          <p>يتم منع تكرار الاسم داخل قاعدة البيانات.</p>
+        </div>
+        <button id="closeReferenceDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <input id="referenceItemId" type="hidden">
+      <input id="referenceItemType" type="hidden">
+      <div class="form-grid">
+        <label class="full-width">
+          الاسم
+          <input id="referenceItemName" required maxlength="150">
+        </label>
+        <label>
+          الحالة
+          <select id="referenceItemActive">
+            <option value="true">نشط</option>
+            <option value="false">غير نشط</option>
+          </select>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelReferenceDialogBtn" type="button" class="secondary-btn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ</button>
+      </div>
+    </form>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
   <script src="assets/js/permissions.js"></script>
   <script src="assets/js/auth-session.js"></script>
+  <script src="assets/js/reference-data-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>
