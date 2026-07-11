@@ -4,11 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <link rel="icon" href="assets/images/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
   <title>نظام إدارة ومتابعة العملاء</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,20 +42,51 @@
   <div id="appView" class="app-shell hidden">
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-mark small">CRM</div>
+        <div class="brand-mark small">K</div>
         <div>
-          <strong>إدارة العملاء</strong>
-          <span>Phase 1</span>
+          <strong>KYUM Company</strong>
+          <span>Enterprise CRM</span>
         </div>
       </div>
-      <nav>
-        <button class="nav-item active" data-view="dashboard">لوحة التحكم</button>
-        <button class="nav-item" data-view="customers">العملاء</button>
-        <button class="nav-item" data-view="followups">المتابعات</button>
-        <button class="nav-item" data-view="quotations">عروض الأسعار</button>
-        <button class="nav-item" data-view="representatives">المندوبون</button>
-        <button class="nav-item" data-view="settings">الإعدادات</button>
+
+      <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
+        <button class="nav-item nav-root-item active" data-view="dashboard">
+          <span>لوحة التحكم</span>
+        </button>
+
+        <section class="nav-group" data-nav-group="customer-management">
+          <button class="nav-group-toggle" type="button" aria-expanded="true">
+            <span>إدارة العملاء</span>
+            <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="nav-group-content">
+            <button class="nav-item" data-view="customers">العملاء</button>
+            <button class="nav-item" data-view="followups">المتابعات</button>
+            <button class="nav-item" data-view="quotations">عروض الأسعار</button>
+            <button class="nav-item" data-view="representatives">مندوبو المبيعات</button>
+            <button class="nav-item" data-view="settings">البيانات المرجعية</button>
+          </div>
+        </section>
+
+        <section class="nav-group privacy-nav-group" data-nav-group="settings-privacy">
+          <button class="nav-group-toggle" type="button" aria-expanded="true">
+            <span>الإعدادات والخصوصية</span>
+            <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="nav-group-content">
+            <button class="nav-item privacy-nav-item" data-view="users">المستخدمون</button>
+            <button class="nav-item privacy-nav-item" data-view="permissions">الصلاحيات</button>
+            <button class="nav-item privacy-nav-item" data-view="activityLog">سجل النشاط</button>
+            <button class="nav-item privacy-nav-item" data-view="backups">النسخ الاحتياطي</button>
+            <button class="nav-item privacy-nav-item" data-view="systemSettings">إعدادات النظام</button>
+          </div>
+        </section>
       </nav>
+
       <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
     </aside>
 
@@ -326,7 +352,7 @@
       <section id="settingsView" class="view-section hidden">
         <div class="settings-grid">
           <article class="panel">
-            <h3>مجالات الاهتمام</h3>
+            <h3>مجالات اهتمام العملاء</h3>
             <p>يمكن إضافة مجالات جديدة لاحقًا من قاعدة البيانات.</p>
             <div id="settingsInterests" class="tag-list"></div>
           </article>
@@ -337,6 +363,52 @@
           </article>
         </div>
       </section>
+
+      <section id="usersView" class="view-section hidden">
+        <div class="module-placeholder">
+          <div class="module-placeholder-icon">U</div>
+          <h3>إدارة المستخدمين</h3>
+          <p>إضافة المستخدمين، تفعيل الحسابات، وربط المستخدم بمندوب المبيعات.</p>
+          <span>سيتم تنفيذ الوظائف الكاملة في مرحلة مستقلة.</span>
+        </div>
+      </section>
+
+      <section id="permissionsView" class="view-section hidden">
+        <div class="module-placeholder">
+          <div class="module-placeholder-icon">P</div>
+          <h3>إدارة الصلاحيات</h3>
+          <p>تحديد الشاشات والعمليات المسموحة لكل دور ومستخدم.</p>
+          <span>سيتم تنفيذ محرك الصلاحيات الكامل في مرحلة مستقلة.</span>
+        </div>
+      </section>
+
+      <section id="activityLogView" class="view-section hidden">
+        <div class="module-placeholder">
+          <div class="module-placeholder-icon">A</div>
+          <h3>سجل النشاط</h3>
+          <p>عرض عمليات الإضافة والتعديل والحذف وتغييرات الصلاحيات.</p>
+          <span>الجدول موجود في قاعدة البيانات وسيتم ربط الشاشة لاحقًا.</span>
+        </div>
+      </section>
+
+      <section id="backupsView" class="view-section hidden">
+        <div class="module-placeholder">
+          <div class="module-placeholder-icon">B</div>
+          <h3>النسخ الاحتياطي</h3>
+          <p>إدارة النسخ الاحتياطية، التصدير، والاستعادة الآمنة للبيانات.</p>
+          <span>سيتم تنفيذها بعد اكتمال نقل البيانات التشغيلية إلى Supabase.</span>
+        </div>
+      </section>
+
+      <section id="systemSettingsView" class="view-section hidden">
+        <div class="module-placeholder">
+          <div class="module-placeholder-icon">S</div>
+          <h3>إعدادات النظام</h3>
+          <p>بيانات الشركة، إعدادات العرض، وخيارات النظام العامة.</p>
+          <span>سيتم تنفيذ الإعدادات الديناميكية في مرحلة مستقلة.</span>
+        </div>
+      </section>
+
     </main>
   </div>
 

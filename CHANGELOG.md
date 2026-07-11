@@ -1,14 +1,18 @@
-# KYUM Phase 05B - Icon Pack
+# KYUM Phase 06 — Sidebar Structure
 
-Modified files only:
+## Modified files
 
-- index.html
-- assets/images/favicon.ico
-- assets/images/favicon-16x16.png
-- assets/images/favicon-32x32.png
-- assets/images/favicon-48x48.png
-- assets/images/apple-touch-icon.png
-- assets/images/android-chrome-192x192.png
-- assets/images/android-chrome-512x512.png
-- assets/images/logo-1024.png
-- site.webmanifest
+- `index.html`
+- `assets/css/style.css`
+- `assets/js/app.js`
+- `assets/js/permissions.js`
+
+## Changes
+
+- Renamed sidebar brand to `KYUM Company`.
+- Added collapsible `إدارة العملاء` main section.
+- Moved customers, follow-ups, quotations, sales representatives and reference data under it.
+- Added collapsible `الإعدادات والخصوصية` section.
+- Added initial views for users, permissions, activity log, backups and system settings.
+- Saved sidebar group open/closed state in LocalStorage.
+- Added role-based visibility foundation for privacy settings.
