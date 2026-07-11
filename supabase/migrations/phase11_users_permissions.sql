@@ -1,8 +1,12 @@
 -- KYUM Phase 11 — Users & Permissions Enterprise
-begin;
+-- Enum values must be committed before they can be used in later statements.
 
 alter type public.app_role add value if not exists 'sales_supervisor';
 alter type public.app_role add value if not exists 'customer_service';
+
+commit;
+
+begin;
 
 alter table public.user_profiles add column if not exists email text;
 
