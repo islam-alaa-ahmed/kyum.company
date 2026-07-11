@@ -123,7 +123,11 @@ let customersLoaded = false;
 let customersLoading = false;
 let customersPage = 1;
 const CUSTOMERS_PAGE_SIZE = 10;
-let followups = loadFollowups();
+let followups = [];
+let followupsLoaded = false;
+let followupsLoading = false;
+let followupsPage = 1;
+const FOLLOWUPS_PAGE_SIZE = 10;
 let quotations = loadQuotations();
 let editingId = null;
 let editingFollowupId = null;
@@ -215,24 +219,11 @@ function formatCurrency(value) {
 
 
 function loadFollowups() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(FOLLOWUPS_STORAGE_KEY));
-    return Array.isArray(stored) ? stored : seedFollowups;
-  } catch {
-    return seedFollowups;
-  }
+  return [];
 }
 
 function saveFollowups() {
-  localStorage.setItem(FOLLOWUPS_STORAGE_KEY, JSON.stringify(followups));
-}
-
-function nextFollowupId() {
-  const max = followups.reduce((highest, item) => {
-    const value = Number(String(item.id).replace(/\D/g, "")) || 0;
-    return Math.max(highest, value);
-  }, 0);
-  return `F${String(max + 1).padStart(6, "0")}`;
+  // Follow-ups use Supabase as the only production data source from Phase 09.
 }
 
 function todayIso() {
@@ -362,9 +353,13 @@ function refreshReferenceOptions() {
     document.getElementById("customerRepresentative"),
     customerRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
+  const followupRepresentativeOptions = authProfile?.role === "sales_representative"
+    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
+    : representatives;
+
   replaceSelectOptions(
     document.getElementById("followupRepresentative"),
-    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+    followupRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
   replaceSelectOptions(
     document.getElementById("quotationRepresentative"),
@@ -381,7 +376,11 @@ function refreshReferenceOptions() {
   );
   replaceSelectOptions(
     document.getElementById("followupNoSaleReason"),
-    noSaleReasons.map(value => ({ label: value, value }))
+    reasonRecords
+      .filter(item => item.is_active)
+      .map(item => ({ label: item.name, value: item.id })),
+    "بدون سبب",
+    ""
   );
   replaceSelectOptions(
     document.getElementById("quotationRejectionReason"),
@@ -470,7 +469,10 @@ function switchView(name) {
     loadCustomersFromSupabase();
     renderCustomers();
   }
-  if (name === "followups") renderFollowups();
+  if (name === "followups") {
+    loadFollowupsFromSupabase();
+    renderFollowups();
+  }
   if (name === "quotations") renderQuotations();
   if (name === "representatives") {
     loadReferenceDataFromSupabase();
@@ -850,7 +852,7 @@ function renderCustomers() {
         <td>
           <div class="row-actions">
             <button class="edit-btn" data-details="${customer.id}">عرض</button>
-            <button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>
+            ${canManageFollowups() ? `<button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>` : ""}
             ${canManageCustomers() ? `<button class="edit-btn" data-edit="${customer.id}">تعديل</button>` : ""}
             ${canDeleteCustomers() ? `<button class="delete-btn" data-delete="${customer.id}">حذف</button>` : ""}
           </div>
@@ -1129,6 +1131,36 @@ function customerById(id) {
   return customers.find(customer => customer.id === id);
 }
 
+function canManageFollowups() {
+  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+}
+
+async function loadFollowupsFromSupabase(force = false) {
+  if (followupsLoading || (followupsLoaded && !force)) return;
+  if (!window.FollowupsService || !window.customerSupabase) return;
+
+  followupsLoading = true;
+  showDataStatus("followupsStatus", "جاري تحميل المتابعات من Supabase...", "info");
+
+  try {
+    followups = await window.FollowupsService.listFollowups();
+    followupsLoaded = true;
+    followupsPage = 1;
+    showDataStatus("followupsStatus", "");
+    renderFollowups();
+    renderDashboard();
+  } catch (error) {
+    console.error("Follow-up loading failed:", error);
+    showDataStatus(
+      "followupsStatus",
+      error instanceof Error ? error.message : "تعذر تحميل المتابعات.",
+      "error"
+    );
+  } finally {
+    followupsLoading = false;
+  }
+}
+
 function filteredFollowups() {
   const query = document.getElementById("followupSearch").value.trim().toLowerCase();
   const status = document.getElementById("followupStatusFilter").value;
@@ -1170,51 +1202,72 @@ function renderFollowups() {
     `<article class="followup-stat"><span>${label}</span><strong>${value}</strong></article>`
   ).join("");
 
-  const rows = filteredFollowups();
+  const allRows = filteredFollowups();
   const body = document.getElementById("followupsTableBody");
+  const pageCount = Math.max(1, Math.ceil(allRows.length / FOLLOWUPS_PAGE_SIZE));
+
+  if (followupsPage > pageCount) followupsPage = pageCount;
+  const start = (followupsPage - 1) * FOLLOWUPS_PAGE_SIZE;
+  const rows = allRows.slice(start, start + FOLLOWUPS_PAGE_SIZE);
+
+  document.getElementById("addFollowupBtn")?.classList.toggle("hidden", !canManageFollowups());
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="10" class="empty-state">لا توجد متابعات مطابقة.</td></tr>`;
-    return;
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${
+      followupsLoaded ? "لا توجد متابعات مطابقة." : "جاري تحميل المتابعات..."
+    }</td></tr>`;
+  } else {
+    body.innerHTML = rows.map(item => {
+      const customer = customerById(item.customerId);
+      const status = followupStatus(item);
+      return `
+        <tr>
+          <td><strong>${escapeHtml(customer?.name || item.customerName || "عميل غير معروف")}</strong></td>
+          <td>${escapeHtml(customer?.phone || item.customerPhone || "—")}</td>
+          <td>${formatDate(item.contactDate)}</td>
+          <td><span class="badge">${escapeHtml(item.method)}</span></td>
+          <td>${escapeHtml(item.representative || "—")}</td>
+          <td>${escapeHtml(item.result)}</td>
+          <td>${escapeHtml(item.quotationNumber || "—")}</td>
+          <td>${formatDate(item.nextFollowupDate)}</td>
+          <td><span class="status-badge status-${status}">${statusLabel(status)}</span></td>
+          <td>
+            <div class="row-actions">
+              ${canManageFollowups() ? `<button class="edit-btn" data-edit-followup="${item.id}">تعديل</button>` : ""}
+              ${canManageFollowups() ? `<button class="delete-btn" data-delete-followup="${item.id}">حذف</button>` : ""}
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
   }
 
-  body.innerHTML = rows.map(item => {
-    const customer = customerById(item.customerId);
-    const status = followupStatus(item);
-    return `
-      <tr>
-        <td><strong>${escapeHtml(customer.name)}</strong></td>
-        <td>${escapeHtml(customer.phone)}</td>
-        <td>${formatDate(item.contactDate)}</td>
-        <td><span class="badge">${escapeHtml(item.method)}</span></td>
-        <td>${escapeHtml(item.representative)}</td>
-        <td>${escapeHtml(item.result)}</td>
-        <td>${escapeHtml(item.quotationNumber || "—")}</td>
-        <td>${formatDate(item.nextFollowupDate)}</td>
-        <td><span class="status-badge status-${status}">${statusLabel(status)}</span></td>
-        <td>
-          <div class="row-actions">
-            <button class="edit-btn" data-edit-followup="${item.id}">تعديل</button>
-            <button class="delete-btn" data-delete-followup="${item.id}">حذف</button>
-          </div>
-        </td>
-      </tr>`;
-  }).join("");
+  const info = document.getElementById("followupsPaginationInfo");
+  const pageNumber = document.getElementById("followupsPageNumber");
+  const prev = document.getElementById("followupsPrevPage");
+  const next = document.getElementById("followupsNextPage");
+
+  if (info) info.textContent = `${allRows.length} متابعة`;
+  if (pageNumber) pageNumber.textContent = `${followupsPage} / ${pageCount}`;
+  if (prev) prev.disabled = followupsPage <= 1;
+  if (next) next.disabled = followupsPage >= pageCount;
 }
 
 function openFollowupDialog(customerId = null, followup = null) {
   editingFollowupId = followup?.id || null;
   document.getElementById("followupDialogTitle").textContent =
     followup ? "تعديل المتابعة" : "إضافة متابعة جديدة";
-  document.getElementById("followupId").value = followup?.id || nextFollowupId();
+  document.getElementById("followupId").value = followup?.id || "";
   document.getElementById("followupCustomer").value = followup?.customerId || customerId || customers[0]?.id || "";
   document.getElementById("followupContactDate").value = followup?.contactDate || todayIso();
   document.getElementById("followupMethod").value = followup?.method || "اتصال";
   document.getElementById("followupRepresentative").value =
-    followup?.representative || customerById(customerId)?.representative || representatives[0]?.name || "";
+    followup?.representativeId
+    || customerById(customerId)?.representativeId
+    || representatives[0]?.uuid
+    || "";
   document.getElementById("followupResult").value = followup?.result || "تم التواصل";
   document.getElementById("followupQuotationNumber").value = followup?.quotationNumber || "";
-  document.getElementById("followupNoSaleReason").value = followup?.noSaleReason || noSaleReasons[0] || "";
+  document.getElementById("followupNoSaleReason").value = followup?.noSaleReasonId || "";
   document.getElementById("nextFollowupDate").value = followup?.nextFollowupDate || "";
   document.getElementById("followupCompleted").value = String(followup?.completed || false);
   document.getElementById("followupNotes").value = followup?.notes || "";
@@ -1227,54 +1280,86 @@ function closeFollowupDialog() {
   editingFollowupId = null;
 }
 
-function handleFollowupSubmit(event) {
+async function handleFollowupSubmit(event) {
   event.preventDefault();
 
-  const item = {
-    id: document.getElementById("followupId").value,
-    customerId: document.getElementById("followupCustomer").value,
-    contactDate: document.getElementById("followupContactDate").value,
-    method: document.getElementById("followupMethod").value,
-    representative: document.getElementById("followupRepresentative").value,
-    result: document.getElementById("followupResult").value,
-    quotationNumber: document.getElementById("followupQuotationNumber").value.trim(),
-    noSaleReason: document.getElementById("followupNoSaleReason").value,
-    nextFollowupDate: document.getElementById("nextFollowupDate").value,
-    completed: document.getElementById("followupCompleted").value === "true",
-    notes: document.getElementById("followupNotes").value.trim()
-  };
-
-  if (editingFollowupId) {
-    followups = followups.map(existing => existing.id === editingFollowupId ? item : existing);
-  } else {
-    followups.unshift(item);
+  if (!canManageFollowups()) {
+    alert("لا توجد صلاحية لإدارة المتابعات.");
+    return;
   }
 
-  const customer = customerById(item.customerId);
-  if (customer) {
-    customer.contactDate = item.contactDate;
-    if (item.quotationNumber) customer.quotationNumber = item.quotationNumber;
-    if (item.noSaleReason) customer.noSaleReason = item.noSaleReason;
-    if (item.notes) customer.notes = item.notes;
+  const customerId = document.getElementById("followupCustomer").value;
+  const representativeId = document.getElementById("followupRepresentative").value;
+
+  if (!customerId) {
+    alert("اختر العميل.");
+    return;
   }
 
-  saveFollowups();
-  saveCustomers();
-  closeFollowupDialog();
-  renderFollowups();
-  renderCustomers();
-  renderDashboard();
+  if (!representativeId) {
+    alert("اختر المندوب المسؤول.");
+    return;
+  }
+
+  const submitButton = event.submitter;
+  try {
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "جاري الحفظ...";
+    }
+
+    await window.FollowupsService.saveFollowup({
+      id: editingFollowupId,
+      customerId,
+      contactDate: document.getElementById("followupContactDate").value,
+      method: document.getElementById("followupMethod").value,
+      representativeId,
+      result: document.getElementById("followupResult").value,
+      quotationNumber: document.getElementById("followupQuotationNumber").value,
+      noSaleReasonId: document.getElementById("followupNoSaleReason").value || null,
+      nextFollowupDate: document.getElementById("nextFollowupDate").value,
+      completed: document.getElementById("followupCompleted").value === "true",
+      notes: document.getElementById("followupNotes").value
+    });
+
+    closeFollowupDialog();
+    followupsLoaded = false;
+    customersLoaded = false;
+    await Promise.all([
+      loadFollowupsFromSupabase(true),
+      loadCustomersFromSupabase(true)
+    ]);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حفظ المتابعة.");
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "حفظ المتابعة";
+    }
+  }
 }
 
-function deleteFollowup(id) {
+async function deleteFollowup(id) {
+  if (!canManageFollowups()) {
+    alert("لا توجد صلاحية لحذف المتابعات.");
+    return;
+  }
+
   const item = followups.find(followup => followup.id === id);
   if (!item) return;
   if (!confirm("هل تريد حذف هذه المتابعة؟")) return;
 
-  followups = followups.filter(followup => followup.id !== id);
-  saveFollowups();
-  renderFollowups();
-  renderDashboard();
+  try {
+    await window.FollowupsService.deleteFollowup(item);
+    followupsLoaded = false;
+    customersLoaded = false;
+    await Promise.all([
+      loadFollowupsFromSupabase(true),
+      loadCustomersFromSupabase(true)
+    ]);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حذف المتابعة.");
+  }
 }
 
 function showCustomerDetails(customerId) {
@@ -1589,8 +1674,14 @@ document.getElementById("customerForm").addEventListener("submit", handleCustome
 });
 
 ["followupSearch", "followupStatusFilter", "followupRepFilter"].forEach(id => {
-  document.getElementById(id).addEventListener("input", renderFollowups);
-  document.getElementById(id).addEventListener("change", renderFollowups);
+  document.getElementById(id).addEventListener("input", () => {
+    followupsPage = 1;
+    renderFollowups();
+  });
+  document.getElementById(id).addEventListener("change", () => {
+    followupsPage = 1;
+    renderFollowups();
+  });
 });
 
 ["quotationSearch", "quotationStatusFilter", "quotationRepFilter"].forEach(id => {
@@ -1671,6 +1762,7 @@ document.getElementById("settingsView")?.addEventListener("click", event => {
 window.addEventListener("customer-auth-ready", async () => {
   await loadReferenceDataFromSupabase(true);
   await loadCustomersFromSupabase(true);
+  await loadFollowupsFromSupabase(true);
   renderDashboard();
 });
 
@@ -1687,6 +1779,22 @@ document.getElementById("customersNextPage")?.addEventListener("click", () => {
   if (customersPage < pageCount) {
     customersPage += 1;
     renderCustomers();
+  }
+});
+
+
+document.getElementById("followupsPrevPage")?.addEventListener("click", () => {
+  if (followupsPage > 1) {
+    followupsPage -= 1;
+    renderFollowups();
+  }
+});
+
+document.getElementById("followupsNextPage")?.addEventListener("click", () => {
+  const pageCount = Math.max(1, Math.ceil(filteredFollowups().length / FOLLOWUPS_PAGE_SIZE));
+  if (followupsPage < pageCount) {
+    followupsPage += 1;
+    renderFollowups();
   }
 });
 
