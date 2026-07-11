@@ -265,9 +265,10 @@
             <h3 class="section-title">سجل متابعات العملاء</h3>
             <p class="section-note">كل تواصل مع العميل يُحفظ كسجل مستقل دون حذف التاريخ السابق.</p>
           </div>
-          <button id="addFollowupBtn" class="primary-btn">إضافة متابعة</button>
+          <button id="addFollowupBtn" class="primary-btn followup-manage-action">إضافة متابعة</button>
         </div>
 
+        <div id="followupsStatus" class="data-status hidden"></div>
         <div class="followup-stats" id="followupStats"></div>
 
         <div class="filters-row followup-filters">
@@ -302,6 +303,14 @@
             </thead>
             <tbody id="followupsTableBody"></tbody>
           </table>
+        </div>
+        <div class="table-pagination" id="followupsPagination">
+          <span id="followupsPaginationInfo">0 متابعة</span>
+          <div>
+            <button id="followupsPrevPage" class="secondary-btn compact-btn" type="button">السابق</button>
+            <span id="followupsPageNumber">1</span>
+            <button id="followupsNextPage" class="secondary-btn compact-btn" type="button">التالي</button>
+          </div>
         </div>
       </section>
 
@@ -779,6 +788,7 @@
   <script src="assets/js/auth-session.js"></script>
   <script src="assets/js/reference-data-service.js"></script>
   <script src="assets/js/customers-service.js"></script>
+  <script src="assets/js/followups-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

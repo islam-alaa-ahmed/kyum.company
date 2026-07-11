@@ -1,4 +1,4 @@
-# KYUM Phase 08 — Customers Supabase CRUD
+# KYUM Phase 09 — Follow-ups Supabase
 
 ## Modified/New Files
 
@@ -6,24 +6,25 @@
 - `assets/css/style.css`
 - `assets/js/app.js`
 - `assets/js/permissions.js`
-- `assets/js/customers-service.js`
-- `supabase/migrations/phase08_customer_audit.sql`
+- `assets/js/followups-service.js`
+- `supabase/migrations/phase09_followups_audit.sql`
 
 ## Implemented
 
-- Supabase is now the only production source for customer records.
-- Live customer loading under existing RLS rules.
-- Add and edit customers in Supabase.
-- Delete customers for management roles only.
-- Unique mobile validation in the UI and database.
-- Customer-interest relationship persistence.
-- Representative and no-sale-reason UUID relationships.
-- Client-side search, filters and pagination.
-- Role-aware add, edit and delete controls.
-- Customer action audit logging.
-- Dashboard customer indicators refresh from live customer data.
+- Supabase is now the only production source for follow-up records.
+- Live follow-up loading under existing RLS policies.
+- Add, edit and delete follow-ups.
+- UUID relationships for customer, representative and no-sale reason.
+- Automatic update of the customer's latest contact date.
+- Update of quotation number and no-sale reason when supplied.
+- Recalculation of latest contact date after follow-up deletion.
+- Today, overdue, upcoming and completed status calculations.
+- Search, representative filter, status filter and pagination.
+- Role-aware follow-up controls.
+- Follow-up audit logging.
+- Customer profile timeline now uses live Supabase follow-ups.
+- Dashboard follow-up indicators now use live Supabase data.
 
 ## Scope Note
 
-Follow-ups and quotations still use their previous temporary source until
-Phases 09 and 10. Customer CRUD itself no longer uses LocalStorage.
+Quotations still use the temporary source until Phase 10.
