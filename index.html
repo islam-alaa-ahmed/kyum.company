@@ -11,22 +11,30 @@
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
+  <div id="authLoadingOverlay" class="auth-loading-overlay">
+    <div class="auth-loading-card">
+      <div class="spinner"></div>
+      <strong>جاري التحقق من الجلسة...</strong>
+      <span>يرجى الانتظار</span>
+    </div>
+  </div>
   <section id="loginView" class="login-shell">
     <div class="login-card">
       <div class="brand-mark">CRM</div>
       <h1>نظام إدارة ومتابعة العملاء</h1>
-      <p>Customer Management v1.0</p>
+      <p>Customer Management v1.0 — Secure Login</p>
       <form id="loginForm">
         <label>
           البريد الإلكتروني
-          <input id="loginEmail" type="email" value="admin@company.com" required>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="name@company.com" required>
         </label>
         <label>
           كلمة المرور
-          <input id="loginPassword" type="password" value="admin123" required>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="كلمة المرور" required>
         </label>
-        <button class="primary-btn" type="submit">تسجيل الدخول</button>
-        <small>نسخة المرحلة الأولى تعمل محليًا للتجربة. بيانات الدخول الافتراضية ظاهرة داخل الحقول.</small>
+        <button id="loginSubmitBtn" class="primary-btn" type="submit">تسجيل الدخول</button>
+        <div id="loginMessage" class="auth-message hidden" role="alert"></div>
+        <small>يتم تسجيل الدخول باستخدام Supabase Auth. لا توجد بيانات دخول افتراضية.</small>
       </form>
     </div>
   </section>
@@ -60,8 +68,8 @@
         <div class="user-chip">
           <span class="avatar">أ</span>
           <div>
-            <strong>مدير النظام</strong>
-            <small>admin@company.com</small>
+            <strong id="currentUserName">مستخدم</strong>
+            <small id="currentUserMeta">جاري التحميل...</small>
           </div>
         </div>
       </header>
@@ -588,6 +596,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/permissions.js"></script>
+  <script src="assets/js/auth-session.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>
