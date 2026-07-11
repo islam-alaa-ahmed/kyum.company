@@ -1,0 +1,20 @@
+{
+  "name": "نظام إدارة ومتابعة العملاء - Kyum",
+  "short_name": "Kyum CRM",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071b26",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "assets/images/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
