@@ -24,6 +24,10 @@ window.CustomerPermissions = Object.freeze({
       referenceDataNav.classList.toggle("hidden", !this.can(role, "manage_settings"));
     }
 
+    document.querySelectorAll(".reference-manage-action").forEach(button => {
+      button.classList.toggle("hidden", !this.can(role, "manage_settings"));
+    });
+
     if (privacyGroup) {
       privacyGroup.classList.toggle(
         "hidden",

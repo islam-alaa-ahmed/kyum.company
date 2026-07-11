@@ -3,33 +3,18 @@ const STORAGE_KEY = "customer_management_v1_customers";
 const FOLLOWUPS_STORAGE_KEY = "customer_management_v1_followups";
 const QUOTATIONS_STORAGE_KEY = "customer_management_v1_quotations";
 
-const interests = [
-  "أجهزة منزلية",
-  "مكيفات",
-  "ثلاجات لحوم",
-  "ثلاجات دواجن",
-  "ثلاجات خضار",
-  "ثلاجات عصائر",
-  "تبريد"
-];
+let interestRecords = [];
+let reasonRecords = [];
+let representativeRecords = [];
 
-const noSaleReasons = [
-  "لم يتم التواصل بعد",
-  "السعر مرتفع",
-  "اختار منافسًا آخر",
-  "لا توجد ميزانية حاليًا",
-  "القرار مؤجل",
-  "مدة التوريد",
-  "شروط الدفع",
-  "لم يتم الرد",
-  "أخرى"
-];
+let interests = [];
+let noSaleReasons = [];
+let representatives = [];
 
-const representatives = [
-  { id: "REP-001", name: "أحمد محمد", phone: "0500000001", email: "ahmed@company.com" },
-  { id: "REP-002", name: "محمد علي", phone: "0500000002", email: "mohamed@company.com" },
-  { id: "REP-003", name: "خالد حسن", phone: "0500000003", email: "khaled@company.com" }
-];
+let referenceDataLoaded = false;
+let referenceDataLoading = false;
+let editingRepresentativeId = null;
+let editingReferenceItemId = null;
 
 const seedCustomers = [
   {
@@ -310,55 +295,151 @@ function nextCustomerId() {
   return `C${String(max + 1).padStart(6, "0")}`;
 }
 
+function replaceSelectOptions(select, options, placeholder = null, selectedValue = null) {
+  if (!select) return;
+  select.innerHTML = "";
+  if (placeholder) select.add(new Option(placeholder, ""));
+  options.forEach(option => select.add(new Option(option.label, option.value)));
+  if (selectedValue !== null && [...select.options].some(option => option.value === selectedValue)) {
+    select.value = selectedValue;
+  }
+}
+
+function refreshReferenceOptions() {
+  interests = interestRecords.filter(item => item.is_active).map(item => item.name);
+  noSaleReasons = reasonRecords.filter(item => item.is_active).map(item => item.name);
+  representatives = representativeRecords
+    .filter(item => item.is_active)
+    .map(item => ({
+      id: item.representative_code,
+      uuid: item.id,
+      name: item.full_name,
+      phone: item.phone || "",
+      email: item.email || ""
+    }));
+
+  const current = {
+    interestFilter: document.getElementById("interestFilter")?.value || "",
+    repFilter: document.getElementById("repFilter")?.value || "",
+    followupRepFilter: document.getElementById("followupRepFilter")?.value || "",
+    quotationRepFilter: document.getElementById("quotationRepFilter")?.value || "",
+    dashboardRepFilter: document.getElementById("dashboardRepFilter")?.value || "",
+    dashboardInterestFilter: document.getElementById("dashboardInterestFilter")?.value || ""
+  };
+
+  replaceSelectOptions(
+    document.getElementById("interestFilter"),
+    interests.map(value => ({ label: value, value })),
+    "كل مجالات الاهتمام",
+    current.interestFilter
+  );
+
+  replaceSelectOptions(
+    document.getElementById("customerInterest"),
+    interests.map(value => ({ label: value, value }))
+  );
+
+  ["repFilter", "followupRepFilter", "quotationRepFilter", "dashboardRepFilter"].forEach(id => {
+    const labels = {
+      repFilter: "كل المندوبين",
+      followupRepFilter: "كل المندوبين",
+      quotationRepFilter: "كل المندوبين",
+      dashboardRepFilter: "كل المندوبين"
+    };
+    replaceSelectOptions(
+      document.getElementById(id),
+      representatives.map(rep => ({ label: rep.name, value: rep.name })),
+      labels[id],
+      current[id]
+    );
+  });
+
+  replaceSelectOptions(
+    document.getElementById("customerRepresentative"),
+    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+  );
+  replaceSelectOptions(
+    document.getElementById("followupRepresentative"),
+    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+  );
+  replaceSelectOptions(
+    document.getElementById("quotationRepresentative"),
+    representatives.map(rep => ({ label: rep.name, value: rep.name }))
+  );
+
+  replaceSelectOptions(
+    document.getElementById("noSaleReason"),
+    noSaleReasons.map(value => ({ label: value, value }))
+  );
+  replaceSelectOptions(
+    document.getElementById("followupNoSaleReason"),
+    noSaleReasons.map(value => ({ label: value, value }))
+  );
+  replaceSelectOptions(
+    document.getElementById("quotationRejectionReason"),
+    noSaleReasons.map(value => ({ label: value, value }))
+  );
+
+  replaceSelectOptions(
+    document.getElementById("dashboardInterestFilter"),
+    interests.map(value => ({ label: value, value })),
+    "كل مجالات الاهتمام",
+    current.dashboardInterestFilter
+  );
+
+  const customerOptions = customers.map(customer => ({
+    label: `${customer.name} — ${customer.phone}`,
+    value: customer.id
+  }));
+  replaceSelectOptions(document.getElementById("followupCustomer"), customerOptions);
+  replaceSelectOptions(document.getElementById("quotationCustomer"), customerOptions);
+
+  renderReferenceData();
+  renderRepresentatives();
+}
+
+function showDataStatus(id, message = "", type = "info") {
+  const element = document.getElementById(id);
+  if (!element) return;
+  element.textContent = message;
+  element.className = message ? `data-status ${type}` : "data-status hidden";
+}
+
+async function loadReferenceDataFromSupabase(force = false) {
+  if (referenceDataLoading || (referenceDataLoaded && !force)) return;
+  if (!window.ReferenceDataService || !window.customerSupabase) return;
+
+  referenceDataLoading = true;
+  showDataStatus("referenceDataStatus", "جاري تحميل البيانات المرجعية...", "info");
+  showDataStatus("representativesStatus", "جاري تحميل المندوبين...", "info");
+
+  try {
+    const [loadedRepresentatives, loadedInterests, loadedReasons] = await Promise.all([
+      window.ReferenceDataService.listRepresentatives(true),
+      window.ReferenceDataService.listInterests(true),
+      window.ReferenceDataService.listReasons(true)
+    ]);
+
+    representativeRecords = loadedRepresentatives || [];
+    interestRecords = loadedInterests || [];
+    reasonRecords = loadedReasons || [];
+    referenceDataLoaded = true;
+    refreshReferenceOptions();
+
+    showDataStatus("referenceDataStatus", "");
+    showDataStatus("representativesStatus", "");
+  } catch (error) {
+    console.error("Reference data load failed:", error);
+    const message = error instanceof Error ? error.message : "تعذر تحميل البيانات.";
+    showDataStatus("referenceDataStatus", message, "error");
+    showDataStatus("representativesStatus", message, "error");
+  } finally {
+    referenceDataLoading = false;
+  }
+}
+
 function setOptions() {
-  const interestFilter = document.getElementById("interestFilter");
-  const customerInterest = document.getElementById("customerInterest");
-  const repFilter = document.getElementById("repFilter");
-  const customerRepresentative = document.getElementById("customerRepresentative");
-  const noSaleReason = document.getElementById("noSaleReason");
-  const followupCustomer = document.getElementById("followupCustomer");
-  const followupRepresentative = document.getElementById("followupRepresentative");
-  const followupNoSaleReason = document.getElementById("followupNoSaleReason");
-  const followupRepFilter = document.getElementById("followupRepFilter");
-  const quotationCustomer = document.getElementById("quotationCustomer");
-  const quotationRepresentative = document.getElementById("quotationRepresentative");
-  const quotationRejectionReason = document.getElementById("quotationRejectionReason");
-  const quotationRepFilter = document.getElementById("quotationRepFilter");
-  const dashboardRepFilter = document.getElementById("dashboardRepFilter");
-  const dashboardInterestFilter = document.getElementById("dashboardInterestFilter");
-
-  interests.forEach(item => {
-    interestFilter.add(new Option(item, item));
-    customerInterest.add(new Option(item, item));
-    dashboardInterestFilter.add(new Option(item, item));
-  });
-
-  representatives.forEach(rep => {
-    repFilter.add(new Option(rep.name, rep.name));
-    customerRepresentative.add(new Option(rep.name, rep.name));
-    followupRepresentative.add(new Option(rep.name, rep.name));
-    followupRepFilter.add(new Option(rep.name, rep.name));
-    quotationRepresentative.add(new Option(rep.name, rep.name));
-    quotationRepFilter.add(new Option(rep.name, rep.name));
-    dashboardRepFilter.add(new Option(rep.name, rep.name));
-  });
-
-  noSaleReasons.forEach(reason => {
-    noSaleReason.add(new Option(reason, reason));
-    followupNoSaleReason.add(new Option(reason, reason));
-    quotationRejectionReason.add(new Option(reason, reason));
-  });
-
-  customers.forEach(customer => {
-    followupCustomer.add(new Option(`${customer.name} — ${customer.phone}`, customer.id));
-    quotationCustomer.add(new Option(`${customer.name} — ${customer.phone}`, customer.id));
-  });
-
-  document.getElementById("settingsInterests").innerHTML =
-    interests.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("");
-
-  document.getElementById("settingsReasons").innerHTML =
-    noSaleReasons.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("");
+  refreshReferenceOptions();
 }
 
 function switchView(name) {
@@ -380,7 +461,14 @@ function switchView(name) {
   if (name === "customers") renderCustomers();
   if (name === "followups") renderFollowups();
   if (name === "quotations") renderQuotations();
-  if (name === "representatives") renderRepresentatives();
+  if (name === "representatives") {
+    loadReferenceDataFromSupabase();
+    renderRepresentatives();
+  }
+  if (name === "settings") {
+    loadReferenceDataFromSupabase();
+    renderReferenceData();
+  }
 }
 
 
@@ -712,17 +800,146 @@ function renderCustomers() {
     </tr>`).join("");
 }
 
+function currentRole() {
+  return window.CustomerAuth?.getState?.().profile?.role || "viewer";
+}
+
+function canManageReferenceData() {
+  return ["super_admin", "sales_manager"].includes(currentRole());
+}
+
 function renderRepresentatives() {
-  document.getElementById("representativesGrid").innerHTML = representatives.map(rep => {
-    const count = customers.filter(c => c.representative === rep.name).length;
+  const container = document.getElementById("representativesGrid");
+  if (!container) return;
+
+  if (!representativeRecords.length) {
+    container.innerHTML = `<div class="empty-state">لا يوجد مندوبون مسجلون في Supabase.</div>`;
+    return;
+  }
+
+  const canManage = canManageReferenceData();
+  container.innerHTML = representativeRecords.map(rep => {
+    const count = customers.filter(c => c.representative === rep.full_name).length;
     return `
-      <article class="rep-card">
-        <strong>${escapeHtml(rep.name)}</strong>
-        <span>${escapeHtml(rep.id)}</span>
-        <p>${escapeHtml(rep.phone)}<br>${escapeHtml(rep.email)}</p>
-        <span>عدد العملاء: ${count}</span>
+      <article class="rep-card ${rep.is_active ? "" : "inactive-record"}">
+        <div class="record-card-header">
+          <div>
+            <strong>${escapeHtml(rep.full_name)}</strong>
+            <span>${escapeHtml(rep.representative_code)}</span>
+          </div>
+          <span class="record-status ${rep.is_active ? "active" : "inactive"}">
+            ${rep.is_active ? "نشط" : "غير نشط"}
+          </span>
+        </div>
+        <p>${escapeHtml(rep.phone || "لا يوجد جوال")}<br>${escapeHtml(rep.email || "لا يوجد بريد")}</p>
+        <div class="record-card-footer">
+          <span>عدد العملاء المحليين: ${count}</span>
+          ${canManage ? `<button class="edit-btn" data-edit-representative="${rep.id}">تعديل</button>` : ""}
+        </div>
       </article>`;
   }).join("");
+}
+
+function renderReferenceData() {
+  const canManage = canManageReferenceData();
+
+  const renderItems = (records, type) => records.length
+    ? records.map(item => `
+        <div class="reference-item ${item.is_active ? "" : "inactive-record"}">
+          <div>
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="record-status ${item.is_active ? "active" : "inactive"}">
+              ${item.is_active ? "نشط" : "غير نشط"}
+            </span>
+          </div>
+          ${canManage ? `<button class="edit-btn" data-edit-reference="${item.id}" data-reference-type="${type}">تعديل</button>` : ""}
+        </div>`).join("")
+    : `<div class="empty-state">لا توجد بيانات مسجلة.</div>`;
+
+  const interestsContainer = document.getElementById("settingsInterests");
+  const reasonsContainer = document.getElementById("settingsReasons");
+
+  if (interestsContainer) interestsContainer.innerHTML = renderItems(interestRecords, "interest");
+  if (reasonsContainer) reasonsContainer.innerHTML = renderItems(reasonRecords, "reason");
+
+  document.querySelectorAll(".reference-manage-action").forEach(button => {
+    button.classList.toggle("hidden", !canManage);
+  });
+}
+
+function openRepresentativeDialog(record = null) {
+  editingRepresentativeId = record?.id || null;
+  document.getElementById("representativeDialogTitle").textContent =
+    record ? "تعديل مندوب المبيعات" : "إضافة مندوب مبيعات";
+  document.getElementById("representativeId").value = record?.id || "";
+  document.getElementById("representativeCode").value = record?.representative_code || "";
+  document.getElementById("representativeName").value = record?.full_name || "";
+  document.getElementById("representativePhone").value = record?.phone || "";
+  document.getElementById("representativeEmail").value = record?.email || "";
+  document.getElementById("representativeActive").value = String(record?.is_active ?? true);
+  document.getElementById("representativeDialog").showModal();
+}
+
+function closeRepresentativeDialog() {
+  document.getElementById("representativeDialog").close();
+  document.getElementById("representativeForm").reset();
+  editingRepresentativeId = null;
+}
+
+async function saveRepresentativeForm(event) {
+  event.preventDefault();
+  try {
+    await window.ReferenceDataService.saveRepresentative({
+      id: editingRepresentativeId,
+      representative_code: document.getElementById("representativeCode").value,
+      full_name: document.getElementById("representativeName").value,
+      phone: document.getElementById("representativePhone").value,
+      email: document.getElementById("representativeEmail").value,
+      is_active: document.getElementById("representativeActive").value === "true"
+    });
+    closeRepresentativeDialog();
+    referenceDataLoaded = false;
+    await loadReferenceDataFromSupabase(true);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حفظ المندوب.");
+  }
+}
+
+function openReferenceDialog(type, record = null) {
+  editingReferenceItemId = record?.id || null;
+  document.getElementById("referenceDialogTitle").textContent =
+    `${record ? "تعديل" : "إضافة"} ${type === "interest" ? "مجال اهتمام" : "سبب عدم بيع"}`;
+  document.getElementById("referenceItemId").value = record?.id || "";
+  document.getElementById("referenceItemType").value = type;
+  document.getElementById("referenceItemName").value = record?.name || "";
+  document.getElementById("referenceItemActive").value = String(record?.is_active ?? true);
+  document.getElementById("referenceItemDialog").showModal();
+}
+
+function closeReferenceDialog() {
+  document.getElementById("referenceItemDialog").close();
+  document.getElementById("referenceItemForm").reset();
+  editingReferenceItemId = null;
+}
+
+async function saveReferenceForm(event) {
+  event.preventDefault();
+  const type = document.getElementById("referenceItemType").value;
+  const payload = {
+    id: editingReferenceItemId,
+    name: document.getElementById("referenceItemName").value,
+    is_active: document.getElementById("referenceItemActive").value === "true"
+  };
+
+  try {
+    if (type === "interest") await window.ReferenceDataService.saveInterest(payload);
+    else await window.ReferenceDataService.saveReason(payload);
+    closeReferenceDialog();
+    referenceDataLoaded = false;
+    await loadReferenceDataFromSupabase(true);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر حفظ البيانات المرجعية.");
+  }
 }
 
 function openCustomerDialog(customer = null) {
@@ -733,10 +950,10 @@ function openCustomerDialog(customer = null) {
   document.getElementById("customerType").value = customer?.type || "شركة";
   document.getElementById("customerPhone").value = customer?.phone || "";
   document.getElementById("customerCity").value = customer?.city || "";
-  document.getElementById("customerRepresentative").value = customer?.representative || representatives[0].name;
+  document.getElementById("customerRepresentative").value = customer?.representative || representatives[0]?.name || "";
   document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
   document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
-  document.getElementById("noSaleReason").value = customer?.noSaleReason || noSaleReasons[0];
+  document.getElementById("noSaleReason").value = customer?.noSaleReason || noSaleReasons[0] || "";
   document.getElementById("customerNotes").value = customer?.notes || "";
 
   [...document.getElementById("customerInterest").options].forEach(option => {
@@ -905,10 +1122,10 @@ function openFollowupDialog(customerId = null, followup = null) {
   document.getElementById("followupContactDate").value = followup?.contactDate || todayIso();
   document.getElementById("followupMethod").value = followup?.method || "اتصال";
   document.getElementById("followupRepresentative").value =
-    followup?.representative || customerById(customerId)?.representative || representatives[0].name;
+    followup?.representative || customerById(customerId)?.representative || representatives[0]?.name || "";
   document.getElementById("followupResult").value = followup?.result || "تم التواصل";
   document.getElementById("followupQuotationNumber").value = followup?.quotationNumber || "";
-  document.getElementById("followupNoSaleReason").value = followup?.noSaleReason || noSaleReasons[0];
+  document.getElementById("followupNoSaleReason").value = followup?.noSaleReason || noSaleReasons[0] || "";
   document.getElementById("nextFollowupDate").value = followup?.nextFollowupDate || "";
   document.getElementById("followupCompleted").value = String(followup?.completed || false);
   document.getElementById("followupNotes").value = followup?.notes || "";
@@ -1116,13 +1333,13 @@ function openQuotationDialog(quotation = null, customerId = null) {
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";
   document.getElementById("quotationRepresentative").value =
-    quotation?.representative || customerById(customerId)?.representative || representatives[0].name;
+    quotation?.representative || customerById(customerId)?.representative || representatives[0]?.name || "";
   document.getElementById("quotationDate").value = quotation?.quotationDate || todayIso();
   document.getElementById("quotationAmount").value = quotation?.amount ?? "";
   document.getElementById("quotationStatus").value = quotation?.status || "تحت التجهيز";
   document.getElementById("quotationExpiryDate").value = quotation?.expiryDate || "";
   document.getElementById("quotationRejectionReason").value =
-    quotation?.rejectionReason || noSaleReasons[0];
+    quotation?.rejectionReason || noSaleReasons[0] || "";
   document.getElementById("quotationDescription").value = quotation?.description || "";
   document.getElementById("quotationNotes").value = quotation?.notes || "";
 
@@ -1324,6 +1541,41 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   }
 
   if (deleteId) deleteQuotation(deleteId);
+});
+
+
+document.getElementById("addRepresentativeBtn")?.addEventListener("click", () => openRepresentativeDialog());
+document.getElementById("closeRepresentativeDialogBtn")?.addEventListener("click", closeRepresentativeDialog);
+document.getElementById("cancelRepresentativeDialogBtn")?.addEventListener("click", closeRepresentativeDialog);
+document.getElementById("representativeForm")?.addEventListener("submit", saveRepresentativeForm);
+
+document.getElementById("closeReferenceDialogBtn")?.addEventListener("click", closeReferenceDialog);
+document.getElementById("cancelReferenceDialogBtn")?.addEventListener("click", closeReferenceDialog);
+document.getElementById("referenceItemForm")?.addEventListener("submit", saveReferenceForm);
+
+document.querySelectorAll("[data-add-reference]").forEach(button => {
+  button.addEventListener("click", () => openReferenceDialog(button.dataset.addReference));
+});
+
+document.getElementById("representativesGrid")?.addEventListener("click", event => {
+  const id = event.target.dataset.editRepresentative;
+  if (!id) return;
+  const record = representativeRecords.find(item => item.id === id);
+  if (record) openRepresentativeDialog(record);
+});
+
+document.getElementById("settingsView")?.addEventListener("click", event => {
+  const id = event.target.dataset.editReference;
+  const type = event.target.dataset.referenceType;
+  if (!id || !type) return;
+  const records = type === "interest" ? interestRecords : reasonRecords;
+  const record = records.find(item => item.id === id);
+  if (record) openReferenceDialog(type, record);
+});
+
+window.addEventListener("customer-auth-ready", async () => {
+  await loadReferenceDataFromSupabase(true);
+  renderDashboard();
 });
 
 setOptions();
