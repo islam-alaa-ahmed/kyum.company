@@ -277,3 +277,16 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
 .record-card-header>div{display:grid}
 .record-card-footer{margin-top:12px}
 .record-card-footer span{font-size:12px;color:var(--muted)}
+
+
+.table-pagination{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 4px 0;color:var(--muted);font-size:13px
+}
+.table-pagination>div{display:flex;align-items:center;gap:10px}
+.table-pagination button:disabled{opacity:.45;cursor:not-allowed}
+#customersPageNumber{min-width:58px;text-align:center;font-weight:700;color:var(--text)}
+@media(max-width:600px){
+  .table-pagination{align-items:stretch;flex-direction:column}
+  .table-pagination>div{justify-content:space-between}
+}
