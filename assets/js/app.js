@@ -146,7 +146,12 @@ const views = {
   followups: document.getElementById("followupsView"),
   quotations: document.getElementById("quotationsView"),
   representatives: document.getElementById("representativesView"),
-  settings: document.getElementById("settingsView")
+  settings: document.getElementById("settingsView"),
+  users: document.getElementById("usersView"),
+  permissions: document.getElementById("permissionsView"),
+  activityLog: document.getElementById("activityLogView"),
+  backups: document.getElementById("backupsView"),
+  systemSettings: document.getElementById("systemSettingsView")
 };
 
 const pageMeta = {
@@ -154,8 +159,13 @@ const pageMeta = {
   customers: ["العملاء", "إدارة بيانات العملاء والبحث والتصفية"],
   followups: ["المتابعات", "سجل التواصل والمتابعات القادمة لكل عميل"],
   quotations: ["عروض الأسعار", "إدارة عروض الأسعار وحالتها وقيمتها"],
-  representatives: ["المندوبون", "قائمة مسؤولي متابعة العملاء"],
-  settings: ["الإعدادات", "القوائم المرجعية الأساسية"]
+  representatives: ["مندوبو المبيعات", "قائمة مسؤولي متابعة العملاء"],
+  settings: ["البيانات المرجعية", "مجالات الاهتمام وأسباب عدم البيع"],
+  users: ["المستخدمون", "إدارة حسابات مستخدمي النظام"],
+  permissions: ["الصلاحيات", "إدارة الأدوار وصلاحيات الوصول"],
+  activityLog: ["سجل النشاط", "متابعة العمليات والتغييرات داخل النظام"],
+  backups: ["النسخ الاحتياطي", "التصدير والاستعادة وحماية البيانات"],
+  systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"]
 };
 
 function loadCustomers() {
@@ -354,6 +364,15 @@ function setOptions() {
 function switchView(name) {
   Object.entries(views).forEach(([key, element]) => element.classList.toggle("hidden", key !== name));
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.view === name));
+
+  const activeNavItem = document.querySelector(`.nav-item[data-view="${name}"]`);
+  const activeGroup = activeNavItem?.closest(".nav-group");
+  if (activeGroup) {
+    activeGroup.classList.remove("is-collapsed");
+    activeGroup.querySelector(".nav-group-toggle")?.setAttribute("aria-expanded", "true");
+    localStorage.setItem(`kyum-nav-group-${activeGroup.dataset.navGroup}`, "open");
+  }
+
   document.getElementById("pageTitle").textContent = pageMeta[name][0];
   document.getElementById("pageSubtitle").textContent = pageMeta[name][1];
 
@@ -1194,6 +1213,28 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+
+function initializeSidebarGroups() {
+  document.querySelectorAll(".nav-group").forEach(group => {
+    const toggle = group.querySelector(".nav-group-toggle");
+    const storageKey = `kyum-nav-group-${group.dataset.navGroup}`;
+    const savedState = localStorage.getItem(storageKey);
+
+    if (savedState === "closed") {
+      group.classList.add("is-collapsed");
+      toggle?.setAttribute("aria-expanded", "false");
+    }
+
+    toggle?.addEventListener("click", () => {
+      const collapsed = group.classList.toggle("is-collapsed");
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+      localStorage.setItem(storageKey, collapsed ? "closed" : "open");
+    });
+  });
+}
+
+initializeSidebarGroups();
 
 document.querySelectorAll(".nav-item").forEach(button => {
   button.addEventListener("click", () => switchView(button.dataset.view));

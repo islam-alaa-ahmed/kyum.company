@@ -17,7 +17,18 @@ window.CustomerPermissions = Object.freeze({
   apply(profile) {
     const role = profile?.role || "viewer";
     document.body.dataset.userRole = role;
-    const settingsNav = document.querySelector('.nav-item[data-view="settings"]');
-    if (settingsNav) settingsNav.classList.toggle("hidden", !this.can(role, "manage_settings"));
+    const referenceDataNav = document.querySelector('.nav-item[data-view="settings"]');
+    const privacyGroup = document.querySelector('.privacy-nav-group');
+
+    if (referenceDataNav) {
+      referenceDataNav.classList.toggle("hidden", !this.can(role, "manage_settings"));
+    }
+
+    if (privacyGroup) {
+      privacyGroup.classList.toggle(
+        "hidden",
+        !this.can(role, "manage_settings") && !this.can(role, "manage_users")
+      );
+    }
   }
 });
