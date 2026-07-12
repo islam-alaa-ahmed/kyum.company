@@ -1,13 +1,14 @@
-# KYUM Phase 13.1 — Restore DELETE WHERE Fix
+# KYUM Phase 13.1 — Generated Columns Restore Fix
 
 ## Root Cause
-The database safe-delete protection rejects `DELETE` statements that do not
-contain a `WHERE` clause.
+The backup contains values for generated database columns such as
+`customers.normalized_phone`. PostgreSQL rejects explicit inserts into
+generated columns.
 
 ## Fix
-- Replaced every full-table delete inside
-  `restore_kyum_backup_transactional()` with `DELETE ... WHERE true`.
-- Preserved child-to-parent delete order.
-- Preserved parent-to-child restore order.
-- Preserved atomic rollback behavior.
-- Reloaded the PostgREST schema cache.
+- Builds the writable INSERT column list from PostgreSQL metadata.
+- Automatically excludes every generated column.
+- Preserves IDs, relationships, timestamps, and normal writable fields.
+- Preserves safe-delete `WHERE true`.
+- Preserves parent/child restore order.
+- Preserves atomic rollback behavior.
