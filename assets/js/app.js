@@ -147,6 +147,8 @@ let backupHistoryRecords = [];
 let backupHistoryLoaded = false;
 let systemSettingsLoaded = false;
 let systemHealthSnapshot = null;
+let latestDiagnosticsReport = null;
+let diagnosticsRunning = false;
 let systemHealthLoading = false;
 let systemHealthTimer = null;
 
@@ -1509,6 +1511,168 @@ function renderSystemHealth() {
   renderPerformanceMonitor();
 }
 
+function diagnosticsStatusLabel(status) {
+  const labels = {
+    passed: "Passed",
+    warning: "Warning",
+    critical: "Critical"
+  };
+  return labels[status] || status;
+}
+
+function diagnosticsStatusArabic(status) {
+  const labels = {
+    passed: "ناجح",
+    warning: "تحذير",
+    critical: "حرج"
+  };
+  return labels[status] || status;
+}
+
+function renderDiagnosticsReport(report) {
+  latestDiagnosticsReport = report;
+
+  document.getElementById("diagnosticsScore").textContent =
+    `${report.evaluation.score}%`;
+  document.getElementById("diagnosticsDuration").textContent =
+    `المدة: ${formatDuration(report.duration_ms)}`;
+  document.getElementById("diagnosticsPassed").textContent =
+    report.evaluation.passed;
+  document.getElementById("diagnosticsWarnings").textContent =
+    report.evaluation.warnings;
+  document.getElementById("diagnosticsCritical").textContent =
+    report.evaluation.critical;
+  document.getElementById("diagnosticsFinishedAt").textContent =
+    new Date(report.finished_at).toLocaleTimeString("ar-SA");
+  document.getElementById("diagnosticsEnvironment").textContent =
+    `البيئة: ${report.environment}`;
+
+  const groups = [...new Set(report.evaluation.tests.map(test => test.category))];
+  document.getElementById("diagnosticsResults").innerHTML = groups.map(group => `
+    <section class="diagnostics-group">
+      <h4>${escapeHtml(group)}</h4>
+      <div class="diagnostics-test-list">
+        ${report.evaluation.tests.filter(test => test.category === group).map(test => `
+          <article class="diagnostics-test ${test.status}">
+            <div class="diagnostics-test-status">
+              <span>${escapeHtml(diagnosticsStatusLabel(test.status))}</span>
+            </div>
+            <div class="diagnostics-test-content">
+              <strong>${escapeHtml(test.title)}</strong>
+              <p>${escapeHtml(test.detail || "")}</p>
+              ${test.status !== "passed" && test.recommendation
+                ? `<small><b>التوصية:</b> ${escapeHtml(test.recommendation)}</small>`
+                : ""}
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `).join("");
+
+  document.getElementById("downloadDiagnosticsJsonBtn").disabled = false;
+  document.getElementById("downloadDiagnosticsHtmlBtn").disabled = false;
+}
+
+function diagnosticsHtml(report) {
+  const rows = report.evaluation.tests.map(test => `
+    <tr>
+      <td>${escapeHtml(test.category)}</td>
+      <td>${escapeHtml(test.title)}</td>
+      <td>${escapeHtml(diagnosticsStatusArabic(test.status))}</td>
+      <td>${escapeHtml(test.detail || "")}</td>
+      <td>${escapeHtml(test.recommendation || "")}</td>
+    </tr>
+  `).join("");
+
+  return `<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>KYUM Diagnostics Report</title>
+<style>
+body{font-family:Arial,sans-serif;margin:32px;color:#172033}
+h1,h2{margin:0 0 12px}
+.summary{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.summary div{border:1px solid #ddd;border-radius:10px;padding:12px;min-width:120px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ddd;padding:9px;text-align:right;vertical-align:top}
+th{background:#f4f6f8}
+footer{margin-top:24px;color:#667085;font-size:12px}
+</style>
+</head>
+<body>
+<h1>تقرير التشخيص الشامل — KYUM CRM</h1>
+<p>وقت الفحص: ${escapeHtml(new Date(report.finished_at).toLocaleString("ar-SA"))}</p>
+<div class="summary">
+<div><b>النتيجة</b><br>${report.evaluation.score}%</div>
+<div><b>Passed</b><br>${report.evaluation.passed}</div>
+<div><b>Warning</b><br>${report.evaluation.warnings}</div>
+<div><b>Critical</b><br>${report.evaluation.critical}</div>
+<div><b>المدة</b><br>${Math.round(report.duration_ms)} ms</div>
+</div>
+<table>
+<thead><tr><th>القسم</th><th>الفحص</th><th>الحالة</th><th>التفاصيل</th><th>التوصية</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<footer>Environment: ${escapeHtml(report.environment)} — Report version ${escapeHtml(report.report_version)}</footer>
+</body>
+</html>`;
+}
+
+function downloadTextFile(fileName, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function runEnterpriseDiagnostics() {
+  if (diagnosticsRunning) return;
+  diagnosticsRunning = true;
+
+  const button = document.getElementById("runDiagnosticsBtn");
+  button.disabled = true;
+  button.textContent = "جاري الفحص...";
+  showDataStatus(
+    "diagnosticsStatus",
+    "جاري تنفيذ اختبارات قاعدة البيانات والأمان والوظائف والواجهة...",
+    "info"
+  );
+
+  try {
+    const report = await window.DiagnosticsEngine.run();
+    renderDiagnosticsReport(report);
+
+    const type = report.evaluation.critical
+      ? "error"
+      : report.evaluation.warnings
+        ? "info"
+        : "success";
+
+    showDataStatus(
+      "diagnosticsStatus",
+      `اكتمل الفحص: ${report.evaluation.passed} ناجح، ${report.evaluation.warnings} تحذير، ${report.evaluation.critical} حرج.`,
+      type
+    );
+  } catch (error) {
+    showDataStatus(
+      "diagnosticsStatus",
+      error instanceof Error ? error.message : "تعذر تنفيذ الفحص الشامل.",
+      "error"
+    );
+  } finally {
+    diagnosticsRunning = false;
+    button.disabled = false;
+    button.textContent = "إعادة الفحص";
+  }
+}
+
 function componentLabel(key) {
   const labels = {
     database: "قاعدة البيانات",
@@ -2860,6 +3024,26 @@ document.getElementById("saveSystemSettingsBtn")?.addEventListener("click", save
 document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSystemSettings);
 
 document.getElementById("refreshSystemHealthBtn")?.addEventListener("click", () => loadSystemHealth(true));
+document.getElementById("runDiagnosticsBtn")?.addEventListener("click", runEnterpriseDiagnostics);
+document.getElementById("downloadDiagnosticsJsonBtn")?.addEventListener("click", () => {
+  if (!latestDiagnosticsReport) return;
+  const stamp = new Date().toISOString().replaceAll(":", "-");
+  downloadTextFile(
+    `kyum-diagnostics-${stamp}.json`,
+    JSON.stringify(latestDiagnosticsReport, null, 2),
+    "application/json;charset=utf-8"
+  );
+});
+document.getElementById("downloadDiagnosticsHtmlBtn")?.addEventListener("click", () => {
+  if (!latestDiagnosticsReport) return;
+  const stamp = new Date().toISOString().replaceAll(":", "-");
+  downloadTextFile(
+    `kyum-diagnostics-${stamp}.html`,
+    diagnosticsHtml(latestDiagnosticsReport),
+    "text/html;charset=utf-8"
+  );
+});
+
 document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click", () => {
   window.PerformanceMonitor?.reset?.();
   window.HealthAlertsEngine?.resetHistory?.();

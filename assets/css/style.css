@@ -601,3 +601,85 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
 @media(max-width:600px){
   .score-breakdown-item{grid-template-columns:1fr 70px 44px}
 }
+
+
+.diagnostics-center-panel{margin-top:18px}
+.diagnostics-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap
+}
+.diagnostics-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px
+}
+.diagnostics-summary-grid article{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  display:grid;
+  gap:6px
+}
+.diagnostics-summary-grid span,.diagnostics-summary-grid small{
+  color:var(--muted);
+  font-size:11px
+}
+.diagnostics-summary-grid strong{font-size:21px}
+.diagnostics-results{display:grid;gap:16px}
+.diagnostics-group{
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden
+}
+.diagnostics-group h4{
+  margin:0;
+  padding:11px 14px;
+  background:var(--surface-2);
+  border-bottom:1px solid var(--border)
+}
+.diagnostics-test-list{display:grid}
+.diagnostics-test{
+  display:grid;
+  grid-template-columns:86px 1fr;
+  gap:12px;
+  padding:13px 14px;
+  border-bottom:1px solid var(--border)
+}
+.diagnostics-test:last-child{border-bottom:0}
+.diagnostics-test-status span{
+  display:inline-flex;
+  justify-content:center;
+  min-width:72px;
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:10px;
+  font-weight:900
+}
+.diagnostics-test.passed .diagnostics-test-status span{
+  background:#dcfce7;color:#166534
+}
+.diagnostics-test.warning .diagnostics-test-status span{
+  background:#fef3c7;color:#92400e
+}
+.diagnostics-test.critical .diagnostics-test-status span{
+  background:#fee2e2;color:#b91c1c
+}
+.diagnostics-test-content{display:grid;gap:5px}
+.diagnostics-test-content p{margin:0;color:var(--muted);line-height:1.7}
+.diagnostics-test-content small{
+  padding:8px 10px;
+  border-radius:9px;
+  background:var(--surface-2);
+  line-height:1.7
+}
+@media(max-width:1000px){
+  .diagnostics-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .diagnostics-summary-grid{grid-template-columns:1fr}
+  .diagnostics-test{grid-template-columns:1fr}
+}

@@ -1,20 +1,26 @@
-# KYUM Phase 14.3 — Health Score & Smart Alerts
+# KYUM Phase 14.4 — Enterprise Diagnostics Center
 
 ## Modified/New Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/health-alerts-engine.js`
+- `assets/js/diagnostics-service.js`
+- `assets/js/diagnostics-engine.js`
 
 ## Implemented
 
-- Weighted enterprise health score.
-- Database, security, backup, performance, network, users and error components.
-- Healthy, Good, Warning and Critical levels.
-- Smart alerts generated from live health and performance metrics.
-- Actionable recommendations for detected issues.
-- Component score breakdown with weighted percentages.
-- Health score trend for the current browser session.
-- Integration with the existing 30-second health refresh.
-- No new SQL, Edge Function or external telemetry.
+- Full on-demand diagnostics workflow.
+- Database connectivity and latency checks.
+- Required-table and RLS coverage checks.
+- Authentication and active-profile checks.
+- Screen-permission coverage check.
+- CORS/availability checks for `backup-admin` and `manage-user`.
+- Latest backup-operation validation.
+- Frontend asset and deployment checks.
+- API failure, response-time and network checks.
+- Passed, Warning and Critical classification.
+- Overall diagnostic score and execution duration.
+- Downloadable JSON report.
+- Downloadable printable HTML report.
+- No SQL migration or new Edge Function.

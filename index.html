@@ -626,6 +626,54 @@
           </article>
         </div>
 
+        <article class="panel diagnostics-center-panel">
+          <div class="panel-header">
+            <div>
+              <h3>مركز التشخيص الشامل</h3>
+              <p>فحص تكاملي لقاعدة البيانات والأمان والوظائف السحابية والواجهة والأداء.</p>
+            </div>
+            <div class="diagnostics-actions">
+              <button id="runDiagnosticsBtn" class="primary-btn" type="button">تشغيل الفحص الشامل</button>
+              <button id="downloadDiagnosticsJsonBtn" class="secondary-btn compact-btn" type="button" disabled>تنزيل JSON</button>
+              <button id="downloadDiagnosticsHtmlBtn" class="secondary-btn compact-btn" type="button" disabled>تنزيل HTML</button>
+            </div>
+          </div>
+
+          <div id="diagnosticsStatus" class="data-status hidden"></div>
+
+          <div class="diagnostics-summary-grid">
+            <article>
+              <span>النتيجة</span>
+              <strong id="diagnosticsScore">—</strong>
+              <small id="diagnosticsDuration">المدة: —</small>
+            </article>
+            <article>
+              <span>Passed</span>
+              <strong id="diagnosticsPassed">0</strong>
+              <small>اختبارات ناجحة</small>
+            </article>
+            <article>
+              <span>Warning</span>
+              <strong id="diagnosticsWarnings">0</strong>
+              <small>تحتاج متابعة</small>
+            </article>
+            <article>
+              <span>Critical</span>
+              <strong id="diagnosticsCritical">0</strong>
+              <small>تحتاج تدخلًا</small>
+            </article>
+            <article>
+              <span>وقت الفحص</span>
+              <strong id="diagnosticsFinishedAt">—</strong>
+              <small id="diagnosticsEnvironment">البيئة: —</small>
+            </article>
+          </div>
+
+          <div id="diagnosticsResults" class="diagnostics-results">
+            <div class="empty-state">اضغط «تشغيل الفحص الشامل» لبدء التشخيص.</div>
+          </div>
+        </article>
+
         <article class="panel smart-health-panel">
           <div class="panel-header">
             <div>
@@ -1161,6 +1209,8 @@
 
   <script src="assets/js/performance-monitor.js"></script>
   <script src="assets/js/health-alerts-engine.js"></script>
+  <script src="assets/js/diagnostics-service.js"></script>
+  <script src="assets/js/diagnostics-engine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
