@@ -436,7 +436,7 @@
           </div>
         </div>
 
-        <div class="reports-filter-bar">
+        <div class="reports-filter-bar executive-filter-bar">
           <label>
             من تاريخ
             <input id="reportsDateFrom" type="date">
@@ -451,39 +451,92 @@
               <option value="">كل المندوبين</option>
             </select>
           </label>
+          <label>
+            هدف قيمة العروض
+            <input id="reportsSalesTarget" type="number" min="0" step="1000" value="100000">
+          </label>
           <button id="resetReportsFiltersBtn" class="secondary-btn" type="button">إعادة التعيين</button>
         </div>
 
         <div id="reportsStatus" class="data-status hidden"></div>
 
-        <div class="reports-kpi-grid">
-          <article>
-            <span>إجمالي العملاء</span>
+        <div class="executive-period-summary">
+          <div>
+            <span>الفترة الحالية</span>
+            <strong id="executiveCurrentPeriod">—</strong>
+          </div>
+          <div>
+            <span>فترة المقارنة</span>
+            <strong id="executivePreviousPeriod">—</strong>
+          </div>
+          <div>
+            <span>تحقيق الهدف</span>
+            <strong id="executiveTargetAchievement">0%</strong>
+          </div>
+        </div>
+
+        <div class="reports-kpi-grid executive-kpi-grid">
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>إجمالي العملاء</span>
+              <b id="reportCustomersDelta" class="kpi-delta neutral">0%</b>
+            </div>
             <strong id="reportCustomersTotal">0</strong>
             <small id="reportCustomersNew">الجدد: 0</small>
           </article>
-          <article>
-            <span>إجمالي المتابعات</span>
-            <strong id="reportFollowupsTotal">0</strong>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>متابعات اليوم</span>
+              <b id="reportTodayFollowupsDelta" class="kpi-delta neutral">0%</b>
+            </div>
+            <strong id="reportTodayFollowups">0</strong>
             <small id="reportFollowupsOverdue">المتأخرة: 0</small>
           </article>
-          <article>
-            <span>إجمالي العروض</span>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>إجمالي المتابعات</span>
+              <b id="reportFollowupsDelta" class="kpi-delta neutral">0%</b>
+            </div>
+            <strong id="reportFollowupsTotal">0</strong>
+            <small id="reportCompletedFollowups">المكتملة: 0</small>
+          </article>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>إجمالي العروض</span>
+              <b id="reportQuotationsDelta" class="kpi-delta neutral">0%</b>
+            </div>
             <strong id="reportQuotationsTotal">0</strong>
             <small id="reportQuotationsAccepted">المقبولة: 0</small>
           </article>
-          <article>
-            <span>قيمة العروض</span>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>قيمة العروض</span>
+              <b id="reportQuotationValueDelta" class="kpi-delta neutral">0%</b>
+            </div>
             <strong id="reportQuotationsValue">0 SAR</strong>
             <small id="reportAcceptedValue">المقبولة: 0 SAR</small>
           </article>
-          <article>
-            <span>نسبة التحويل</span>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>نسبة التحويل</span>
+              <b id="reportConversionDelta" class="kpi-delta neutral">0%</b>
+            </div>
             <strong id="reportConversionRate">0%</strong>
             <small>العروض المقبولة ÷ إجمالي العروض</small>
           </article>
-          <article>
-            <span>عملاء بلا متابعة</span>
+          <article class="executive-kpi-card">
+            <div class="kpi-card-head">
+              <span>تحقيق الهدف</span>
+              <b id="reportTargetDelta" class="kpi-delta neutral">0%</b>
+            </div>
+            <strong id="reportTargetAchievement">0%</strong>
+            <small id="reportTargetRemaining">المتبقي: 0 SAR</small>
+          </article>
+          <article class="executive-kpi-card attention">
+            <div class="kpi-card-head">
+              <span>عملاء بلا متابعة</span>
+              <b id="reportWithoutFollowupDelta" class="kpi-delta neutral">0%</b>
+            </div>
             <strong id="reportCustomersWithoutFollowup">0</strong>
             <small>يحتاجون إجراءً</small>
           </article>
@@ -493,11 +546,12 @@
           <article class="panel report-funnel-panel">
             <div class="panel-header">
               <div>
-                <h3>مسار التحويل</h3>
-                <p>من العملاء إلى المتابعة ثم عرض السعر والقبول.</p>
+                <h3>مسار المبيعات التنفيذي</h3>
+                <p>Lead → Qualified → Follow-up → Quotation → Negotiation → Won.</p>
               </div>
             </div>
-            <div id="reportsFunnel" class="reports-funnel"></div>
+            <div id="reportsFunnel" class="reports-funnel executive-funnel"></div>
+            <div id="executiveFunnelSummary" class="executive-funnel-summary"></div>
           </article>
 
           <article class="panel">

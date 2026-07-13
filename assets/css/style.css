@@ -799,3 +799,135 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .view-section:not(#reportsOverviewView){display:none!important}
   .panel,.reports-kpi-grid article{box-shadow:none;break-inside:avoid}
 }
+
+
+.executive-filter-bar{
+  grid-template-columns:repeat(4,minmax(150px,1fr)) auto
+}
+.executive-period-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px
+}
+.executive-period-summary>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.executive-period-summary span{font-size:11px;color:var(--muted)}
+.executive-period-summary strong{font-size:12px}
+.executive-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.executive-kpi-card{position:relative;overflow:hidden}
+.executive-kpi-card::before{
+  content:"";
+  position:absolute;
+  inset-inline-start:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:linear-gradient(180deg,#0ea5e9,#0f766e)
+}
+.executive-kpi-card.attention::before{
+  background:linear-gradient(180deg,#f59e0b,#ef4444)
+}
+.kpi-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px
+}
+.kpi-delta{
+  direction:ltr;
+  border-radius:999px;
+  padding:3px 7px;
+  font-size:10px;
+  font-weight:900
+}
+.kpi-delta.positive{background:#dcfce7;color:#166534}
+.kpi-delta.negative{background:#fee2e2;color:#b91c1c}
+.kpi-delta.neutral{background:#e2e8f0;color:#475569}
+.executive-funnel{display:grid;gap:12px}
+.executive-funnel-stage{
+  display:grid;
+  gap:7px;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.executive-funnel-stage-head{
+  display:grid;
+  grid-template-columns:30px 1fr auto;
+  align-items:center;
+  gap:9px
+}
+.executive-funnel-stage-head>span{
+  width:27px;height:27px;border-radius:9px;
+  display:grid;place-items:center;
+  color:white;font-weight:900;
+  background:#64748b
+}
+.executive-funnel-stage-head>div{display:grid;gap:2px}
+.executive-funnel-stage-head small{color:var(--muted)}
+.executive-funnel-stage-head b{font-size:18px}
+.executive-funnel-stage.stage-lead .executive-funnel-stage-head>span{background:#0ea5e9}
+.executive-funnel-stage.stage-qualified .executive-funnel-stage-head>span{background:#6366f1}
+.executive-funnel-stage.stage-followup .executive-funnel-stage-head>span{background:#8b5cf6}
+.executive-funnel-stage.stage-quotation .executive-funnel-stage-head>span{background:#f59e0b}
+.executive-funnel-stage.stage-negotiation .executive-funnel-stage-head>span{background:#f97316}
+.executive-funnel-stage.stage-won .executive-funnel-stage-head>span{background:#22c55e}
+.executive-funnel-bar{
+  height:10px;
+  border-radius:999px;
+  background:var(--surface);
+  overflow:hidden;
+  border:1px solid var(--border)
+}
+.executive-funnel-bar span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#0ea5e9,#22c55e)
+}
+.executive-funnel-rates{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  color:var(--muted)
+}
+.executive-funnel-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:12px
+}
+.executive-funnel-summary article{
+  padding:10px;
+  border-radius:11px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  display:grid;
+  gap:4px;
+  text-align:center
+}
+.executive-funnel-summary span{font-size:10px;color:var(--muted)}
+.executive-funnel-summary strong{font-size:18px}
+
+@media(max-width:1200px){
+  .executive-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .executive-filter-bar{grid-template-columns:1fr 1fr}
+  .executive-period-summary{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .executive-filter-bar,.executive-kpi-grid{grid-template-columns:1fr}
+  .executive-funnel-rates{flex-direction:column}
+  .executive-funnel-summary{grid-template-columns:1fr}
+}

@@ -1529,7 +1529,8 @@ function reportFilterValues() {
   return {
     from: document.getElementById("reportsDateFrom")?.value || "",
     to: document.getElementById("reportsDateTo")?.value || "",
-    representative: document.getElementById("reportsRepresentativeFilter")?.value || ""
+    representative: document.getElementById("reportsRepresentativeFilter")?.value || "",
+    target: Number(document.getElementById("reportsSalesTarget")?.value || 0)
   };
 }
 
@@ -1578,6 +1579,26 @@ function reportStatusColorClass(status) {
   return "pending";
 }
 
+function reportPeriodLabel(from, to) {
+  if (!from || !to) return "كل الفترات";
+  return `${formatDate(from)} — ${formatDate(to)}`;
+}
+
+function renderReportDelta(id, value) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const numeric = Number(value || 0);
+  const direction = numeric > 0 ? "positive" : numeric < 0 ? "negative" : "neutral";
+  element.className = `kpi-delta ${direction}`;
+  element.textContent = `${numeric > 0 ? "+" : ""}${numeric.toFixed(1)}%`;
+}
+
+function saveReportsTarget() {
+  const value = Number(document.getElementById("reportsSalesTarget")?.value || 0);
+  localStorage.setItem("kyum_reports_sales_target", String(Math.max(0, value)));
+}
+
 function renderReportsOverview() {
   if (!window.ReportsEngine) return;
 
@@ -1592,30 +1613,72 @@ function renderReportsOverview() {
     if (element) element.textContent = value;
   };
 
+  setText("executiveCurrentPeriod", reportPeriodLabel(report.filters.from, report.filters.to));
+  setText("executivePreviousPeriod", reportPeriodLabel(report.previousFilters.from, report.previousFilters.to));
+  setText("executiveTargetAchievement", `${report.totals.targetAchievement.toFixed(1)}%`);
+
   setText("reportCustomersTotal", report.totals.customers);
   setText("reportCustomersNew", `الجدد: ${report.totals.newCustomers}`);
+  setText("reportTodayFollowups", report.totals.todayFollowups);
   setText("reportFollowupsTotal", report.totals.followups);
   setText("reportFollowupsOverdue", `المتأخرة: ${report.totals.overdueFollowups}`);
+  setText("reportCompletedFollowups", `المكتملة: ${report.totals.completedFollowups}`);
   setText("reportQuotationsTotal", report.totals.quotations);
   setText("reportQuotationsAccepted", `المقبولة: ${report.totals.acceptedQuotations}`);
   setText("reportQuotationsValue", reportCurrency(report.totals.quotationValue));
   setText("reportAcceptedValue", `المقبولة: ${reportCurrency(report.totals.acceptedValue)}`);
   setText("reportConversionRate", `${report.totals.conversionRate.toFixed(1)}%`);
+  setText("reportTargetAchievement", `${report.totals.targetAchievement.toFixed(1)}%`);
+  setText("reportTargetRemaining", `المتبقي: ${reportCurrency(report.totals.targetRemaining)}`);
   setText("reportCustomersWithoutFollowup", report.totals.customersWithoutFollowup);
+
+  renderReportDelta("reportCustomersDelta", report.deltas.customers);
+  renderReportDelta("reportTodayFollowupsDelta", report.deltas.todayFollowups);
+  renderReportDelta("reportFollowupsDelta", report.deltas.followups);
+  renderReportDelta("reportQuotationsDelta", report.deltas.quotations);
+  renderReportDelta("reportQuotationValueDelta", report.deltas.quotationValue);
+  renderReportDelta("reportConversionDelta", report.deltas.conversionRate);
+  renderReportDelta("reportTargetDelta", report.deltas.targetAchievement);
+  renderReportDelta("reportWithoutFollowupDelta", report.deltas.customersWithoutFollowup);
 
   const maxFunnel = Math.max(1, ...report.funnel.map(item => item.value));
   document.getElementById("reportsFunnel").innerHTML = report.funnel.map((item, index) => `
-    <div class="funnel-step">
-      <div class="funnel-label">
+    <div class="executive-funnel-stage stage-${item.key}">
+      <div class="executive-funnel-stage-head">
         <span>${index + 1}</span>
-        <strong>${escapeHtml(item.label)}</strong>
+        <div>
+          <strong>${escapeHtml(item.label)}</strong>
+          <small>${escapeHtml(item.arabic)}</small>
+        </div>
         <b>${item.value}</b>
       </div>
-      <div class="funnel-track">
-        <span style="width:${Math.max(4, item.value / maxFunnel * 100)}%"></span>
+      <div class="executive-funnel-bar">
+        <span style="width:${Math.max(3, item.value / maxFunnel * 100)}%"></span>
+      </div>
+      <div class="executive-funnel-rates">
+        <small>من المرحلة السابقة: ${item.stageConversion.toFixed(1)}%</small>
+        <small>من إجمالي العملاء: ${item.totalConversion.toFixed(1)}%</small>
       </div>
     </div>
   `).join("");
+
+  const won = report.funnel.find(item => item.key === "won");
+  const lead = report.funnel.find(item => item.key === "lead");
+  const negotiation = report.funnel.find(item => item.key === "negotiation");
+  document.getElementById("executiveFunnelSummary").innerHTML = `
+    <article>
+      <span>Lead → Won</span>
+      <strong>${lead?.value ? (won.value / lead.value * 100).toFixed(1) : "0.0"}%</strong>
+    </article>
+    <article>
+      <span>تحت التفاوض</span>
+      <strong>${negotiation?.value || 0}</strong>
+    </article>
+    <article>
+      <span>صفقات ناجحة</span>
+      <strong>${won?.value || 0}</strong>
+    </article>
+  `;
 
   const statusEntries = Object.entries(report.quotationStatuses)
     .sort((a, b) => b[1] - a[1]);
@@ -1695,6 +1758,8 @@ function resetReportsFilters() {
   document.getElementById("reportsDateFrom").value = first.toISOString().slice(0, 10);
   document.getElementById("reportsDateTo").value = now.toISOString().slice(0, 10);
   document.getElementById("reportsRepresentativeFilter").value = "";
+  document.getElementById("reportsSalesTarget").value = "100000";
+  saveReportsTarget();
   renderReportsOverview();
 }
 
@@ -3236,6 +3301,10 @@ document.getElementById("resetReportsFiltersBtn")?.addEventListener("click", res
 ["reportsDateFrom","reportsDateTo","reportsRepresentativeFilter"].forEach(id => {
   document.getElementById(id)?.addEventListener("change", renderReportsOverview);
 });
+document.getElementById("reportsSalesTarget")?.addEventListener("change", () => {
+  saveReportsTarget();
+  renderReportsOverview();
+});
 
 document.getElementById("runDiagnosticsBtn")?.addEventListener("click", runEnterpriseDiagnostics);
 document.getElementById("downloadDiagnosticsJsonBtn")?.addEventListener("click", () => {
@@ -3272,5 +3341,9 @@ setOptions();
   const to = document.getElementById("reportsDateTo");
   if (from) from.value = first.toISOString().slice(0, 10);
   if (to) to.value = now.toISOString().slice(0, 10);
+  const target = document.getElementById("reportsSalesTarget");
+  if (target) {
+    target.value = localStorage.getItem("kyum_reports_sales_target") || "100000";
+  }
 })();
 
