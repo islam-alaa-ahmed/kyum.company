@@ -55,6 +55,10 @@
       </div>
 
       <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
+        <button class="nav-item nav-root-item" data-view="dailyOperations">
+          <span>إدارة المهام اليومية</span>
+        </button>
+
         <button class="nav-item nav-root-item active" data-view="dashboard">
           <span>لوحة التحكم</span>
         </button>
@@ -124,6 +128,97 @@
       </header>
 
       
+      <section id="dailyOperationsView" class="view-section hidden">
+        <div class="daily-operations-header">
+          <div>
+            <h3>مركز التشغيل اليومي</h3>
+            <p>المهام والمتابعات والعملاء المطلوب إنجازهم خلال اليوم.</p>
+          </div>
+          <div class="daily-operations-date">
+            <span>تاريخ العمل</span>
+            <strong id="dailyOperationsDate">—</strong>
+          </div>
+        </div>
+
+        <div id="dailyOperationsStatus" class="data-status hidden"></div>
+
+        <div class="daily-operations-kpis">
+          <article><span>إنجاز المهام</span><strong id="dailyTasksCompletionRate">0%</strong><small id="dailyTasksCompletionText">0 من 1</small></article>
+          <article><span>العملاء الجدد اليوم</span><strong id="dailyNewCustomersCount">0</strong><small>عملاء تمت إضافتهم اليوم</small></article>
+          <article><span>المتابعات المنفذة اليوم</span><strong id="dailyCompletedFollowupsCount">0</strong><small>عمليات تواصل مسجلة اليوم</small></article>
+          <article class="attention"><span>المتابعات المتأخرة</span><strong id="dailyOverdueFollowupsCount">0</strong><small>تحتاج إجراءً فوريًا</small></article>
+        </div>
+
+        <article class="panel daily-checklist-panel">
+          <div class="panel-header">
+            <div>
+              <h3>قائمة المهام اليومية</h3>
+              <p>يتم تسجيل المنفذ ووقت التنفيذ تلقائيًا.</p>
+            </div>
+            <span id="dailyChecklistPermission" class="daily-permission-badge">عرض فقط</span>
+          </div>
+          <div id="dailyChecklist" class="daily-checklist">
+            <label class="daily-task-item" data-daily-task="ads_update">
+              <input id="dailyAdsUpdateCheckbox" type="checkbox">
+              <span class="daily-task-check" aria-hidden="true"></span>
+              <div>
+                <strong id="dailyAdsUpdateTitle">تحديث الإعلانات</strong>
+                <small id="dailyAdsUpdateMeta">لم يتم التحديث حتى الآن.</small>
+              </div>
+              <b id="dailyAdsUpdateState">لم يتم التحديث</b>
+            </label>
+          </div>
+        </article>
+
+        <article class="panel daily-section-panel">
+          <div class="panel-header">
+            <div>
+              <h3>المتابعات المنفذة اليوم</h3>
+              <p>العملاء الذين تم تسجيل متابعة لهم خلال اليوم.</p>
+            </div>
+            <button class="text-btn" type="button" data-daily-open-view="followups">فتح المتابعات</button>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-operations-table">
+              <thead><tr><th>العميل</th><th>المندوب</th><th>طريقة التواصل</th><th>النتيجة</th><th>المتابعة القادمة</th></tr></thead>
+              <tbody id="dailyFollowupsBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel daily-section-panel">
+          <div class="panel-header">
+            <div>
+              <h3>العملاء الجدد اليوم</h3>
+              <p>العملاء الذين تمت إضافتهم إلى النظام خلال اليوم.</p>
+            </div>
+            <button class="text-btn" type="button" data-daily-open-view="customers">فتح العملاء</button>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-operations-table">
+              <thead><tr><th>العميل</th><th>التصنيف</th><th>اسم المسؤول</th><th>المندوب</th><th>وقت الإضافة</th></tr></thead>
+              <tbody id="dailyCustomersBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel daily-section-panel daily-overdue-panel">
+          <div class="panel-header">
+            <div>
+              <h3>المتابعات المتأخرة</h3>
+              <p>مواعيد متابعة لم تُغلق وتجاوزت تاريخها.</p>
+            </div>
+            <button class="text-btn" type="button" data-daily-open-view="followups">معالجة المتأخرات</button>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-operations-table">
+              <thead><tr><th>العميل</th><th>المندوب</th><th>الموعد</th><th>التأخير</th><th>النتيجة السابقة</th></tr></thead>
+              <tbody id="dailyOverdueBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
       <section id="dashboardView" class="view-section">
         <div class="dashboard-filter-bar">
           <div>
@@ -1737,12 +1832,13 @@
   <script src="assets/js/backup-service.js"></script>
   <script src="assets/js/system-settings-service.js"></script>
   <script src="assets/js/system-health-service.js"></script>
+  <script src="assets/js/daily-operations-service.js?v=16.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/app.js?v=15.4.3"></script>
+  <script src="assets/js/app.js?v=16.1"></script>
 </body>
 </html>

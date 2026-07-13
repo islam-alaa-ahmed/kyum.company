@@ -155,6 +155,8 @@ let currentCustomer360View = null;
 let activeCustomerAnalyticsTab = "types";
 let systemHealthLoading = false;
 let systemHealthTimer = null;
+let dailyTaskRecords = [];
+let dailyOperationsLoading = false;
 
 
 let editingId = null;
@@ -162,6 +164,7 @@ let editingFollowupId = null;
 let editingQuotationId = null;
 
 const views = {
+  dailyOperations: document.getElementById("dailyOperationsView"),
   dashboard: document.getElementById("dashboardView"),
   customers: document.getElementById("customersView"),
   followups: document.getElementById("followupsView"),
@@ -178,6 +181,7 @@ const views = {
 };
 
 const pageMeta = {
+  dailyOperations: ["إدارة المهام اليومية", "مركز التشغيل اليومي للمندوبين"],
   dashboard: ["لوحة التحكم", "ملخص بيانات العملاء والمتابعة"],
   customers: ["العملاء", "إدارة بيانات العملاء والبحث والتصفية"],
   followups: ["المتابعات", "سجل التواصل والمتابعات القادمة لكل عميل"],
@@ -491,6 +495,9 @@ function switchView(name) {
     localStorage.setItem(`kyum-nav-group-${activeGroup.dataset.navGroup}`, "open");
   }
 
+  if (name === "dailyOperations") {
+    loadDailyOperations(true);
+  }
   if (name === "users") {
     populateSecurityOptions();
     loadUsersFromSupabase();
@@ -3574,6 +3581,156 @@ function showCustomerDetails(customerId) {
 }
 
 
+function dailyLocalDate(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString().slice(0, 10);
+}
+
+function dailyDateTime(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString("ar-SA", {
+    hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric"
+  });
+}
+
+function dailyScopedRows(rows) {
+  const profile = window.CustomerAuth?.getState?.().profile;
+  if (profile?.role !== "sales_representative") return rows;
+  return rows.filter(item => item.representativeId === profile.representative_id);
+}
+
+function dailyEmptyRow(columns, text) {
+  return `<tr><td colspan="${columns}" class="empty-state">${escapeHtml(text)}</td></tr>`;
+}
+
+function dailyDaysOverdue(value) {
+  const target = new Date(`${String(value).slice(0, 10)}T00:00:00`);
+  const today = new Date(`${dailyLocalDate()}T00:00:00`);
+  return Number.isNaN(target.getTime()) ? 0 : Math.max(0, Math.floor((today - target) / 86400000));
+}
+
+function renderDailyOperations() {
+  const today = dailyLocalDate();
+  const profile = window.CustomerAuth?.getState?.().profile;
+  const ownTask = dailyTaskRecords.find(item =>
+    item.taskKey === "ads_update"
+    && item.workDate === today
+    && item.userId === profile?.id
+  );
+
+  const canUpdateAds = window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit") || false;
+  const checkbox = document.getElementById("dailyAdsUpdateCheckbox");
+  const item = document.querySelector('[data-daily-task="ads_update"]');
+  const completed = Boolean(ownTask?.completed);
+
+  document.getElementById("dailyOperationsDate").textContent = new Date(`${today}T00:00:00`)
+    .toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  document.getElementById("dailyTasksCompletionRate").textContent = completed ? "100%" : "0%";
+  document.getElementById("dailyTasksCompletionText").textContent = completed ? "1 من 1" : "0 من 1";
+  document.getElementById("dailyChecklistPermission").textContent = canUpdateAds ? "مصرح بالتحديث" : "عرض فقط";
+  document.getElementById("dailyChecklistPermission").className = `daily-permission-badge ${canUpdateAds ? "allowed" : "readonly"}`;
+
+  if (checkbox) {
+    checkbox.checked = completed;
+    checkbox.disabled = !canUpdateAds;
+  }
+  item?.classList.toggle("completed", completed);
+  item?.classList.toggle("readonly", !canUpdateAds);
+  document.getElementById("dailyAdsUpdateTitle").textContent = completed ? "تم تحديث الإعلانات" : "تحديث الإعلانات";
+  document.getElementById("dailyAdsUpdateState").textContent = completed ? "تم التحديث" : "لم يتم التحديث";
+  document.getElementById("dailyAdsUpdateMeta").textContent = completed
+    ? `تم بواسطة ${ownTask.userName || profile?.full_name || "المستخدم الحالي"} في ${dailyDateTime(ownTask.completedAt)}`
+    : (canUpdateAds ? "اضغط على مربع الاختيار بعد إتمام التحديث." : "لا تملك صلاحية تغيير هذه المهمة.");
+
+  const todayCustomers = dailyScopedRows(customers).filter(item =>
+    dailyLocalDate(item.createdAt) === today
+  );
+  const todayFollowups = dailyScopedRows(followups).filter(item =>
+    String(item.contactDate || "").slice(0, 10) === today
+  );
+  const overdueFollowups = dailyScopedRows(followups).filter(item =>
+    !item.completed && item.nextFollowupDate
+    && String(item.nextFollowupDate).slice(0, 10) < today
+  );
+
+  document.getElementById("dailyNewCustomersCount").textContent = todayCustomers.length;
+  document.getElementById("dailyCompletedFollowupsCount").textContent = todayFollowups.length;
+  document.getElementById("dailyOverdueFollowupsCount").textContent = overdueFollowups.length;
+
+  const followupsBody = document.getElementById("dailyFollowupsBody");
+  followupsBody.innerHTML = todayFollowups.length ? todayFollowups.map(row => `
+    <tr>
+      <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
+      <td>${escapeHtml(row.representative || "—")}</td>
+      <td>${escapeHtml(row.method || "—")}</td>
+      <td>${escapeHtml(row.result || "—")}</td>
+      <td>${row.nextFollowupDate ? formatDate(row.nextFollowupDate) : "—"}</td>
+    </tr>`).join("") : dailyEmptyRow(5, "لم يتم تسجيل متابعات اليوم حتى الآن.");
+
+  const customersBody = document.getElementById("dailyCustomersBody");
+  customersBody.innerHTML = todayCustomers.length ? todayCustomers.map(row => `
+    <tr>
+      <td><strong>${escapeHtml(row.name || "—")}</strong><br><small>${escapeHtml(row.phone || "")}</small></td>
+      <td>${escapeHtml(row.type || "—")}</td>
+      <td>${row.type === "شركة" ? escapeHtml(row.contactPersonName || "—") : "—"}</td>
+      <td>${escapeHtml(row.representative || "—")}</td>
+      <td>${dailyDateTime(row.createdAt)}</td>
+    </tr>`).join("") : dailyEmptyRow(5, "لا يوجد عملاء جدد مضافون اليوم.");
+
+  const overdueBody = document.getElementById("dailyOverdueBody");
+  overdueBody.innerHTML = overdueFollowups.length ? overdueFollowups.map(row => `
+    <tr>
+      <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
+      <td>${escapeHtml(row.representative || "—")}</td>
+      <td>${formatDate(row.nextFollowupDate)}</td>
+      <td><span class="daily-overdue-badge">${dailyDaysOverdue(row.nextFollowupDate)} يوم</span></td>
+      <td>${escapeHtml(row.result || "—")}</td>
+    </tr>`).join("") : dailyEmptyRow(5, "لا توجد متابعات متأخرة. ممتاز!");
+}
+
+async function loadDailyOperations(force = false) {
+  if (dailyOperationsLoading || !window.DailyOperationsService) return;
+  dailyOperationsLoading = true;
+  showDataStatus("dailyOperationsStatus", "جاري تحميل مركز التشغيل اليومي...", "info");
+  try {
+    if (force || !dailyTaskRecords.length) {
+      dailyTaskRecords = await window.DailyOperationsService.listForDate();
+    }
+    renderDailyOperations();
+    showDataStatus("dailyOperationsStatus", "");
+  } catch (error) {
+    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر تحميل المهام اليومية.", "error");
+  } finally {
+    dailyOperationsLoading = false;
+  }
+}
+
+async function updateDailyAdsTask(completed) {
+  const checkbox = document.getElementById("dailyAdsUpdateCheckbox");
+  if (!window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit")) {
+    if (checkbox) checkbox.checked = !completed;
+    showDataStatus("dailyOperationsStatus", "لا تملك صلاحية تحديث الإعلانات.", "error");
+    return;
+  }
+
+  if (checkbox) checkbox.disabled = true;
+  showDataStatus("dailyOperationsStatus", "جاري حفظ حالة تحديث الإعلانات...", "info");
+  try {
+    await window.DailyOperationsService.setTaskState("ads_update", completed);
+    dailyTaskRecords = await window.DailyOperationsService.listForDate();
+    renderDailyOperations();
+    showDataStatus("dailyOperationsStatus", completed ? "تم تسجيل تحديث الإعلانات بنجاح." : "تمت إعادة فتح مهمة تحديث الإعلانات.", "success");
+  } catch (error) {
+    if (checkbox) checkbox.checked = !completed;
+    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر حفظ المهمة.", "error");
+  } finally {
+    if (checkbox) checkbox.disabled = !window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit");
+  }
+}
+
 function canManageQuotations() {
   return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
 }
@@ -4156,6 +4313,13 @@ window.addEventListener("customer-auth-ready", async () => {
   await loadQuotationsFromSupabase(true);
   populateSecurityOptions();
   renderDashboard();
+  await loadDailyOperations(true);
+
+  const profile = window.CustomerAuth?.getState?.().profile;
+  if (profile?.role === "sales_representative"
+      && window.CustomerPermissions?.canScreen?.("dailyOperations", "view")) {
+    switchView("dailyOperations");
+  }
 });
 
 
@@ -4210,6 +4374,14 @@ document.getElementById("quotationsNextPage")?.addEventListener("click", () => {
   }
 });
 
+
+document.getElementById("dailyAdsUpdateCheckbox")?.addEventListener("change", event => {
+  updateDailyAdsTask(event.target.checked);
+});
+document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
+  const view = event.target.closest("[data-daily-open-view]")?.dataset.dailyOpenView;
+  if (view) switchView(view);
+});
 
 document.getElementById("addUserBtn")?.addEventListener("click", () => openUserDialog());
 document.getElementById("closeUserDialogBtn")?.addEventListener("click", closeUserDialog);
