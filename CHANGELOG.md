@@ -1,15 +1,25 @@
-# KYUM Phase 15.2.6 — Export Center Script Loading Fix
+# KYUM Phase 15.3.1 — Customer 360 Foundation
 
-## Root Cause
-`reports-engine.js` and `export-center.js` were not loaded by `index.html`.
-Therefore `window.ReportsEngine` and `window.ReportsExportCenter` were undefined.
+## Root Cause / Architecture
+The project already had a customer-details dialog and a working `عرض` action.
+The existing flow was upgraded instead of creating a duplicate customer screen.
 
-## Fix
-- Loaded XLSX before the export module.
-- Loaded html2canvas before the export module.
-- Loaded `reports-engine.js` before `app.js`.
-- Loaded `export-center.js` before `app.js`.
-- Added cache-busting version parameters.
+## Modified/New Files
 
-## Modified File
 - `index.html`
+- `assets/css/style.css`
+- `assets/js/app.js`
+- `assets/js/customer360-engine.js`
+
+## Implemented
+
+- Full-width Customer 360 dialog.
+- Customer status: active, today, needs follow-up, overdue, inactive.
+- Last-contact and inactivity calculation.
+- Customer KPIs for follow-ups, quotations, values and conversion.
+- Customer profile, interests, notes and no-sale reason.
+- Quotation summary and complete quotation list.
+- Follow-up summary, latest follow-up and complete history.
+- Direct edit and add-follow-up actions.
+- Responsive desktop, tablet and mobile layouts.
+- No SQL migration or Edge Function.

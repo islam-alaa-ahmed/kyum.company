@@ -2930,63 +2930,218 @@ async function deleteFollowup(id) {
   }
 }
 
+function customer360StatusClass(key) {
+  const supported = [
+    "active",
+    "overdue",
+    "needs_followup",
+    "inactive",
+    "today"
+  ];
+  return supported.includes(key) ? key : "inactive";
+}
+
+function customer360Metric(label, value, detail = "") {
+  return `
+    <article class="customer360-metric">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(String(value ?? "—"))}</strong>
+      ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+    </article>
+  `;
+}
+
 function showCustomerDetails(customerId) {
   const customer = customerById(customerId);
-  if (!customer) return;
-  const history = followups
-    .filter(item => item.customerId === customerId)
-    .sort((a, b) => String(b.contactDate).localeCompare(String(a.contactDate)));
+  if (!customer || !window.Customer360Engine) return;
 
-  document.getElementById("customerDetailsTitle").textContent = customer.name;
+  const view = window.Customer360Engine.build(
+    customer,
+    followups,
+    quotations
+  );
+
+  document.getElementById("customerDetailsDialog").dataset.customerId = customerId;
+  document.getElementById("customerDetailsTitle").textContent =
+    `${customer.name} — Customer 360°`;
   document.getElementById("customerDetailsSubtitle").textContent =
-    `${customer.phone} · ${customer.type} · ${customer.representative}`;
+    `${customer.phone || "بدون جوال"} · ${customer.type || "غير محدد"} · ${customer.representative || "بدون مندوب"}`;
+
+  const statusBadge = document.getElementById("customer360StatusBadge");
+  statusBadge.textContent = view.status.label;
+  statusBadge.className =
+    `customer360-status ${customer360StatusClass(view.status.key)}`;
+
+  const editButton = document.getElementById("customer360EditBtn");
+  const followupButton = document.getElementById("customer360AddFollowupBtn");
+  editButton.classList.toggle("hidden", !canManageCustomers());
+  followupButton.classList.toggle("hidden", !canManageFollowups());
 
   const profile = [
-    ["رقم العميل", customer.phone],
-    ["التصنيف", customer.type],
+    ["رقم العميل", customer.customerNumber || customer.phone || "—"],
+    ["رقم الجوال", customer.phone || "—"],
+    ["التصنيف", customer.type || "—"],
     ["المدينة", customer.city || "—"],
-    ["المندوب", customer.representative],
-    ["آخر تواصل", formatDate(customer.contactDate)],
-    ["آخر عرض سعر", customer.quotationNumber || "—"]
+    ["المندوب", customer.representative || "—"],
+    ["تاريخ التواصل", formatDate(customer.contactDate)],
+    ["آخر عرض مسجل", customer.quotationNumber || "—"],
+    ["سبب عدم البيع", customer.noSaleReason || "—"]
   ];
 
+  const nextFollowup = view.followups.find(item =>
+    ["today", "upcoming"].includes(
+      item.completed
+        ? "completed"
+        : (() => {
+            const next = item.nextFollowupDate
+              ? new Date(`${String(item.nextFollowupDate).slice(0, 10)}T00:00:00`)
+              : null;
+            if (!next) return "no_date";
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (next < today) return "overdue";
+            if (next.getTime() === today.getTime()) return "today";
+            return "upcoming";
+          })()
+    )
+  );
+
   document.getElementById("customerDetailsContent").innerHTML = `
-    <div class="customer-profile-grid">
-      ${profile.map(([label, value]) =>
-        `<div class="profile-item"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`
-      ).join("")}
-    </div>
-    <h3>مجالات الاهتمام</h3>
-    <div class="tag-list">${customer.interests.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("")}</div>
-    <h3 style="margin-top:22px">عروض الأسعار</h3>
-    ${quotations.filter(q => q.customerId === customerId).length ? `
-      <div class="simple-list">
-        ${quotations.filter(q => q.customerId === customerId).map(q => `
-          <div class="simple-item">
-            <div>
-              <strong>${escapeHtml(q.code)}</strong>
-              <span>${escapeHtml(q.status)} · ${formatDate(q.quotationDate)}</span>
-            </div>
-            <strong>${formatCurrency(q.amount)}</strong>
-          </div>
-        `).join("")}
-      </div>
-    ` : `<div class="empty-state">لا توجد عروض أسعار لهذا العميل.</div>`}
-    <h3 style="margin-top:22px">سجل المتابعات</h3>
-    ${history.length ? `<div class="timeline">${history.map(item => `
-      <div class="timeline-item">
-        <span class="timeline-dot"></span>
-        <div class="timeline-card">
-          <div class="timeline-card-header">
-            <strong>${escapeHtml(item.result)}</strong>
-            <span>${formatDate(item.contactDate)}</span>
-          </div>
-          <p>${escapeHtml(item.method)} · ${escapeHtml(item.representative)}</p>
-          ${item.quotationNumber ? `<p>عرض السعر: ${escapeHtml(item.quotationNumber)}</p>` : ""}
-          ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ""}
-          ${item.nextFollowupDate ? `<p>المتابعة القادمة: ${formatDate(item.nextFollowupDate)}</p>` : ""}
+    <section class="customer360-overview">
+      <article class="customer360-status-card ${customer360StatusClass(view.status.key)}">
+        <div>
+          <span>حالة العميل</span>
+          <strong>${escapeHtml(view.status.label)}</strong>
+          <p>${escapeHtml(view.status.detail)}</p>
         </div>
-      </div>`).join("")}</div>` : `<div class="empty-state">لم تتم إضافة متابعات لهذا العميل.</div>`}
+        <div class="customer360-last-contact">
+          <span>آخر تواصل</span>
+          <strong>${view.lastContactDate ? formatDate(view.lastContactDate) : "—"}</strong>
+          <small>${view.inactivityDays === null ? "لا توجد مدة محسوبة" : `منذ ${view.inactivityDays} يوم`}</small>
+        </div>
+      </article>
+
+      <div class="customer360-kpis">
+        ${customer360Metric("إجمالي المتابعات", view.totals.followups, `المتأخرة: ${view.totals.overdueFollowups}`)}
+        ${customer360Metric("المتابعات القادمة", view.totals.upcomingFollowups, nextFollowup?.nextFollowupDate ? `القادم: ${formatDate(nextFollowup.nextFollowupDate)}` : "لا يوجد موعد قادم")}
+        ${customer360Metric("عروض الأسعار", view.totals.quotations, `المفتوحة: ${view.totals.openQuotations}`)}
+        ${customer360Metric("قيمة العروض", formatCurrency(view.totals.totalQuotationValue), `المقبول: ${formatCurrency(view.totals.acceptedValue)}`)}
+        ${customer360Metric("نسبة التحويل", `${view.totals.conversionRate.toFixed(1)}%`, `${view.totals.acceptedQuotations} عروض مقبولة`)}
+      </div>
+    </section>
+
+    <div class="customer360-layout">
+      <section class="customer360-main">
+        <article class="customer360-section">
+          <div class="customer360-section-header">
+            <div>
+              <h3>البيانات الأساسية</h3>
+              <p>ملخص بيانات العميل المسجلة في النظام.</p>
+            </div>
+          </div>
+          <div class="customer-profile-grid customer360-profile-grid">
+            ${profile.map(([label, value]) =>
+              `<div class="profile-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value ?? "—"))}</strong></div>`
+            ).join("")}
+          </div>
+
+          <h4>مجالات الاهتمام</h4>
+          <div class="tag-list">
+            ${(customer.interests || []).length
+              ? customer.interests.map(item => `<span class="tag">${escapeHtml(item)}</span>`).join("")
+              : '<span class="customer360-empty-inline">لا توجد اهتمامات مسجلة.</span>'}
+          </div>
+
+          <h4>ملاحظات العميل</h4>
+          <div class="customer360-notes">${escapeHtml(customer.notes || "لا توجد ملاحظات مسجلة.")}</div>
+        </article>
+
+        <article class="customer360-section">
+          <div class="customer360-section-header">
+            <div>
+              <h3>عروض الأسعار</h3>
+              <p>جميع عروض السعر المرتبطة بالعميل.</p>
+            </div>
+            <span>${view.totals.quotations} عرض</span>
+          </div>
+          ${view.quotations.length ? `
+            <div class="customer360-quotation-list">
+              ${view.quotations.map(q => `
+                <article>
+                  <div>
+                    <strong>${escapeHtml(q.code || q.quotationNumber || "عرض بدون رقم")}</strong>
+                    <small>${formatDate(q.quotationDate || q.createdAt)} · ${escapeHtml(q.status || "غير محدد")}</small>
+                  </div>
+                  <div>
+                    <strong>${formatCurrency(q.amount)}</strong>
+                    ${q.rejectionReason || q.noSaleReason
+                      ? `<small>${escapeHtml(q.rejectionReason || q.noSaleReason)}</small>`
+                      : ""}
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          ` : '<div class="empty-state">لا توجد عروض أسعار لهذا العميل.</div>'}
+        </article>
+      </section>
+
+      <aside class="customer360-side">
+        <article class="customer360-section">
+          <div class="customer360-section-header">
+            <div>
+              <h3>ملخص المتابعة</h3>
+              <p>حالة مواعيد المتابعة الحالية.</p>
+            </div>
+          </div>
+          <div class="customer360-followup-summary">
+            <div><span>مكتملة</span><strong>${view.totals.completedFollowups}</strong></div>
+            <div><span>متأخرة</span><strong>${view.totals.overdueFollowups}</strong></div>
+            <div><span>قادمة</span><strong>${view.totals.upcomingFollowups}</strong></div>
+          </div>
+        </article>
+
+        <article class="customer360-section">
+          <div class="customer360-section-header">
+            <div>
+              <h3>آخر متابعة</h3>
+              <p>أحدث تواصل مسجل مع العميل.</p>
+            </div>
+          </div>
+          ${view.latestFollowup ? `
+            <div class="customer360-latest-card">
+              <strong>${escapeHtml(view.latestFollowup.result || "متابعة")}</strong>
+              <span>${formatDate(view.latestFollowup.contactDate || view.latestFollowup.createdAt)}</span>
+              <p>${escapeHtml(view.latestFollowup.method || "—")} · ${escapeHtml(view.latestFollowup.representative || "—")}</p>
+              ${view.latestFollowup.notes ? `<p>${escapeHtml(view.latestFollowup.notes)}</p>` : ""}
+            </div>
+          ` : '<div class="empty-state">لم تتم إضافة متابعات.</div>'}
+        </article>
+      </aside>
+    </div>
+
+    <article class="customer360-section customer360-timeline-section">
+      <div class="customer360-section-header">
+        <div>
+          <h3>سجل المتابعات</h3>
+          <p>جميع عمليات التواصل مرتبة من الأحدث إلى الأقدم.</p>
+        </div>
+        <span>${view.totals.followups} متابعة</span>
+      </div>
+      ${view.followups.length ? `<div class="timeline customer360-timeline">${view.followups.map(item => `
+        <div class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-card">
+            <div class="timeline-card-header">
+              <strong>${escapeHtml(item.result || "متابعة")}</strong>
+              <span>${formatDate(item.contactDate || item.createdAt)}</span>
+            </div>
+            <p>${escapeHtml(item.method || "—")} · ${escapeHtml(item.representative || "—")}</p>
+            ${item.quotationNumber ? `<p>عرض السعر: ${escapeHtml(item.quotationNumber)}</p>` : ""}
+            ${item.notes ? `<p>${escapeHtml(item.notes)}</p>` : ""}
+            ${item.nextFollowupDate ? `<p>المتابعة القادمة: ${formatDate(item.nextFollowupDate)}</p>` : ""}
+          </div>
+        </div>`).join("")}</div>` : '<div class="empty-state">لم تتم إضافة متابعات لهذا العميل.</div>'}
+    </article>
   `;
 
   document.getElementById("customerDetailsDialog").showModal();
@@ -3338,6 +3493,21 @@ document.getElementById("closeFollowupDialogBtn").addEventListener("click", clos
 document.getElementById("cancelFollowupDialogBtn").addEventListener("click", closeFollowupDialog);
 document.getElementById("followupForm").addEventListener("submit", handleFollowupSubmit);
 document.getElementById("closeCustomerDetailsBtn").addEventListener("click", () => document.getElementById("customerDetailsDialog").close());
+document.getElementById("customer360EditBtn")?.addEventListener("click", () => {
+  const dialog = document.getElementById("customerDetailsDialog");
+  const customer = customerById(dialog.dataset.customerId);
+  if (!customer) return;
+  dialog.close();
+  openCustomerDialog(customer);
+});
+document.getElementById("customer360AddFollowupBtn")?.addEventListener("click", () => {
+  const dialog = document.getElementById("customerDetailsDialog");
+  const customerId = dialog.dataset.customerId;
+  if (!customerId) return;
+  dialog.close();
+  openFollowupDialog(customerId);
+});
+
 document.getElementById("closeDialogBtn").addEventListener("click", closeCustomerDialog);
 document.getElementById("cancelDialogBtn").addEventListener("click", closeCustomerDialog);
 document.getElementById("customerForm").addEventListener("submit", handleCustomerSubmit);

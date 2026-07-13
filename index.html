@@ -1416,14 +1416,21 @@
     </form>
   </dialog>
 
-  <dialog id="customerDetailsDialog">
-    <div class="details-dialog">
-      <div class="dialog-header">
+  <dialog id="customerDetailsDialog" class="customer360-dialog">
+    <div class="details-dialog customer360-shell">
+      <div class="dialog-header customer360-header">
         <div>
-          <h3 id="customerDetailsTitle">ملف العميل</h3>
+          <div class="customer360-title-row">
+            <h3 id="customerDetailsTitle">Customer 360°</h3>
+            <span id="customer360StatusBadge" class="customer360-status">—</span>
+          </div>
           <p id="customerDetailsSubtitle"></p>
         </div>
-        <button id="closeCustomerDetailsBtn" class="icon-btn" type="button">×</button>
+        <div class="customer360-header-actions">
+          <button id="customer360AddFollowupBtn" class="secondary-btn compact-btn" type="button">إضافة متابعة</button>
+          <button id="customer360EditBtn" class="secondary-btn compact-btn" type="button">تعديل العميل</button>
+          <button id="closeCustomerDetailsBtn" class="icon-btn" type="button">×</button>
+        </div>
       </div>
       <div id="customerDetailsContent"></div>
     </div>
@@ -1629,6 +1636,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
   <script src="assets/js/export-center.js?v=15.2.6"></script>
+  <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/app.js?v=15.2.6"></script>
 </body>
 </html>

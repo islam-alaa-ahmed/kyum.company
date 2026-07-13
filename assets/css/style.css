@@ -1250,3 +1250,212 @@ body.reports-exporting #reportsOverviewView *{
     grid-template-columns:minmax(0,1fr)!important;
   }
 }
+
+
+/* KYUM Phase 15.3.1 — Customer 360 Foundation */
+.customer360-dialog{
+  width:min(96vw,1380px);
+  max-width:1380px;
+  max-height:94vh;
+  padding:0
+}
+.customer360-shell{
+  width:100%;
+  max-width:none;
+  padding:0;
+  overflow:hidden
+}
+.customer360-header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:var(--surface);
+  padding:18px 22px;
+  border-bottom:1px solid var(--border)
+}
+.customer360-title-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap
+}
+.customer360-title-row h3{margin:0}
+.customer360-header-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap
+}
+.customer360-status{
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:11px;
+  font-weight:900;
+  background:#e2e8f0;
+  color:#475569
+}
+.customer360-status.active{background:#dcfce7;color:#166534}
+.customer360-status.overdue{background:#fee2e2;color:#b91c1c}
+.customer360-status.needs_followup{background:#fef3c7;color:#92400e}
+.customer360-status.inactive{background:#e2e8f0;color:#475569}
+.customer360-status.today{background:#dbeafe;color:#1d4ed8}
+#customerDetailsContent{
+  padding:20px 22px 26px;
+  overflow:auto;
+  max-height:calc(94vh - 92px)
+}
+.customer360-overview{display:grid;gap:14px;margin-bottom:18px}
+.customer360-status-card{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:20px;
+  align-items:center;
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface-2)
+}
+.customer360-status-card.active{border-inline-start:5px solid #22c55e}
+.customer360-status-card.overdue{border-inline-start:5px solid #ef4444}
+.customer360-status-card.needs_followup{border-inline-start:5px solid #f59e0b}
+.customer360-status-card.inactive{border-inline-start:5px solid #64748b}
+.customer360-status-card.today{border-inline-start:5px solid #3b82f6}
+.customer360-status-card span,
+.customer360-status-card small{color:var(--muted);font-size:11px}
+.customer360-status-card strong{display:block;font-size:21px;margin:4px 0}
+.customer360-status-card p{margin:0;color:var(--muted)}
+.customer360-last-contact{text-align:left;display:grid;gap:3px}
+.customer360-kpis{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px
+}
+.customer360-metric{
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--surface);
+  display:grid;
+  gap:6px;
+  min-width:0
+}
+.customer360-metric span,
+.customer360-metric small{color:var(--muted);font-size:10px}
+.customer360-metric strong{
+  font-size:18px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+.customer360-layout{
+  display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(280px,.8fr);
+  gap:18px;
+  align-items:start
+}
+.customer360-main,.customer360-side{display:grid;gap:18px}
+.customer360-section{
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface);
+  padding:17px
+}
+.customer360-section-header{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:14px
+}
+.customer360-section-header h3,
+.customer360-section-header p{margin:0}
+.customer360-section-header p{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px
+}
+.customer360-section-header>span{
+  border-radius:999px;
+  padding:5px 9px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800
+}
+.customer360-profile-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  margin-bottom:16px
+}
+.customer360-section h4{margin:18px 0 9px}
+.customer360-notes{
+  padding:12px;
+  border-radius:12px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  line-height:1.8;
+  color:var(--muted)
+}
+.customer360-empty-inline{color:var(--muted);font-size:12px}
+.customer360-quotation-list{display:grid;gap:9px}
+.customer360-quotation-list article{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface-2)
+}
+.customer360-quotation-list article>div{display:grid;gap:4px}
+.customer360-quotation-list article>div:last-child{text-align:left}
+.customer360-quotation-list small{color:var(--muted)}
+.customer360-followup-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px
+}
+.customer360-followup-summary div{
+  padding:12px 8px;
+  border-radius:12px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  display:grid;
+  gap:5px;
+  text-align:center
+}
+.customer360-followup-summary span{color:var(--muted);font-size:10px}
+.customer360-followup-summary strong{font-size:18px}
+.customer360-latest-card{
+  display:grid;
+  gap:7px;
+  padding:12px;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:12px
+}
+.customer360-latest-card span,
+.customer360-latest-card p{color:var(--muted);margin:0}
+.customer360-timeline-section{margin-top:18px}
+.customer360-timeline{max-height:none}
+
+@media(max-width:1100px){
+  .customer360-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .customer360-profile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  .customer360-layout{grid-template-columns:1fr}
+  .customer360-status-card{grid-template-columns:1fr}
+  .customer360-last-contact{text-align:right}
+}
+@media(max-width:620px){
+  .customer360-dialog{width:100vw;max-height:100vh;border-radius:0}
+  #customerDetailsContent{max-height:calc(100vh - 130px);padding:14px}
+  .customer360-header{padding:14px}
+  .customer360-header-actions{width:100%}
+  .customer360-header-actions .secondary-btn{flex:1}
+  .customer360-kpis,
+  .customer360-profile-grid{grid-template-columns:1fr}
+  .customer360-followup-summary{grid-template-columns:1fr}
+  .customer360-quotation-list article{grid-template-columns:1fr}
+  .customer360-quotation-list article>div:last-child{text-align:right}
+}
