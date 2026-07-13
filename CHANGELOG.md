@@ -1,23 +1,20 @@
-# KYUM Phase 14.2 — Performance Monitor
+# KYUM Phase 14.3 — Health Score & Smart Alerts
 
 ## Modified/New Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/performance-monitor.js`
+- `assets/js/health-alerts-engine.js`
 
 ## Implemented
 
-- Lightweight browser-session performance monitor.
-- Page load and DOM-ready timing.
-- Supabase/API request count.
-- Failed request count.
-- Average and slowest API response time.
-- Top 10 slowest API requests.
-- Screen render timing and render counts.
-- Online/offline and browser connection details.
-- Browser memory usage when supported.
-- Session duration and last metric refresh time.
-- Manual metric reset.
-- No new polling loop and no external telemetry.
+- Weighted enterprise health score.
+- Database, security, backup, performance, network, users and error components.
+- Healthy, Good, Warning and Critical levels.
+- Smart alerts generated from live health and performance metrics.
+- Actionable recommendations for detected issues.
+- Component score breakdown with weighted percentages.
+- Health score trend for the current browser session.
+- Integration with the existing 30-second health refresh.
+- No new SQL, Edge Function or external telemetry.

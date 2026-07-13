@@ -1414,14 +1414,12 @@ function formatBytes(bytes) {
 }
 
 function calculateHealthScore(snapshot) {
-  let score = 100;
-  if (!snapshot?.database_online) score -= 50;
-  if (Number(snapshot?.latency_ms || 0) > 1500) score -= 15;
-  else if (Number(snapshot?.latency_ms || 0) > 700) score -= 7;
-  if (Number(snapshot?.security?.rls_coverage_percent || 0) < 100) score -= 15;
-  if (Number(snapshot?.failed_backups_24h || 0) > 0) score -= Math.min(15, Number(snapshot.failed_backups_24h) * 5);
-  if (Number(snapshot?.inactive_users || 0) > Number(snapshot?.users_total || 0) / 2) score -= 5;
-  return Math.max(0, Math.round(score));
+  const performanceSummary = window.PerformanceMonitor?.summarize?.() || {};
+  const evaluation = window.HealthAlertsEngine?.evaluate?.(
+    snapshot,
+    performanceSummary
+  );
+  return evaluation?.score ?? 0;
 }
 
 async function loadSystemHealth(force = false) {
@@ -1448,8 +1446,16 @@ async function loadSystemHealth(force = false) {
 function renderSystemHealth() {
   const s = systemHealthSnapshot;
   if (!s) return;
-  const score = calculateHealthScore(s);
-  const label = score >= 90 ? "ممتاز" : score >= 75 ? "جيد" : score >= 60 ? "يحتاج متابعة" : "حرج";
+
+  const performanceSummary = window.PerformanceMonitor?.summarize?.() || {};
+  const healthEvaluation = window.HealthAlertsEngine?.evaluate?.(
+    s,
+    performanceSummary
+  );
+
+  const score = healthEvaluation?.score ?? calculateHealthScore(s);
+  const label = healthEvaluation?.level?.arabic
+    || (score >= 90 ? "ممتاز" : score >= 75 ? "جيد" : score >= 60 ? "يحتاج متابعة" : "حرج");
   document.getElementById("healthScoreValue").textContent = `${score}%`;
   document.getElementById("healthScoreRing").style.setProperty("--health-score", `${score * 3.6}deg`);
   document.getElementById("healthOverallLabel").textContent = `حالة النظام: ${label}`;
@@ -1499,7 +1505,117 @@ function renderSystemHealth() {
     a.detail || ""
   )).join("") || healthStatusItem("لا توجد تنبيهات حرجة", "سليم", true, "آخر 24 ساعة");
 
+  renderSmartHealthInsights(healthEvaluation);
   renderPerformanceMonitor();
+}
+
+function componentLabel(key) {
+  const labels = {
+    database: "قاعدة البيانات",
+    security: "الأمان",
+    backups: "النسخ الاحتياطي",
+    performance: "الأداء",
+    network: "الشبكة",
+    users: "المستخدمون",
+    errors: "الأخطاء"
+  };
+  return labels[key] || key;
+}
+
+function severityLabel(severity) {
+  const labels = {
+    healthy: "سليم",
+    warning: "تحذير",
+    critical: "حرج"
+  };
+  return labels[severity] || severity;
+}
+
+function renderHealthTrend(history) {
+  const container = document.getElementById("healthTrendChart");
+  if (!container) return;
+
+  if (!history?.length) {
+    container.innerHTML = '<div class="empty-state">لا توجد قياسات سابقة بعد.</div>';
+    return;
+  }
+
+  const width = 600;
+  const height = 150;
+  const padding = 18;
+  const points = history.map((item, index) => {
+    const x = history.length === 1
+      ? width / 2
+      : padding + index * ((width - padding * 2) / (history.length - 1));
+    const y = height - padding - (item.score / 100) * (height - padding * 2);
+    return { x, y, ...item };
+  });
+
+  const polyline = points.map(point => `${point.x},${point.y}`).join(" ");
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Health score trend">
+      <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" class="trend-axis"/>
+      <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" class="trend-axis"/>
+      <polyline points="${polyline}" class="trend-line"/>
+      ${points.map(point => `
+        <circle cx="${point.x}" cy="${point.y}" r="4" class="trend-point">
+          <title>${point.score}% — ${new Date(point.timestamp).toLocaleTimeString("ar-SA")}</title>
+        </circle>
+      `).join("")}
+    </svg>
+  `;
+}
+
+function renderSmartHealthInsights(evaluation) {
+  if (!evaluation) return;
+
+  const badge = document.getElementById("smartHealthLevelBadge");
+  if (badge) {
+    badge.textContent = `${evaluation.level.arabic} — ${evaluation.score}%`;
+    badge.className = `smart-health-level ${evaluation.level.key}`;
+  }
+
+  const breakdown = document.getElementById("healthScoreBreakdown");
+  if (breakdown) {
+    breakdown.innerHTML = Object.entries(evaluation.components).map(([key, value]) => `
+      <div class="score-breakdown-item">
+        <div>
+          <strong>${escapeHtml(componentLabel(key))}</strong>
+          <small>الوزن: ${evaluation.weights[key]}%</small>
+        </div>
+        <div class="score-progress">
+          <span style="width:${Math.round(value)}%"></span>
+        </div>
+        <b>${Math.round(value)}%</b>
+      </div>
+    `).join("");
+  }
+
+  const alerts = document.getElementById("smartAlertsList");
+  if (alerts) {
+    alerts.innerHTML = evaluation.alerts.map(alert => `
+      <article class="smart-alert ${alert.severity}">
+        <div>
+          <strong>${escapeHtml(alert.title)}</strong>
+          <small>${escapeHtml(alert.detail || "")}</small>
+        </div>
+        <span>${escapeHtml(severityLabel(alert.severity))}</span>
+      </article>
+    `).join("");
+  }
+
+  const recommendations = document.getElementById("healthRecommendationsList");
+  if (recommendations) {
+    recommendations.innerHTML = evaluation.recommendations.map((item, index) => `
+      <article class="health-recommendation">
+        <span>${index + 1}</span>
+        <p>${escapeHtml(item)}</p>
+      </article>
+    `).join("");
+  }
+
+  renderHealthTrend(evaluation.history);
 }
 
 function startSystemHealthAutoRefresh() {
@@ -2746,7 +2862,9 @@ document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSy
 document.getElementById("refreshSystemHealthBtn")?.addEventListener("click", () => loadSystemHealth(true));
 document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click", () => {
   window.PerformanceMonitor?.reset?.();
+  window.HealthAlertsEngine?.resetHistory?.();
   renderPerformanceMonitor();
+  if (systemHealthSnapshot) renderSystemHealth();
 });
 
 setOptions();

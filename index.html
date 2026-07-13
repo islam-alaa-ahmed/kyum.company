@@ -626,6 +626,41 @@
           </article>
         </div>
 
+        <article class="panel smart-health-panel">
+          <div class="panel-header">
+            <div>
+              <h3>التقييم الذكي والتنبيهات</h3>
+              <p>تحليل موحد لحالة النظام مع توصيات عملية حسب مستوى الخطورة.</p>
+            </div>
+            <span id="smartHealthLevelBadge" class="smart-health-level">—</span>
+          </div>
+
+          <div class="smart-health-grid">
+            <section class="smart-score-breakdown">
+              <h4>تفصيل درجة الصحة</h4>
+              <div id="healthScoreBreakdown" class="score-breakdown-list"></div>
+            </section>
+
+            <section>
+              <h4>التنبيهات الذكية</h4>
+              <div id="smartAlertsList" class="smart-alerts-list"></div>
+            </section>
+
+            <section>
+              <h4>الإجراءات المقترحة</h4>
+              <div id="healthRecommendationsList" class="health-recommendations-list"></div>
+            </section>
+          </div>
+
+          <div class="health-trend-section">
+            <div>
+              <h4>اتجاه درجة الصحة</h4>
+              <p>آخر القياسات خلال جلسة الاستخدام الحالية.</p>
+            </div>
+            <div id="healthTrendChart" class="health-trend-chart" aria-label="Health score trend"></div>
+          </div>
+        </article>
+
         <article class="panel performance-monitor-panel">
           <div class="panel-header">
             <div>
@@ -1125,6 +1160,7 @@
   </dialog>
 
   <script src="assets/js/performance-monitor.js"></script>
+  <script src="assets/js/health-alerts-engine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
