@@ -1,4 +1,4 @@
-// KYUM Phase 16.2 — Daily Performance Report Service
+// KYUM Phase 16.4 — Expanded Daily Performance Analytics
 (function () {
   function client() {
     if (!window.customerSupabase) throw new Error("اتصال Supabase غير جاهز.");
@@ -10,6 +10,17 @@
     if (Number.isNaN(date.getTime())) return "";
     return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
       .toISOString().slice(0, 10);
+  }
+
+  async function loadTaskDefinitions() {
+    const { data, error } = await client()
+      .from("daily_task_definitions")
+      .select("task_key,task_name,description,display_order,permission_key,is_active")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (error) throw new Error(`تعذر تحميل تعريفات المهام: ${error.message}`);
+    return data || [];
   }
 
   async function loadTaskCompletions(workDate) {
@@ -25,6 +36,35 @@
 
     if (error) throw new Error(`تعذر تحميل تنفيذ المهام: ${error.message}`);
     return data || [];
+  }
+
+  async function loadTargets(workDate) {
+    const { data, error } = await client()
+      .from("daily_operation_targets")
+      .select("work_date,customers_target,followups_target,quotations_target,updated_at")
+      .eq("work_date", workDate)
+      .maybeSingle();
+
+    if (error) throw new Error(`تعذر تحميل أهداف اليوم: ${error.message}`);
+
+    return data || {
+      work_date: workDate,
+      customers_target: 3,
+      followups_target: 10,
+      quotations_target: 3,
+      updated_at: null
+    };
+  }
+
+  async function loadManagerNote(workDate) {
+    const { data, error } = await client()
+      .from("daily_manager_notes")
+      .select("work_date,title,note_text,updated_at")
+      .eq("work_date", workDate)
+      .maybeSingle();
+
+    if (error) throw new Error(`تعذر تحميل ملاحظة المدير: ${error.message}`);
+    return data || null;
   }
 
   async function loadRepresentatives() {
@@ -53,8 +93,6 @@
   }
 
   function assignedTo(row, employee) {
-    if (!employee) return false;
-
     return Boolean(
       (employee.representativeId && row.representativeId === employee.representativeId)
       || (employee.representativeName && row.representative === employee.representativeName)
@@ -103,9 +141,18 @@
     return employees.filter(item => item.active);
   }
 
+  function targetAchievement(actual, target) {
+    const safeTarget = Math.max(0, Number(target || 0));
+    if (!safeTarget) return actual > 0 ? 100 : 0;
+    return Math.min(100, Math.round(Number(actual || 0) / safeTarget * 100));
+  }
+
   function buildReport({
     workDate,
+    definitions,
     taskCompletions,
+    targets,
+    managerNote,
     users,
     representatives,
     customers,
@@ -115,16 +162,25 @@
     const employees = buildEmployees(users, representatives);
 
     const rows = employees.map(employee => {
-      const task = taskCompletions.find(item =>
-        item.task_key === "ads_update"
-        && (
-          (employee.userId && item.user_id === employee.userId)
-          || (
-            employee.representativeId
-            && item.representative_id === employee.representativeId
+      const taskStates = definitions.map(definition => {
+        const completion = taskCompletions.find(item =>
+          item.task_key === definition.task_key
+          && (
+            (employee.userId && item.user_id === employee.userId)
+            || (
+              employee.representativeId
+              && item.representative_id === employee.representativeId
+            )
           )
-        )
-      );
+        );
+
+        return {
+          taskKey: definition.task_key,
+          taskName: definition.task_name,
+          completed: Boolean(completion?.is_completed),
+          completedAt: completion?.completed_at || null
+        };
+      });
 
       const employeeCustomers = customers.filter(item =>
         sameDate(item.createdAt || item.contactDate, workDate)
@@ -148,64 +204,145 @@
         && assignedTo(item, employee)
       );
 
-      const adsCompleted = Boolean(task?.is_completed);
-      const points =
-        (adsCompleted ? 20 : 0)
-        + employeeCustomers.length * 10
-        + employeeFollowups.length * 5
-        + employeeQuotations.length * 15
-        - Math.min(30, overdueFollowups.length * 3);
+      const completedTasks = taskStates.filter(item => item.completed).length;
+      const checklistRate = taskStates.length
+        ? Math.round(completedTasks / taskStates.length * 100)
+        : 0;
 
-      const targetPoints = 100;
-      const completionRate = Math.max(
+      const customerTargetRate = targetAchievement(
+        employeeCustomers.length,
+        targets.customers_target
+      );
+      const followupTargetRate = targetAchievement(
+        employeeFollowups.length,
+        targets.followups_target
+      );
+      const quotationTargetRate = targetAchievement(
+        employeeQuotations.length,
+        targets.quotations_target
+      );
+
+      const taskPoints = completedTasks * 10;
+      const activityPoints =
+        employeeCustomers.length * 10
+        + employeeFollowups.length * 5
+        + employeeQuotations.length * 15;
+
+      const targetBonus =
+        (customerTargetRate >= 100 ? 10 : 0)
+        + (followupTargetRate >= 100 ? 10 : 0)
+        + (quotationTargetRate >= 100 ? 10 : 0);
+
+      const overduePenalty = Math.min(30, overdueFollowups.length * 3);
+      const points = Math.max(
         0,
-        Math.min(100, Math.round(points / targetPoints * 100))
+        taskPoints + activityPoints + targetBonus - overduePenalty
+      );
+
+      const completionRate = Math.round(
+        checklistRate * 0.4
+        + customerTargetRate * 0.2
+        + followupTargetRate * 0.2
+        + quotationTargetRate * 0.2
       );
 
       return {
         ...employee,
-        adsCompleted,
-        adsCompletedAt: task?.completed_at || null,
+        taskStates,
+        completedTasks,
+        checklistRate,
         customers: employeeCustomers,
         followups: employeeFollowups,
         quotations: employeeQuotations,
         overdueFollowups,
+        targets: {
+          customers: Number(targets.customers_target || 0),
+          followups: Number(targets.followups_target || 0),
+          quotations: Number(targets.quotations_target || 0)
+        },
+        targetRates: {
+          customers: customerTargetRate,
+          followups: followupTargetRate,
+          quotations: quotationTargetRate
+        },
+        targetsMet: {
+          customers: customerTargetRate >= 100,
+          followups: followupTargetRate >= 100,
+          quotations: quotationTargetRate >= 100
+        },
         points,
         completionRate
       };
     })
       .sort((a, b) =>
         b.points - a.points
-        || b.followups.length - a.followups.length
+        || b.completionRate - a.completionRate
         || a.name.localeCompare(b.name, "ar")
       )
       .map((item, index) => ({ ...item, rank: index + 1 }));
 
+    const totalTaskSlots = rows.length * definitions.length;
+    const totalCompletedTasks = rows.reduce(
+      (sum, item) => sum + item.completedTasks,
+      0
+    );
+
     return {
       workDate,
+      definitions,
+      targets: {
+        customers: Number(targets.customers_target || 0),
+        followups: Number(targets.followups_target || 0),
+        quotations: Number(targets.quotations_target || 0)
+      },
+      managerNote: managerNote ? {
+        title: managerNote.title || "",
+        noteText: managerNote.note_text || "",
+        updatedAt: managerNote.updated_at || null
+      } : null,
       rows,
       totals: {
         employees: rows.length,
-        adsCompleted: rows.filter(item => item.adsCompleted).length,
-        customers: rows.reduce((sum, item) => sum + item.customers.length, 0),
-        followups: rows.reduce((sum, item) => sum + item.followups.length, 0),
-        quotations: rows.reduce((sum, item) => sum + item.quotations.length, 0),
-        overdue: rows.reduce((sum, item) => sum + item.overdueFollowups.length, 0)
+        completedTasks: totalCompletedTasks,
+        totalTaskSlots,
+        checklistRate: totalTaskSlots
+          ? Math.round(totalCompletedTasks / totalTaskSlots * 100)
+          : 0,
+        customersTargetMet: rows.filter(item => item.targetsMet.customers).length,
+        followupsTargetMet: rows.filter(item => item.targetsMet.followups).length,
+        quotationsTargetMet: rows.filter(item => item.targetsMet.quotations).length,
+        overdue: rows.reduce(
+          (sum, item) => sum + item.overdueFollowups.length,
+          0
+        )
       },
       generatedAt: new Date().toISOString()
     };
   }
 
   async function loadReport(workDate, existingData) {
-    const [taskCompletions, representatives, users] = await Promise.all([
+    const [
+      definitions,
+      taskCompletions,
+      targets,
+      managerNote,
+      representatives,
+      users
+    ] = await Promise.all([
+      loadTaskDefinitions(),
       loadTaskCompletions(workDate),
+      loadTargets(workDate),
+      loadManagerNote(workDate),
       loadRepresentatives(),
       loadUsers()
     ]);
 
     return buildReport({
       workDate,
+      definitions,
       taskCompletions,
+      targets,
+      managerNote,
       users,
       representatives,
       customers: existingData.customers || [],
@@ -215,18 +352,25 @@
   }
 
   function toCsv(report) {
+    const taskHeaders = report.definitions.map(item => item.task_name);
+
     const lines = [
-      ["KYUM Daily Performance Report", report.workDate],
+      ["KYUM Expanded Daily Performance Report", report.workDate],
       ["Generated At", report.generatedAt],
+      ["Manager Note", report.managerNote?.title || "", report.managerNote?.noteText || ""],
       [],
       [
         "Rank",
         "Employee",
         "Code",
-        "Ads Updated",
+        ...taskHeaders,
+        "Checklist %",
         "New Customers",
+        "Customer Target %",
         "Follow-ups",
+        "Follow-up Target %",
         "Quotations",
+        "Quotation Target %",
         "Overdue",
         "Completion %",
         "Points"
@@ -235,10 +379,14 @@
         item.rank,
         item.name,
         item.code,
-        item.adsCompleted ? "Completed" : "Not Completed",
+        ...item.taskStates.map(task => task.completed ? "Completed" : "Not Completed"),
+        item.checklistRate,
         item.customers.length,
+        item.targetRates.customers,
         item.followups.length,
+        item.targetRates.followups,
         item.quotations.length,
+        item.targetRates.quotations,
         item.overdueFollowups.length,
         item.completionRate,
         item.points

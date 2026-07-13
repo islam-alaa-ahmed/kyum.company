@@ -633,12 +633,21 @@
 
         <div id="dailyPerformanceStatus" class="data-status hidden"></div>
 
-        <div class="daily-performance-kpis">
+        <div class="daily-performance-manager-note">
+          <div>
+            <span>ملاحظة المدير</span>
+            <strong id="dailyPerformanceManagerNoteTitle">لا توجد ملاحظة.</strong>
+            <p id="dailyPerformanceManagerNoteText">لم يتم تسجيل توجيه لهذا اليوم.</p>
+          </div>
+          <small id="dailyPerformanceManagerNoteDate">—</small>
+        </div>
+
+        <div class="daily-performance-kpis expanded">
           <article><span>إجمالي الموظفين</span><strong id="dailyPerformanceEmployees">0</strong><small>المشمولون في التقرير</small></article>
-          <article><span>تم تحديث الإعلانات</span><strong id="dailyPerformanceAdsCompleted">0</strong><small id="dailyPerformanceAdsRate">0%</small></article>
-          <article><span>العملاء الجدد</span><strong id="dailyPerformanceCustomers">0</strong><small>خلال اليوم المحدد</small></article>
-          <article><span>المتابعات المنفذة</span><strong id="dailyPerformanceFollowups">0</strong><small>خلال اليوم المحدد</small></article>
-          <article><span>عروض الأسعار</span><strong id="dailyPerformanceQuotations">0</strong><small>خلال اليوم المحدد</small></article>
+          <article><span>إنجاز الـChecklist</span><strong id="dailyPerformanceChecklistRate">0%</strong><small id="dailyPerformanceChecklistText">0 من 0</small></article>
+          <article><span>حققوا هدف العملاء</span><strong id="dailyPerformanceCustomersTargetMet">0</strong><small id="dailyPerformanceCustomersTargetRate">0%</small></article>
+          <article><span>حققوا هدف المتابعات</span><strong id="dailyPerformanceFollowupsTargetMet">0</strong><small id="dailyPerformanceFollowupsTargetRate">0%</small></article>
+          <article><span>حققوا هدف العروض</span><strong id="dailyPerformanceQuotationsTargetMet">0</strong><small id="dailyPerformanceQuotationsTargetRate">0%</small></article>
           <article class="attention"><span>المتابعات المتأخرة</span><strong id="dailyPerformanceOverdue">0</strong><small>تحتاج معالجة</small></article>
         </div>
 
@@ -665,10 +674,11 @@
                 <tr>
                   <th>الترتيب</th>
                   <th>الموظف</th>
-                  <th>تحديث الإعلانات</th>
+                  <th>المهام اليومية</th>
                   <th>عملاء جدد</th>
                   <th>متابعات</th>
                   <th>عروض أسعار</th>
+                  <th>تحقيق الأهداف</th>
                   <th>متأخرات</th>
                   <th>الإنجاز</th>
                   <th>النقاط</th>
@@ -679,11 +689,27 @@
           </div>
         </article>
 
+        <article class="panel daily-task-matrix-panel">
+          <div class="panel-header">
+            <div>
+              <h3>مصفوفة تنفيذ المهام اليومية</h3>
+              <p>حالة كل مهمة لكل موظف خلال اليوم المحدد.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-task-matrix-table">
+              <thead id="dailyTaskMatrixHead"></thead>
+              <tbody id="dailyTaskMatrixBody"></tbody>
+            </table>
+          </div>
+        </article>
+
         <div class="daily-performance-report-selector">
           <label>
             اختر التقرير التفصيلي
             <select id="dailyPerformanceDetailSelector">
-              <option value="ads">تحديث الإعلانات</option>
+              <option value="tasks">المهام اليومية</option>
+              <option value="targets">تحقيق الأهداف</option>
               <option value="followups">المتابعات اليومية</option>
               <option value="customers">العملاء الجدد</option>
               <option value="quotations">عروض الأسعار</option>
@@ -2013,7 +2039,7 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/daily-performance-service.js?v=16.2"></script>
-  <script src="assets/js/app.js?v=16.3"></script>
+  <script src="assets/js/daily-performance-service.js?v=16.4"></script>
+  <script src="assets/js/app.js?v=16.4"></script>
 </body>
 </html>

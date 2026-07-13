@@ -2367,3 +2367,173 @@ body.customer360-exporting .customer360-shell *{
     grid-column:2
   }
 }
+
+
+/* KYUM Phase 16.4 — Expanded Daily Performance Analytics */
+.daily-performance-manager-note{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:center;
+  margin-bottom:14px;
+  padding:16px 18px;
+  border:1px solid #bae6fd;
+  border-inline-start:5px solid #0ea5e9;
+  border-radius:16px;
+  background:linear-gradient(135deg,#f0f9ff,var(--surface))
+}
+.daily-performance-manager-note>div{
+  display:grid;
+  gap:4px
+}
+.daily-performance-manager-note span,
+.daily-performance-manager-note p,
+.daily-performance-manager-note small{
+  color:var(--muted);
+  margin:0
+}
+.daily-performance-manager-note strong{
+  font-size:17px
+}
+.daily-performance-kpis.expanded{
+  grid-template-columns:repeat(6,minmax(0,1fr))
+}
+.daily-task-matrix-panel{
+  margin-bottom:18px
+}
+.daily-task-matrix-table{
+  min-width:1200px
+}
+.daily-task-matrix-table td{
+  text-align:center
+}
+.daily-performance-checklist-summary{
+  display:inline-flex;
+  min-width:46px;
+  justify-content:center;
+  border-radius:999px;
+  padding:5px 9px;
+  background:#e0f2fe;
+  color:#0369a1;
+  font-weight:900
+}
+.daily-performance-target-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px
+}
+.daily-performance-target-badges span{
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:9px;
+  font-weight:900
+}
+.daily-performance-target-badges span.met{
+  background:#dcfce7;
+  color:#166534
+}
+.daily-performance-target-badges span.pending{
+  background:#fee2e2;
+  color:#b91c1c
+}
+.daily-performance-task-cards,
+.daily-performance-target-cards{
+  display:grid;
+  gap:12px
+}
+.daily-performance-task-cards>article,
+.daily-performance-target-cards>article{
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--surface-2)
+}
+.daily-performance-task-card-head,
+.daily-performance-target-card-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px
+}
+.daily-performance-task-card-head>div{
+  display:grid;
+  gap:3px
+}
+.daily-performance-task-card-head small,
+.daily-performance-target-card-head span{
+  color:var(--muted)
+}
+.daily-performance-task-list{
+  display:grid;
+  gap:8px
+}
+.daily-performance-task-list>div{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:9px;
+  border-radius:11px;
+  background:var(--surface);
+  border:1px solid var(--border)
+}
+.daily-performance-task-list small{
+  color:var(--muted)
+}
+.daily-performance-target-row{
+  display:grid;
+  grid-template-columns:minmax(150px,1fr) minmax(160px,2fr) 60px;
+  gap:10px;
+  align-items:center;
+  margin-top:10px
+}
+.daily-performance-target-row>div:first-child{
+  display:flex;
+  justify-content:space-between;
+  gap:10px
+}
+.daily-performance-target-track{
+  height:9px;
+  border-radius:999px;
+  overflow:hidden;
+  background:var(--surface);
+  border:1px solid var(--border)
+}
+.daily-performance-target-track span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#0ea5e9,#22c55e)
+}
+.daily-performance-target-row>b{
+  text-align:center;
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:10px
+}
+.daily-performance-target-row>b.met{
+  background:#dcfce7;
+  color:#166534
+}
+.daily-performance-target-row>b.pending{
+  background:#fef3c7;
+  color:#92400e
+}
+@media(max-width:1200px){
+  .daily-performance-kpis.expanded{
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+}
+@media(max-width:700px){
+  .daily-performance-manager-note{
+    flex-direction:column;
+    align-items:flex-start
+  }
+  .daily-performance-task-list>div{
+    grid-template-columns:1fr
+  }
+  .daily-performance-target-row{
+    grid-template-columns:1fr
+  }
+}

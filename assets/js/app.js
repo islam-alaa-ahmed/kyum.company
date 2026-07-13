@@ -162,7 +162,7 @@ let dailyManagerNote = null;
 let dailyOperationsLoading = false;
 let dailyPerformanceSnapshot = null;
 let dailyPerformanceLoading = false;
-let dailyPerformanceDetailType = "ads";
+let dailyPerformanceDetailType = "tasks";
 
 
 let editingId = null;
@@ -3650,9 +3650,13 @@ function renderDailyPerformanceDetail() {
   const subtitle = document.getElementById("dailyPerformanceDetailSubtitle");
 
   const configs = {
-    ads: {
-      title: "تحديث الإعلانات",
-      subtitle: "حالة تنفيذ مهمة تحديث الإعلانات لكل موظف."
+    tasks: {
+      title: "المهام اليومية",
+      subtitle: "حالة تنفيذ كل مهمة لكل موظف."
+    },
+    targets: {
+      title: "تحقيق الأهداف",
+      subtitle: "مقارنة النشاط الفعلي بالأهداف اليومية."
     },
     followups: {
       title: "المتابعات اليومية",
@@ -3672,25 +3676,57 @@ function renderDailyPerformanceDetail() {
     }
   };
 
-  const config = configs[dailyPerformanceDetailType] || configs.ads;
+  const config = configs[dailyPerformanceDetailType] || configs.tasks;
   title.textContent = config.title;
   subtitle.textContent = config.subtitle;
 
-  if (dailyPerformanceDetailType === "ads") {
+  if (dailyPerformanceDetailType === "tasks") {
     container.innerHTML = `
-      <div class="daily-performance-ads-grid">
+      <div class="daily-performance-task-cards">
         ${rows.map(item => `
           <article>
-            <div>
-              <strong>${escapeHtml(item.name)}</strong>
-              <small>${escapeHtml(item.code || item.role || "—")}</small>
+            <div class="daily-performance-task-card-head">
+              <div>
+                <strong>${escapeHtml(item.name)}</strong>
+                <small>${item.completedTasks} من ${item.taskStates.length} مهام</small>
+              </div>
+              <b>${item.checklistRate}%</b>
             </div>
-            ${dailyPerformanceStatusIcon(item.adsCompleted)}
-            <small>${
-              item.adsCompletedAt
-                ? `وقت التنفيذ: ${dailyDateTime(item.adsCompletedAt)}`
-                : "لم يتم تسجيل تنفيذ المهمة."
-            }</small>
+            <div class="daily-performance-task-list">
+              ${item.taskStates.map(task => `
+                <div>
+                  ${dailyPerformanceStatusIcon(task.completed)}
+                  <span>${escapeHtml(task.taskName)}</span>
+                  <small>${task.completedAt ? dailyDateTime(task.completedAt) : "—"}</small>
+                </div>
+              `).join("")}
+            </div>
+          </article>
+        `).join("") || '<div class="empty-state">لا توجد بيانات.</div>'}
+      </div>`;
+    return;
+  }
+
+  if (dailyPerformanceDetailType === "targets") {
+    container.innerHTML = `
+      <div class="daily-performance-target-cards">
+        ${rows.map(item => `
+          <article>
+            <div class="daily-performance-target-card-head">
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${item.completionRate}% إنجاز كلي</span>
+            </div>
+            ${[
+              ["العملاء الجدد", item.customers.length, item.targets.customers, item.targetRates.customers],
+              ["المتابعات", item.followups.length, item.targets.followups, item.targetRates.followups],
+              ["عروض الأسعار", item.quotations.length, item.targets.quotations, item.targetRates.quotations]
+            ].map(([label, actual, target, rate]) => `
+              <div class="daily-performance-target-row">
+                <div><span>${label}</span><strong>${actual} / ${target}</strong></div>
+                <div class="daily-performance-target-track"><span style="width:${rate}%"></span></div>
+                <b class="${rate >= 100 ? "met" : "pending"}">${rate}%</b>
+              </div>
+            `).join("")}
           </article>
         `).join("") || '<div class="empty-state">لا توجد بيانات.</div>'}
       </div>`;
@@ -3777,29 +3813,60 @@ function renderDailyPerformanceReport() {
   if (!dailyPerformanceSnapshot) return;
 
   const rows = dailyPerformanceFilteredRows();
-  const totals = {
-    employees: rows.length,
-    adsCompleted: rows.filter(item => item.adsCompleted).length,
-    customers: rows.reduce((sum, item) => sum + item.customers.length, 0),
-    followups: rows.reduce((sum, item) => sum + item.followups.length, 0),
-    quotations: rows.reduce((sum, item) => sum + item.quotations.length, 0),
-    overdue: rows.reduce((sum, item) => sum + item.overdueFollowups.length, 0)
-  };
+  const snapshot = dailyPerformanceSnapshot;
+  const employeeCount = rows.length;
+
+  const totalTaskSlots = rows.reduce(
+    (sum, item) => sum + item.taskStates.length,
+    0
+  );
+  const completedTaskSlots = rows.reduce(
+    (sum, item) => sum + item.completedTasks,
+    0
+  );
+
+  const customersTargetMet = rows.filter(
+    item => item.targetsMet.customers
+  ).length;
+  const followupsTargetMet = rows.filter(
+    item => item.targetsMet.followups
+  ).length;
+  const quotationsTargetMet = rows.filter(
+    item => item.targetsMet.quotations
+  ).length;
+  const overdue = rows.reduce(
+    (sum, item) => sum + item.overdueFollowups.length,
+    0
+  );
 
   document.getElementById("dailyPerformanceEmployees").textContent =
-    totals.employees;
-  document.getElementById("dailyPerformanceAdsCompleted").textContent =
-    totals.adsCompleted;
-  document.getElementById("dailyPerformanceAdsRate").textContent =
-    `${totals.employees ? Math.round(totals.adsCompleted / totals.employees * 100) : 0}% من الموظفين`;
-  document.getElementById("dailyPerformanceCustomers").textContent =
-    totals.customers;
-  document.getElementById("dailyPerformanceFollowups").textContent =
-    totals.followups;
-  document.getElementById("dailyPerformanceQuotations").textContent =
-    totals.quotations;
-  document.getElementById("dailyPerformanceOverdue").textContent =
-    totals.overdue;
+    employeeCount;
+  document.getElementById("dailyPerformanceChecklistRate").textContent =
+    `${totalTaskSlots ? Math.round(completedTaskSlots / totalTaskSlots * 100) : 0}%`;
+  document.getElementById("dailyPerformanceChecklistText").textContent =
+    `${completedTaskSlots} من ${totalTaskSlots}`;
+  document.getElementById("dailyPerformanceCustomersTargetMet").textContent =
+    customersTargetMet;
+  document.getElementById("dailyPerformanceCustomersTargetRate").textContent =
+    `${employeeCount ? Math.round(customersTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+  document.getElementById("dailyPerformanceFollowupsTargetMet").textContent =
+    followupsTargetMet;
+  document.getElementById("dailyPerformanceFollowupsTargetRate").textContent =
+    `${employeeCount ? Math.round(followupsTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+  document.getElementById("dailyPerformanceQuotationsTargetMet").textContent =
+    quotationsTargetMet;
+  document.getElementById("dailyPerformanceQuotationsTargetRate").textContent =
+    `${employeeCount ? Math.round(quotationsTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+  document.getElementById("dailyPerformanceOverdue").textContent = overdue;
+
+  document.getElementById("dailyPerformanceManagerNoteTitle").textContent =
+    snapshot.managerNote?.title || "لا توجد ملاحظة.";
+  document.getElementById("dailyPerformanceManagerNoteText").textContent =
+    snapshot.managerNote?.noteText || "لم يتم تسجيل توجيه لهذا اليوم.";
+  document.getElementById("dailyPerformanceManagerNoteDate").textContent =
+    snapshot.managerNote?.updatedAt
+      ? dailyDateTime(snapshot.managerNote.updatedAt)
+      : "—";
 
   const leaderboard = document.getElementById(
     "dailyPerformanceLeaderboard"
@@ -3810,7 +3877,7 @@ function renderDailyPerformanceReport() {
         <span class="rank">${item.rank}</span>
         <div>
           <strong>${escapeHtml(item.name)}</strong>
-          <small>${item.followups.length} متابعة · ${item.customers.length} عميل · ${item.quotations.length} عرض</small>
+          <small>${item.completedTasks}/${item.taskStates.length} مهام · ${item.followups.length} متابعة · ${item.customers.length} عميل · ${item.quotations.length} عرض</small>
           <div class="daily-performance-progress">
             <span style="width:${item.completionRate}%"></span>
           </div>
@@ -3823,6 +3890,30 @@ function renderDailyPerformanceReport() {
     `).join("")
     : '<div class="empty-state">لا توجد بيانات موظفين.</div>';
 
+  const matrixHead = document.getElementById("dailyTaskMatrixHead");
+  const matrixBody = document.getElementById("dailyTaskMatrixBody");
+
+  matrixHead.innerHTML = `
+    <tr>
+      <th>الموظف</th>
+      ${snapshot.definitions.map(definition =>
+        `<th>${escapeHtml(definition.task_name)}</th>`
+      ).join("")}
+      <th>الإنجاز</th>
+    </tr>`;
+
+  matrixBody.innerHTML = rows.length
+    ? rows.map(item => `
+      <tr>
+        <td><strong>${escapeHtml(item.name)}</strong></td>
+        ${item.taskStates.map(task => `
+          <td>${dailyPerformanceStatusIcon(task.completed)}</td>
+        `).join("")}
+        <td><strong>${item.checklistRate}%</strong></td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="${snapshot.definitions.length + 2}" class="empty-state">لا توجد بيانات.</td></tr>`;
+
   const body = document.getElementById("dailyPerformanceBody");
   body.innerHTML = rows.length
     ? rows.map(item => `
@@ -3832,10 +3923,21 @@ function renderDailyPerformanceReport() {
           <strong>${escapeHtml(item.name)}</strong><br>
           <small>${escapeHtml(item.code || item.role || "—")}</small>
         </td>
-        <td>${dailyPerformanceStatusIcon(item.adsCompleted)}</td>
-        <td>${item.customers.length}</td>
-        <td>${item.followups.length}</td>
-        <td>${item.quotations.length}</td>
+        <td>
+          <span class="daily-performance-checklist-summary">
+            ${item.completedTasks}/${item.taskStates.length}
+          </span>
+        </td>
+        <td>${item.customers.length} / ${item.targets.customers}</td>
+        <td>${item.followups.length} / ${item.targets.followups}</td>
+        <td>${item.quotations.length} / ${item.targets.quotations}</td>
+        <td>
+          <div class="daily-performance-target-badges">
+            <span class="${item.targetsMet.customers ? "met" : "pending"}">عملاء</span>
+            <span class="${item.targetsMet.followups ? "met" : "pending"}">متابعات</span>
+            <span class="${item.targetsMet.quotations ? "met" : "pending"}">عروض</span>
+          </div>
+        </td>
         <td class="${item.overdueFollowups.length ? "daily-performance-overdue-value" : ""}">
           ${item.overdueFollowups.length}
         </td>
@@ -3848,7 +3950,7 @@ function renderDailyPerformanceReport() {
         <td><strong>${item.points}</strong></td>
       </tr>
     `).join("")
-    : '<tr><td colspan="9" class="empty-state">لا توجد بيانات مطابقة.</td></tr>';
+    : '<tr><td colspan="10" class="empty-state">لا توجد بيانات مطابقة.</td></tr>';
 
   renderDailyPerformanceDetail();
 }
