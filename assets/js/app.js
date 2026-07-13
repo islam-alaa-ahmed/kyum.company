@@ -151,6 +151,7 @@ let latestDiagnosticsReport = null;
 let diagnosticsRunning = false;
 let currentReportsSnapshot = null;
 let customer360ActivityFilter = "all";
+let currentCustomer360View = null;
 let activeCustomerAnalyticsTab = "types";
 let systemHealthLoading = false;
 let systemHealthTimer = null;
@@ -3028,6 +3029,8 @@ function showCustomerDetails(customerId) {
     quotations
   );
 
+  currentCustomer360View = view;
+
   document.getElementById("customerDetailsDialog").dataset.customerId = customerId;
   document.getElementById("customerDetailsTitle").textContent =
     `${customer.name} — Customer 360°`;
@@ -3672,6 +3675,74 @@ document.getElementById("customer360AddFollowupBtn")?.addEventListener("click", 
   dialog.close();
   openFollowupDialog(customerId);
 });
+
+document.getElementById("customer360ExportBtn")?.addEventListener("click", () => {
+  if (!currentCustomer360View) return;
+  document.getElementById("customer360ExportSubtitle").textContent =
+    `${currentCustomer360View.customer.name} · ${currentCustomer360View.customer.phone || "بدون جوال"}`;
+  document.getElementById("customer360ExportDialog").showModal();
+});
+
+function closeCustomer360ExportDialog() {
+  document.getElementById("customer360ExportDialog").close();
+}
+
+document.getElementById("closeCustomer360ExportDialogBtn")?.addEventListener(
+  "click",
+  closeCustomer360ExportDialog
+);
+document.getElementById("closeCustomer360ExportDialogFooterBtn")?.addEventListener(
+  "click",
+  closeCustomer360ExportDialog
+);
+
+document.getElementById("customer360ExportExcelBtn")?.addEventListener("click", () => {
+  if (!currentCustomer360View) return;
+  try {
+    window.Customer360Export.createExcel(currentCustomer360View);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر تصدير ملف Excel.");
+  }
+});
+
+document.getElementById("customer360ExportPdfBtn")?.addEventListener("click", () => {
+  if (!currentCustomer360View) return;
+  try {
+    window.Customer360Export.openPrint(currentCustomer360View);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر إنشاء تقرير PDF.");
+  }
+});
+
+document.getElementById("customer360PrintBtn")?.addEventListener("click", () => {
+  if (!currentCustomer360View) return;
+  try {
+    window.Customer360Export.openPrint(currentCustomer360View);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر فتح الطباعة.");
+  }
+});
+
+document.getElementById("customer360ExportPngBtn")?.addEventListener("click", async () => {
+  if (!currentCustomer360View) return;
+
+  const button = document.getElementById("customer360ExportPngBtn");
+  button.disabled = true;
+  button.textContent = "جاري إنشاء الصورة...";
+
+  try {
+    await window.Customer360Export.createPng(
+      document.querySelector("#customerDetailsDialog .customer360-shell"),
+      currentCustomer360View
+    );
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر تصدير صورة PNG.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "تصدير PNG";
+  }
+});
+
 
 document.getElementById("closeDialogBtn").addEventListener("click", closeCustomerDialog);
 document.getElementById("cancelDialogBtn").addEventListener("click", closeCustomerDialog);

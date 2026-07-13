@@ -1429,6 +1429,7 @@
         <div class="customer360-header-actions">
           <button id="customer360AddFollowupBtn" class="secondary-btn compact-btn" type="button">إضافة متابعة</button>
           <button id="customer360EditBtn" class="secondary-btn compact-btn" type="button">تعديل العميل</button>
+          <button id="customer360ExportBtn" class="primary-btn compact-btn" type="button">تصدير الملف</button>
           <button id="closeCustomerDetailsBtn" class="icon-btn" type="button">×</button>
         </div>
       </div>
@@ -1436,6 +1437,60 @@
     </div>
   </dialog>
 
+
+  <dialog id="customer360ExportDialog" class="customer360-export-dialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3>تصدير ملف العميل</h3>
+          <p id="customer360ExportSubtitle">اختر صيغة التصدير المطلوبة.</p>
+        </div>
+        <button id="closeCustomer360ExportDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+
+      <div class="customer360-export-grid">
+        <article>
+          <div class="customer360-export-icon">PDF</div>
+          <div>
+            <h4>تقرير PDF</h4>
+            <p>ملف إداري منظم يشمل البيانات والمؤشرات والمتابعات والعروض.</p>
+          </div>
+          <button id="customer360ExportPdfBtn" class="primary-btn" type="button">إنشاء PDF</button>
+        </article>
+
+        <article>
+          <div class="customer360-export-icon">XLSX</div>
+          <div>
+            <h4>ملف Excel</h4>
+            <p>جداول منفصلة للملخص والمتابعات وعروض الأسعار وسجل النشاط.</p>
+          </div>
+          <button id="customer360ExportExcelBtn" class="secondary-btn" type="button">تصدير Excel</button>
+        </article>
+
+        <article>
+          <div class="customer360-export-icon">PNG</div>
+          <div>
+            <h4>صورة PNG</h4>
+            <p>لقطة كاملة لنافذة Customer 360 بدون أزرار التحكم.</p>
+          </div>
+          <button id="customer360ExportPngBtn" class="secondary-btn" type="button">تصدير PNG</button>
+        </article>
+
+        <article>
+          <div class="customer360-export-icon">PRINT</div>
+          <div>
+            <h4>طباعة مباشرة</h4>
+            <p>فتح نسخة مبسطة وجاهزة للطباعة من ملف العميل.</p>
+          </div>
+          <button id="customer360PrintBtn" class="secondary-btn" type="button">طباعة الملف</button>
+        </article>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="closeCustomer360ExportDialogFooterBtn" class="secondary-btn" type="button">إغلاق</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog id="quotationDialog">
     <form id="quotationForm" method="dialog">
@@ -1637,6 +1692,7 @@
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
-  <script src="assets/js/app.js?v=15.2.6"></script>
+  <script src="assets/js/customer360-export.js?v=15.3.4"></script>
+  <script src="assets/js/app.js?v=15.3.4"></script>
 </body>
 </html>

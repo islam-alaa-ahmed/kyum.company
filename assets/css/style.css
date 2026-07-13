@@ -1736,3 +1736,68 @@ body.reports-exporting #reportsOverviewView *{
   .customer360-gauge-ring{width:86px;height:86px}
   .customer360-gauge-ring>div{width:64px;height:64px}
 }
+
+
+/* KYUM Phase 15.3.4 — Customer 360 Export Center */
+.customer360-export-dialog{
+  width:min(92vw,920px);
+  max-width:920px
+}
+.customer360-export-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px
+}
+.customer360-export-grid article{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:12px;
+  align-items:start;
+  padding:15px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface-2)
+}
+.customer360-export-grid article>button{grid-column:1/-1}
+.customer360-export-grid h4,
+.customer360-export-grid p{margin:0}
+.customer360-export-grid p{
+  margin-top:5px;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:12px
+}
+.customer360-export-icon{
+  width:58px;
+  height:58px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#0f766e,#0f172a);
+  color:#fff;
+  font-weight:900;
+  font-size:11px
+}
+body.customer360-exporting .customer360-header,
+body.customer360-exporting .customer360-export-dialog{
+  display:none!important
+}
+body.customer360-exporting .customer360-shell{
+  background:#fff!important;
+  color:#172033!important;
+  max-height:none!important;
+  overflow:visible!important
+}
+body.customer360-exporting #customerDetailsContent{
+  max-height:none!important;
+  overflow:visible!important;
+  background:#fff!important
+}
+body.customer360-exporting .customer360-shell *{
+  animation:none!important;
+  transition:none!important
+}
+
+@media(max-width:700px){
+  .customer360-export-grid{grid-template-columns:1fr}
+}
