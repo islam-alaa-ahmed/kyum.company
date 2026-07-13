@@ -1880,3 +1880,72 @@ body.customer360-exporting .customer360-shell *{
 @media(max-width:700px){
   .representatives-list-toolbar{grid-template-columns:1fr}
 }
+
+
+/* KYUM Phase 15.4.3 — Reference data filtered full-width view */
+.reference-data-toolbar{
+  display:grid;
+  grid-template-columns:minmax(260px,420px);
+  margin-bottom:14px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:var(--surface)
+}
+.reference-data-toolbar label{
+  display:grid;
+  gap:7px;
+  color:var(--muted);
+  font-size:11px
+}
+.reference-data-fullwidth{
+  width:100%;
+  display:block
+}
+.reference-data-panel{
+  width:100%;
+  max-width:none
+}
+.reference-data-panel.hidden{
+  display:none!important
+}
+.reference-item{
+  grid-template-columns:minmax(0,1fr) auto
+}
+.reference-item-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  align-items:center
+}
+.reference-item-actions button{
+  min-width:64px;
+  border-radius:9px;
+  padding:6px 10px;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+.reference-item-actions .delete-btn{
+  border:1px solid #fecaca;
+  background:#fff1f2;
+  color:#b91c1c
+}
+.reference-item-actions .delete-btn:hover{
+  background:#ffe4e6
+}
+@media(max-width:700px){
+  .reference-data-toolbar{
+    grid-template-columns:1fr
+  }
+  .reference-item{
+    grid-template-columns:1fr
+  }
+  .reference-item-actions{
+    width:100%
+  }
+  .reference-item-actions button{
+    flex:1
+  }
+}

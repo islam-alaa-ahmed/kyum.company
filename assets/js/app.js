@@ -429,6 +429,7 @@ function refreshReferenceOptions() {
   replaceSelectOptions(document.getElementById("quotationCustomer"), customerOptions);
 
   renderReferenceData();
+  syncReferenceDataPanel();
   renderRepresentatives();
 }
 
@@ -2640,19 +2641,99 @@ function renderReferenceData() {
               ${item.is_active ? "نشط" : "غير نشط"}
             </span>
           </div>
-          ${canManage ? `<button class="edit-btn" data-edit-reference="${item.id}" data-reference-type="${type}">تعديل</button>` : ""}
+          ${canManage ? `
+            <div class="reference-item-actions">
+              <button
+                class="edit-btn"
+                type="button"
+                data-edit-reference="${item.id}"
+                data-reference-type="${type}">
+                تعديل
+              </button>
+              <button
+                class="delete-btn"
+                type="button"
+                data-delete-reference="${item.id}"
+                data-reference-type="${type}">
+                حذف
+              </button>
+            </div>
+          ` : ""}
         </div>`).join("")
     : `<div class="empty-state">لا توجد بيانات مسجلة.</div>`;
 
   const interestsContainer = document.getElementById("settingsInterests");
   const reasonsContainer = document.getElementById("settingsReasons");
 
-  if (interestsContainer) interestsContainer.innerHTML = renderItems(interestRecords, "interest");
-  if (reasonsContainer) reasonsContainer.innerHTML = renderItems(reasonRecords, "reason");
+  if (interestsContainer) {
+    interestsContainer.innerHTML = renderItems(interestRecords, "interest");
+  }
+  if (reasonsContainer) {
+    reasonsContainer.innerHTML = renderItems(reasonRecords, "reason");
+  }
 
   document.querySelectorAll(".reference-manage-action").forEach(button => {
     button.classList.toggle("hidden", !canManage);
   });
+}
+
+function syncReferenceDataPanel() {
+  const selected = document.getElementById("referenceDataSectionFilter")?.value || "interest";
+  document.querySelectorAll("[data-reference-panel]").forEach(panel => {
+    panel.classList.toggle(
+      "hidden",
+      panel.dataset.referencePanel !== selected
+    );
+  });
+}
+
+async function deleteReferenceItem(type, id) {
+  if (!canManageReferenceData()) return;
+
+  const records = type === "interest" ? interestRecords : reasonRecords;
+  const record = records.find(item => item.id === id);
+  if (!record) return;
+
+  const label = type === "interest" ? "مجال الاهتمام" : "سبب عدم البيع";
+  if (!confirm(`سيتم حذف ${label} «${record.name}» نهائيًا. هل تريد المتابعة؟`)) {
+    return;
+  }
+
+  const table = type === "interest"
+    ? "interest_categories"
+    : "no_sale_reasons";
+
+  showDataStatus("referenceDataStatus", `جاري حذف ${label}...`, "info");
+
+  try {
+    const { error } = await window.customerSupabase
+      .from(table)
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    referenceDataLoaded = false;
+    await loadReferenceDataFromSupabase(true);
+    syncReferenceDataPanel();
+
+    showDataStatus(
+      "referenceDataStatus",
+      `تم حذف ${label} بنجاح.`,
+      "success"
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isLinked = /foreign key|violates|referenced|23503/i.test(message);
+
+    showDataStatus(
+      "referenceDataStatus",
+      isLinked
+        ? `لا يمكن حذف ${label} لأنه مستخدم في بيانات حالية. عدّل حالته إلى «غير نشط» بدل الحذف.`
+        : message || `تعذر حذف ${label}.`,
+      "error"
+    );
+  }
 }
 
 function openRepresentativeDialog(record = null) {
@@ -4045,13 +4126,28 @@ document.getElementById("representativesStatusFilter")?.addEventListener(
 );
 
 document.getElementById("settingsView")?.addEventListener("click", event => {
-  const id = event.target.dataset.editReference;
+  const editId = event.target.dataset.editReference;
+  const deleteId = event.target.dataset.deleteReference;
   const type = event.target.dataset.referenceType;
-  if (!id || !type) return;
-  const records = type === "interest" ? interestRecords : reasonRecords;
-  const record = records.find(item => item.id === id);
-  if (record) openReferenceDialog(type, record);
+
+  if (!type) return;
+
+  if (editId) {
+    const records = type === "interest" ? interestRecords : reasonRecords;
+    const record = records.find(item => item.id === editId);
+    if (record) openReferenceDialog(type, record);
+    return;
+  }
+
+  if (deleteId) {
+    deleteReferenceItem(type, deleteId);
+  }
 });
+
+document.getElementById("referenceDataSectionFilter")?.addEventListener(
+  "change",
+  syncReferenceDataPanel
+);
 
 window.addEventListener("customer-auth-ready", async () => {
   await loadReferenceDataFromSupabase(true);

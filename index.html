@@ -431,22 +431,34 @@
 
       <section id="settingsView" class="view-section hidden">
         <div id="referenceDataStatus" class="data-status hidden"></div>
-        <div class="settings-grid reference-settings-grid">
-          <article class="panel">
+
+        <div class="reference-data-toolbar">
+          <label>
+            اختر التبويب
+            <select id="referenceDataSectionFilter">
+              <option value="interest">مجالات اهتمام العملاء</option>
+              <option value="reason">أسباب عدم البيع</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="reference-data-fullwidth">
+          <article class="panel reference-data-panel" data-reference-panel="interest">
             <div class="panel-header">
               <div>
                 <h3>مجالات اهتمام العملاء</h3>
-                <p>إضافة وتعديل وتفعيل مجالات الاهتمام.</p>
+                <p>إضافة وتعديل وتفعيل وحذف مجالات الاهتمام.</p>
               </div>
               <button class="primary-btn compact-btn reference-manage-action" data-add-reference="interest">إضافة</button>
             </div>
             <div id="settingsInterests" class="reference-list"></div>
           </article>
-          <article class="panel">
+
+          <article class="panel reference-data-panel hidden" data-reference-panel="reason">
             <div class="panel-header">
               <div>
                 <h3>أسباب عدم البيع</h3>
-                <p>إدارة الأسباب المستخدمة في العملاء والعروض.</p>
+                <p>إدارة وتعديل وتفعيل وحذف الأسباب المستخدمة في العملاء والعروض.</p>
               </div>
               <button class="primary-btn compact-btn reference-manage-action" data-add-reference="reason">إضافة</button>
             </div>
@@ -1731,6 +1743,6 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/app.js?v=15.4.2"></script>
+  <script src="assets/js/app.js?v=15.4.3"></script>
 </body>
 </html>

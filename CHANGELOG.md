@@ -1,4 +1,4 @@
-# KYUM Phase 15.4.2 — Representatives List & Actions
+# KYUM Phase 15.4.3 — Reference Data Filtered Full-Width View
 
 ## Modified Files
 
@@ -8,15 +8,13 @@
 
 ## Implemented
 
-- Replaced representative cards with a users-style table.
-- Added search by name, code, phone and email.
-- Added active/inactive status filter.
-- Added assigned-customer count.
-- Added actions column:
-  - Edit
-  - Suspend / Reactivate
-  - Delete
-- Prevented deletion when customers are assigned.
-- Added safe Supabase status update and delete handling.
-- Preserved Phase 15.4.1 company contact-person UI changes.
+- Converted reference data to a full-width single-panel layout.
+- Added a dropdown selector for:
+  - Customer interest categories
+  - No-sale reasons
+- Displays only the selected section.
+- Added Delete beside Edit.
+- Added safe Supabase deletion.
+- Blocks deletion when the item is referenced by existing data.
+- Recommends deactivation when deletion is blocked.
 - No SQL migration or Edge Function.
