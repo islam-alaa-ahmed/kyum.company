@@ -113,12 +113,60 @@
       0
     );
 
+
+    const timeline = [
+      {
+        id: `customer-created-${customer.id}`,
+        type: "customer",
+        typeLabel: "بيانات العميل",
+        title: "إنشاء ملف العميل",
+        detail: customer.notes || "تم إنشاء ملف العميل في النظام.",
+        date: customer.createdAt || customer.contactDate || null,
+        meta: customer.representative || "—",
+        status: "info"
+      },
+      ...customerFollowups.map(item => ({
+        id: `followup-${item.id || Math.random()}`,
+        type: "followup",
+        typeLabel: "متابعة",
+        title: item.result || "متابعة العميل",
+        detail: item.notes || item.method || "تم تسجيل متابعة للعميل.",
+        date: item.contactDate || item.createdAt || null,
+        meta: [item.method, item.representative].filter(Boolean).join(" · ") || "—",
+        status: followupState(item)
+      })),
+      ...customerQuotations.map(item => ({
+        id: `quotation-${item.id || Math.random()}`,
+        type: "quotation",
+        typeLabel: "عرض سعر",
+        title: item.code || item.quotationNumber || "عرض سعر",
+        detail: [
+          item.status || "غير محدد",
+          amount(item.amount) ? `${amount(item.amount).toFixed(2)} SAR` : null,
+          item.rejectionReason || item.noSaleReason || null
+        ].filter(Boolean).join(" · "),
+        date: item.quotationDate || item.createdAt || null,
+        meta: item.representative || customer.representative || "—",
+        status: item.status === "مقبول"
+          ? "accepted"
+          : item.status === "مرفوض" || item.status === "ملغي"
+            ? "rejected"
+            : "open"
+      }))
+    ]
+      .filter(item => item.date)
+      .sort((a, b) => Number(asDate(b.date)) - Number(asDate(a.date)));
+
+    const latestActivity = timeline[0] || null;
+
     return {
       customer,
       followups: customerFollowups,
       quotations: customerQuotations,
       latestFollowup,
       latestQuotation,
+      latestActivity,
+      timeline,
       lastContactDate,
       inactivityDays,
       status,

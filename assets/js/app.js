@@ -150,6 +150,7 @@ let systemHealthSnapshot = null;
 let latestDiagnosticsReport = null;
 let diagnosticsRunning = false;
 let currentReportsSnapshot = null;
+let customer360ActivityFilter = "all";
 let activeCustomerAnalyticsTab = "types";
 let systemHealthLoading = false;
 let systemHealthTimer = null;
@@ -2930,6 +2931,58 @@ async function deleteFollowup(id) {
   }
 }
 
+function customer360TimelineIcon(type) {
+  const icons = {
+    customer: "C",
+    followup: "F",
+    quotation: "Q"
+  };
+  return icons[type] || "•";
+}
+
+function customer360TimelineStatusLabel(status) {
+  const labels = {
+    completed: "مكتملة",
+    overdue: "متأخرة",
+    today: "اليوم",
+    upcoming: "قادمة",
+    no_date: "بدون موعد",
+    accepted: "مقبول",
+    rejected: "مرفوض",
+    open: "مفتوح",
+    info: "معلومة"
+  };
+  return labels[status] || status || "—";
+}
+
+function renderCustomer360UnifiedTimeline(view) {
+  const timelineContainer = document.getElementById("customer360UnifiedTimeline");
+  if (!timelineContainer) return;
+
+  const filtered = customer360ActivityFilter === "all"
+    ? view.timeline
+    : view.timeline.filter(item => item.type === customer360ActivityFilter);
+
+  timelineContainer.innerHTML = filtered.length
+    ? filtered.map(item => `
+      <article class="customer360-activity-item type-${item.type} status-${item.status}">
+        <div class="customer360-activity-icon">${escapeHtml(customer360TimelineIcon(item.type))}</div>
+        <div class="customer360-activity-content">
+          <div class="customer360-activity-head">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <small>${escapeHtml(item.typeLabel)} · ${formatDate(item.date)}</small>
+            </div>
+            <span>${escapeHtml(customer360TimelineStatusLabel(item.status))}</span>
+          </div>
+          <p>${escapeHtml(item.detail || "—")}</p>
+          <small>${escapeHtml(item.meta || "—")}</small>
+        </div>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد أحداث من هذا النوع.</div>';
+}
+
 function customer360StatusClass(key) {
   const supported = [
     "active",
@@ -3119,6 +3172,43 @@ function showCustomerDetails(customerId) {
       </aside>
     </div>
 
+    <article class="customer360-section customer360-activity-section">
+      <div class="customer360-section-header">
+        <div>
+          <h3>سجل النشاط الموحد</h3>
+          <p>جميع أحداث العميل مرتبة من الأحدث إلى الأقدم.</p>
+        </div>
+        <span>${view.timeline.length} حدث</span>
+      </div>
+
+      <div class="customer360-activity-summary">
+        <article>
+          <span>آخر نشاط</span>
+          <strong>${view.latestActivity ? formatDate(view.latestActivity.date) : "—"}</strong>
+          <small>${view.latestActivity ? escapeHtml(view.latestActivity.typeLabel) : "لا يوجد نشاط"}</small>
+        </article>
+        <article>
+          <span>المتابعات</span>
+          <strong>${view.followups.length}</strong>
+          <small>إجمالي المتابعات</small>
+        </article>
+        <article>
+          <span>عروض الأسعار</span>
+          <strong>${view.quotations.length}</strong>
+          <small>إجمالي العروض</small>
+        </article>
+      </div>
+
+      <div class="customer360-activity-filters">
+        <button type="button" class="customer360-activity-filter active" data-customer360-filter="all">الكل</button>
+        <button type="button" class="customer360-activity-filter" data-customer360-filter="followup">المتابعات</button>
+        <button type="button" class="customer360-activity-filter" data-customer360-filter="quotation">عروض الأسعار</button>
+        <button type="button" class="customer360-activity-filter" data-customer360-filter="customer">بيانات العميل</button>
+      </div>
+
+      <div id="customer360UnifiedTimeline" class="customer360-unified-timeline"></div>
+    </article>
+
     <article class="customer360-section customer360-timeline-section">
       <div class="customer360-section-header">
         <div>
@@ -3144,6 +3234,18 @@ function showCustomerDetails(customerId) {
     </article>
   `;
 
+  document.querySelectorAll("[data-customer360-filter]").forEach(button => {
+    button.addEventListener("click", () => {
+      customer360ActivityFilter = button.dataset.customer360Filter;
+      document.querySelectorAll("[data-customer360-filter]").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
+      renderCustomer360UnifiedTimeline(view);
+    });
+  });
+
+  customer360ActivityFilter = "all";
+  renderCustomer360UnifiedTimeline(view);
   document.getElementById("customerDetailsDialog").showModal();
 }
 

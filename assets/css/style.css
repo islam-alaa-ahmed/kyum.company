@@ -1459,3 +1459,142 @@ body.reports-exporting #reportsOverviewView *{
   .customer360-quotation-list article{grid-template-columns:1fr}
   .customer360-quotation-list article>div:last-child{text-align:right}
 }
+
+
+/* KYUM Phase 15.3.2 — Unified Customer Activity Timeline */
+.customer360-activity-section{margin-top:18px}
+.customer360-activity-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px
+}
+.customer360-activity-summary article{
+  display:grid;
+  gap:5px;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.customer360-activity-summary span,
+.customer360-activity-summary small{
+  color:var(--muted);
+  font-size:10px
+}
+.customer360-activity-summary strong{font-size:17px}
+.customer360-activity-filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:14px
+}
+.customer360-activity-filter{
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--muted);
+  border-radius:999px;
+  padding:7px 11px;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+.customer360-activity-filter.active{
+  background:#0f766e;
+  border-color:#0f766e;
+  color:#fff
+}
+.customer360-unified-timeline{
+  position:relative;
+  display:grid;
+  gap:11px
+}
+.customer360-unified-timeline::before{
+  content:"";
+  position:absolute;
+  inset-block:14px;
+  inset-inline-start:20px;
+  width:2px;
+  background:var(--border)
+}
+.customer360-activity-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:12px;
+  align-items:start
+}
+.customer360-activity-icon{
+  position:relative;
+  z-index:1;
+  width:40px;
+  height:40px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-weight:900;
+  background:#64748b;
+  border:3px solid var(--surface)
+}
+.customer360-activity-item.type-followup .customer360-activity-icon{background:#8b5cf6}
+.customer360-activity-item.type-quotation .customer360-activity-icon{background:#0ea5e9}
+.customer360-activity-item.type-customer .customer360-activity-icon{background:#0f766e}
+.customer360-activity-content{
+  display:grid;
+  gap:7px;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.customer360-activity-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start
+}
+.customer360-activity-head>div{display:grid;gap:4px}
+.customer360-activity-head small,
+.customer360-activity-content>small{
+  color:var(--muted)
+}
+.customer360-activity-head>span{
+  border-radius:999px;
+  padding:4px 8px;
+  background:#e2e8f0;
+  color:#475569;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap
+}
+.customer360-activity-item.status-overdue .customer360-activity-head>span,
+.customer360-activity-item.status-rejected .customer360-activity-head>span{
+  background:#fee2e2;
+  color:#b91c1c
+}
+.customer360-activity-item.status-accepted .customer360-activity-head>span,
+.customer360-activity-item.status-completed .customer360-activity-head>span{
+  background:#dcfce7;
+  color:#166534
+}
+.customer360-activity-item.status-today .customer360-activity-head>span{
+  background:#dbeafe;
+  color:#1d4ed8
+}
+.customer360-activity-item.status-upcoming .customer360-activity-head>span,
+.customer360-activity-item.status-open .customer360-activity-head>span{
+  background:#fef3c7;
+  color:#92400e
+}
+.customer360-activity-content p{
+  margin:0;
+  line-height:1.7;
+  color:var(--muted)
+}
+
+@media(max-width:700px){
+  .customer360-activity-summary{grid-template-columns:1fr}
+  .customer360-activity-head{flex-direction:column}
+}
