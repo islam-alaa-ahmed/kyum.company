@@ -143,12 +143,46 @@
 
         <div id="dailyOperationsStatus" class="data-status hidden"></div>
 
+        <div class="daily-manager-note" id="dailyManagerNoteCard">
+          <div>
+            <span>ملاحظة المدير لليوم</span>
+            <strong id="dailyManagerNoteTitle">لا توجد ملاحظة يومية.</strong>
+            <p id="dailyManagerNoteText">يمكن للإدارة إضافة توجيه يومي للفريق.</p>
+          </div>
+          <button id="editDailyManagerNoteBtn" class="secondary-btn compact-btn hidden" type="button">تعديل الملاحظة</button>
+        </div>
+
         <div class="daily-operations-kpis">
-          <article><span>إنجاز المهام</span><strong id="dailyTasksCompletionRate">0%</strong><small id="dailyTasksCompletionText">0 من 1</small></article>
-          <article><span>العملاء الجدد اليوم</span><strong id="dailyNewCustomersCount">0</strong><small>عملاء تمت إضافتهم اليوم</small></article>
-          <article><span>المتابعات المنفذة اليوم</span><strong id="dailyCompletedFollowupsCount">0</strong><small>عمليات تواصل مسجلة اليوم</small></article>
+          <article><span>إنجاز المهام</span><strong id="dailyTasksCompletionRate">0%</strong><small id="dailyTasksCompletionText">0 من 0</small></article>
+          <article><span>العملاء الجدد اليوم</span><strong id="dailyNewCustomersCount">0</strong><small id="dailyCustomersTargetText">الهدف: 0</small></article>
+          <article><span>المتابعات المنفذة اليوم</span><strong id="dailyCompletedFollowupsCount">0</strong><small id="dailyFollowupsTargetText">الهدف: 0</small></article>
+          <article><span>عروض الأسعار اليوم</span><strong id="dailyQuotationsCount">0</strong><small id="dailyQuotationsTargetText">الهدف: 0</small></article>
           <article class="attention"><span>المتابعات المتأخرة</span><strong id="dailyOverdueFollowupsCount">0</strong><small>تحتاج إجراءً فوريًا</small></article>
         </div>
+
+        <article class="panel daily-targets-panel">
+          <div class="panel-header">
+            <div>
+              <h3>أهداف اليوم</h3>
+              <p>مقارنة النشاط الفعلي بالأهداف اليومية المحددة.</p>
+            </div>
+            <button id="editDailyTargetsBtn" class="secondary-btn compact-btn hidden" type="button">تعديل الأهداف</button>
+          </div>
+          <div class="daily-targets-grid">
+            <article>
+              <div><span>العملاء الجدد</span><strong id="dailyCustomersTargetValue">0 / 0</strong></div>
+              <div class="daily-target-progress"><span id="dailyCustomersTargetBar" style="width:0%"></span></div>
+            </article>
+            <article>
+              <div><span>المتابعات</span><strong id="dailyFollowupsTargetValue">0 / 0</strong></div>
+              <div class="daily-target-progress"><span id="dailyFollowupsTargetBar" style="width:0%"></span></div>
+            </article>
+            <article>
+              <div><span>عروض الأسعار</span><strong id="dailyQuotationsTargetValue">0 / 0</strong></div>
+              <div class="daily-target-progress"><span id="dailyQuotationsTargetBar" style="width:0%"></span></div>
+            </article>
+          </div>
+        </article>
 
         <article class="panel daily-checklist-panel">
           <div class="panel-header">
@@ -159,15 +193,7 @@
             <span id="dailyChecklistPermission" class="daily-permission-badge">عرض فقط</span>
           </div>
           <div id="dailyChecklist" class="daily-checklist">
-            <label class="daily-task-item" data-daily-task="ads_update">
-              <input id="dailyAdsUpdateCheckbox" type="checkbox">
-              <span class="daily-task-check" aria-hidden="true"></span>
-              <div>
-                <strong id="dailyAdsUpdateTitle">تحديث الإعلانات</strong>
-                <small id="dailyAdsUpdateMeta">لم يتم التحديث حتى الآن.</small>
-              </div>
-              <b id="dailyAdsUpdateState">لم يتم التحديث</b>
-            </label>
+            <div class="empty-state">جاري تحميل المهام اليومية...</div>
           </div>
         </article>
 
@@ -199,6 +225,22 @@
             <table class="daily-operations-table">
               <thead><tr><th>العميل</th><th>التصنيف</th><th>اسم المسؤول</th><th>المندوب</th><th>وقت الإضافة</th></tr></thead>
               <tbody id="dailyCustomersBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel daily-section-panel">
+          <div class="panel-header">
+            <div>
+              <h3>عروض الأسعار اليوم</h3>
+              <p>العروض التي تم إنشاؤها خلال يوم العمل الحالي.</p>
+            </div>
+            <button class="text-btn" type="button" data-daily-open-view="quotations">فتح عروض الأسعار</button>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-operations-table">
+              <thead><tr><th>العميل</th><th>المندوب</th><th>رقم العرض</th><th>الحالة</th><th>القيمة</th></tr></thead>
+              <tbody id="dailyQuotationsBody"></tbody>
             </table>
           </div>
         </article>
@@ -1682,6 +1724,39 @@
   </dialog>
 
 
+  <dialog id="dailyTargetsDialog" class="daily-settings-dialog">
+    <form id="dailyTargetsForm">
+      <div class="dialog-header">
+        <div><h3>أهداف العمل اليومية</h3><p>تُطبق الأهداف على جميع المندوبين النشطين.</p></div>
+        <button id="closeDailyTargetsDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <div class="form-grid">
+        <label>هدف العملاء الجدد<input id="dailyTargetCustomersInput" type="number" min="0" max="999" required></label>
+        <label>هدف المتابعات<input id="dailyTargetFollowupsInput" type="number" min="0" max="999" required></label>
+        <label>هدف عروض الأسعار<input id="dailyTargetQuotationsInput" type="number" min="0" max="999" required></label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" id="cancelDailyTargetsBtn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ الأهداف</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dailyManagerNoteDialog" class="daily-settings-dialog">
+    <form id="dailyManagerNoteForm">
+      <div class="dialog-header">
+        <div><h3>ملاحظة المدير اليومية</h3><p>تظهر لجميع المستخدمين في مركز التشغيل اليومي.</p></div>
+        <button id="closeDailyManagerNoteDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <label>عنوان الملاحظة<input id="dailyManagerNoteTitleInput" maxlength="150" required></label>
+      <label>نص الملاحظة<textarea id="dailyManagerNoteTextInput" rows="5" maxlength="1000" required></textarea></label>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" id="cancelDailyManagerNoteBtn">إلغاء</button>
+        <button type="submit" class="primary-btn">حفظ الملاحظة</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="customer360ExportDialog" class="customer360-export-dialog">
     <form method="dialog">
       <div class="dialog-header">
@@ -1931,7 +2006,7 @@
   <script src="assets/js/backup-service.js"></script>
   <script src="assets/js/system-settings-service.js"></script>
   <script src="assets/js/system-health-service.js"></script>
-  <script src="assets/js/daily-operations-service.js?v=16.1"></script>
+  <script src="assets/js/daily-operations-service.js?v=16.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
@@ -1939,6 +2014,6 @@
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
   <script src="assets/js/daily-performance-service.js?v=16.2"></script>
-  <script src="assets/js/app.js?v=16.2"></script>
+  <script src="assets/js/app.js?v=16.3"></script>
 </body>
 </html>

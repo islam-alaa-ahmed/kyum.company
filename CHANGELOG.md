@@ -1,21 +1,23 @@
-# KYUM Phase 16.2 — Daily Performance Report
+# KYUM Phase 16.3 — Expanded Daily Checklist & Targets
 
 ## Modified/New Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/daily-performance-service.js`
-- `supabase/migrations/phase16_2_daily_performance_report.sql`
+- `assets/js/daily-operations-service.js`
+- `supabase/migrations/phase16_3_expanded_daily_checklist_targets.sql`
 
 ## Implemented
 
-- Added `تقرير الأداء اليومي` under Reports & Analytics.
-- Added date and employee filters.
-- Added employee ranking and daily points.
-- Added Ads Update status with green check / red cross.
-- Added new customers, follow-ups, quotations and overdue counts.
-- Added overall employee performance table.
-- Added detail reports for each daily activity category.
-- Added CSV export.
-- Added screen permissions for management roles.
+- Expanded the daily checklist from one task to five tasks.
+- Added independent permission keys for every daily task.
+- Added daily targets for:
+  - New customers
+  - Follow-ups
+  - Quotations
+- Added live target progress bars.
+- Added a daily manager note for the sales team.
+- Added daily quotations table.
+- Added manager-only target and note editing.
+- Preserved Ads Update task compatibility with Phase 16.2.

@@ -156,6 +156,9 @@ let activeCustomerAnalyticsTab = "types";
 let systemHealthLoading = false;
 let systemHealthTimer = null;
 let dailyTaskRecords = [];
+let dailyTaskDefinitions = [];
+let dailyOperationTargets = null;
+let dailyManagerNote = null;
 let dailyOperationsLoading = false;
 let dailyPerformanceSnapshot = null;
 let dailyPerformanceLoading = false;
@@ -3962,122 +3965,310 @@ function dailyDaysOverdue(value) {
   return Number.isNaN(target.getTime()) ? 0 : Math.max(0, Math.floor((today - target) / 86400000));
 }
 
-function renderDailyOperations() {
-  const today = dailyLocalDate();
-  const profile = window.CustomerAuth?.getState?.().profile;
-  const ownTask = dailyTaskRecords.find(item =>
-    item.taskKey === "ads_update"
+function dailyTaskCanEdit(definition) {
+  if (!definition?.permissionKey) return false;
+  return Boolean(
+    window.CustomerPermissions?.canScreen?.(definition.permissionKey, "edit")
+  );
+}
+
+function dailyTaskCompletion(taskKey, today, profile) {
+  return dailyTaskRecords.find(item =>
+    item.taskKey === taskKey
     && item.workDate === today
     && item.userId === profile?.id
   );
+}
 
-  const canUpdateAds = window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit") || false;
-  const checkbox = document.getElementById("dailyAdsUpdateCheckbox");
-  const item = document.querySelector('[data-daily-task="ads_update"]');
-  const completed = Boolean(ownTask?.completed);
+function dailyTargetPercent(actual, target) {
+  const safeTarget = Math.max(0, Number(target || 0));
+  if (!safeTarget) return actual > 0 ? 100 : 0;
+  return Math.min(100, Math.round(Number(actual || 0) / safeTarget * 100));
+}
 
-  document.getElementById("dailyOperationsDate").textContent = new Date(`${today}T00:00:00`)
-    .toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  document.getElementById("dailyTasksCompletionRate").textContent = completed ? "100%" : "0%";
-  document.getElementById("dailyTasksCompletionText").textContent = completed ? "1 من 1" : "0 من 1";
-  document.getElementById("dailyChecklistPermission").textContent = canUpdateAds ? "مصرح بالتحديث" : "عرض فقط";
-  document.getElementById("dailyChecklistPermission").className = `daily-permission-badge ${canUpdateAds ? "allowed" : "readonly"}`;
+function renderDailyChecklist(today, profile) {
+  const container = document.getElementById("dailyChecklist");
+  if (!container) return;
 
-  if (checkbox) {
-    checkbox.checked = completed;
-    checkbox.disabled = !canUpdateAds;
-  }
-  item?.classList.toggle("completed", completed);
-  item?.classList.toggle("readonly", !canUpdateAds);
-  document.getElementById("dailyAdsUpdateTitle").textContent = completed ? "تم تحديث الإعلانات" : "تحديث الإعلانات";
-  document.getElementById("dailyAdsUpdateState").textContent = completed ? "تم التحديث" : "لم يتم التحديث";
-  document.getElementById("dailyAdsUpdateMeta").textContent = completed
-    ? `تم بواسطة ${ownTask.userName || profile?.full_name || "المستخدم الحالي"} في ${dailyDateTime(ownTask.completedAt)}`
-    : (canUpdateAds ? "اضغط على مربع الاختيار بعد إتمام التحديث." : "لا تملك صلاحية تغيير هذه المهمة.");
+  const completedCount = dailyTaskDefinitions.filter(definition =>
+    Boolean(dailyTaskCompletion(definition.taskKey, today, profile)?.completed)
+  ).length;
+
+  document.getElementById("dailyTasksCompletionRate").textContent =
+    `${dailyTaskDefinitions.length
+      ? Math.round(completedCount / dailyTaskDefinitions.length * 100)
+      : 0}%`;
+  document.getElementById("dailyTasksCompletionText").textContent =
+    `${completedCount} من ${dailyTaskDefinitions.length}`;
+
+  const editableCount = dailyTaskDefinitions.filter(dailyTaskCanEdit).length;
+  document.getElementById("dailyChecklistPermission").textContent =
+    editableCount
+      ? `مصرح بـ ${editableCount} مهمة`
+      : "عرض فقط";
+  document.getElementById("dailyChecklistPermission").className =
+    `daily-permission-badge ${editableCount ? "allowed" : "readonly"}`;
+
+  container.innerHTML = dailyTaskDefinitions.length
+    ? dailyTaskDefinitions.map(definition => {
+        const completion = dailyTaskCompletion(
+          definition.taskKey,
+          today,
+          profile
+        );
+        const completed = Boolean(completion?.completed);
+        const canEdit = dailyTaskCanEdit(definition);
+
+        return `
+          <label class="daily-task-item ${completed ? "completed" : ""} ${canEdit ? "" : "readonly"}"
+                 data-daily-task="${escapeHtml(definition.taskKey)}">
+            <input
+              type="checkbox"
+              data-daily-task-checkbox="${escapeHtml(definition.taskKey)}"
+              ${completed ? "checked" : ""}
+              ${canEdit ? "" : "disabled"}>
+            <span class="daily-task-check" aria-hidden="true"></span>
+            <div>
+              <strong>${escapeHtml(completed ? `تم ${definition.taskName}` : definition.taskName)}</strong>
+              <small>${
+                completed
+                  ? `تم بواسطة ${escapeHtml(completion.userName || profile?.full_name || "المستخدم الحالي")} في ${dailyDateTime(completion.completedAt)}`
+                  : escapeHtml(canEdit ? (definition.description || "حدد المهمة بعد التنفيذ.") : "لا تملك صلاحية تغيير هذه المهمة.")
+              }</small>
+            </div>
+            <b>${completed ? "تم التنفيذ" : "لم يتم التنفيذ"}</b>
+          </label>`;
+      }).join("")
+    : '<div class="empty-state">لا توجد مهام يومية مفعلة.</div>';
+}
+
+function renderDailyTargets(actuals) {
+  const targets = dailyOperationTargets || {
+    customersTarget: 0,
+    followupsTarget: 0,
+    quotationsTarget: 0
+  };
+
+  const rows = [
+    ["Customers", actuals.customers, targets.customersTarget],
+    ["Followups", actuals.followups, targets.followupsTarget],
+    ["Quotations", actuals.quotations, targets.quotationsTarget]
+  ];
+
+  rows.forEach(([key, actual, target]) => {
+    document.getElementById(`daily${key}TargetValue`).textContent =
+      `${actual} / ${target}`;
+    document.getElementById(`daily${key}TargetBar`).style.width =
+      `${dailyTargetPercent(actual, target)}%`;
+  });
+
+  document.getElementById("dailyCustomersTargetText").textContent =
+    `الهدف: ${targets.customersTarget}`;
+  document.getElementById("dailyFollowupsTargetText").textContent =
+    `الهدف: ${targets.followupsTarget}`;
+  document.getElementById("dailyQuotationsTargetText").textContent =
+    `الهدف: ${targets.quotationsTarget}`;
+}
+
+function renderDailyManagerNote() {
+  document.getElementById("dailyManagerNoteTitle").textContent =
+    dailyManagerNote?.title || "لا توجد ملاحظة يومية.";
+  document.getElementById("dailyManagerNoteText").textContent =
+    dailyManagerNote?.noteText || "يمكن للإدارة إضافة توجيه يومي للفريق.";
+
+  const canManage = Boolean(
+    window.CustomerPermissions?.canScreen?.("dailyOperationsSettings", "edit")
+  );
+  document.getElementById("editDailyManagerNoteBtn")
+    ?.classList.toggle("hidden", !canManage);
+  document.getElementById("editDailyTargetsBtn")
+    ?.classList.toggle("hidden", !canManage);
+}
+
+function renderDailyOperations() {
+  const today = dailyLocalDate();
+  const profile = window.CustomerAuth?.getState?.().profile;
+
+  document.getElementById("dailyOperationsDate").textContent =
+    new Date(`${today}T00:00:00`).toLocaleDateString("ar-SA", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+
+  renderDailyChecklist(today, profile);
+  renderDailyManagerNote();
 
   const todayCustomers = dailyScopedRows(customers).filter(item =>
-    dailyLocalDate(item.createdAt) === today
+    dailyLocalDate(item.createdAt || item.contactDate) === today
   );
   const todayFollowups = dailyScopedRows(followups).filter(item =>
-    String(item.contactDate || "").slice(0, 10) === today
+    dailyLocalDate(item.contactDate || item.createdAt) === today
+  );
+  const todayQuotations = dailyScopedRows(quotations).filter(item =>
+    dailyLocalDate(item.quotationDate || item.createdAt) === today
   );
   const overdueFollowups = dailyScopedRows(followups).filter(item =>
-    !item.completed && item.nextFollowupDate
-    && String(item.nextFollowupDate).slice(0, 10) < today
+    !item.completed
+    && item.nextFollowupDate
+    && dailyLocalDate(item.nextFollowupDate) < today
   );
 
-  document.getElementById("dailyNewCustomersCount").textContent = todayCustomers.length;
-  document.getElementById("dailyCompletedFollowupsCount").textContent = todayFollowups.length;
-  document.getElementById("dailyOverdueFollowupsCount").textContent = overdueFollowups.length;
+  document.getElementById("dailyNewCustomersCount").textContent =
+    todayCustomers.length;
+  document.getElementById("dailyCompletedFollowupsCount").textContent =
+    todayFollowups.length;
+  document.getElementById("dailyQuotationsCount").textContent =
+    todayQuotations.length;
+  document.getElementById("dailyOverdueFollowupsCount").textContent =
+    overdueFollowups.length;
+
+  renderDailyTargets({
+    customers: todayCustomers.length,
+    followups: todayFollowups.length,
+    quotations: todayQuotations.length
+  });
 
   const followupsBody = document.getElementById("dailyFollowupsBody");
-  followupsBody.innerHTML = todayFollowups.length ? todayFollowups.map(row => `
-    <tr>
-      <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
-      <td>${escapeHtml(row.representative || "—")}</td>
-      <td>${escapeHtml(row.method || "—")}</td>
-      <td>${escapeHtml(row.result || "—")}</td>
-      <td>${row.nextFollowupDate ? formatDate(row.nextFollowupDate) : "—"}</td>
-    </tr>`).join("") : dailyEmptyRow(5, "لم يتم تسجيل متابعات اليوم حتى الآن.");
+  followupsBody.innerHTML = todayFollowups.length
+    ? todayFollowups.map(row => `
+      <tr>
+        <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
+        <td>${escapeHtml(row.representative || "—")}</td>
+        <td>${escapeHtml(row.method || "—")}</td>
+        <td>${escapeHtml(row.result || "—")}</td>
+        <td>${row.nextFollowupDate ? formatDate(row.nextFollowupDate) : "—"}</td>
+      </tr>`).join("")
+    : dailyEmptyRow(5, "لم يتم تسجيل متابعات اليوم حتى الآن.");
 
   const customersBody = document.getElementById("dailyCustomersBody");
-  customersBody.innerHTML = todayCustomers.length ? todayCustomers.map(row => `
-    <tr>
-      <td><strong>${escapeHtml(row.name || "—")}</strong><br><small>${escapeHtml(row.phone || "")}</small></td>
-      <td>${escapeHtml(row.type || "—")}</td>
-      <td>${row.type === "شركة" ? escapeHtml(row.contactPersonName || "—") : "—"}</td>
-      <td>${escapeHtml(row.representative || "—")}</td>
-      <td>${dailyDateTime(row.createdAt)}</td>
-    </tr>`).join("") : dailyEmptyRow(5, "لا يوجد عملاء جدد مضافون اليوم.");
+  customersBody.innerHTML = todayCustomers.length
+    ? todayCustomers.map(row => `
+      <tr>
+        <td><strong>${escapeHtml(row.name || "—")}</strong><br><small>${escapeHtml(row.phone || "")}</small></td>
+        <td>${escapeHtml(row.type || "—")}</td>
+        <td>${row.type === "شركة" ? escapeHtml(row.contactPersonName || "—") : "—"}</td>
+        <td>${escapeHtml(row.representative || "—")}</td>
+        <td>${dailyDateTime(row.createdAt || row.contactDate)}</td>
+      </tr>`).join("")
+    : dailyEmptyRow(5, "لا يوجد عملاء جدد مضافون اليوم.");
+
+  const quotationsBody = document.getElementById("dailyQuotationsBody");
+  quotationsBody.innerHTML = todayQuotations.length
+    ? todayQuotations.map(row => `
+      <tr>
+        <td><strong>${escapeHtml(row.customerName || "—")}</strong></td>
+        <td>${escapeHtml(row.representative || "—")}</td>
+        <td>${escapeHtml(row.code || row.quotationNumber || "—")}</td>
+        <td>${escapeHtml(row.status || "—")}</td>
+        <td>${formatCurrency(row.amount || 0)}</td>
+      </tr>`).join("")
+    : dailyEmptyRow(5, "لا توجد عروض أسعار منشأة اليوم.");
 
   const overdueBody = document.getElementById("dailyOverdueBody");
-  overdueBody.innerHTML = overdueFollowups.length ? overdueFollowups.map(row => `
-    <tr>
-      <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
-      <td>${escapeHtml(row.representative || "—")}</td>
-      <td>${formatDate(row.nextFollowupDate)}</td>
-      <td><span class="daily-overdue-badge">${dailyDaysOverdue(row.nextFollowupDate)} يوم</span></td>
-      <td>${escapeHtml(row.result || "—")}</td>
-    </tr>`).join("") : dailyEmptyRow(5, "لا توجد متابعات متأخرة. ممتاز!");
+  overdueBody.innerHTML = overdueFollowups.length
+    ? overdueFollowups.map(row => `
+      <tr>
+        <td><strong>${escapeHtml(row.customerName || "—")}</strong><br><small>${escapeHtml(row.customerPhone || "")}</small></td>
+        <td>${escapeHtml(row.representative || "—")}</td>
+        <td>${formatDate(row.nextFollowupDate)}</td>
+        <td><span class="daily-overdue-badge">${dailyDaysOverdue(row.nextFollowupDate)} يوم</span></td>
+        <td>${escapeHtml(row.result || "—")}</td>
+      </tr>`).join("")
+    : dailyEmptyRow(5, "لا توجد متابعات متأخرة. ممتاز!");
 }
 
 async function loadDailyOperations(force = false) {
   if (dailyOperationsLoading || !window.DailyOperationsService) return;
   dailyOperationsLoading = true;
-  showDataStatus("dailyOperationsStatus", "جاري تحميل مركز التشغيل اليومي...", "info");
+  showDataStatus(
+    "dailyOperationsStatus",
+    "جاري تحميل مركز التشغيل اليومي...",
+    "info"
+  );
+
   try {
-    if (force || !dailyTaskRecords.length) {
-      dailyTaskRecords = await window.DailyOperationsService.listForDate();
+    if (force || !dailyTaskDefinitions.length) {
+      [
+        dailyTaskDefinitions,
+        dailyTaskRecords,
+        dailyOperationTargets,
+        dailyManagerNote
+      ] = await Promise.all([
+        window.DailyOperationsService.listDefinitions(),
+        window.DailyOperationsService.listForDate(),
+        window.DailyOperationsService.getTargets(),
+        window.DailyOperationsService.getManagerNote()
+      ]);
     }
+
     renderDailyOperations();
     showDataStatus("dailyOperationsStatus", "");
   } catch (error) {
-    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر تحميل المهام اليومية.", "error");
+    showDataStatus(
+      "dailyOperationsStatus",
+      error instanceof Error
+        ? error.message
+        : "تعذر تحميل المهام اليومية.",
+      "error"
+    );
   } finally {
     dailyOperationsLoading = false;
   }
 }
 
-async function updateDailyAdsTask(completed) {
-  const checkbox = document.getElementById("dailyAdsUpdateCheckbox");
-  if (!window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit")) {
+async function updateDailyTask(taskKey, completed) {
+  const definition = dailyTaskDefinitions.find(item =>
+    item.taskKey === taskKey
+  );
+  const checkbox = document.querySelector(
+    `[data-daily-task-checkbox="${CSS.escape(taskKey)}"]`
+  );
+
+  if (!dailyTaskCanEdit(definition)) {
     if (checkbox) checkbox.checked = !completed;
-    showDataStatus("dailyOperationsStatus", "لا تملك صلاحية تحديث الإعلانات.", "error");
+    showDataStatus(
+      "dailyOperationsStatus",
+      "لا تملك صلاحية تغيير هذه المهمة.",
+      "error"
+    );
     return;
   }
 
   if (checkbox) checkbox.disabled = true;
-  showDataStatus("dailyOperationsStatus", "جاري حفظ حالة تحديث الإعلانات...", "info");
+  showDataStatus(
+    "dailyOperationsStatus",
+    "جاري حفظ حالة المهمة...",
+    "info"
+  );
+
   try {
-    await window.DailyOperationsService.setTaskState("ads_update", completed);
-    dailyTaskRecords = await window.DailyOperationsService.listForDate();
+    await window.DailyOperationsService.setTaskState(
+      taskKey,
+      completed
+    );
+    dailyTaskRecords =
+      await window.DailyOperationsService.listForDate();
     renderDailyOperations();
-    showDataStatus("dailyOperationsStatus", completed ? "تم تسجيل تحديث الإعلانات بنجاح." : "تمت إعادة فتح مهمة تحديث الإعلانات.", "success");
+    showDataStatus(
+      "dailyOperationsStatus",
+      completed
+        ? "تم تسجيل تنفيذ المهمة بنجاح."
+        : "تمت إعادة فتح المهمة.",
+      "success"
+    );
   } catch (error) {
     if (checkbox) checkbox.checked = !completed;
-    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر حفظ المهمة.", "error");
+    showDataStatus(
+      "dailyOperationsStatus",
+      error instanceof Error
+        ? error.message
+        : "تعذر حفظ المهمة.",
+      "error"
+    );
   } finally {
-    if (checkbox) checkbox.disabled = !window.CustomerPermissions?.canScreen?.("dailyAdsUpdate", "edit");
+    if (checkbox) checkbox.disabled = !dailyTaskCanEdit(definition);
   }
 }
 
@@ -4753,9 +4944,77 @@ document.getElementById("dailyPerformanceDetailSelector")?.addEventListener(
   }
 );
 
-document.getElementById("dailyAdsUpdateCheckbox")?.addEventListener("change", event => {
-  updateDailyAdsTask(event.target.checked);
+document.getElementById("dailyChecklist")?.addEventListener("change", event => {
+  const taskKey = event.target.dataset.dailyTaskCheckbox;
+  if (!taskKey) return;
+  updateDailyTask(taskKey, event.target.checked);
 });
+function closeDailyTargetsDialog() {
+  document.getElementById("dailyTargetsDialog").close();
+}
+
+function closeDailyManagerNoteDialog() {
+  document.getElementById("dailyManagerNoteDialog").close();
+}
+
+document.getElementById("editDailyTargetsBtn")?.addEventListener("click", () => {
+  document.getElementById("dailyTargetCustomersInput").value =
+    dailyOperationTargets?.customersTarget ?? 0;
+  document.getElementById("dailyTargetFollowupsInput").value =
+    dailyOperationTargets?.followupsTarget ?? 0;
+  document.getElementById("dailyTargetQuotationsInput").value =
+    dailyOperationTargets?.quotationsTarget ?? 0;
+  document.getElementById("dailyTargetsDialog").showModal();
+});
+
+document.getElementById("editDailyManagerNoteBtn")?.addEventListener("click", () => {
+  document.getElementById("dailyManagerNoteTitleInput").value =
+    dailyManagerNote?.title || "";
+  document.getElementById("dailyManagerNoteTextInput").value =
+    dailyManagerNote?.noteText || "";
+  document.getElementById("dailyManagerNoteDialog").showModal();
+});
+
+["closeDailyTargetsDialogBtn","cancelDailyTargetsBtn"].forEach(id => {
+  document.getElementById(id)?.addEventListener("click", closeDailyTargetsDialog);
+});
+["closeDailyManagerNoteDialogBtn","cancelDailyManagerNoteBtn"].forEach(id => {
+  document.getElementById(id)?.addEventListener("click", closeDailyManagerNoteDialog);
+});
+
+document.getElementById("dailyTargetsForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    await window.DailyOperationsService.saveTargets({
+      customersTarget: document.getElementById("dailyTargetCustomersInput").value,
+      followupsTarget: document.getElementById("dailyTargetFollowupsInput").value,
+      quotationsTarget: document.getElementById("dailyTargetQuotationsInput").value
+    });
+    closeDailyTargetsDialog();
+    dailyOperationTargets = await window.DailyOperationsService.getTargets();
+    renderDailyOperations();
+    showDataStatus("dailyOperationsStatus", "تم حفظ الأهداف اليومية.", "success");
+  } catch (error) {
+    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر حفظ الأهداف.", "error");
+  }
+});
+
+document.getElementById("dailyManagerNoteForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    await window.DailyOperationsService.saveManagerNote({
+      title: document.getElementById("dailyManagerNoteTitleInput").value,
+      noteText: document.getElementById("dailyManagerNoteTextInput").value
+    });
+    closeDailyManagerNoteDialog();
+    dailyManagerNote = await window.DailyOperationsService.getManagerNote();
+    renderDailyManagerNote();
+    showDataStatus("dailyOperationsStatus", "تم حفظ ملاحظة المدير.", "success");
+  } catch (error) {
+    showDataStatus("dailyOperationsStatus", error instanceof Error ? error.message : "تعذر حفظ الملاحظة.", "error");
+  }
+});
+
 document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
   const view = event.target.closest("[data-daily-open-view]")?.dataset.dailyOpenView;
   if (view) switchView(view);
