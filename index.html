@@ -143,6 +143,15 @@
 
         <div id="dailyOperationsStatus" class="data-status hidden"></div>
 
+        <div class="daily-current-session-card">
+          <div>
+            <span>جلسة العمل الحالية</span>
+            <strong id="dailyCurrentSessionStatus">جاري التحقق...</strong>
+            <small id="dailyCurrentSessionMeta">—</small>
+          </div>
+          <button id="endDailyWorkBtn" class="secondary-btn compact-btn" type="button">إنهاء يوم العمل</button>
+        </div>
+
         <div class="daily-manager-note" id="dailyManagerNoteCard">
           <div>
             <span>ملاحظة المدير لليوم</span>
@@ -714,6 +723,66 @@
               <tbody id="dailyPerformanceBody"></tbody>
             </table>
           </div>
+        </article>
+
+        <article class="panel daily-attendance-summary-panel">
+          <div class="panel-header">
+            <div>
+              <h3>الحضور والنشاط اليومي</h3>
+              <p>أول نشاط وآخر نشاط وحالة العمل وعدد العمليات لكل موظف.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-attendance-table">
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>أول نشاط</th>
+                  <th>آخر نشاط</th>
+                  <th>مدة النشاط</th>
+                  <th>العمليات</th>
+                  <th>آخر إجراء</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="dailyAttendanceBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel daily-activity-timeline-panel">
+          <div class="panel-header">
+            <div>
+              <h3>خط سير يوم الموظف</h3>
+              <p>تسلسل زمني موحد لأحداث العملاء والمتابعات والعروض والمهام والتنبيهات.</p>
+            </div>
+          </div>
+
+          <div class="daily-activity-filters">
+            <label>
+              الموظف
+              <select id="dailyActivityEmployeeFilter">
+                <option value="">كل الموظفين</option>
+              </select>
+            </label>
+            <label>
+              نوع النشاط
+              <select id="dailyActivityTypeFilter">
+                <option value="">كل الأنشطة</option>
+                <option value="session">الدخول والنشاط</option>
+                <option value="customers">العملاء</option>
+                <option value="followups">المتابعات</option>
+                <option value="quotations">عروض الأسعار</option>
+                <option value="daily_tasks">المهام اليومية</option>
+                <option value="daily_alerts">التنبيهات</option>
+                <option value="users">المستخدمون والصلاحيات</option>
+                <option value="reference_data">البيانات المرجعية</option>
+                <option value="other">أنشطة أخرى</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="dailyActivityTimeline" class="daily-activity-timeline"></div>
         </article>
 
         <article class="panel daily-alerts-report-panel">
@@ -2115,6 +2184,7 @@
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
-  <script src="assets/js/app.js?v=16.5"></script>
+  <script src="assets/js/daily-activity-service.js?v=16.6"></script>
+  <script src="assets/js/app.js?v=16.6"></script>
 </body>
 </html>

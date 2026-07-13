@@ -163,6 +163,8 @@ let dailyOperationsLoading = false;
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
+let dailyActivitySnapshot = null;
+let dailyActivityLoading = false;
 let dailyPerformanceSnapshot = null;
 let dailyPerformanceLoading = false;
 let dailyPerformanceDetailType = "tasks";
@@ -3994,6 +3996,7 @@ async function loadDailyPerformanceReport(force = false) {
 
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();
+    await loadDailyActivityReport();
     showDataStatus(
       "dailyPerformanceStatus",
       `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
@@ -4077,6 +4080,217 @@ function dailyDaysOverdue(value) {
   const target = new Date(`${String(value).slice(0, 10)}T00:00:00`);
   const today = new Date(`${dailyLocalDate()}T00:00:00`);
   return Number.isNaN(target.getTime()) ? 0 : Math.max(0, Math.floor((today - target) / 86400000));
+}
+
+function dailyActivityStatus(session) {
+  if (!session) return { key: "not_started", label: "لم يبدأ اليوم" };
+  if (session.ended_at) return { key: "ended", label: "أنهى يومه" };
+
+  const last = new Date(session.last_activity_at || session.first_activity_at);
+  const idleMinutes = (Date.now() - last.getTime()) / 60000;
+
+  if (idleMinutes <= 15) return { key: "active", label: "نشط الآن" };
+  return { key: "inactive", label: "غير نشط" };
+}
+
+function dailyActivityDuration(session) {
+  if (!session?.first_activity_at) return "—";
+  const start = new Date(session.first_activity_at);
+  const end = new Date(
+    session.ended_at || session.last_activity_at || session.first_activity_at
+  );
+  const minutes = Math.max(0, Math.round((end - start) / 60000));
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return hours ? `${hours} س ${rest} د` : `${rest} دقيقة`;
+}
+
+function dailyActivityTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleTimeString("ar-SA", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function dailyActivityTypeLabel(type) {
+  return {
+    session: "الدخول والنشاط",
+    customers: "العملاء",
+    followups: "المتابعات",
+    quotations: "عروض الأسعار",
+    daily_tasks: "المهام اليومية",
+    daily_alerts: "التنبيهات",
+    users: "المستخدمون والصلاحيات",
+    reference_data: "البيانات المرجعية",
+    other: "نشاط آخر"
+  }[type] || type || "نشاط";
+}
+
+function populateDailyActivityEmployees() {
+  const select = document.getElementById("dailyActivityEmployeeFilter");
+  if (!select || !dailyActivitySnapshot) return;
+
+  const selected = select.value;
+  const employees = new Map();
+
+  dailyActivitySnapshot.sessions.forEach(session => {
+    employees.set(
+      `user:${session.user_id}`,
+      session.user_profile?.full_name
+        || session.representative?.full_name
+        || "غير محدد"
+    );
+  });
+
+  dailyActivitySnapshot.timeline.forEach(event => {
+    if (event.userId) {
+      employees.set(`user:${event.userId}`, event.employeeName || "غير محدد");
+    }
+  });
+
+  select.innerHTML = [
+    '<option value="">كل الموظفين</option>',
+    ...[...employees.entries()]
+      .sort((a, b) => a[1].localeCompare(b[1], "ar"))
+      .map(([value, label]) =>
+        `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`
+      )
+  ].join("");
+
+  if (employees.has(selected.replace("user:", ""))) {
+    select.value = selected;
+  }
+}
+
+function filteredDailyActivityTimeline() {
+  if (!dailyActivitySnapshot) return [];
+
+  const employee = document.getElementById("dailyActivityEmployeeFilter")?.value || "";
+  const type = document.getElementById("dailyActivityTypeFilter")?.value || "";
+
+  return dailyActivitySnapshot.timeline.filter(event => {
+    const employeeMatches = !employee || employee === `user:${event.userId}`;
+    const typeMatches = !type || event.type === type;
+    return employeeMatches && typeMatches;
+  });
+}
+
+function renderDailyActivityTimeline() {
+  const container = document.getElementById("dailyActivityTimeline");
+  if (!container || !dailyActivitySnapshot) return;
+
+  const events = filteredDailyActivityTimeline();
+  container.innerHTML = events.length
+    ? events.map(event => `
+      <article class="daily-activity-event type-${event.type}">
+        <div class="daily-activity-event-time">
+          <strong>${dailyActivityTime(event.createdAt)}</strong>
+          <small>${escapeHtml(dailyActivityTypeLabel(event.type))}</small>
+        </div>
+        <div class="daily-activity-event-dot"></div>
+        <div class="daily-activity-event-content">
+          <div>
+            <strong>${escapeHtml(event.title || "نشاط")}</strong>
+            <span>${escapeHtml(event.employeeName || "غير محدد")}</span>
+          </div>
+          <p>${escapeHtml(String(event.detail || "—"))}</p>
+        </div>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد أنشطة مطابقة للفلاتر.</div>';
+}
+
+function renderDailyAttendance() {
+  const body = document.getElementById("dailyAttendanceBody");
+  if (!body || !dailyActivitySnapshot) return;
+
+  const timeline = dailyActivitySnapshot.timeline;
+  const sessions = dailyActivitySnapshot.sessions;
+
+  body.innerHTML = sessions.length
+    ? sessions.map(session => {
+        const userEvents = timeline.filter(event =>
+          event.userId === session.user_id
+        );
+        const latest = userEvents[0];
+        const status = dailyActivityStatus(session);
+
+        return `
+          <tr>
+            <td>
+              <strong>${escapeHtml(
+                session.user_profile?.full_name
+                || session.representative?.full_name
+                || "غير محدد"
+              )}</strong><br>
+              <small>${escapeHtml(
+                session.representative?.representative_code
+                || session.user_profile?.role
+                || "—"
+              )}</small>
+            </td>
+            <td>${dailyActivityTime(session.first_activity_at)}</td>
+            <td>${dailyActivityTime(session.last_activity_at)}</td>
+            <td>${dailyActivityDuration(session)}</td>
+            <td>${userEvents.length}</td>
+            <td>${escapeHtml(latest?.title || "—")}</td>
+            <td>
+              <span class="daily-attendance-status ${status.key}">
+                ${escapeHtml(status.label)}
+              </span>
+            </td>
+          </tr>`;
+      }).join("")
+    : '<tr><td colspan="7" class="empty-state">لا توجد جلسات نشاط مسجلة لهذا اليوم.</td></tr>';
+}
+
+async function loadDailyActivityReport() {
+  if (dailyActivityLoading || !window.DailyActivityService) return;
+  dailyActivityLoading = true;
+
+  try {
+    dailyActivitySnapshot = await window.DailyActivityService.load(
+      dailyPerformanceSelectedDate()
+    );
+    populateDailyActivityEmployees();
+    renderDailyAttendance();
+    renderDailyActivityTimeline();
+  } catch (error) {
+    console.error("Daily activity report failed:", error);
+    const body = document.getElementById("dailyAttendanceBody");
+    if (body) {
+      body.innerHTML = `<tr><td colspan="7" class="empty-state">${
+        escapeHtml(error instanceof Error ? error.message : "تعذر تحميل النشاط اليومي.")
+      }</td></tr>`;
+    }
+  } finally {
+    dailyActivityLoading = false;
+  }
+}
+
+async function renderCurrentDailySession() {
+  if (!window.DailyActivityService) return;
+
+  try {
+    const session = await window.DailyActivityService.getCurrentSession();
+    const status = dailyActivityStatus(session);
+
+    document.getElementById("dailyCurrentSessionStatus").textContent =
+      status.label;
+    document.getElementById("dailyCurrentSessionStatus").className =
+      `session-status-${status.key}`;
+    document.getElementById("dailyCurrentSessionMeta").textContent =
+      session
+        ? `أول نشاط ${dailyActivityTime(session.first_activity_at)} · آخر نشاط ${dailyActivityTime(session.last_activity_at)}`
+        : "لم يتم تسجيل جلسة اليوم بعد.";
+
+    document.getElementById("endDailyWorkBtn").disabled =
+      !session || Boolean(session.ended_at);
+  } catch (error) {
+    document.getElementById("dailyCurrentSessionStatus").textContent =
+      "تعذر تحميل الجلسة";
+  }
 }
 
 function dailyAlertSeverityLabel(value) {
@@ -4485,6 +4699,7 @@ async function loadDailyOperations(force = false) {
 
     renderDailyOperations();
     await loadDailyAlerts(force);
+    await renderCurrentDailySession();
     showDataStatus("dailyOperationsStatus", "");
   } catch (error) {
     showDataStatus(
@@ -5129,6 +5344,7 @@ document.getElementById("referenceDataSectionFilter")?.addEventListener(
 );
 
 window.addEventListener("customer-auth-ready", async () => {
+  window.DailyActivityService?.startHeartbeat?.();
   await loadReferenceDataFromSupabase(true);
   await loadCustomersFromSupabase(true);
   await loadFollowupsFromSupabase(true);
@@ -5224,6 +5440,39 @@ document.getElementById("dailyPerformanceDetailSelector")?.addEventListener(
     renderDailyPerformanceDetail();
   }
 );
+
+document.getElementById("dailyActivityEmployeeFilter")?.addEventListener(
+  "change",
+  renderDailyActivityTimeline
+);
+document.getElementById("dailyActivityTypeFilter")?.addEventListener(
+  "change",
+  renderDailyActivityTimeline
+);
+
+document.getElementById("endDailyWorkBtn")?.addEventListener("click", async () => {
+  if (!confirm("هل تريد إنهاء يوم العمل الحالي؟")) return;
+
+  const button = document.getElementById("endDailyWorkBtn");
+  button.disabled = true;
+
+  try {
+    await window.DailyActivityService.endDay();
+    await renderCurrentDailySession();
+    showDataStatus(
+      "dailyOperationsStatus",
+      "تم تسجيل إنهاء يوم العمل.",
+      "success"
+    );
+  } catch (error) {
+    showDataStatus(
+      "dailyOperationsStatus",
+      error instanceof Error ? error.message : "تعذر إنهاء يوم العمل.",
+      "error"
+    );
+    button.disabled = false;
+  }
+});
 
 document.getElementById("refreshDailyAlertsBtn")?.addEventListener(
   "click",

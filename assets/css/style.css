@@ -2651,3 +2651,169 @@ body.customer360-exporting .customer360-shell *{
     grid-template-columns:1fr
   }
 }
+
+
+/* KYUM Phase 16.6 — Daily Attendance & Activity Timeline */
+.daily-current-session-card{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding:14px 16px;
+  margin-bottom:14px;
+  border:1px solid var(--border);
+  border-inline-start:5px solid #0ea5e9;
+  border-radius:15px;
+  background:var(--surface)
+}
+.daily-current-session-card>div{
+  display:grid;
+  gap:4px
+}
+.daily-current-session-card span,
+.daily-current-session-card small{
+  color:var(--muted)
+}
+.session-status-active{color:#166534}
+.session-status-inactive{color:#92400e}
+.session-status-ended{color:#475569}
+.session-status-not_started{color:#b91c1c}
+
+.daily-attendance-summary-panel,
+.daily-activity-timeline-panel{
+  margin-bottom:18px
+}
+.daily-attendance-table{
+  min-width:1000px
+}
+.daily-attendance-status{
+  display:inline-flex;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap
+}
+.daily-attendance-status.active{
+  background:#dcfce7;
+  color:#166534
+}
+.daily-attendance-status.inactive{
+  background:#fef3c7;
+  color:#92400e
+}
+.daily-attendance-status.ended{
+  background:#e2e8f0;
+  color:#475569
+}
+.daily-attendance-status.not_started{
+  background:#fee2e2;
+  color:#b91c1c
+}
+
+.daily-activity-filters{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(220px,1fr));
+  gap:12px;
+  margin-bottom:16px
+}
+.daily-activity-filters label{
+  display:grid;
+  gap:7px;
+  color:var(--muted);
+  font-size:11px
+}
+.daily-activity-timeline{
+  position:relative;
+  display:grid;
+  gap:10px
+}
+.daily-activity-timeline::before{
+  content:"";
+  position:absolute;
+  top:12px;
+  bottom:12px;
+  inset-inline-start:92px;
+  width:2px;
+  background:var(--border)
+}
+.daily-activity-event{
+  display:grid;
+  grid-template-columns:74px 20px 1fr;
+  gap:10px;
+  align-items:start;
+  position:relative
+}
+.daily-activity-event-time{
+  display:grid;
+  gap:3px;
+  text-align:left
+}
+.daily-activity-event-time strong{
+  font-size:12px
+}
+.daily-activity-event-time small{
+  color:var(--muted);
+  font-size:9px
+}
+.daily-activity-event-dot{
+  position:relative;
+  z-index:1;
+  width:14px;
+  height:14px;
+  margin-top:6px;
+  border-radius:50%;
+  background:#64748b;
+  border:3px solid var(--surface)
+}
+.daily-activity-event.type-session .daily-activity-event-dot{background:#0f766e}
+.daily-activity-event.type-customers .daily-activity-event-dot{background:#0ea5e9}
+.daily-activity-event.type-followups .daily-activity-event-dot{background:#8b5cf6}
+.daily-activity-event.type-quotations .daily-activity-event-dot{background:#f59e0b}
+.daily-activity-event.type-daily_tasks .daily-activity-event-dot{background:#22c55e}
+.daily-activity-event.type-daily_alerts .daily-activity-event-dot{background:#ef4444}
+.daily-activity-event-content{
+  display:grid;
+  gap:7px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.daily-activity-event-content>div{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap
+}
+.daily-activity-event-content span,
+.daily-activity-event-content p{
+  color:var(--muted);
+  margin:0
+}
+@media(max-width:700px){
+  .daily-current-session-card{
+    align-items:flex-start;
+    flex-direction:column
+  }
+  .daily-activity-filters{
+    grid-template-columns:1fr
+  }
+  .daily-activity-timeline::before{
+    inset-inline-start:10px
+  }
+  .daily-activity-event{
+    grid-template-columns:20px 1fr
+  }
+  .daily-activity-event-time{
+    grid-column:2;
+    text-align:right
+  }
+  .daily-activity-event-dot{
+    grid-column:1;
+    grid-row:1/3
+  }
+  .daily-activity-event-content{
+    grid-column:2
+  }
+}
