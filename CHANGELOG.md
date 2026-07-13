@@ -1,21 +1,13 @@
-# KYUM Phase 15.2.4 — Export Center + Executive PDF
+# KYUM Phase 15.2.5 — Full-Width Stacked Reports
 
-## Modified/New Files
+## Modified File
 
-- `index.html`
 - `assets/css/style.css`
-- `assets/js/app.js`
-- `assets/js/export-center.js`
 
-## Implemented
+## Change
 
-- Central reports export dialog.
-- Excel export with multiple sheets.
-- Executive PDF/print report.
-- Full-dashboard PNG export.
-- CSV export retained.
-- Executive Summary generation.
-- Automatic file naming by date range and representative.
-- Export-safe UI mode hiding controls and navigation.
-- KYUM Company report branding.
-- No SQL migration or Edge Function.
+- Converted every reports grid to a single full-width column.
+- Stacked all reports vertically.
+- Preserved internal cards, charts, tables, filters and export behavior.
+- Preserved mobile and tablet responsiveness.
+- No JavaScript, SQL or Edge Function changes.

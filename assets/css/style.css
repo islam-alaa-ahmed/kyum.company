@@ -1211,3 +1211,42 @@ body.reports-exporting #reportsOverviewView *{
 @media(max-width:700px){
   .export-center-grid{grid-template-columns:1fr}
 }
+
+
+/* KYUM Phase 15.2.5 — Full-width stacked reports layout */
+#reportsOverviewView .reports-dashboard-grid,
+#reportsOverviewView .analytics-grid,
+#reportsOverviewView .representative-dashboard-grid,
+#reportsOverviewView .top10-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+}
+
+#reportsOverviewView .reports-dashboard-grid > .panel,
+#reportsOverviewView .analytics-grid > .panel,
+#reportsOverviewView .representative-dashboard-grid > .panel,
+#reportsOverviewView .top10-grid > .panel,
+#reportsOverviewView > .panel{
+  width:100%;
+  min-width:0;
+}
+
+#reportsOverviewView .reports-dashboard-grid,
+#reportsOverviewView .analytics-grid,
+#reportsOverviewView .representative-dashboard-grid,
+#reportsOverviewView .top10-grid{
+  gap:18px;
+}
+
+#reportsOverviewView .reports-monthly-trend,
+#reportsOverviewView .reports-yearly-trend{
+  width:100%;
+}
+
+@media(min-width:901px){
+  #reportsOverviewView .reports-dashboard-grid,
+  #reportsOverviewView .analytics-grid,
+  #reportsOverviewView .representative-dashboard-grid,
+  #reportsOverviewView .top10-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
