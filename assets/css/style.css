@@ -2038,3 +2038,229 @@ body.customer360-exporting .customer360-shell *{
   .daily-task-item>div{grid-column:2}
   .daily-task-item>b{grid-column:2;justify-self:start}
 }
+
+
+/* KYUM Phase 16.2 — Daily Performance Report */
+.daily-performance-header{align-items:flex-start}
+.daily-performance-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+.daily-performance-filters{
+  display:grid;
+  grid-template-columns:minmax(180px,260px) minmax(220px,1fr) auto;
+  gap:12px;
+  align-items:end;
+  padding:14px;
+  margin-bottom:16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px
+}
+.daily-performance-filters label,
+.daily-performance-report-selector label{
+  display:grid;
+  gap:7px;
+  color:var(--muted);
+  font-size:11px
+}
+.daily-performance-kpis{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px
+}
+.daily-performance-kpis article{
+  display:grid;
+  gap:6px;
+  padding:15px;
+  min-width:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:15px;
+  box-shadow:var(--shadow)
+}
+.daily-performance-kpis article.attention{
+  border-inline-start:4px solid #ef4444
+}
+.daily-performance-kpis span,
+.daily-performance-kpis small{
+  color:var(--muted);
+  font-size:10px
+}
+.daily-performance-kpis strong{
+  font-size:22px;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+.daily-performance-ranking-panel,
+.daily-performance-table-panel,
+.daily-performance-detail-panel{
+  margin-bottom:18px
+}
+.daily-performance-leaderboard{
+  display:grid;
+  gap:9px
+}
+.daily-performance-rank{
+  display:grid;
+  grid-template-columns:42px 1fr 76px;
+  align-items:center;
+  gap:12px;
+  padding:11px 13px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.daily-performance-rank .rank{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:#e2e8f0;
+  color:#475569;
+  font-weight:900
+}
+.daily-performance-rank.rank-1 .rank{
+  background:#fef3c7;
+  color:#92400e
+}
+.daily-performance-rank.rank-2 .rank{
+  background:#e2e8f0;
+  color:#334155
+}
+.daily-performance-rank.rank-3 .rank{
+  background:#ffedd5;
+  color:#9a3412
+}
+.daily-performance-rank>div:nth-child(2){
+  display:grid;
+  gap:4px;
+  min-width:0
+}
+.daily-performance-rank small{
+  color:var(--muted)
+}
+.daily-performance-rank>div:last-child{
+  display:grid;
+  text-align:center
+}
+.daily-performance-rank>div:last-child strong{
+  font-size:18px
+}
+.daily-performance-progress,
+.daily-performance-table-progress{
+  height:7px;
+  border-radius:999px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  overflow:hidden
+}
+.daily-performance-progress span,
+.daily-performance-table-progress span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#0ea5e9,#22c55e)
+}
+.daily-performance-table{
+  min-width:1050px
+}
+.daily-performance-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap
+}
+.daily-performance-status b{
+  width:18px;
+  height:18px;
+  display:grid;
+  place-items:center;
+  border-radius:6px;
+  color:#fff
+}
+.daily-performance-status.completed{
+  background:#dcfce7;
+  color:#166534
+}
+.daily-performance-status.completed b{
+  background:#22c55e
+}
+.daily-performance-status.missed{
+  background:#fee2e2;
+  color:#b91c1c
+}
+.daily-performance-status.missed b{
+  background:#ef4444
+}
+.daily-performance-overdue-value{
+  color:#b91c1c;
+  font-weight:900
+}
+.daily-performance-report-selector{
+  display:grid;
+  grid-template-columns:minmax(260px,420px);
+  margin-bottom:12px;
+  padding:14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:15px
+}
+.daily-performance-ads-grid{
+  display:grid;
+  gap:9px
+}
+.daily-performance-ads-grid article{
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) auto minmax(190px,auto);
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.daily-performance-ads-grid article>div{
+  display:grid;
+  gap:3px
+}
+.daily-performance-ads-grid small{
+  color:var(--muted)
+}
+.daily-performance-detail-table{
+  min-width:900px
+}
+@media(max-width:1200px){
+  .daily-performance-kpis{
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+}
+@media(max-width:800px){
+  .daily-performance-filters{
+    grid-template-columns:1fr
+  }
+  .daily-performance-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .daily-performance-ads-grid article{
+    grid-template-columns:1fr
+  }
+}
+@media(max-width:520px){
+  .daily-performance-kpis{
+    grid-template-columns:1fr
+  }
+  .daily-performance-actions{
+    width:100%
+  }
+  .daily-performance-actions button{
+    flex:1
+  }
+}

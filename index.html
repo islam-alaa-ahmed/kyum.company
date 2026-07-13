@@ -88,6 +88,7 @@
           </button>
           <div class="nav-group-content">
             <button class="nav-item" data-view="reportsOverview">مركز التقارير</button>
+            <button class="nav-item" data-view="dailyPerformanceReport">تقرير الأداء اليومي</button>
           </div>
         </section>
 
@@ -560,6 +561,104 @@
             <div id="settingsReasons" class="reference-list"></div>
           </article>
         </div>
+      </section>
+
+      <section id="dailyPerformanceReportView" class="view-section hidden">
+        <div class="actions-row daily-performance-header">
+          <div>
+            <h3 class="section-title">تقرير الأداء اليومي</h3>
+            <p class="section-note">متابعة تنفيذ المهام والنشاط اليومي لكل موظف ومندوب.</p>
+          </div>
+          <div class="daily-performance-actions">
+            <button id="refreshDailyPerformanceBtn" class="secondary-btn" type="button">تحديث التقرير</button>
+            <button id="exportDailyPerformanceCsvBtn" class="primary-btn" type="button">تصدير CSV</button>
+          </div>
+        </div>
+
+        <div class="daily-performance-filters">
+          <label>
+            تاريخ التقرير
+            <input id="dailyPerformanceDate" type="date">
+          </label>
+          <label>
+            الموظف / المندوب
+            <select id="dailyPerformanceRepresentativeFilter">
+              <option value="">كل الموظفين</option>
+            </select>
+          </label>
+          <button id="resetDailyPerformanceFiltersBtn" class="secondary-btn" type="button">إعادة التعيين</button>
+        </div>
+
+        <div id="dailyPerformanceStatus" class="data-status hidden"></div>
+
+        <div class="daily-performance-kpis">
+          <article><span>إجمالي الموظفين</span><strong id="dailyPerformanceEmployees">0</strong><small>المشمولون في التقرير</small></article>
+          <article><span>تم تحديث الإعلانات</span><strong id="dailyPerformanceAdsCompleted">0</strong><small id="dailyPerformanceAdsRate">0%</small></article>
+          <article><span>العملاء الجدد</span><strong id="dailyPerformanceCustomers">0</strong><small>خلال اليوم المحدد</small></article>
+          <article><span>المتابعات المنفذة</span><strong id="dailyPerformanceFollowups">0</strong><small>خلال اليوم المحدد</small></article>
+          <article><span>عروض الأسعار</span><strong id="dailyPerformanceQuotations">0</strong><small>خلال اليوم المحدد</small></article>
+          <article class="attention"><span>المتابعات المتأخرة</span><strong id="dailyPerformanceOverdue">0</strong><small>تحتاج معالجة</small></article>
+        </div>
+
+        <article class="panel daily-performance-ranking-panel">
+          <div class="panel-header">
+            <div>
+              <h3>الترتيب اليومي للموظفين</h3>
+              <p>درجة الأداء مبنية على تنفيذ المهمة والنشاط المسجل خلال اليوم.</p>
+            </div>
+          </div>
+          <div id="dailyPerformanceLeaderboard" class="daily-performance-leaderboard"></div>
+        </article>
+
+        <article class="panel daily-performance-table-panel">
+          <div class="panel-header">
+            <div>
+              <h3>التقرير الإجمالي</h3>
+              <p>ملخص حالة كل موظف في جميع مؤشرات اليوم.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-performance-table">
+              <thead>
+                <tr>
+                  <th>الترتيب</th>
+                  <th>الموظف</th>
+                  <th>تحديث الإعلانات</th>
+                  <th>عملاء جدد</th>
+                  <th>متابعات</th>
+                  <th>عروض أسعار</th>
+                  <th>متأخرات</th>
+                  <th>الإنجاز</th>
+                  <th>النقاط</th>
+                </tr>
+              </thead>
+              <tbody id="dailyPerformanceBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="daily-performance-report-selector">
+          <label>
+            اختر التقرير التفصيلي
+            <select id="dailyPerformanceDetailSelector">
+              <option value="ads">تحديث الإعلانات</option>
+              <option value="followups">المتابعات اليومية</option>
+              <option value="customers">العملاء الجدد</option>
+              <option value="quotations">عروض الأسعار</option>
+              <option value="overdue">المتابعات المتأخرة</option>
+            </select>
+          </label>
+        </div>
+
+        <article class="panel daily-performance-detail-panel">
+          <div class="panel-header">
+            <div>
+              <h3 id="dailyPerformanceDetailTitle">تحديث الإعلانات</h3>
+              <p id="dailyPerformanceDetailSubtitle">حالة تنفيذ المهمة لكل موظف.</p>
+            </div>
+          </div>
+          <div id="dailyPerformanceDetailContent"></div>
+        </article>
       </section>
 
       <section id="reportsOverviewView" class="view-section hidden">
@@ -1839,6 +1938,7 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/app.js?v=16.1"></script>
+  <script src="assets/js/daily-performance-service.js?v=16.2"></script>
+  <script src="assets/js/app.js?v=16.2"></script>
 </body>
 </html>

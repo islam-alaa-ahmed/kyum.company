@@ -157,6 +157,9 @@ let systemHealthLoading = false;
 let systemHealthTimer = null;
 let dailyTaskRecords = [];
 let dailyOperationsLoading = false;
+let dailyPerformanceSnapshot = null;
+let dailyPerformanceLoading = false;
+let dailyPerformanceDetailType = "ads";
 
 
 let editingId = null;
@@ -177,6 +180,7 @@ const views = {
   backups: document.getElementById("backupsView"),
   systemHealth: document.getElementById("systemHealthView"),
   reportsOverview: document.getElementById("reportsOverviewView"),
+  dailyPerformanceReport: document.getElementById("dailyPerformanceReportView"),
   systemSettings: document.getElementById("systemSettingsView")
 };
 
@@ -194,6 +198,7 @@ const pageMeta = {
   backups: ["النسخ الاحتياطي", "التصدير والاستعادة وحماية البيانات"],
   systemHealth: ["مراقبة النظام", "الحالة الصحية والأمان والأداء التشغيلي"],
   reportsOverview: ["مركز التقارير", "تحليلات العملاء والمتابعات والعروض وأداء المندوبين"],
+  dailyPerformanceReport: ["تقرير الأداء اليومي", "متابعة تنفيذ المهام والنشاط اليومي للموظفين"],
   systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"]
 };
 
@@ -520,6 +525,9 @@ function switchView(name) {
   }
   if (name === "reportsOverview") {
     ensureReportsData().then(renderReportsOverview);
+  }
+  if (name === "dailyPerformanceReport") {
+    loadDailyPerformanceReport(true);
   }
   if (name === "systemSettings") {
     loadSystemSettings();
@@ -3581,6 +3589,348 @@ function showCustomerDetails(customerId) {
 }
 
 
+function dailyPerformanceSelectedDate() {
+  return document.getElementById("dailyPerformanceDate")?.value
+    || window.DailyPerformanceService?.localDate?.()
+    || dailyLocalDate();
+}
+
+function dailyPerformanceFilteredRows() {
+  const filter = document.getElementById(
+    "dailyPerformanceRepresentativeFilter"
+  )?.value || "";
+
+  const rows = dailyPerformanceSnapshot?.rows || [];
+  return filter
+    ? rows.filter(item => item.key === filter)
+    : rows;
+}
+
+function populateDailyPerformanceEmployees() {
+  const select = document.getElementById(
+    "dailyPerformanceRepresentativeFilter"
+  );
+  if (!select || !dailyPerformanceSnapshot) return;
+
+  const selected = select.value;
+  const options = dailyPerformanceSnapshot.rows.map(item => ({
+    value: item.key,
+    label: item.code
+      ? `${item.name} — ${item.code}`
+      : item.name
+  }));
+
+  select.innerHTML = [
+    '<option value="">كل الموظفين</option>',
+    ...options.map(item =>
+      `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`
+    )
+  ].join("");
+
+  if (options.some(item => item.value === selected)) {
+    select.value = selected;
+  }
+}
+
+function dailyPerformanceStatusIcon(completed) {
+  return completed
+    ? '<span class="daily-performance-status completed"><b>✓</b> تم التحديث</span>'
+    : '<span class="daily-performance-status missed"><b>×</b> لم يتم التحديث</span>';
+}
+
+function renderDailyPerformanceDetail() {
+  if (!dailyPerformanceSnapshot) return;
+
+  const rows = dailyPerformanceFilteredRows();
+  const container = document.getElementById("dailyPerformanceDetailContent");
+  const title = document.getElementById("dailyPerformanceDetailTitle");
+  const subtitle = document.getElementById("dailyPerformanceDetailSubtitle");
+
+  const configs = {
+    ads: {
+      title: "تحديث الإعلانات",
+      subtitle: "حالة تنفيذ مهمة تحديث الإعلانات لكل موظف."
+    },
+    followups: {
+      title: "المتابعات اليومية",
+      subtitle: "تفاصيل العملاء الذين تمت متابعتهم خلال اليوم."
+    },
+    customers: {
+      title: "العملاء الجدد",
+      subtitle: "العملاء الذين تمت إضافتهم خلال اليوم."
+    },
+    quotations: {
+      title: "عروض الأسعار",
+      subtitle: "عروض الأسعار التي تم إنشاؤها خلال اليوم."
+    },
+    overdue: {
+      title: "المتابعات المتأخرة",
+      subtitle: "المتابعات غير المغلقة التي تجاوزت موعدها."
+    }
+  };
+
+  const config = configs[dailyPerformanceDetailType] || configs.ads;
+  title.textContent = config.title;
+  subtitle.textContent = config.subtitle;
+
+  if (dailyPerformanceDetailType === "ads") {
+    container.innerHTML = `
+      <div class="daily-performance-ads-grid">
+        ${rows.map(item => `
+          <article>
+            <div>
+              <strong>${escapeHtml(item.name)}</strong>
+              <small>${escapeHtml(item.code || item.role || "—")}</small>
+            </div>
+            ${dailyPerformanceStatusIcon(item.adsCompleted)}
+            <small>${
+              item.adsCompletedAt
+                ? `وقت التنفيذ: ${dailyDateTime(item.adsCompletedAt)}`
+                : "لم يتم تسجيل تنفيذ المهمة."
+            }</small>
+          </article>
+        `).join("") || '<div class="empty-state">لا توجد بيانات.</div>'}
+      </div>`;
+    return;
+  }
+
+  const sourceMap = {
+    followups: {
+      rows: rows.flatMap(employee =>
+        employee.followups.map(item => ({ employee, item }))
+      ),
+      headers: ["الموظف", "العميل", "الطريقة", "النتيجة", "الموعد القادم"],
+      cells: ({ employee, item }) => [
+        employee.name,
+        item.customerName || "—",
+        item.method || "—",
+        item.result || "—",
+        item.nextFollowupDate ? formatDate(item.nextFollowupDate) : "—"
+      ]
+    },
+    customers: {
+      rows: rows.flatMap(employee =>
+        employee.customers.map(item => ({ employee, item }))
+      ),
+      headers: ["الموظف", "العميل", "التصنيف", "اسم المسؤول", "وقت الإضافة"],
+      cells: ({ employee, item }) => [
+        employee.name,
+        item.name || "—",
+        item.type || "—",
+        item.contactPersonName || "—",
+        dailyDateTime(item.createdAt || item.contactDate)
+      ]
+    },
+    quotations: {
+      rows: rows.flatMap(employee =>
+        employee.quotations.map(item => ({ employee, item }))
+      ),
+      headers: ["الموظف", "العميل", "رقم العرض", "الحالة", "القيمة"],
+      cells: ({ employee, item }) => [
+        employee.name,
+        item.customerName || "—",
+        item.code || item.quotationNumber || "—",
+        item.status || "—",
+        formatCurrency(item.amount || 0)
+      ]
+    },
+    overdue: {
+      rows: rows.flatMap(employee =>
+        employee.overdueFollowups.map(item => ({ employee, item }))
+      ),
+      headers: ["الموظف", "العميل", "موعد المتابعة", "النتيجة السابقة", "الحالة"],
+      cells: ({ employee, item }) => [
+        employee.name,
+        item.customerName || "—",
+        formatDate(item.nextFollowupDate),
+        item.result || "—",
+        "متأخرة"
+      ]
+    }
+  };
+
+  const source = sourceMap[dailyPerformanceDetailType];
+  const tableRows = source?.rows || [];
+
+  container.innerHTML = `
+    <div class="table-wrap">
+      <table class="daily-performance-detail-table">
+        <thead>
+          <tr>${source.headers.map(header => `<th>${escapeHtml(header)}</th>`).join("")}</tr>
+        </thead>
+        <tbody>
+          ${tableRows.length
+            ? tableRows.map(row => `
+              <tr>${source.cells(row).map(value => `<td>${escapeHtml(String(value ?? "—"))}</td>`).join("")}</tr>
+            `).join("")
+            : `<tr><td colspan="${source.headers.length}" class="empty-state">لا توجد بيانات في هذا التقرير.</td></tr>`
+          }
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderDailyPerformanceReport() {
+  if (!dailyPerformanceSnapshot) return;
+
+  const rows = dailyPerformanceFilteredRows();
+  const totals = {
+    employees: rows.length,
+    adsCompleted: rows.filter(item => item.adsCompleted).length,
+    customers: rows.reduce((sum, item) => sum + item.customers.length, 0),
+    followups: rows.reduce((sum, item) => sum + item.followups.length, 0),
+    quotations: rows.reduce((sum, item) => sum + item.quotations.length, 0),
+    overdue: rows.reduce((sum, item) => sum + item.overdueFollowups.length, 0)
+  };
+
+  document.getElementById("dailyPerformanceEmployees").textContent =
+    totals.employees;
+  document.getElementById("dailyPerformanceAdsCompleted").textContent =
+    totals.adsCompleted;
+  document.getElementById("dailyPerformanceAdsRate").textContent =
+    `${totals.employees ? Math.round(totals.adsCompleted / totals.employees * 100) : 0}% من الموظفين`;
+  document.getElementById("dailyPerformanceCustomers").textContent =
+    totals.customers;
+  document.getElementById("dailyPerformanceFollowups").textContent =
+    totals.followups;
+  document.getElementById("dailyPerformanceQuotations").textContent =
+    totals.quotations;
+  document.getElementById("dailyPerformanceOverdue").textContent =
+    totals.overdue;
+
+  const leaderboard = document.getElementById(
+    "dailyPerformanceLeaderboard"
+  );
+  leaderboard.innerHTML = rows.length
+    ? rows.slice(0, 10).map(item => `
+      <article class="daily-performance-rank rank-${item.rank}">
+        <span class="rank">${item.rank}</span>
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${item.followups.length} متابعة · ${item.customers.length} عميل · ${item.quotations.length} عرض</small>
+          <div class="daily-performance-progress">
+            <span style="width:${item.completionRate}%"></span>
+          </div>
+        </div>
+        <div>
+          <strong>${item.points}</strong>
+          <small>نقطة</small>
+        </div>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد بيانات موظفين.</div>';
+
+  const body = document.getElementById("dailyPerformanceBody");
+  body.innerHTML = rows.length
+    ? rows.map(item => `
+      <tr>
+        <td><strong>${item.rank}</strong></td>
+        <td>
+          <strong>${escapeHtml(item.name)}</strong><br>
+          <small>${escapeHtml(item.code || item.role || "—")}</small>
+        </td>
+        <td>${dailyPerformanceStatusIcon(item.adsCompleted)}</td>
+        <td>${item.customers.length}</td>
+        <td>${item.followups.length}</td>
+        <td>${item.quotations.length}</td>
+        <td class="${item.overdueFollowups.length ? "daily-performance-overdue-value" : ""}">
+          ${item.overdueFollowups.length}
+        </td>
+        <td>
+          <div class="daily-performance-table-progress">
+            <span style="width:${item.completionRate}%"></span>
+          </div>
+          <small>${item.completionRate}%</small>
+        </td>
+        <td><strong>${item.points}</strong></td>
+      </tr>
+    `).join("")
+    : '<tr><td colspan="9" class="empty-state">لا توجد بيانات مطابقة.</td></tr>';
+
+  renderDailyPerformanceDetail();
+}
+
+async function loadDailyPerformanceReport(force = false) {
+  if (dailyPerformanceLoading || !window.DailyPerformanceService) return;
+  dailyPerformanceLoading = true;
+
+  showDataStatus(
+    "dailyPerformanceStatus",
+    "جاري تحميل تقرير الأداء اليومي...",
+    "info"
+  );
+
+  try {
+    if (force) {
+      await Promise.all([
+        loadCustomersFromSupabase(true),
+        loadFollowupsFromSupabase(true),
+        loadQuotationsFromSupabase(true)
+      ]);
+    }
+
+    dailyPerformanceSnapshot =
+      await window.DailyPerformanceService.loadReport(
+        dailyPerformanceSelectedDate(),
+        { customers, followups, quotations }
+      );
+
+    populateDailyPerformanceEmployees();
+    renderDailyPerformanceReport();
+    showDataStatus(
+      "dailyPerformanceStatus",
+      `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
+      "success"
+    );
+  } catch (error) {
+    showDataStatus(
+      "dailyPerformanceStatus",
+      error instanceof Error
+        ? error.message
+        : "تعذر تحميل تقرير الأداء اليومي.",
+      "error"
+    );
+  } finally {
+    dailyPerformanceLoading = false;
+  }
+}
+
+function resetDailyPerformanceFilters() {
+  const date = document.getElementById("dailyPerformanceDate");
+  const employee = document.getElementById(
+    "dailyPerformanceRepresentativeFilter"
+  );
+
+  if (date) {
+    date.value = window.DailyPerformanceService?.localDate?.()
+      || dailyLocalDate();
+  }
+  if (employee) employee.value = "";
+
+  loadDailyPerformanceReport(true);
+}
+
+function exportDailyPerformanceCsv() {
+  if (!dailyPerformanceSnapshot) return;
+
+  const filter = document.getElementById(
+    "dailyPerformanceRepresentativeFilter"
+  )?.value || "";
+
+  const report = filter
+    ? {
+        ...dailyPerformanceSnapshot,
+        rows: dailyPerformanceFilteredRows()
+      }
+    : dailyPerformanceSnapshot;
+
+  downloadTextFile(
+    `kyum-daily-performance-${report.workDate}.csv`,
+    window.DailyPerformanceService.toCsv(report),
+    "text/csv;charset=utf-8"
+  );
+}
+
 function dailyLocalDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -4375,6 +4725,34 @@ document.getElementById("quotationsNextPage")?.addEventListener("click", () => {
 });
 
 
+document.getElementById("refreshDailyPerformanceBtn")?.addEventListener(
+  "click",
+  () => loadDailyPerformanceReport(true)
+);
+document.getElementById("exportDailyPerformanceCsvBtn")?.addEventListener(
+  "click",
+  exportDailyPerformanceCsv
+);
+document.getElementById("resetDailyPerformanceFiltersBtn")?.addEventListener(
+  "click",
+  resetDailyPerformanceFilters
+);
+document.getElementById("dailyPerformanceDate")?.addEventListener(
+  "change",
+  () => loadDailyPerformanceReport(true)
+);
+document.getElementById("dailyPerformanceRepresentativeFilter")?.addEventListener(
+  "change",
+  renderDailyPerformanceReport
+);
+document.getElementById("dailyPerformanceDetailSelector")?.addEventListener(
+  "change",
+  event => {
+    dailyPerformanceDetailType = event.target.value;
+    renderDailyPerformanceDetail();
+  }
+);
+
 document.getElementById("dailyAdsUpdateCheckbox")?.addEventListener("change", event => {
   updateDailyAdsTask(event.target.checked);
 });
@@ -4488,6 +4866,13 @@ document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click",
 });
 
 setOptions();
+(() => {
+  const date = document.getElementById("dailyPerformanceDate");
+  if (date) {
+    date.value = window.DailyPerformanceService?.localDate?.()
+      || dailyLocalDate();
+  }
+})();
 (() => {
   const now = new Date();
   const first = new Date(now.getFullYear(), now.getMonth(), 1);
