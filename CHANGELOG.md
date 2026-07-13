@@ -1,20 +1,23 @@
-# KYUM Phase 14.1 — System Health Dashboard
+# KYUM Phase 14.2 — Performance Monitor
 
 ## Modified/New Files
-- index.html
-- assets/css/style.css
-- assets/js/app.js
-- assets/js/permissions.js
-- assets/js/system-health-service.js
-- supabase/migrations/phase14_1_system_health_dashboard.sql
+
+- `index.html`
+- `assets/css/style.css`
+- `assets/js/app.js`
+- `assets/js/performance-monitor.js`
 
 ## Implemented
-- Super-Admin system monitoring screen.
-- Database status and client-measured latency.
-- Users and active-user metrics.
-- RLS coverage and policy counts.
-- Database size, rows, tables and indexes.
-- Table-level size and security view.
-- Recent backup operations and 24-hour alerts.
-- Calculated system health score.
-- Manual refresh and 30-second active-screen refresh.
+
+- Lightweight browser-session performance monitor.
+- Page load and DOM-ready timing.
+- Supabase/API request count.
+- Failed request count.
+- Average and slowest API response time.
+- Top 10 slowest API requests.
+- Screen render timing and render counts.
+- Online/offline and browser connection details.
+- Browser memory usage when supported.
+- Session duration and last metric refresh time.
+- Manual metric reset.
+- No new polling loop and no external telemetry.

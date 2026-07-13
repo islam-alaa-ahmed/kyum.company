@@ -626,6 +626,60 @@
           </article>
         </div>
 
+        <article class="panel performance-monitor-panel">
+          <div class="panel-header">
+            <div>
+              <h3>مراقبة الأداء</h3>
+              <p>قياسات خفيفة لجلسة المتصفح الحالية بدون إرسال بيانات خارجية.</p>
+            </div>
+            <button id="resetPerformanceMetricsBtn" class="secondary-btn compact-btn" type="button">إعادة القياسات</button>
+          </div>
+
+          <div class="performance-summary-grid">
+            <article>
+              <span>تحميل الواجهة</span>
+              <strong id="performancePageLoad">—</strong>
+              <small id="performanceDomReady">DOM: —</small>
+            </article>
+            <article>
+              <span>طلبات API</span>
+              <strong id="performanceApiRequests">0</strong>
+              <small id="performanceFailedRequests">الفاشلة: 0</small>
+            </article>
+            <article>
+              <span>متوسط الاستجابة</span>
+              <strong id="performanceAverageResponse">—</strong>
+              <small id="performanceSlowestResponse">الأبطأ: —</small>
+            </article>
+            <article>
+              <span>حالة الشبكة</span>
+              <strong id="performanceNetworkStatus">—</strong>
+              <small id="performanceConnectionType">الاتصال: —</small>
+            </article>
+            <article>
+              <span>الذاكرة</span>
+              <strong id="performanceMemoryUsage">غير متاح</strong>
+              <small id="performanceMemoryLimit">الحد: —</small>
+            </article>
+            <article>
+              <span>آخر تحديث</span>
+              <strong id="performanceLastUpdated">—</strong>
+              <small id="performanceSessionDuration">مدة الجلسة: —</small>
+            </article>
+          </div>
+
+          <div class="performance-details-grid">
+            <section>
+              <h4>أبطأ طلبات API</h4>
+              <div id="performanceSlowRequests" class="performance-request-list"></div>
+            </section>
+            <section>
+              <h4>أداء الشاشات</h4>
+              <div id="performanceScreenRenders" class="performance-request-list"></div>
+            </section>
+          </div>
+        </article>
+
         <p class="health-auto-refresh-note">يتم تحديث الشاشة تلقائيًا كل 30 ثانية أثناء فتحها فقط.</p>
       </section>
 
@@ -1070,6 +1124,7 @@
     </form>
   </dialog>
 
+  <script src="assets/js/performance-monitor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>

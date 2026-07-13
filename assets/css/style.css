@@ -381,3 +381,94 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
 .health-table-panel{margin-bottom:18px}.health-auto-refresh-note{text-align:center;color:var(--muted);font-size:12px;margin:8px 0 0}
 @media(max-width:1100px){.health-hero-grid{grid-template-columns:1fr 1fr}.health-score-card{grid-column:1/-1}}
 @media(max-width:760px){.health-hero-grid,.health-details-grid{grid-template-columns:1fr}.health-score-card{grid-column:auto}.health-metrics-grid{grid-template-columns:1fr 1fr}}
+
+
+.performance-monitor-panel{margin-top:18px}
+.performance-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px
+}
+.performance-summary-grid article{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  display:grid;
+  gap:7px;
+  min-width:0
+}
+.performance-summary-grid span{
+  color:var(--muted);
+  font-size:12px
+}
+.performance-summary-grid strong{
+  font-size:20px;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+.performance-summary-grid small{
+  color:var(--muted);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+.performance-details-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px
+}
+.performance-details-grid section{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;
+  min-width:0
+}
+.performance-details-grid h4{margin:0 0 12px}
+.performance-request-list{
+  display:grid;
+  gap:8px;
+  max-height:360px;
+  overflow:auto
+}
+.performance-request-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:10px 12px;
+  min-width:0
+}
+.performance-request-item>div{
+  display:grid;
+  gap:4px;
+  min-width:0
+}
+.performance-request-item strong{
+  font-size:12px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+.performance-request-item small{
+  color:var(--muted);
+  font-size:11px
+}
+.performance-request-item b{
+  direction:ltr;
+  white-space:nowrap;
+  font-size:12px
+}
+.performance-failed{color:#dc2626}
+
+@media(max-width:1200px){
+  .performance-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:800px){
+  .performance-summary-grid,.performance-details-grid{grid-template-columns:1fr}
+}

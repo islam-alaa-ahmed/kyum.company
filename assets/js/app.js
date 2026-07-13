@@ -469,6 +469,7 @@ function setOptions() {
 }
 
 function switchView(name) {
+  const viewRenderStartedAt = performance.now();
   if (name !== "systemHealth") stopSystemHealthAutoRefresh();
   Object.entries(views).forEach(([key, element]) => element.classList.toggle("hidden", key !== name));
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.view === name));
@@ -506,6 +507,12 @@ function switchView(name) {
   }
 
   document.getElementById("pageTitle").textContent = pageMeta[name][0];
+  requestAnimationFrame(() => {
+    window.PerformanceMonitor?.recordRender(
+      name,
+      performance.now() - viewRenderStartedAt
+    );
+  });
   document.getElementById("pageSubtitle").textContent = pageMeta[name][1];
 
   if (name === "dashboard") renderDashboard();
@@ -1259,6 +1266,141 @@ async function saveSystemSettings(event) {
   }
 }
 
+function formatDuration(milliseconds) {
+  const ms = Math.max(0, Number(milliseconds || 0));
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)} s`;
+
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes} د ${seconds} ث`;
+}
+
+function shortRequestName(url) {
+  try {
+    const parsed = new URL(url, location.origin);
+    return `${parsed.pathname}${parsed.search}`.slice(0, 100);
+  } catch {
+    return String(url || "unknown").slice(0, 100);
+  }
+}
+
+function renderPerformanceMonitor() {
+  const summary = window.PerformanceMonitor?.summarize?.();
+  if (!summary) return;
+
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  setText(
+    "performancePageLoad",
+    summary.navigation.pageLoadMs
+      ? formatDuration(summary.navigation.pageLoadMs)
+      : "غير متاح"
+  );
+  setText(
+    "performanceDomReady",
+    `DOM: ${
+      summary.navigation.domReadyMs
+        ? formatDuration(summary.navigation.domReadyMs)
+        : "غير متاح"
+    }`
+  );
+  setText("performanceApiRequests", String(summary.requestsTotal));
+  setText("performanceFailedRequests", `الفاشلة: ${summary.failedRequests}`);
+  setText(
+    "performanceAverageResponse",
+    summary.requestsTotal
+      ? formatDuration(summary.averageResponseMs)
+      : "لا توجد طلبات"
+  );
+  setText(
+    "performanceSlowestResponse",
+    `الأبطأ: ${
+      summary.slowestResponseMs
+        ? formatDuration(summary.slowestResponseMs)
+        : "—"
+    }`
+  );
+
+  setText(
+    "performanceNetworkStatus",
+    summary.network.online ? "Online" : "Offline"
+  );
+
+  const connectionDetails = [
+    summary.network.effectiveType !== "unknown"
+      ? summary.network.effectiveType
+      : null,
+    summary.network.downlinkMbps
+      ? `${summary.network.downlinkMbps} Mbps`
+      : null,
+    summary.network.rttMs
+      ? `RTT ${summary.network.rttMs} ms`
+      : null
+  ].filter(Boolean).join(" — ");
+
+  setText(
+    "performanceConnectionType",
+    `الاتصال: ${connectionDetails || "غير متاح"}`
+  );
+
+  if (summary.memory) {
+    setText(
+      "performanceMemoryUsage",
+      `${formatBytes(summary.memory.usedBytes)} مستخدم`
+    );
+    setText(
+      "performanceMemoryLimit",
+      `الحد: ${formatBytes(summary.memory.limitBytes)}`
+    );
+  } else {
+    setText("performanceMemoryUsage", "غير مدعوم");
+    setText("performanceMemoryLimit", "الحد: غير متاح");
+  }
+
+  setText(
+    "performanceLastUpdated",
+    new Date(summary.lastUpdatedAt).toLocaleTimeString("ar-SA")
+  );
+  setText(
+    "performanceSessionDuration",
+    `مدة الجلسة: ${formatDuration(summary.sessionDurationMs)}`
+  );
+
+  const slowRequests = document.getElementById("performanceSlowRequests");
+  if (slowRequests) {
+    slowRequests.innerHTML = summary.slowestRequests.length
+      ? summary.slowestRequests.map(item => `
+        <div class="performance-request-item">
+          <div>
+            <strong>${escapeHtml(item.method)} ${escapeHtml(shortRequestName(item.url))}</strong>
+            <small>${item.status || "Network Error"} — ${new Date(item.timestamp).toLocaleTimeString("ar-SA")}</small>
+          </div>
+          <b class="${item.ok ? "" : "performance-failed"}">${formatDuration(item.durationMs)}</b>
+        </div>
+      `).join("")
+      : '<div class="empty-state">لا توجد طلبات API مسجلة في الجلسة الحالية.</div>';
+  }
+
+  const renderList = document.getElementById("performanceScreenRenders");
+  if (renderList) {
+    renderList.innerHTML = summary.screenRenders.length
+      ? summary.screenRenders.map(item => `
+        <div class="performance-request-item">
+          <div>
+            <strong>${escapeHtml(pageMeta[item.screen]?.[0] || item.screen)}</strong>
+            <small>${item.count} عملية عرض — الحد الأقصى ${formatDuration(item.maxMs)}</small>
+          </div>
+          <b>${formatDuration(item.averageMs)}</b>
+        </div>
+      `).join("")
+      : '<div class="empty-state">لا توجد قياسات عرض شاشات بعد.</div>';
+  }
+}
+
 function healthStatusItem(label, value, ok = true, detail = "") {
   return `<div class="health-list-item"><span class="health-indicator ${ok ? "ok" : "warn"}"></span><div><strong>${escapeHtml(label)}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</div><b>${escapeHtml(String(value))}</b></div>`;
 }
@@ -1356,13 +1498,18 @@ function renderSystemHealth() {
     false,
     a.detail || ""
   )).join("") || healthStatusItem("لا توجد تنبيهات حرجة", "سليم", true, "آخر 24 ساعة");
+
+  renderPerformanceMonitor();
 }
 
 function startSystemHealthAutoRefresh() {
   stopSystemHealthAutoRefresh();
   systemHealthTimer = window.setInterval(() => {
     const view = document.getElementById("systemHealthView");
-    if (view && !view.classList.contains("hidden")) loadSystemHealth(true);
+    if (view && !view.classList.contains("hidden")) {
+      loadSystemHealth(true);
+      renderPerformanceMonitor();
+    }
   }, 30000);
 }
 
@@ -2597,5 +2744,9 @@ document.getElementById("saveSystemSettingsBtn")?.addEventListener("click", save
 document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSystemSettings);
 
 document.getElementById("refreshSystemHealthBtn")?.addEventListener("click", () => loadSystemHealth(true));
+document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click", () => {
+  window.PerformanceMonitor?.reset?.();
+  renderPerformanceMonitor();
+});
 
 setOptions();
