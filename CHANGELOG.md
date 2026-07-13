@@ -1,4 +1,4 @@
-# KYUM Phase 15.2.1 — Executive KPIs + Sales Funnel
+# KYUM Phase 15.2.2 — Customer & Quotation Analytics
 
 ## Modified/New Files
 
@@ -9,19 +9,14 @@
 
 ## Implemented
 
-- Executive KPI cards with current-vs-previous-period deltas.
-- Current period and equal-length comparison period.
-- Today follow-up and overdue follow-up indicators.
-- Configurable quotation-value target saved in the browser.
-- Target achievement and remaining value.
-- Six-stage executive sales funnel:
-  - Lead
-  - Qualified
-  - Follow-up
-  - Quotation
-  - Negotiation
-  - Won
-- Stage-to-stage conversion rates.
-- Overall Lead-to-Won conversion.
-- Updated CSV export with comparisons and funnel metrics.
-- No SQL migration or new Edge Function.
+- Customer analysis by type, interest, representative and activity.
+- Active, inactive and never-contacted customer segmentation.
+- Inactive customers list for 30+ days.
+- Customers requiring follow-up.
+- Quotation average, highest and lowest values.
+- Open and rejected quotation values.
+- Quotation rejection rate.
+- Top loss and no-sale reasons.
+- Top 10 customers by quotation value.
+- All analytics respect the report date and representative filters.
+- No SQL migration or Edge Function.

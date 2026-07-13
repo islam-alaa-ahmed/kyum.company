@@ -150,6 +150,7 @@ let systemHealthSnapshot = null;
 let latestDiagnosticsReport = null;
 let diagnosticsRunning = false;
 let currentReportsSnapshot = null;
+let activeCustomerAnalyticsTab = "types";
 let systemHealthLoading = false;
 let systemHealthTimer = null;
 
@@ -1573,6 +1574,55 @@ async function ensureReportsData() {
   }
 }
 
+function analyticsLabel(type, key) {
+  if (type === "activity") {
+    const labels = {
+      active_7_days: "نشط خلال 7 أيام",
+      active_30_days: "نشط خلال 30 يومًا",
+      inactive_30_days: "غير نشط أكثر من 30 يومًا",
+      never_contacted: "لم يتم التواصل"
+    };
+    return labels[key] || key;
+  }
+  return key;
+}
+
+function renderAnalyticsBars(containerId, entries, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const rows = Object.entries(entries || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, options.limit || 10);
+
+  const max = Math.max(1, ...rows.map(([, value]) => Number(value || 0)));
+
+  container.innerHTML = rows.length
+    ? rows.map(([label, value], index) => `
+      <div class="analytics-bar-row">
+        <div>
+          <span>${index + 1}</span>
+          <strong>${escapeHtml(options.labeler ? options.labeler(label) : label)}</strong>
+        </div>
+        <div class="analytics-bar-track">
+          <span style="width:${Number(value || 0) / max * 100}%"></span>
+        </div>
+        <b>${Number(value || 0)}</b>
+      </div>
+    `).join("")
+    : '<div class="empty-state">لا توجد بيانات داخل النطاق المحدد.</div>';
+}
+
+function renderCustomerAnalytics(report) {
+  renderAnalyticsBars(
+    "customerAnalyticsBreakdown",
+    report.customerAnalytics?.[activeCustomerAnalyticsTab] || {},
+    {
+      labeler: label => analyticsLabel(activeCustomerAnalyticsTab, label)
+    }
+  );
+}
+
 function reportStatusColorClass(status) {
   if (status === "مقبول") return "accepted";
   if (status === "مرفوض" || status === "ملغي") return "rejected";
@@ -1729,6 +1779,61 @@ function renderReportsOverview() {
       <strong>${value}</strong>
     </article>
   `).join("");
+
+  renderCustomerAnalytics(report);
+
+  setText("quotationAverageValue", reportCurrency(report.quotationAnalytics.averageValue));
+  setText("quotationHighestValue", reportCurrency(report.quotationAnalytics.highestValue));
+  setText("quotationLowestValue", reportCurrency(report.quotationAnalytics.lowestValue));
+  setText("quotationOpenValue", reportCurrency(report.quotationAnalytics.openValue));
+  setText("quotationRejectedValue", reportCurrency(report.quotationAnalytics.rejectedValue));
+  setText("quotationRejectionRate", `${report.quotationAnalytics.rejectionRate.toFixed(1)}%`);
+
+  renderAnalyticsBars(
+    "lossReasonsAnalytics",
+    report.lossReasons,
+    { limit: 10 }
+  );
+
+  const topCustomers = document.getElementById("topCustomersByValue");
+  topCustomers.innerHTML = report.topCustomersByValue.length
+    ? report.topCustomersByValue.map((item, index) => `
+      <article class="top-customer-item">
+        <span>${index + 1}</span>
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${item.quotations} عروض — ${item.accepted} مقبولة</small>
+        </div>
+        <b>${reportCurrency(item.totalValue)}</b>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد عروض أسعار داخل النطاق المحدد.</div>';
+
+  const inactiveList = document.getElementById("inactiveCustomersList");
+  inactiveList.innerHTML = report.inactiveCustomers.length
+    ? report.inactiveCustomers.map(item => `
+      <article class="customer-action-item">
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(item.phone || "بدون جوال")} — ${escapeHtml(item.representative)}</small>
+        </div>
+        <span>${item.daysInactive} يوم</span>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا يوجد عملاء غير نشطين داخل النطاق المحدد.</div>';
+
+  const needsFollowup = document.getElementById("customersNeedingFollowupList");
+  needsFollowup.innerHTML = report.customersNeedingFollowup.length
+    ? report.customersNeedingFollowup.map(item => `
+      <article class="customer-action-item">
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(item.phone || "بدون جوال")} — ${escapeHtml(item.representative)}</small>
+        </div>
+        <span class="${item.reason === "متابعة متأخرة" ? "critical" : "warning"}">${escapeHtml(item.reason)}</span>
+      </article>
+    `).join("")
+    : '<div class="empty-state">كل العملاء لديهم متابعة سليمة.</div>';
 
   const body = document.getElementById("representativePerformanceBody");
   body.innerHTML = report.representativePerformance.length
@@ -3305,6 +3410,16 @@ document.getElementById("reportsSalesTarget")?.addEventListener("change", () => 
   saveReportsTarget();
   renderReportsOverview();
 });
+document.querySelectorAll("[data-customer-analytics]").forEach(button => {
+  button.addEventListener("click", () => {
+    activeCustomerAnalyticsTab = button.dataset.customerAnalytics;
+    document.querySelectorAll("[data-customer-analytics]").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+    if (currentReportsSnapshot) renderCustomerAnalytics(currentReportsSnapshot);
+  });
+});
+
 
 document.getElementById("runDiagnosticsBtn")?.addEventListener("click", runEnterpriseDiagnostics);
 document.getElementById("downloadDiagnosticsJsonBtn")?.addEventListener("click", () => {

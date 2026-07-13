@@ -565,6 +565,85 @@
           </article>
         </div>
 
+        <div class="reports-dashboard-grid analytics-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>تحليل العملاء</h3>
+                <p>التصنيف والاهتمامات والمندوبون وحالة النشاط.</p>
+              </div>
+            </div>
+            <div class="analytics-tabs">
+              <button class="analytics-tab active" type="button" data-customer-analytics="types">التصنيف</button>
+              <button class="analytics-tab" type="button" data-customer-analytics="interests">الاهتمامات</button>
+              <button class="analytics-tab" type="button" data-customer-analytics="representatives">المندوبون</button>
+              <button class="analytics-tab" type="button" data-customer-analytics="activity">النشاط</button>
+            </div>
+            <div id="customerAnalyticsBreakdown" class="analytics-breakdown"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>تحليل قيم عروض الأسعار</h3>
+                <p>المتوسط والأعلى والأقل وقيمة العروض المفتوحة والمرفوضة.</p>
+              </div>
+            </div>
+            <div class="quotation-value-kpis">
+              <article><span>متوسط العرض</span><strong id="quotationAverageValue">0 SAR</strong></article>
+              <article><span>أعلى عرض</span><strong id="quotationHighestValue">0 SAR</strong></article>
+              <article><span>أقل عرض</span><strong id="quotationLowestValue">0 SAR</strong></article>
+              <article><span>قيمة المفتوح</span><strong id="quotationOpenValue">0 SAR</strong></article>
+              <article><span>قيمة المرفوض</span><strong id="quotationRejectedValue">0 SAR</strong></article>
+              <article><span>معدل الرفض</span><strong id="quotationRejectionRate">0%</strong></article>
+            </div>
+          </article>
+        </div>
+
+        <div class="reports-dashboard-grid analytics-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>أكثر أسباب الخسارة</h3>
+                <p>أسباب رفض عروض الأسعار وعدم إتمام البيع.</p>
+              </div>
+            </div>
+            <div id="lossReasonsAnalytics" class="analytics-breakdown"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>أعلى العملاء من حيث قيمة العروض</h3>
+                <p>أعلى 10 عملاء داخل النطاق المحدد.</p>
+              </div>
+            </div>
+            <div id="topCustomersByValue" class="top-customer-list"></div>
+          </article>
+        </div>
+
+        <div class="reports-dashboard-grid analytics-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>العملاء غير النشطين</h3>
+                <p>لم يحدث معهم تواصل خلال 30 يومًا أو أكثر.</p>
+              </div>
+            </div>
+            <div id="inactiveCustomersList" class="customer-action-list"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>عملاء يحتاجون متابعة</h3>
+                <p>بدون متابعة أو لديهم متابعة متأخرة.</p>
+              </div>
+            </div>
+            <div id="customersNeedingFollowupList" class="customer-action-list"></div>
+          </article>
+        </div>
+
         <div class="reports-dashboard-grid">
           <article class="panel">
             <div class="panel-header">

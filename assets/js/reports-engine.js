@@ -254,6 +254,153 @@
       };
     }).sort((a, b) => b.value - a.value || b.accepted - a.accepted);
 
+
+    const customerTypes = current.customers.reduce((acc, customer) => {
+      const key = customer.type || "غير محدد";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    const customerInterests = current.customers.reduce((acc, customer) => {
+      const items = Array.isArray(customer.interests) && customer.interests.length
+        ? customer.interests
+        : ["غير محدد"];
+      items.forEach(item => {
+        acc[item] = (acc[item] || 0) + 1;
+      });
+      return acc;
+    }, {});
+
+    const customerRepresentatives = current.customers.reduce((acc, customer) => {
+      const key = customer.representative || "غير محدد";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const followupsByCustomer = new Map();
+    current.followups.forEach(item => {
+      const existing = followupsByCustomer.get(item.customerId);
+      const itemDate = dateOnly(item.contactDate || item.createdAt);
+      const existingDate = existing
+        ? dateOnly(existing.contactDate || existing.createdAt)
+        : null;
+      if (!existing || (itemDate && (!existingDate || itemDate > existingDate))) {
+        followupsByCustomer.set(item.customerId, item);
+      }
+    });
+
+    const customerActivity = {
+      active_7_days: 0,
+      active_30_days: 0,
+      inactive_30_days: 0,
+      never_contacted: 0
+    };
+
+    const inactiveCustomers = [];
+    const customersNeedingFollowup = [];
+
+    current.customers.forEach(customer => {
+      const latestFollowup = followupsByCustomer.get(customer.id);
+      const lastContact = dateOnly(
+        latestFollowup?.contactDate
+        || customer.contactDate
+        || customer.lastContactDate
+      );
+
+      if (!lastContact) {
+        customerActivity.never_contacted += 1;
+      } else {
+        const days = Math.floor((today.getTime() - lastContact.getTime()) / 86400000);
+        if (days <= 7) customerActivity.active_7_days += 1;
+        else if (days <= 30) customerActivity.active_30_days += 1;
+        else {
+          customerActivity.inactive_30_days += 1;
+          inactiveCustomers.push({
+            id: customer.id,
+            name: customer.name || customer.customerName || "عميل غير معروف",
+            phone: customer.phone || "",
+            representative: customer.representative || "—",
+            daysInactive: days,
+            lastContact: isoDate(lastContact)
+          });
+        }
+      }
+
+      const hasFollowup = current.followups.some(item => item.customerId === customer.id);
+      const overdue = current.followups.some(
+        item => item.customerId === customer.id && followupState(item) === "overdue"
+      );
+
+      if (!hasFollowup || overdue) {
+        customersNeedingFollowup.push({
+          id: customer.id,
+          name: customer.name || customer.customerName || "عميل غير معروف",
+          phone: customer.phone || "",
+          representative: customer.representative || "—",
+          reason: overdue ? "متابعة متأخرة" : "بدون متابعة"
+        });
+      }
+    });
+
+    const quotationAmounts = current.quotations
+      .map(item => currency(item.amount))
+      .filter(value => value >= 0);
+
+    const rejectedQuotations = current.quotations.filter(
+      item => item.status === "مرفوض" || item.status === "ملغي"
+    );
+    const openQuotations = current.quotations.filter(
+      item => !["مقبول", "مرفوض", "ملغي"].includes(item.status)
+    );
+
+    const quotationAnalytics = {
+      averageValue: quotationAmounts.length
+        ? quotationAmounts.reduce((sum, value) => sum + value, 0) / quotationAmounts.length
+        : 0,
+      highestValue: quotationAmounts.length ? Math.max(...quotationAmounts) : 0,
+      lowestValue: quotationAmounts.length ? Math.min(...quotationAmounts) : 0,
+      openValue: openQuotations.reduce((sum, item) => sum + currency(item.amount), 0),
+      rejectedValue: rejectedQuotations.reduce((sum, item) => sum + currency(item.amount), 0),
+      rejectionRate: current.quotations.length
+        ? (rejectedQuotations.length / current.quotations.length) * 100
+        : 0
+    };
+
+    const lossReasons = {};
+    rejectedQuotations.forEach(item => {
+      const key = item.rejectionReason || item.noSaleReason || "غير محدد";
+      lossReasons[key] = (lossReasons[key] || 0) + 1;
+    });
+    current.customers.forEach(customer => {
+      if (customer.noSaleReason) {
+        lossReasons[customer.noSaleReason] = (lossReasons[customer.noSaleReason] || 0) + 1;
+      }
+    });
+
+    const customerValueMap = new Map();
+    current.quotations.forEach(item => {
+      const key = item.customerId || item.customerName || "unknown";
+      const existing = customerValueMap.get(key) || {
+        id: item.customerId || key,
+        name: item.customerName || "عميل غير معروف",
+        phone: item.customerPhone || "",
+        totalValue: 0,
+        quotations: 0,
+        accepted: 0
+      };
+      existing.totalValue += currency(item.amount);
+      existing.quotations += 1;
+      if (item.status === "مقبول") existing.accepted += 1;
+      customerValueMap.set(key, existing);
+    });
+
+    const topCustomersByValue = [...customerValueMap.values()]
+      .sort((a, b) => b.totalValue - a.totalValue)
+      .slice(0, 10);
+
     const months = lastMonths(6).map(month => ({
       ...month,
       customers: current.customers.filter(item =>
@@ -321,6 +468,19 @@
       funnel,
       quotationStatuses: current.quotationStatuses,
       followupStates: current.followupStates,
+      customerAnalytics: {
+        types: customerTypes,
+        interests: customerInterests,
+        representatives: customerRepresentatives,
+        activity: customerActivity
+      },
+      quotationAnalytics,
+      lossReasons,
+      topCustomersByValue,
+      inactiveCustomers: inactiveCustomers
+        .sort((a, b) => b.daysInactive - a.daysInactive)
+        .slice(0, 10),
+      customersNeedingFollowup: customersNeedingFollowup.slice(0, 10),
       representativePerformance,
       months,
       generatedAt: new Date().toISOString()
