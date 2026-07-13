@@ -2537,3 +2537,117 @@ body.customer360-exporting .customer360-shell *{
     grid-template-columns:1fr
   }
 }
+
+
+/* KYUM Phase 16.5 — Daily Alerts & Escalations */
+.daily-alerts-panel,
+.daily-alerts-report-panel{
+  margin-bottom:18px
+}
+.daily-alerts-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap
+}
+.daily-alerts-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px
+}
+.daily-alerts-summary article{
+  display:grid;
+  gap:5px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.daily-alerts-summary span{color:var(--muted);font-size:10px}
+.daily-alerts-summary strong{font-size:19px}
+.daily-alerts-list{
+  display:grid;
+  gap:10px
+}
+.daily-alert-card{
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-inline-start:5px solid #64748b;
+  border-radius:14px;
+  background:var(--surface)
+}
+.daily-alert-card.severity-important{border-inline-start-color:#f59e0b}
+.daily-alert-card.severity-critical{border-inline-start-color:#ef4444}
+.daily-alert-card.status-closed{opacity:.72}
+.daily-alert-card-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start
+}
+.daily-alert-card-head>div{
+  display:grid;
+  gap:4px
+}
+.daily-alert-card small,
+.daily-alert-card p{
+  color:var(--muted);
+  margin:0
+}
+.daily-alert-severity,
+.daily-alert-status{
+  display:inline-flex;
+  width:max-content;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:9px;
+  font-weight:900;
+  background:#e2e8f0;
+  color:#475569
+}
+.severity-important .daily-alert-severity{
+  background:#fef3c7;
+  color:#92400e
+}
+.severity-critical .daily-alert-severity{
+  background:#fee2e2;
+  color:#b91c1c
+}
+.daily-alert-card.status-escalated .daily-alert-status{
+  background:#ffedd5;
+  color:#c2410c
+}
+.daily-alert-card.status-closed .daily-alert-status{
+  background:#dcfce7;
+  color:#166534
+}
+.daily-alert-note{
+  padding:9px;
+  border-radius:10px;
+  background:var(--surface-2);
+  color:var(--muted)
+}
+.daily-alert-card-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap
+}
+.daily-alerts-report-table{
+  min-width:900px
+}
+@media(max-width:800px){
+  .daily-alerts-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .daily-alert-card-head{
+    flex-direction:column
+  }
+}
+@media(max-width:500px){
+  .daily-alerts-summary{
+    grid-template-columns:1fr
+  }
+}

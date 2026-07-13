@@ -160,6 +160,9 @@ let dailyTaskDefinitions = [];
 let dailyOperationTargets = null;
 let dailyManagerNote = null;
 let dailyOperationsLoading = false;
+let dailyAlerts = [];
+let dailyAlertsLoading = false;
+let dailyAlertPendingAction = null;
 let dailyPerformanceSnapshot = null;
 let dailyPerformanceLoading = false;
 let dailyPerformanceDetailType = "tasks";
@@ -3953,6 +3956,7 @@ function renderDailyPerformanceReport() {
     : '<tr><td colspan="10" class="empty-state">لا توجد بيانات مطابقة.</td></tr>';
 
   renderDailyPerformanceDetail();
+  renderDailyAlertsReport();
 }
 
 async function loadDailyPerformanceReport(force = false) {
@@ -3979,6 +3983,14 @@ async function loadDailyPerformanceReport(force = false) {
         dailyPerformanceSelectedDate(),
         { customers, followups, quotations }
       );
+
+    const reportAlerts = await window.customerSupabase
+      .from("daily_alerts")
+      .select("*")
+      .eq("work_date", dailyPerformanceSelectedDate());
+
+    if (reportAlerts.error) throw reportAlerts.error;
+    dailyPerformanceSnapshot.alerts = reportAlerts.data || [];
 
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();
@@ -4065,6 +4077,172 @@ function dailyDaysOverdue(value) {
   const target = new Date(`${String(value).slice(0, 10)}T00:00:00`);
   const today = new Date(`${dailyLocalDate()}T00:00:00`);
   return Number.isNaN(target.getTime()) ? 0 : Math.max(0, Math.floor((today - target) / 86400000));
+}
+
+function dailyAlertSeverityLabel(value) {
+  return {
+    normal: "عادي",
+    important: "مهم",
+    critical: "حرج"
+  }[value] || value || "—";
+}
+
+function dailyAlertStatusLabel(value) {
+  return {
+    open: "مفتوح",
+    in_progress: "قيد المعالجة",
+    escalated: "مصعّد",
+    closed: "مغلق"
+  }[value] || value || "—";
+}
+
+function canManageDailyAlerts() {
+  return Boolean(
+    window.CustomerPermissions?.canScreen?.("dailyAlertsManagement", "edit")
+  );
+}
+
+function filteredDailyAlerts() {
+  const status = document.getElementById("dailyAlertsStatusFilter")?.value || "";
+  return status ? dailyAlerts.filter(item => item.status === status) : dailyAlerts;
+}
+
+function renderDailyAlerts() {
+  const list = document.getElementById("dailyAlertsList");
+  if (!list) return;
+
+  document.getElementById("dailyAlertsOpenCount").textContent =
+    dailyAlerts.filter(item => item.status === "open").length;
+  document.getElementById("dailyAlertsInProgressCount").textContent =
+    dailyAlerts.filter(item => item.status === "in_progress").length;
+  document.getElementById("dailyAlertsEscalatedCount").textContent =
+    dailyAlerts.filter(item => item.status === "escalated").length;
+  document.getElementById("dailyAlertsCriticalCount").textContent =
+    dailyAlerts.filter(item => item.severity === "critical" && item.status !== "closed").length;
+
+  const rows = filteredDailyAlerts();
+  const canManage = canManageDailyAlerts();
+
+  list.innerHTML = rows.length
+    ? rows.map(alert => {
+        const employee = alert.user_profile?.full_name
+          || alert.representative?.full_name
+          || "غير محدد";
+
+        return `
+          <article class="daily-alert-card severity-${alert.severity} status-${alert.status}">
+            <div class="daily-alert-card-head">
+              <div>
+                <span class="daily-alert-severity">${escapeHtml(dailyAlertSeverityLabel(alert.severity))}</span>
+                <strong>${escapeHtml(alert.title || "تنبيه")}</strong>
+                <small>${escapeHtml(employee)} · ${dailyDateTime(alert.created_at)}</small>
+              </div>
+              <span class="daily-alert-status">${escapeHtml(dailyAlertStatusLabel(alert.status))}</span>
+            </div>
+            <p>${escapeHtml(alert.details || "—")}</p>
+            ${alert.supervisor_note ? `<div class="daily-alert-note"><b>ملاحظة المشرف:</b> ${escapeHtml(alert.supervisor_note)}</div>` : ""}
+            ${canManage ? `
+              <div class="daily-alert-card-actions">
+                ${alert.status === "open" ? `<button type="button" class="secondary-btn compact-btn" data-alert-action="start" data-alert-id="${alert.id}">بدء المعالجة</button>` : ""}
+                ${alert.status !== "escalated" && alert.status !== "closed" ? `<button type="button" class="warning-btn compact-btn" data-alert-action="escalate" data-alert-id="${alert.id}">تصعيد للمشرف</button>` : ""}
+                ${alert.status !== "closed" ? `<button type="button" class="primary-btn compact-btn" data-alert-action="close" data-alert-id="${alert.id}">تمت المعالجة</button>` : `<button type="button" class="secondary-btn compact-btn" data-alert-action="reopen" data-alert-id="${alert.id}">إعادة فتح</button>`}
+              </div>
+            ` : ""}
+          </article>`;
+      }).join("")
+    : '<div class="empty-state">لا توجد تنبيهات مطابقة.</div>';
+}
+
+async function loadDailyAlerts(forceSync = false) {
+  if (dailyAlertsLoading || !window.DailyAlertsService) return;
+  dailyAlertsLoading = true;
+
+  showDataStatus("dailyAlertsStatus", "جاري تحميل التنبيهات...", "info");
+  try {
+    if (forceSync) {
+      await window.DailyAlertsService.sync();
+    }
+    dailyAlerts = await window.DailyAlertsService.list();
+    renderDailyAlerts();
+    showDataStatus("dailyAlertsStatus", "");
+  } catch (error) {
+    showDataStatus(
+      "dailyAlertsStatus",
+      error instanceof Error ? error.message : "تعذر تحميل التنبيهات.",
+      "error"
+    );
+  } finally {
+    dailyAlertsLoading = false;
+  }
+}
+
+function openDailyAlertAction(alertId, actionType) {
+  dailyAlertPendingAction = { alertId, actionType };
+  const titles = {
+    start: "بدء معالجة التنبيه",
+    escalate: "تصعيد التنبيه للمشرف",
+    close: "إغلاق التنبيه بعد المعالجة",
+    reopen: "إعادة فتح التنبيه"
+  };
+  document.getElementById("dailyAlertActionTitle").textContent =
+    titles[actionType] || "إجراء على التنبيه";
+  document.getElementById("dailyAlertActionId").value = alertId;
+  document.getElementById("dailyAlertActionType").value = actionType;
+  document.getElementById("dailyAlertActionNote").value = "";
+  document.getElementById("dailyAlertActionDialog").showModal();
+}
+
+function closeDailyAlertActionDialog() {
+  dailyAlertPendingAction = null;
+  document.getElementById("dailyAlertActionDialog").close();
+}
+
+function renderDailyAlertsReport() {
+  const body = document.getElementById("dailyAlertsReportBody");
+  if (!body || !dailyPerformanceSnapshot) return;
+
+  const rows = dailyPerformanceFilteredRows();
+  const alerts = dailyPerformanceSnapshot.alerts || [];
+
+  body.innerHTML = rows.length
+    ? rows.map(employee => {
+        const employeeAlerts = alerts.filter(alert =>
+          (employee.userId && alert.user_id === employee.userId)
+          || (
+            employee.representativeId
+            && alert.representative_id === employee.representativeId
+          )
+        );
+
+        const byStatus = status =>
+          employeeAlerts.filter(alert => alert.status === status).length;
+
+        const resolved = employeeAlerts.filter(alert =>
+          alert.status === "closed" && alert.resolved_at && alert.created_at
+        );
+        const averageMinutes = resolved.length
+          ? Math.round(
+              resolved.reduce((sum, alert) =>
+                sum + (
+                  new Date(alert.resolved_at).getTime()
+                  - new Date(alert.created_at).getTime()
+                ) / 60000, 0
+              ) / resolved.length
+            )
+          : 0;
+
+        return `
+          <tr>
+            <td><strong>${escapeHtml(employee.name)}</strong></td>
+            <td>${byStatus("open")}</td>
+            <td>${byStatus("in_progress")}</td>
+            <td>${byStatus("escalated")}</td>
+            <td>${byStatus("closed")}</td>
+            <td>${employeeAlerts.filter(alert => alert.severity === "critical").length}</td>
+            <td>${averageMinutes ? `${averageMinutes} دقيقة` : "—"}</td>
+          </tr>`;
+      }).join("")
+    : '<tr><td colspan="7" class="empty-state">لا توجد بيانات.</td></tr>';
 }
 
 function dailyTaskCanEdit(definition) {
@@ -4306,6 +4484,7 @@ async function loadDailyOperations(force = false) {
     }
 
     renderDailyOperations();
+    await loadDailyAlerts(force);
     showDataStatus("dailyOperationsStatus", "");
   } catch (error) {
     showDataStatus(
@@ -5043,6 +5222,61 @@ document.getElementById("dailyPerformanceDetailSelector")?.addEventListener(
   event => {
     dailyPerformanceDetailType = event.target.value;
     renderDailyPerformanceDetail();
+  }
+);
+
+document.getElementById("refreshDailyAlertsBtn")?.addEventListener(
+  "click",
+  () => loadDailyAlerts(true)
+);
+document.getElementById("dailyAlertsStatusFilter")?.addEventListener(
+  "change",
+  renderDailyAlerts
+);
+document.getElementById("dailyAlertsList")?.addEventListener("click", event => {
+  const alertId = event.target.dataset.alertId;
+  const actionType = event.target.dataset.alertAction;
+  if (alertId && actionType) openDailyAlertAction(alertId, actionType);
+});
+
+["closeDailyAlertActionDialogBtn","cancelDailyAlertActionBtn"].forEach(id => {
+  document.getElementById(id)?.addEventListener(
+    "click",
+    closeDailyAlertActionDialog
+  );
+});
+
+document.getElementById("dailyAlertActionForm")?.addEventListener(
+  "submit",
+  async event => {
+    event.preventDefault();
+    if (!dailyAlertPendingAction) return;
+
+    const submitButton = event.currentTarget.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+
+    try {
+      await window.DailyAlertsService.act(
+        dailyAlertPendingAction.alertId,
+        dailyAlertPendingAction.actionType,
+        document.getElementById("dailyAlertActionNote").value.trim()
+      );
+      closeDailyAlertActionDialog();
+      await loadDailyAlerts(false);
+      showDataStatus(
+        "dailyAlertsStatus",
+        "تم تنفيذ الإجراء على التنبيه بنجاح.",
+        "success"
+      );
+    } catch (error) {
+      showDataStatus(
+        "dailyAlertsStatus",
+        error instanceof Error ? error.message : "تعذر تنفيذ الإجراء.",
+        "error"
+      );
+    } finally {
+      submitButton.disabled = false;
+    }
   }
 );
 

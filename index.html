@@ -245,6 +245,33 @@
           </div>
         </article>
 
+        <article class="panel daily-alerts-panel">
+          <div class="panel-header">
+            <div>
+              <h3>تنبيهات اليوم</h3>
+              <p>المهام غير المنفذة والمتابعات المتأخرة والأهداف غير المحققة.</p>
+            </div>
+            <div class="daily-alerts-actions">
+              <button id="refreshDailyAlertsBtn" class="secondary-btn compact-btn" type="button">تحديث التنبيهات</button>
+              <select id="dailyAlertsStatusFilter">
+                <option value="">كل الحالات</option>
+                <option value="open">مفتوح</option>
+                <option value="in_progress">قيد المعالجة</option>
+                <option value="escalated">مصعّد</option>
+                <option value="closed">مغلق</option>
+              </select>
+            </div>
+          </div>
+          <div id="dailyAlertsStatus" class="data-status hidden"></div>
+          <div class="daily-alerts-summary">
+            <article><span>مفتوح</span><strong id="dailyAlertsOpenCount">0</strong></article>
+            <article><span>قيد المعالجة</span><strong id="dailyAlertsInProgressCount">0</strong></article>
+            <article><span>مصعّد</span><strong id="dailyAlertsEscalatedCount">0</strong></article>
+            <article><span>حرج</span><strong id="dailyAlertsCriticalCount">0</strong></article>
+          </div>
+          <div id="dailyAlertsList" class="daily-alerts-list"></div>
+        </article>
+
         <article class="panel daily-section-panel daily-overdue-panel">
           <div class="panel-header">
             <div>
@@ -685,6 +712,31 @@
                 </tr>
               </thead>
               <tbody id="dailyPerformanceBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel daily-alerts-report-panel">
+          <div class="panel-header">
+            <div>
+              <h3>تقرير التنبيهات اليومية</h3>
+              <p>التنبيهات المفتوحة والمعالجة والمصعّدة لكل موظف.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="daily-alerts-report-table">
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>مفتوح</th>
+                  <th>قيد المعالجة</th>
+                  <th>مصعّد</th>
+                  <th>مغلق</th>
+                  <th>حرج</th>
+                  <th>متوسط المعالجة</th>
+                </tr>
+              </thead>
+              <tbody id="dailyAlertsReportBody"></tbody>
             </table>
           </div>
         </article>
@@ -1750,6 +1802,28 @@
   </dialog>
 
 
+  <dialog id="dailyAlertActionDialog" class="daily-settings-dialog">
+    <form id="dailyAlertActionForm">
+      <div class="dialog-header">
+        <div>
+          <h3 id="dailyAlertActionTitle">إجراء على التنبيه</h3>
+          <p id="dailyAlertActionSubtitle">أضف ملاحظة قبل تنفيذ الإجراء.</p>
+        </div>
+        <button id="closeDailyAlertActionDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+      <input id="dailyAlertActionId" type="hidden">
+      <input id="dailyAlertActionType" type="hidden">
+      <label>
+        ملاحظة
+        <textarea id="dailyAlertActionNote" rows="5" maxlength="1000"></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button id="cancelDailyAlertActionBtn" class="secondary-btn" type="button">إلغاء</button>
+        <button class="primary-btn" type="submit">تنفيذ</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="dailyTargetsDialog" class="daily-settings-dialog">
     <form id="dailyTargetsForm">
       <div class="dialog-header">
@@ -2040,6 +2114,7 @@
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
-  <script src="assets/js/app.js?v=16.4"></script>
+  <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
+  <script src="assets/js/app.js?v=16.5"></script>
 </body>
 </html>
