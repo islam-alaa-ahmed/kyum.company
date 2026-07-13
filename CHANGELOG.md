@@ -1,6 +1,6 @@
-# KYUM Phase 15.3.2 — Timeline & Activity History
+# KYUM Phase 15.3.3 — Customer KPIs & Risk Indicators
 
-## Modified/New Files
+## Modified Files
 
 - `assets/css/style.css`
 - `assets/js/app.js`
@@ -8,12 +8,14 @@
 
 ## Implemented
 
-- Unified customer activity timeline.
-- Combined customer creation, follow-ups and quotations.
-- Chronological sorting from newest to oldest.
-- Event-type filters.
-- Visual status badges for follow-up and quotation states.
-- Last-activity summary.
-- Activity totals for follow-ups and quotations.
-- Preserved the detailed follow-up history section.
+- Customer health score.
+- Deterministic customer-risk score.
+- Low, medium, high and critical follow-up priority.
+- Explicit risk reasons.
+- Recommended next action.
+- Customer engagement score.
+- Follow-up response rate.
+- Accepted, potential, open and rejected customer values.
+- Customer value tier.
+- Responsive risk and value dashboard inside Customer 360.
 - No SQL migration or Edge Function.

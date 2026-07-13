@@ -2983,6 +2983,20 @@ function renderCustomer360UnifiedTimeline(view) {
     : '<div class="empty-state">لا توجد أحداث من هذا النوع.</div>';
 }
 
+function customer360RiskClass(score) {
+  const value = Number(score || 0);
+  if (value >= 70) return "critical";
+  if (value >= 45) return "high";
+  if (value >= 20) return "medium";
+  return "low";
+}
+
+function customer360PriorityLabelClass(key) {
+  return ["critical", "high", "medium", "low"].includes(key)
+    ? key
+    : "low";
+}
+
 function customer360StatusClass(key) {
   const supported = [
     "active",
@@ -3080,6 +3094,55 @@ function showCustomerDetails(customerId) {
         ${customer360Metric("عروض الأسعار", view.totals.quotations, `المفتوحة: ${view.totals.openQuotations}`)}
         ${customer360Metric("قيمة العروض", formatCurrency(view.totals.totalQuotationValue), `المقبول: ${formatCurrency(view.totals.acceptedValue)}`)}
         ${customer360Metric("نسبة التحويل", `${view.totals.conversionRate.toFixed(1)}%`, `${view.totals.acceptedQuotations} عروض مقبولة`)}
+      </div>
+
+      <section class="customer360-risk-dashboard">
+        <article class="customer360-health-gauge ${customer360RiskClass(view.risk.score)}">
+          <div class="customer360-gauge-ring" style="--score:${view.risk.healthScore}">
+            <div>
+              <strong>${view.risk.healthScore}%</strong>
+              <span>صحة العميل</span>
+            </div>
+          </div>
+          <div>
+            <span>درجة الخطر</span>
+            <strong>${view.risk.score}%</strong>
+            <small>${escapeHtml(view.risk.priority.label)}</small>
+          </div>
+        </article>
+
+        <article class="customer360-risk-card">
+          <div class="customer360-risk-card-head">
+            <div>
+              <span>أولوية المتابعة</span>
+              <strong>${escapeHtml(view.risk.priority.label)}</strong>
+            </div>
+            <b class="${customer360PriorityLabelClass(view.risk.priority.key)}">${view.risk.score}% خطر</b>
+          </div>
+          <div class="customer360-risk-progress">
+            <span class="${customer360RiskClass(view.risk.score)}" style="width:${view.risk.score}%"></span>
+          </div>
+          <ul class="customer360-risk-reasons">
+            ${view.risk.reasons.slice(0, 4).map(reason => `<li>${escapeHtml(reason)}</li>`).join("")}
+          </ul>
+        </article>
+
+        <article class="customer360-next-action">
+          <span>الإجراء التالي المقترح</span>
+          <strong>${escapeHtml(view.risk.nextAction.title)}</strong>
+          <p>${escapeHtml(view.risk.nextAction.detail)}</p>
+          <div class="customer360-next-action-metrics">
+            <small>التفاعل: ${view.risk.engagementScore}%</small>
+            <small>استجابة المتابعة: ${view.risk.responseRate.toFixed(1)}%</small>
+          </div>
+        </article>
+      </section>
+
+      <div class="customer360-value-kpis">
+        ${customer360Metric("قيمة العميل المقبولة", formatCurrency(view.totals.acceptedValue), view.risk.valueTier.label)}
+        ${customer360Metric("القيمة المحتملة", formatCurrency(view.risk.potentialValue), `المفتوح: ${formatCurrency(view.risk.openValue)}`)}
+        ${customer360Metric("قيمة العروض المرفوضة", formatCurrency(view.risk.rejectedValue), "فرص تحتاج مراجعة")}
+        ${customer360Metric("مؤشر التفاعل", `${view.risk.engagementScore}%`, `استجابة: ${view.risk.responseRate.toFixed(1)}%`)}
       </div>
     </section>
 

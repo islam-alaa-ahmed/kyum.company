@@ -157,6 +157,145 @@
       .filter(item => item.date)
       .sort((a, b) => Number(asDate(b.date)) - Number(asDate(a.date)));
 
+    const rejected = customerQuotations.filter(item =>
+      item.status === "مرفوض" || item.status === "ملغي"
+    );
+    const openValue = open.reduce((sum, item) => sum + amount(item.amount), 0);
+    const rejectedValue = rejected.reduce((sum, item) => sum + amount(item.amount), 0);
+    const responseRate = customerFollowups.length
+      ? ((followupStates.completed || 0) / customerFollowups.length) * 100
+      : 0;
+
+    const riskReasons = [];
+    let riskScore = 0;
+
+    if (!customerFollowups.length) {
+      riskScore += 25;
+      riskReasons.push("لا توجد متابعة مسجلة للعميل.");
+    }
+
+    if (followupStates.overdue) {
+      const overduePenalty = Math.min(30, (followupStates.overdue || 0) * 12);
+      riskScore += overduePenalty;
+      riskReasons.push(`يوجد ${followupStates.overdue} متابعة متأخرة.`);
+    }
+
+    if (inactivityDays === null) {
+      riskScore += 15;
+      riskReasons.push("لا يوجد تاريخ واضح لآخر تواصل.");
+    } else if (inactivityDays > 60) {
+      riskScore += 30;
+      riskReasons.push(`مر ${inactivityDays} يومًا منذ آخر تواصل.`);
+    } else if (inactivityDays > 30) {
+      riskScore += 20;
+      riskReasons.push(`العميل غير نشط منذ ${inactivityDays} يومًا.`);
+    } else if (inactivityDays > 14) {
+      riskScore += 10;
+      riskReasons.push(`مر ${inactivityDays} يومًا منذ آخر تواصل.`);
+    }
+
+    if (rejected.length > accepted.length && rejected.length > 0) {
+      riskScore += 15;
+      riskReasons.push("العروض المرفوضة أكثر من العروض المقبولة.");
+    }
+
+    if (customerQuotations.length && !accepted.length) {
+      riskScore += 10;
+      riskReasons.push("لا توجد عروض أسعار مقبولة حتى الآن.");
+    }
+
+    if (!customer.representative && !customer.representativeId) {
+      riskScore += 10;
+      riskReasons.push("لا يوجد مندوب مسؤول محدد.");
+    }
+
+    if (!Array.isArray(customer.interests) || !customer.interests.length) {
+      riskScore += 5;
+      riskReasons.push("اهتمامات العميل غير مكتملة.");
+    }
+
+    riskScore = Math.min(100, Math.max(0, Math.round(riskScore)));
+    const healthScore = 100 - riskScore;
+
+    let priority = {
+      key: "low",
+      label: "أولوية منخفضة"
+    };
+
+    if (riskScore >= 70) {
+      priority = { key: "critical", label: "أولوية حرجة" };
+    } else if (riskScore >= 45) {
+      priority = { key: "high", label: "أولوية مرتفعة" };
+    } else if (riskScore >= 20) {
+      priority = { key: "medium", label: "أولوية متوسطة" };
+    }
+
+    let nextAction = {
+      title: "استمرار المتابعة الدورية",
+      detail: "لا توجد مشكلة عاجلة، حافظ على التواصل المنتظم مع العميل."
+    };
+
+    if (followupStates.overdue) {
+      nextAction = {
+        title: "تنفيذ المتابعة المتأخرة فورًا",
+        detail: "تواصل مع العميل وحدّث نتيجة المتابعة والموعد القادم."
+      };
+    } else if (!customerFollowups.length) {
+      nextAction = {
+        title: "إنشاء أول متابعة",
+        detail: "حدد وسيلة التواصل وموعد المتابعة القادم."
+      };
+    } else if (inactivityDays === null || inactivityDays > 30) {
+      nextAction = {
+        title: "إعادة تنشيط العميل",
+        detail: "ابدأ تواصلًا جديدًا وحدد احتياجه الحالي قبل إرسال عرض جديد."
+      };
+    } else if (open.length) {
+      nextAction = {
+        title: "متابعة عروض الأسعار المفتوحة",
+        detail: `يوجد ${open.length} عرض مفتوح بقيمة ${openValue.toFixed(2)} SAR.`
+      };
+    } else if (!accepted.length && customerQuotations.length) {
+      nextAction = {
+        title: "مراجعة سبب عدم التحويل",
+        detail: "راجع أسباب الرفض وعدّل العرض أو أسلوب المتابعة."
+      };
+    }
+
+    const engagementScore = Math.min(
+      100,
+      Math.round(
+        Math.min(40, customerFollowups.length * 8)
+        + Math.min(25, customerQuotations.length * 7)
+        + Math.min(20, accepted.length * 10)
+        + (inactivityDays !== null && inactivityDays <= 14 ? 15 : 0)
+      )
+    );
+
+    const valueTier = acceptedValue >= 100000
+      ? { key: "strategic", label: "استراتيجي" }
+      : totalQuotationValue >= 50000
+        ? { key: "high", label: "قيمة مرتفعة" }
+        : totalQuotationValue > 0
+          ? { key: "standard", label: "قيمة متوسطة" }
+          : { key: "new", label: "فرصة جديدة" };
+
+    const risk = {
+      score: riskScore,
+      healthScore,
+      priority,
+      reasons: riskReasons.length
+        ? riskReasons
+        : ["لا توجد مؤشرات خطر واضحة حاليًا."],
+      nextAction,
+      responseRate,
+      engagementScore,
+      openValue,
+      rejectedValue,
+      potentialValue: openValue + acceptedValue,
+      valueTier
+    };
+
     const latestActivity = timeline[0] || null;
 
     return {
@@ -167,6 +306,7 @@
       latestQuotation,
       latestActivity,
       timeline,
+      risk,
       lastContactDate,
       inactivityDays,
       status,

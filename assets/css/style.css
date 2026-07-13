@@ -1598,3 +1598,141 @@ body.reports-exporting #reportsOverviewView *{
   .customer360-activity-summary{grid-template-columns:1fr}
   .customer360-activity-head{flex-direction:column}
 }
+
+
+/* KYUM Phase 15.3.3 — Customer KPIs & Risk Indicators */
+.customer360-risk-dashboard{
+  display:grid;
+  grid-template-columns:minmax(240px,.75fr) minmax(320px,1.2fr) minmax(280px,1fr);
+  gap:12px
+}
+.customer360-health-gauge,
+.customer360-risk-card,
+.customer360-next-action{
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface);
+  padding:15px;
+  min-width:0
+}
+.customer360-health-gauge{
+  display:grid;
+  grid-template-columns:110px 1fr;
+  gap:14px;
+  align-items:center
+}
+.customer360-gauge-ring{
+  --gauge-color:#22c55e;
+  width:104px;
+  height:104px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:conic-gradient(
+    var(--gauge-color) calc(var(--score) * 1%),
+    var(--surface-2) 0
+  )
+}
+.customer360-health-gauge.medium .customer360-gauge-ring{--gauge-color:#f59e0b}
+.customer360-health-gauge.high .customer360-gauge-ring{--gauge-color:#f97316}
+.customer360-health-gauge.critical .customer360-gauge-ring{--gauge-color:#ef4444}
+.customer360-gauge-ring>div{
+  width:78px;
+  height:78px;
+  border-radius:50%;
+  background:var(--surface);
+  display:grid;
+  place-items:center;
+  align-content:center
+}
+.customer360-gauge-ring strong{font-size:20px}
+.customer360-gauge-ring span{font-size:9px;color:var(--muted)}
+.customer360-health-gauge>div:last-child{display:grid;gap:5px}
+.customer360-health-gauge>div:last-child span,
+.customer360-health-gauge>div:last-child small{color:var(--muted)}
+.customer360-health-gauge>div:last-child strong{font-size:23px}
+.customer360-risk-card{display:grid;gap:11px}
+.customer360-risk-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px
+}
+.customer360-risk-card-head>div{display:grid;gap:4px}
+.customer360-risk-card-head span{font-size:10px;color:var(--muted)}
+.customer360-risk-card-head strong{font-size:18px}
+.customer360-risk-card-head>b{
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:10px;
+  white-space:nowrap
+}
+.customer360-risk-card-head>b.low{background:#dcfce7;color:#166534}
+.customer360-risk-card-head>b.medium{background:#fef3c7;color:#92400e}
+.customer360-risk-card-head>b.high{background:#ffedd5;color:#c2410c}
+.customer360-risk-card-head>b.critical{background:#fee2e2;color:#b91c1c}
+.customer360-risk-progress{
+  height:9px;
+  background:var(--surface-2);
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid var(--border)
+}
+.customer360-risk-progress span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:#22c55e
+}
+.customer360-risk-progress span.medium{background:#f59e0b}
+.customer360-risk-progress span.high{background:#f97316}
+.customer360-risk-progress span.critical{background:#ef4444}
+.customer360-risk-reasons{
+  margin:0;
+  padding-inline-start:18px;
+  color:var(--muted);
+  line-height:1.8;
+  font-size:11px
+}
+.customer360-next-action{
+  display:grid;
+  align-content:start;
+  gap:8px;
+  border-inline-start:5px solid #0ea5e9
+}
+.customer360-next-action>span{color:var(--muted);font-size:10px}
+.customer360-next-action>strong{font-size:17px}
+.customer360-next-action>p{margin:0;color:var(--muted);line-height:1.8}
+.customer360-next-action-metrics{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:4px
+}
+.customer360-next-action-metrics small{
+  border-radius:999px;
+  padding:5px 8px;
+  background:var(--surface-2);
+  color:var(--muted)
+}
+.customer360-value-kpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px
+}
+
+@media(max-width:1100px){
+  .customer360-risk-dashboard{
+    grid-template-columns:1fr 1fr
+  }
+  .customer360-next-action{grid-column:1/-1}
+  .customer360-value-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .customer360-risk-dashboard,
+  .customer360-value-kpis{grid-template-columns:1fr}
+  .customer360-next-action{grid-column:auto}
+  .customer360-health-gauge{grid-template-columns:90px 1fr}
+  .customer360-gauge-ring{width:86px;height:86px}
+  .customer360-gauge-ring>div{width:64px;height:64px}
+}
