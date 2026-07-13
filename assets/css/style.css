@@ -683,3 +683,119 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .diagnostics-summary-grid{grid-template-columns:1fr}
   .diagnostics-test{grid-template-columns:1fr}
 }
+
+
+.reports-header-row{align-items:flex-start}
+.reports-actions{display:flex;gap:8px;flex-wrap:wrap}
+.reports-filter-bar{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(160px,1fr)) auto;
+  gap:12px;
+  align-items:end;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:16px
+}
+.reports-filter-bar label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+.reports-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px
+}
+.reports-kpi-grid article{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:var(--shadow);
+  display:grid;
+  gap:7px
+}
+.reports-kpi-grid span,.reports-kpi-grid small{color:var(--muted);font-size:11px}
+.reports-kpi-grid strong{font-size:22px;overflow:hidden;text-overflow:ellipsis}
+.reports-dashboard-grid{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:18px;
+  margin-bottom:18px
+}
+.reports-funnel{display:grid;gap:14px}
+.funnel-step{display:grid;gap:7px}
+.funnel-label{display:grid;grid-template-columns:30px 1fr auto;gap:9px;align-items:center}
+.funnel-label>span{
+  width:27px;height:27px;border-radius:9px;
+  display:grid;place-items:center;background:#e0f2fe;color:#0369a1;font-weight:800
+}
+.funnel-track{
+  height:13px;border-radius:999px;background:var(--surface-2);
+  overflow:hidden;border:1px solid var(--border)
+}
+.funnel-track span{
+  display:block;height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#0f766e,#38bdf8)
+}
+.report-status-breakdown{display:grid;gap:12px}
+.report-status-row{
+  display:grid;grid-template-columns:minmax(120px,1fr) 1.5fr 34px;gap:10px;align-items:center
+}
+.report-status-row>div:first-child{display:flex;align-items:center;gap:8px}
+.report-status-dot{width:9px;height:9px;border-radius:50%;background:#94a3b8}
+.report-status-dot.accepted{background:#22c55e}
+.report-status-dot.rejected{background:#ef4444}
+.report-status-dot.pending{background:#f59e0b}
+.report-status-track{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.report-status-track span{display:block;height:100%;border-radius:inherit;background:#f59e0b}
+.report-status-track span.accepted{background:#22c55e}
+.report-status-track span.rejected{background:#ef4444}
+.report-status-track span.pending{background:#f59e0b}
+.reports-monthly-trend{
+  display:flex;
+  gap:12px;
+  align-items:end;
+  height:260px;
+  padding:12px 4px 0
+}
+.monthly-column{
+  flex:1;min-width:0;height:100%;display:grid;grid-template-rows:1fr auto;gap:8px;text-align:center
+}
+.monthly-bars{display:flex;align-items:end;justify-content:center;gap:4px;height:100%}
+.monthly-bars span{width:20%;min-height:3px;border-radius:5px 5px 0 0}
+.monthly-bars .customers{background:#0ea5e9}
+.monthly-bars .followups{background:#8b5cf6}
+.monthly-bars .quotations{background:#22c55e}
+.monthly-column small{color:var(--muted);font-size:10px;white-space:nowrap}
+.followup-report-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.followup-report-summary article{
+  padding:14px;border-radius:13px;display:flex;justify-content:space-between;align-items:center;
+  border:1px solid var(--border);background:var(--surface-2)
+}
+.followup-report-summary article.critical{border-color:#fecaca}
+.followup-report-summary article.warning{border-color:#fde68a}
+.followup-report-summary article.healthy{border-color:#bbf7d0}
+.followup-report-summary article.info{border-color:#bae6fd}
+
+@media(max-width:1200px){
+  .reports-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .reports-filter-bar,.reports-dashboard-grid{grid-template-columns:1fr}
+  .reports-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .reports-kpi-grid{grid-template-columns:1fr}
+  .reports-actions{width:100%}
+  .reports-actions button{flex:1}
+  .report-status-row{grid-template-columns:1fr 1fr 30px}
+}
+@media print{
+  .sidebar,.topbar,.reports-actions,.reports-filter-bar,.logout-btn{display:none!important}
+  .app-shell{display:block!important}
+  .main-content{padding:0!important}
+  #reportsOverviewView{display:block!important}
+  .view-section:not(#reportsOverviewView){display:none!important}
+  .panel,.reports-kpi-grid article{box-shadow:none;break-inside:avoid}
+}

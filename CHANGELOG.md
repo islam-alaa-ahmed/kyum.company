@@ -1,26 +1,23 @@
-# KYUM Phase 14.4 — Enterprise Diagnostics Center
+# KYUM Phase 15.1 — Reports Hub Foundation
 
 ## Modified/New Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/diagnostics-service.js`
-- `assets/js/diagnostics-engine.js`
+- `assets/js/reports-engine.js`
+- `supabase/migrations/phase15_1_reports_hub.sql`
 
 ## Implemented
 
-- Full on-demand diagnostics workflow.
-- Database connectivity and latency checks.
-- Required-table and RLS coverage checks.
-- Authentication and active-profile checks.
-- Screen-permission coverage check.
-- CORS/availability checks for `backup-admin` and `manage-user`.
-- Latest backup-operation validation.
-- Frontend asset and deployment checks.
-- API failure, response-time and network checks.
-- Passed, Warning and Critical classification.
-- Overall diagnostic score and execution duration.
-- Downloadable JSON report.
-- Downloadable printable HTML report.
-- No SQL migration or new Edge Function.
+- Added a new main-menu group: `التقارير والتحليلات`.
+- Added the first report screen: `مركز التقارير`.
+- Added date and representative filters.
+- Added customer, follow-up and quotation KPIs.
+- Added conversion funnel.
+- Added quotation-status breakdown.
+- Added six-month activity trend.
+- Added follow-up status summary.
+- Added representative performance table.
+- Added CSV export and print mode.
+- Added screen registration and default role permissions.

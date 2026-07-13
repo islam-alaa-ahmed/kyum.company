@@ -149,6 +149,7 @@ let systemSettingsLoaded = false;
 let systemHealthSnapshot = null;
 let latestDiagnosticsReport = null;
 let diagnosticsRunning = false;
+let currentReportsSnapshot = null;
 let systemHealthLoading = false;
 let systemHealthTimer = null;
 
@@ -169,6 +170,7 @@ const views = {
   activityLog: document.getElementById("activityLogView"),
   backups: document.getElementById("backupsView"),
   systemHealth: document.getElementById("systemHealthView"),
+  reportsOverview: document.getElementById("reportsOverviewView"),
   systemSettings: document.getElementById("systemSettingsView")
 };
 
@@ -184,6 +186,7 @@ const pageMeta = {
   activityLog: ["سجل النشاط", "متابعة العمليات والتغييرات داخل النظام"],
   backups: ["النسخ الاحتياطي", "التصدير والاستعادة وحماية البيانات"],
   systemHealth: ["مراقبة النظام", "الحالة الصحية والأمان والأداء التشغيلي"],
+  reportsOverview: ["مركز التقارير", "تحليلات العملاء والمتابعات والعروض وأداء المندوبين"],
   systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"]
 };
 
@@ -503,6 +506,9 @@ function switchView(name) {
   if (name === "systemHealth") {
     loadSystemHealth(true);
     startSystemHealthAutoRefresh();
+  }
+  if (name === "reportsOverview") {
+    ensureReportsData().then(renderReportsOverview);
   }
   if (name === "systemSettings") {
     loadSystemSettings();
@@ -1509,6 +1515,197 @@ function renderSystemHealth() {
 
   renderSmartHealthInsights(healthEvaluation);
   renderPerformanceMonitor();
+}
+
+function reportCurrency(value) {
+  return new Intl.NumberFormat("ar-SA", {
+    style: "currency",
+    currency: "SAR",
+    maximumFractionDigits: 0
+  }).format(Number(value || 0));
+}
+
+function reportFilterValues() {
+  return {
+    from: document.getElementById("reportsDateFrom")?.value || "",
+    to: document.getElementById("reportsDateTo")?.value || "",
+    representative: document.getElementById("reportsRepresentativeFilter")?.value || ""
+  };
+}
+
+function populateReportsRepresentativeFilter() {
+  const select = document.getElementById("reportsRepresentativeFilter");
+  if (!select) return;
+
+  const selected = select.value;
+  const names = [...new Set([
+    ...customers.map(item => item.representative),
+    ...followups.map(item => item.representative),
+    ...quotations.map(item => item.representative)
+  ].filter(Boolean))].sort((a, b) => a.localeCompare(b, "ar"));
+
+  replaceSelectOptions(
+    select,
+    names.map(name => ({ label: name, value: name })),
+    "كل المندوبين",
+    selected
+  );
+}
+
+async function ensureReportsData() {
+  showDataStatus("reportsStatus", "جاري تحديث بيانات التقارير...", "info");
+  try {
+    await Promise.all([
+      loadReferenceDataFromSupabase(),
+      loadCustomersFromSupabase(),
+      loadFollowupsFromSupabase(),
+      loadQuotationsFromSupabase()
+    ]);
+    populateReportsRepresentativeFilter();
+    showDataStatus("reportsStatus", "");
+  } catch (error) {
+    showDataStatus(
+      "reportsStatus",
+      error instanceof Error ? error.message : "تعذر تحميل بيانات التقارير.",
+      "error"
+    );
+  }
+}
+
+function reportStatusColorClass(status) {
+  if (status === "مقبول") return "accepted";
+  if (status === "مرفوض" || status === "ملغي") return "rejected";
+  return "pending";
+}
+
+function renderReportsOverview() {
+  if (!window.ReportsEngine) return;
+
+  const report = window.ReportsEngine.build(
+    { customers, followups, quotations },
+    reportFilterValues()
+  );
+  currentReportsSnapshot = report;
+
+  const setText = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  };
+
+  setText("reportCustomersTotal", report.totals.customers);
+  setText("reportCustomersNew", `الجدد: ${report.totals.newCustomers}`);
+  setText("reportFollowupsTotal", report.totals.followups);
+  setText("reportFollowupsOverdue", `المتأخرة: ${report.totals.overdueFollowups}`);
+  setText("reportQuotationsTotal", report.totals.quotations);
+  setText("reportQuotationsAccepted", `المقبولة: ${report.totals.acceptedQuotations}`);
+  setText("reportQuotationsValue", reportCurrency(report.totals.quotationValue));
+  setText("reportAcceptedValue", `المقبولة: ${reportCurrency(report.totals.acceptedValue)}`);
+  setText("reportConversionRate", `${report.totals.conversionRate.toFixed(1)}%`);
+  setText("reportCustomersWithoutFollowup", report.totals.customersWithoutFollowup);
+
+  const maxFunnel = Math.max(1, ...report.funnel.map(item => item.value));
+  document.getElementById("reportsFunnel").innerHTML = report.funnel.map((item, index) => `
+    <div class="funnel-step">
+      <div class="funnel-label">
+        <span>${index + 1}</span>
+        <strong>${escapeHtml(item.label)}</strong>
+        <b>${item.value}</b>
+      </div>
+      <div class="funnel-track">
+        <span style="width:${Math.max(4, item.value / maxFunnel * 100)}%"></span>
+      </div>
+    </div>
+  `).join("");
+
+  const statusEntries = Object.entries(report.quotationStatuses)
+    .sort((a, b) => b[1] - a[1]);
+  const maxStatus = Math.max(1, ...statusEntries.map(([, value]) => value));
+
+  document.getElementById("quotationStatusBreakdown").innerHTML = statusEntries.length
+    ? statusEntries.map(([status, value]) => `
+      <div class="report-status-row">
+        <div>
+          <span class="report-status-dot ${reportStatusColorClass(status)}"></span>
+          <strong>${escapeHtml(status)}</strong>
+        </div>
+        <div class="report-status-track">
+          <span class="${reportStatusColorClass(status)}" style="width:${value / maxStatus * 100}%"></span>
+        </div>
+        <b>${value}</b>
+      </div>
+    `).join("")
+    : '<div class="empty-state">لا توجد عروض داخل النطاق المحدد.</div>';
+
+  const maxMonthValue = Math.max(
+    1,
+    ...report.months.flatMap(item => [item.customers, item.followups, item.quotations])
+  );
+
+  document.getElementById("reportsMonthlyTrend").innerHTML = report.months.map(item => `
+    <div class="monthly-column">
+      <div class="monthly-bars">
+        <span class="customers" style="height:${item.customers / maxMonthValue * 100}%" title="العملاء: ${item.customers}"></span>
+        <span class="followups" style="height:${item.followups / maxMonthValue * 100}%" title="المتابعات: ${item.followups}"></span>
+        <span class="quotations" style="height:${item.quotations / maxMonthValue * 100}%" title="العروض: ${item.quotations}"></span>
+      </div>
+      <small>${escapeHtml(item.label)}</small>
+    </div>
+  `).join("");
+
+  const followupItems = [
+    ["متأخرة", report.followupStates.overdue || 0, "critical"],
+    ["اليوم", report.followupStates.today || 0, "warning"],
+    ["قادمة", report.followupStates.upcoming || 0, "info"],
+    ["مكتملة", report.followupStates.completed || 0, "healthy"],
+    ["بدون موعد", report.followupStates.no_date || 0, "muted"]
+  ];
+
+  document.getElementById("followupReportSummary").innerHTML = followupItems.map(([label, value, type]) => `
+    <article class="${type}">
+      <span>${label}</span>
+      <strong>${value}</strong>
+    </article>
+  `).join("");
+
+  const body = document.getElementById("representativePerformanceBody");
+  body.innerHTML = report.representativePerformance.length
+    ? report.representativePerformance.map(item => `
+      <tr>
+        <td><strong>${escapeHtml(item.name)}</strong></td>
+        <td>${item.customers}</td>
+        <td>${item.followups}</td>
+        <td>${item.quotations}</td>
+        <td>${item.accepted}</td>
+        <td>${reportCurrency(item.value)}</td>
+        <td><span class="badge">${item.conversion.toFixed(1)}%</span></td>
+      </tr>
+    `).join("")
+    : '<tr><td colspan="7" class="empty-state">لا توجد بيانات أداء داخل النطاق المحدد.</td></tr>';
+
+  showDataStatus(
+    "reportsStatus",
+    `تم تحديث التقرير في ${new Date(report.generatedAt).toLocaleTimeString("ar-SA")}.`,
+    "success"
+  );
+}
+
+function resetReportsFilters() {
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById("reportsDateFrom").value = first.toISOString().slice(0, 10);
+  document.getElementById("reportsDateTo").value = now.toISOString().slice(0, 10);
+  document.getElementById("reportsRepresentativeFilter").value = "";
+  renderReportsOverview();
+}
+
+function exportReportsCsv() {
+  if (!currentReportsSnapshot) renderReportsOverview();
+  const csv = window.ReportsEngine.toCsv(currentReportsSnapshot);
+  downloadTextFile(
+    `kyum-reports-${new Date().toISOString().slice(0, 10)}.csv`,
+    csv,
+    "text/csv;charset=utf-8"
+  );
 }
 
 function diagnosticsStatusLabel(status) {
@@ -3024,6 +3221,22 @@ document.getElementById("saveSystemSettingsBtn")?.addEventListener("click", save
 document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSystemSettings);
 
 document.getElementById("refreshSystemHealthBtn")?.addEventListener("click", () => loadSystemHealth(true));
+document.getElementById("refreshReportsBtn")?.addEventListener("click", async () => {
+  await Promise.all([
+    loadCustomersFromSupabase(true),
+    loadFollowupsFromSupabase(true),
+    loadQuotationsFromSupabase(true)
+  ]);
+  populateReportsRepresentativeFilter();
+  renderReportsOverview();
+});
+document.getElementById("exportReportsCsvBtn")?.addEventListener("click", exportReportsCsv);
+document.getElementById("printReportsBtn")?.addEventListener("click", () => window.print());
+document.getElementById("resetReportsFiltersBtn")?.addEventListener("click", resetReportsFilters);
+["reportsDateFrom","reportsDateTo","reportsRepresentativeFilter"].forEach(id => {
+  document.getElementById(id)?.addEventListener("change", renderReportsOverview);
+});
+
 document.getElementById("runDiagnosticsBtn")?.addEventListener("click", runEnterpriseDiagnostics);
 document.getElementById("downloadDiagnosticsJsonBtn")?.addEventListener("click", () => {
   if (!latestDiagnosticsReport) return;
@@ -3052,3 +3265,12 @@ document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click",
 });
 
 setOptions();
+(() => {
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth(), 1);
+  const from = document.getElementById("reportsDateFrom");
+  const to = document.getElementById("reportsDateTo");
+  if (from) from.value = first.toISOString().slice(0, 10);
+  if (to) to.value = now.toISOString().slice(0, 10);
+})();
+

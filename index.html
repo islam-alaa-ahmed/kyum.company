@@ -75,6 +75,18 @@
           </div>
         </section>
 
+        <section class="nav-group reports-nav-group" data-nav-group="reports-analytics">
+          <button class="nav-group-toggle" type="button" aria-expanded="true">
+            <span>التقارير والتحليلات</span>
+            <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="nav-group-content">
+            <button class="nav-item" data-view="reportsOverview">مركز التقارير</button>
+          </div>
+        </section>
+
         <section class="nav-group privacy-nav-group" data-nav-group="settings-privacy">
           <button class="nav-group-toggle" type="button" aria-expanded="true">
             <span>الإعدادات والخصوصية</span>
@@ -409,6 +421,142 @@
             <div id="settingsReasons" class="reference-list"></div>
           </article>
         </div>
+      </section>
+
+      <section id="reportsOverviewView" class="view-section hidden">
+        <div class="actions-row reports-header-row">
+          <div>
+            <h3 class="section-title">مركز التقارير والتحليلات</h3>
+            <p class="section-note">ملخص تنفيذي حي لبيانات العملاء والمتابعات وعروض الأسعار وأداء المندوبين.</p>
+          </div>
+          <div class="reports-actions">
+            <button id="refreshReportsBtn" class="secondary-btn" type="button">تحديث التقرير</button>
+            <button id="exportReportsCsvBtn" class="secondary-btn" type="button">تصدير CSV</button>
+            <button id="printReportsBtn" class="primary-btn" type="button">طباعة التقرير</button>
+          </div>
+        </div>
+
+        <div class="reports-filter-bar">
+          <label>
+            من تاريخ
+            <input id="reportsDateFrom" type="date">
+          </label>
+          <label>
+            إلى تاريخ
+            <input id="reportsDateTo" type="date">
+          </label>
+          <label>
+            المندوب
+            <select id="reportsRepresentativeFilter">
+              <option value="">كل المندوبين</option>
+            </select>
+          </label>
+          <button id="resetReportsFiltersBtn" class="secondary-btn" type="button">إعادة التعيين</button>
+        </div>
+
+        <div id="reportsStatus" class="data-status hidden"></div>
+
+        <div class="reports-kpi-grid">
+          <article>
+            <span>إجمالي العملاء</span>
+            <strong id="reportCustomersTotal">0</strong>
+            <small id="reportCustomersNew">الجدد: 0</small>
+          </article>
+          <article>
+            <span>إجمالي المتابعات</span>
+            <strong id="reportFollowupsTotal">0</strong>
+            <small id="reportFollowupsOverdue">المتأخرة: 0</small>
+          </article>
+          <article>
+            <span>إجمالي العروض</span>
+            <strong id="reportQuotationsTotal">0</strong>
+            <small id="reportQuotationsAccepted">المقبولة: 0</small>
+          </article>
+          <article>
+            <span>قيمة العروض</span>
+            <strong id="reportQuotationsValue">0 SAR</strong>
+            <small id="reportAcceptedValue">المقبولة: 0 SAR</small>
+          </article>
+          <article>
+            <span>نسبة التحويل</span>
+            <strong id="reportConversionRate">0%</strong>
+            <small>العروض المقبولة ÷ إجمالي العروض</small>
+          </article>
+          <article>
+            <span>عملاء بلا متابعة</span>
+            <strong id="reportCustomersWithoutFollowup">0</strong>
+            <small>يحتاجون إجراءً</small>
+          </article>
+        </div>
+
+        <div class="reports-dashboard-grid">
+          <article class="panel report-funnel-panel">
+            <div class="panel-header">
+              <div>
+                <h3>مسار التحويل</h3>
+                <p>من العملاء إلى المتابعة ثم عرض السعر والقبول.</p>
+              </div>
+            </div>
+            <div id="reportsFunnel" class="reports-funnel"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>حالات عروض الأسعار</h3>
+                <p>توزيع العروض حسب الحالة الحالية.</p>
+              </div>
+            </div>
+            <div id="quotationStatusBreakdown" class="report-status-breakdown"></div>
+          </article>
+        </div>
+
+        <div class="reports-dashboard-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>اتجاه النشاط الشهري</h3>
+                <p>العملاء والمتابعات والعروض خلال آخر 6 أشهر.</p>
+              </div>
+            </div>
+            <div id="reportsMonthlyTrend" class="reports-monthly-trend"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>أهم مؤشرات المتابعة</h3>
+                <p>المتأخر والقادم والمكتمل داخل النطاق المحدد.</p>
+              </div>
+            </div>
+            <div id="followupReportSummary" class="followup-report-summary"></div>
+          </article>
+        </div>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>أداء مندوبي المبيعات</h3>
+              <p>العملاء والمتابعات والعروض والقيمة ونسبة التحويل لكل مندوب.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المندوب</th>
+                  <th>العملاء</th>
+                  <th>المتابعات</th>
+                  <th>العروض</th>
+                  <th>المقبولة</th>
+                  <th>قيمة العروض</th>
+                  <th>نسبة التحويل</th>
+                </tr>
+              </thead>
+              <tbody id="representativePerformanceBody"></tbody>
+            </table>
+          </div>
+        </article>
       </section>
 
       <section id="usersView" class="view-section hidden">
