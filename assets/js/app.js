@@ -2451,36 +2451,181 @@ function canManageReferenceData() {
   return ["super_admin", "sales_manager"].includes(currentRole());
 }
 
-function renderRepresentatives() {
-  const container = document.getElementById("representativesGrid");
-  if (!container) return;
+function filteredRepresentativeRecords() {
+  const search = (document.getElementById("representativesSearch")?.value || "")
+    .trim()
+    .toLowerCase();
+  const status = document.getElementById("representativesStatusFilter")?.value || "";
 
-  if (!representativeRecords.length) {
-    container.innerHTML = `<div class="empty-state">لا يوجد مندوبون مسجلون في Supabase.</div>`;
+  return representativeRecords.filter(rep => {
+    const matchesSearch = !search || [
+      rep.full_name,
+      rep.representative_code,
+      rep.phone,
+      rep.email
+    ].some(value => String(value || "").toLowerCase().includes(search));
+
+    const matchesStatus = !status
+      || (status === "active" && rep.is_active)
+      || (status === "inactive" && !rep.is_active);
+
+    return matchesSearch && matchesStatus;
+  });
+}
+
+function representativeCustomerCount(rep) {
+  return customers.filter(customer =>
+    customer.representativeId === rep.id
+    || customer.representative === rep.full_name
+  ).length;
+}
+
+function renderRepresentatives() {
+  const body = document.getElementById("representativesTableBody");
+  if (!body) return;
+
+  const rows = filteredRepresentativeRecords();
+  const canManage = canManageReferenceData();
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-state">
+          لا توجد نتائج مطابقة للمندوبين.
+        </td>
+      </tr>`;
     return;
   }
 
-  const canManage = canManageReferenceData();
-  container.innerHTML = representativeRecords.map(rep => {
-    const count = customers.filter(c => c.representative === rep.full_name).length;
+  body.innerHTML = rows.map(rep => {
+    const customerCount = representativeCustomerCount(rep);
+
     return `
-      <article class="rep-card ${rep.is_active ? "" : "inactive-record"}">
-        <div class="record-card-header">
-          <div>
-            <strong>${escapeHtml(rep.full_name)}</strong>
-            <span>${escapeHtml(rep.representative_code)}</span>
-          </div>
-          <span class="record-status ${rep.is_active ? "active" : "inactive"}">
-            ${rep.is_active ? "نشط" : "غير نشط"}
+      <tr class="${rep.is_active ? "" : "inactive-record"}">
+        <td><strong>${escapeHtml(rep.representative_code || "—")}</strong></td>
+        <td><strong>${escapeHtml(rep.full_name || "—")}</strong></td>
+        <td>${escapeHtml(rep.phone || "—")}</td>
+        <td>${escapeHtml(rep.email || "—")}</td>
+        <td>
+          <span class="representative-customer-count">
+            ${customerCount}
           </span>
-        </div>
-        <p>${escapeHtml(rep.phone || "لا يوجد جوال")}<br>${escapeHtml(rep.email || "لا يوجد بريد")}</p>
-        <div class="record-card-footer">
-          <span>عدد العملاء المحليين: ${count}</span>
-          ${canManage ? `<button class="edit-btn" data-edit-representative="${rep.id}">تعديل</button>` : ""}
-        </div>
-      </article>`;
+        </td>
+        <td>
+          <span class="record-status ${rep.is_active ? "active" : "inactive"}">
+            ${rep.is_active ? "نشط" : "موقوف"}
+          </span>
+        </td>
+        <td>
+          ${canManage ? `
+            <div class="table-actions representative-actions">
+              <button
+                class="edit-btn"
+                type="button"
+                data-edit-representative="${rep.id}">
+                تعديل
+              </button>
+              <button
+                class="${rep.is_active ? "warning-btn" : "activate-btn"}"
+                type="button"
+                data-toggle-representative="${rep.id}">
+                ${rep.is_active ? "إيقاف" : "تفعيل"}
+              </button>
+              <button
+                class="delete-btn"
+                type="button"
+                data-delete-representative="${rep.id}"
+                ${customerCount ? 'title="لا يمكن الحذف قبل نقل العملاء المرتبطين"' : ""}>
+                حذف
+              </button>
+            </div>
+          ` : "—"}
+        </td>
+      </tr>`;
   }).join("");
+}
+
+async function toggleRepresentativeStatus(id) {
+  if (!canManageReferenceData()) return;
+
+  const record = representativeRecords.find(item => item.id === id);
+  if (!record) return;
+
+  const nextStatus = !record.is_active;
+  const actionLabel = nextStatus ? "إعادة تفعيل" : "إيقاف";
+
+  if (!confirm(`هل تريد ${actionLabel} المندوب «${record.full_name}»؟`)) return;
+
+  showDataStatus("representativesStatus", `جاري ${actionLabel} المندوب...`, "info");
+
+  try {
+    const { error } = await window.customerSupabase
+      .from("sales_representatives")
+      .update({
+        is_active: nextStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id);
+
+    if (error) throw error;
+
+    await loadReferenceDataFromSupabase(true);
+    showDataStatus(
+      "representativesStatus",
+      nextStatus ? "تم تفعيل المندوب بنجاح." : "تم إيقاف المندوب بنجاح.",
+      "success"
+    );
+  } catch (error) {
+    showDataStatus(
+      "representativesStatus",
+      error instanceof Error ? error.message : "تعذر تغيير حالة المندوب.",
+      "error"
+    );
+  }
+}
+
+async function deleteRepresentativeRecord(id) {
+  if (!canManageReferenceData()) return;
+
+  const record = representativeRecords.find(item => item.id === id);
+  if (!record) return;
+
+  const customerCount = representativeCustomerCount(record);
+  if (customerCount > 0) {
+    showDataStatus(
+      "representativesStatus",
+      `لا يمكن حذف «${record.full_name}» لأنه مرتبط بـ ${customerCount} عميل. انقل العملاء إلى مندوب آخر أو استخدم الإيقاف.`,
+      "error"
+    );
+    return;
+  }
+
+  if (!confirm(
+    `سيتم حذف المندوب «${record.full_name}» نهائيًا. هل تريد المتابعة؟`
+  )) return;
+
+  showDataStatus("representativesStatus", "جاري حذف المندوب...", "info");
+
+  try {
+    const { error } = await window.customerSupabase
+      .from("sales_representatives")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    await loadReferenceDataFromSupabase(true);
+    showDataStatus("representativesStatus", "تم حذف المندوب بنجاح.", "success");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    showDataStatus(
+      "representativesStatus",
+      message.includes("foreign key")
+        ? "لا يمكن حذف المندوب لوجود بيانات مرتبطة به. استخدم الإيقاف بدلًا من الحذف."
+        : message || "تعذر حذف المندوب.",
+      "error"
+    );
+  }
 }
 
 function renderReferenceData() {
@@ -2590,12 +2735,9 @@ function syncCustomerContactPersonField() {
   const field = document.getElementById("customerContactPersonField");
   const input = document.getElementById("customerContactPerson");
   const isCompany = type === "شركة";
-
   if (!field || !input) return;
-
   field.classList.toggle("hidden", !isCompany);
   input.required = isCompany;
-
   if (!isCompany) {
     input.value = "";
     input.setCustomValidity("");
@@ -3872,12 +4014,35 @@ document.querySelectorAll("[data-add-reference]").forEach(button => {
   button.addEventListener("click", () => openReferenceDialog(button.dataset.addReference));
 });
 
-document.getElementById("representativesGrid")?.addEventListener("click", event => {
-  const id = event.target.dataset.editRepresentative;
-  if (!id) return;
-  const record = representativeRecords.find(item => item.id === id);
-  if (record) openRepresentativeDialog(record);
+document.getElementById("representativesTableBody")?.addEventListener("click", event => {
+  const editId = event.target.dataset.editRepresentative;
+  const toggleId = event.target.dataset.toggleRepresentative;
+  const deleteId = event.target.dataset.deleteRepresentative;
+
+  if (editId) {
+    const record = representativeRecords.find(item => item.id === editId);
+    if (record) openRepresentativeDialog(record);
+    return;
+  }
+
+  if (toggleId) {
+    toggleRepresentativeStatus(toggleId);
+    return;
+  }
+
+  if (deleteId) {
+    deleteRepresentativeRecord(deleteId);
+  }
 });
+
+document.getElementById("representativesSearch")?.addEventListener(
+  "input",
+  renderRepresentatives
+);
+document.getElementById("representativesStatusFilter")?.addEventListener(
+  "change",
+  renderRepresentatives
+);
 
 document.getElementById("settingsView")?.addEventListener("click", event => {
   const id = event.target.dataset.editReference;

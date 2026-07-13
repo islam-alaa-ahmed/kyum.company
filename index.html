@@ -395,7 +395,38 @@
           <button id="addRepresentativeBtn" class="primary-btn reference-manage-action">إضافة مندوب</button>
         </div>
         <div id="representativesStatus" class="data-status hidden"></div>
-        <div id="representativesGrid" class="representatives-grid"></div>
+
+        <div class="representatives-list-toolbar">
+          <label class="representatives-search">
+            بحث
+            <input id="representativesSearch" type="search" placeholder="الاسم، الكود، الجوال أو البريد">
+          </label>
+          <label>
+            الحالة
+            <select id="representativesStatusFilter">
+              <option value="">كل الحالات</option>
+              <option value="active">نشط</option>
+              <option value="inactive">موقوف</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="table-wrap representatives-table-wrap">
+          <table class="representatives-table">
+            <thead>
+              <tr>
+                <th>كود المندوب</th>
+                <th>اسم المندوب</th>
+                <th>الجوال</th>
+                <th>البريد الإلكتروني</th>
+                <th>العملاء المرتبطون</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="representativesTableBody"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="settingsView" class="view-section hidden">
@@ -1685,7 +1716,7 @@
   <script src="assets/js/permissions.js"></script>
   <script src="assets/js/auth-session.js"></script>
   <script src="assets/js/reference-data-service.js"></script>
-  <script src="assets/js/customers-service.js?v=15.4.1"></script>
+  <script src="assets/js/customers-service.js"></script>
   <script src="assets/js/followups-service.js"></script>
   <script src="assets/js/quotations-service.js"></script>
   <script src="assets/js/users-service.js"></script>
@@ -1699,7 +1730,7 @@
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
-  <script src="assets/js/customer360-export.js?v=15.4.1"></script>
-  <script src="assets/js/app.js?v=15.4.1"></script>
+  <script src="assets/js/customer360-export.js?v=15.3.4"></script>
+  <script src="assets/js/app.js?v=15.4.2"></script>
 </body>
 </html>

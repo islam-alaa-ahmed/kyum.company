@@ -1804,10 +1804,79 @@ body.customer360-exporting .customer360-shell *{
 
 
 /* KYUM Phase 15.4.1 — Company contact person */
-#customerContactPersonField.hidden{
-  display:none!important;
+#customerContactPersonField.hidden{display:none!important}
+#customerContactPersonField small{color:var(--muted);line-height:1.6}
+
+/* KYUM Phase 15.4.2 — Representatives list and actions */
+.representatives-list-toolbar{
+  display:grid;
+  grid-template-columns:minmax(260px,1fr) minmax(180px,260px);
+  gap:12px;
+  margin-bottom:14px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:var(--surface)
 }
-#customerContactPersonField small{
+.representatives-list-toolbar label{
+  display:grid;
+  gap:6px;
   color:var(--muted);
-  line-height:1.6;
+  font-size:11px
+}
+.representatives-table-wrap{
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface);
+  overflow:auto
+}
+.representatives-table{min-width:1000px}
+.representatives-table th,
+.representatives-table td{vertical-align:middle}
+.representatives-table tr.inactive-record{
+  opacity:.72;
+  background:var(--surface-2)
+}
+.representative-customer-count{
+  display:inline-flex;
+  min-width:34px;
+  justify-content:center;
+  border-radius:999px;
+  padding:5px 9px;
+  background:#e0f2fe;
+  color:#0369a1;
+  font-weight:900
+}
+.representative-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap
+}
+.representative-actions button{
+  min-width:62px;
+  border-radius:9px;
+  padding:6px 9px;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+.warning-btn{
+  border:1px solid #f59e0b;
+  background:#fffbeb;
+  color:#92400e
+}
+.activate-btn{
+  border:1px solid #22c55e;
+  background:#f0fdf4;
+  color:#166534
+}
+.representative-actions .delete-btn{
+  border:1px solid #fecaca;
+  background:#fff1f2;
+  color:#b91c1c
+}
+.representative-actions button:hover{filter:brightness(.97)}
+@media(max-width:700px){
+  .representatives-list-toolbar{grid-template-columns:1fr}
 }

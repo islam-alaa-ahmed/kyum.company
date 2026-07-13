@@ -1,22 +1,22 @@
-# KYUM Phase 15.4.1 — Company Contact Person
+# KYUM Phase 15.4.2 — Representatives List & Actions
 
-## Modified/New Files
+## Modified Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/customers-service.js`
-- `assets/js/customer360-export.js`
-- `supabase/migrations/phase15_4_1_company_contact_person.sql`
 
 ## Implemented
 
-- Added `اسم المسؤول` to the customer form.
-- Field appears and becomes required only when customer type is `شركة`.
-- Field is cleared and hidden for `فردي`.
-- Added Supabase column `contact_person_name`.
-- Added read/write support in CustomersService.
-- Added responsible-person search.
-- Added a responsible-person column to the customer table.
-- Added the field to Customer 360.
-- Added the field to Customer 360 Excel/PDF exports.
+- Replaced representative cards with a users-style table.
+- Added search by name, code, phone and email.
+- Added active/inactive status filter.
+- Added assigned-customer count.
+- Added actions column:
+  - Edit
+  - Suspend / Reactivate
+  - Delete
+- Prevented deletion when customers are assigned.
+- Added safe Supabase status update and delete handling.
+- Preserved Phase 15.4.1 company contact-person UI changes.
+- No SQL migration or Edge Function.
