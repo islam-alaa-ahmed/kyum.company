@@ -1,4 +1,4 @@
-# KYUM Phase 15.2.2 — Customer & Quotation Analytics
+# KYUM Phase 15.2.3 — Representative Dashboard + Trends
 
 ## Modified/New Files
 
@@ -9,14 +9,14 @@
 
 ## Implemented
 
-- Customer analysis by type, interest, representative and activity.
-- Active, inactive and never-contacted customer segmentation.
-- Inactive customers list for 30+ days.
-- Customers requiring follow-up.
-- Quotation average, highest and lowest values.
-- Open and rejected quotation values.
-- Quotation rejection rate.
-- Top loss and no-sale reasons.
+- Advanced representative leaderboard.
+- Representative ranking by accepted quotation value, conversion and activity.
+- Current-vs-previous-period representative comparisons.
+- Representative activity score.
+- 12-month trends for customers, follow-ups, quotations and quotation value.
+- Top 10 representatives by accepted value.
+- Top 10 customer interests.
 - Top 10 customers by quotation value.
-- All analytics respect the report date and representative filters.
+- Top 10 loss reasons.
+- All analytics respect report date and representative filters.
 - No SQL migration or Edge Function.

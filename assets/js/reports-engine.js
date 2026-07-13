@@ -241,18 +241,65 @@
       const repFollowups = current.followups.filter(item => item.representative === name);
       const repQuotations = current.quotations.filter(item => item.representative === name);
       const repAccepted = repQuotations.filter(item => item.status === "مقبول");
+      const previousCustomers = previous.customers.filter(item => item.representative === name);
+      const previousFollowups = previous.followups.filter(item => item.representative === name);
+      const previousQuotations = previous.quotations.filter(item => item.representative === name);
+      const previousAccepted = previousQuotations.filter(item => item.status === "مقبول");
+
+      const totalValue = repQuotations.reduce((sum, item) => sum + currency(item.amount), 0);
+      const acceptedValue = repAccepted.reduce((sum, item) => sum + currency(item.amount), 0);
+      const previousValue = previousQuotations.reduce((sum, item) => sum + currency(item.amount), 0);
+      const previousAcceptedValue = previousAccepted.reduce((sum, item) => sum + currency(item.amount), 0);
+
+      const conversion = repQuotations.length
+        ? (repAccepted.length / repQuotations.length) * 100
+        : 0;
+      const previousConversion = previousQuotations.length
+        ? (previousAccepted.length / previousQuotations.length) * 100
+        : 0;
+
+      const activityScore = Math.min(
+        100,
+        repCustomers.length * 5
+        + repFollowups.length * 3
+        + repQuotations.length * 8
+        + repAccepted.length * 15
+      );
+
       return {
         name,
         customers: repCustomers.length,
         followups: repFollowups.length,
         quotations: repQuotations.length,
         accepted: repAccepted.length,
-        value: repQuotations.reduce((sum, item) => sum + currency(item.amount), 0),
-        conversion: repQuotations.length
-          ? (repAccepted.length / repQuotations.length) * 100
-          : 0
+        value: totalValue,
+        acceptedValue,
+        conversion,
+        activityScore,
+        previous: {
+          customers: previousCustomers.length,
+          followups: previousFollowups.length,
+          quotations: previousQuotations.length,
+          accepted: previousAccepted.length,
+          value: previousValue,
+          acceptedValue: previousAcceptedValue,
+          conversion: previousConversion
+        },
+        deltas: {
+          customers: percentChange(repCustomers.length, previousCustomers.length),
+          followups: percentChange(repFollowups.length, previousFollowups.length),
+          quotations: percentChange(repQuotations.length, previousQuotations.length),
+          accepted: percentChange(repAccepted.length, previousAccepted.length),
+          value: percentChange(totalValue, previousValue),
+          acceptedValue: percentChange(acceptedValue, previousAcceptedValue),
+          conversion: percentChange(conversion, previousConversion)
+        }
       };
-    }).sort((a, b) => b.value - a.value || b.accepted - a.accepted);
+    }).sort((a, b) =>
+      b.acceptedValue - a.acceptedValue
+      || b.conversion - a.conversion
+      || b.activityScore - a.activityScore
+    ).map((item, index) => ({ ...item, rank: index + 1 }));
 
 
     const customerTypes = current.customers.reduce((acc, customer) => {
@@ -401,6 +448,38 @@
       .sort((a, b) => b.totalValue - a.totalValue)
       .slice(0, 10);
 
+    const yearlyTrend = lastMonths(12).map(month => {
+      const monthQuotations = current.quotations.filter(item =>
+        monthKey(item.quotationDate || item.createdAt) === month.key
+      );
+      return {
+        ...month,
+        customers: current.customers.filter(item =>
+          monthKey(item.createdAt || item.contactDate) === month.key
+        ).length,
+        followups: current.followups.filter(item =>
+          monthKey(item.contactDate || item.createdAt) === month.key
+        ).length,
+        quotations: monthQuotations.length,
+        value: monthQuotations.reduce((sum, item) => sum + currency(item.amount), 0)
+      };
+    });
+
+    const topRepresentatives = representativePerformance
+      .slice()
+      .sort((a, b) => b.acceptedValue - a.acceptedValue)
+      .slice(0, 10);
+
+    const topInterests = Object.entries(customerInterests)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({ name, count }));
+
+    const topLossReasons = Object.entries(lossReasons)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({ name, count }));
+
     const months = lastMonths(6).map(month => ({
       ...month,
       customers: current.customers.filter(item =>
@@ -477,6 +556,10 @@
       quotationAnalytics,
       lossReasons,
       topCustomersByValue,
+      topRepresentatives,
+      topInterests,
+      topLossReasons,
+      yearlyTrend,
       inactiveCustomers: inactiveCustomers
         .sort((a, b) => b.daysInactive - a.daysInactive)
         .slice(0, 10),

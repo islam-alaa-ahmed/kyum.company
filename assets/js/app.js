@@ -1835,6 +1835,109 @@ function renderReportsOverview() {
     `).join("")
     : '<div class="empty-state">كل العملاء لديهم متابعة سليمة.</div>';
 
+  const leaderboard = document.getElementById("representativeLeaderboard");
+  leaderboard.innerHTML = report.representativePerformance.length
+    ? report.representativePerformance.slice(0, 8).map(item => `
+      <article class="representative-rank-card rank-${item.rank}">
+        <div class="rank-number">${item.rank}</div>
+        <div class="rank-main">
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${item.accepted} عروض مقبولة — ${reportCurrency(item.acceptedValue)}</small>
+          <div class="rank-progress"><span style="width:${Math.min(100, item.activityScore)}%"></span></div>
+        </div>
+        <div class="rank-stats">
+          <b>${item.conversion.toFixed(1)}%</b>
+          <small>تحويل</small>
+        </div>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد بيانات مندوبي مبيعات.</div>';
+
+  const comparison = document.getElementById("representativeComparison");
+  comparison.innerHTML = report.representativePerformance.length
+    ? report.representativePerformance.slice(0, 8).map(item => `
+      <article class="representative-comparison-row">
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>الفترة الحالية مقابل السابقة</small>
+        </div>
+        <div class="comparison-metric">
+          <span>القيمة</span>
+          <b class="${item.deltas.value >= 0 ? "positive" : "negative"}">${item.deltas.value >= 0 ? "+" : ""}${item.deltas.value.toFixed(1)}%</b>
+        </div>
+        <div class="comparison-metric">
+          <span>التحويل</span>
+          <b class="${item.deltas.conversion >= 0 ? "positive" : "negative"}">${item.deltas.conversion >= 0 ? "+" : ""}${item.deltas.conversion.toFixed(1)}%</b>
+        </div>
+      </article>
+    `).join("")
+    : '<div class="empty-state">لا توجد بيانات مقارنة.</div>';
+
+  const yearly = report.yearlyTrend || [];
+  const maxCount = Math.max(
+    1,
+    ...yearly.flatMap(item => [item.customers, item.followups, item.quotations])
+  );
+  const maxValue = Math.max(1, ...yearly.map(item => item.value));
+
+  document.getElementById("reportsYearlyTrend").innerHTML = yearly.map(item => `
+    <div class="yearly-trend-column">
+      <div class="yearly-bars">
+        <span class="customers" style="height:${item.customers / maxCount * 100}%" title="العملاء: ${item.customers}"></span>
+        <span class="followups" style="height:${item.followups / maxCount * 100}%" title="المتابعات: ${item.followups}"></span>
+        <span class="quotations" style="height:${item.quotations / maxCount * 100}%" title="العروض: ${item.quotations}"></span>
+        <span class="value" style="height:${item.value / maxValue * 100}%" title="القيمة: ${reportCurrency(item.value)}"></span>
+      </div>
+      <small>${escapeHtml(item.label)}</small>
+    </div>
+  `).join("");
+
+  const renderTopList = (id, items, valueRenderer) => {
+    const container = document.getElementById(id);
+    container.innerHTML = items.length
+      ? items.map((item, index) => `
+        <article class="top10-item">
+          <span>${index + 1}</span>
+          <div>
+            <strong>${escapeHtml(item.name)}</strong>
+            ${item.subtitle ? `<small>${escapeHtml(item.subtitle)}</small>` : ""}
+          </div>
+          <b>${valueRenderer(item)}</b>
+        </article>
+      `).join("")
+      : '<div class="empty-state">لا توجد بيانات.</div>';
+  };
+
+  renderTopList(
+    "topRepresentativesList",
+    (report.topRepresentatives || []).map(item => ({
+      ...item,
+      subtitle: `${item.accepted} مقبولة — ${item.conversion.toFixed(1)}% تحويل`
+    })),
+    item => reportCurrency(item.acceptedValue)
+  );
+
+  renderTopList(
+    "topInterestsList",
+    report.topInterests || [],
+    item => item.count
+  );
+
+  renderTopList(
+    "topCustomersExecutiveList",
+    (report.topCustomersByValue || []).map(item => ({
+      ...item,
+      subtitle: `${item.quotations} عروض — ${item.accepted} مقبولة`
+    })),
+    item => reportCurrency(item.totalValue)
+  );
+
+  renderTopList(
+    "topLossReasonsList",
+    report.topLossReasons || [],
+    item => item.count
+  );
+
   const body = document.getElementById("representativePerformanceBody");
   body.innerHTML = report.representativePerformance.length
     ? report.representativePerformance.map(item => `

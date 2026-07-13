@@ -1051,3 +1051,96 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .analytics-bar-row{grid-template-columns:1fr 1fr 32px}
   .quotation-value-kpis{grid-template-columns:1fr}
 }
+
+
+.representative-dashboard-grid{grid-template-columns:1.15fr 1fr}
+.representative-leaderboard,.representative-comparison{display:grid;gap:9px}
+.representative-rank-card{
+  display:grid;
+  grid-template-columns:42px 1fr auto;
+  gap:11px;
+  align-items:center;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--surface-2)
+}
+.rank-number{
+  width:36px;height:36px;border-radius:11px;
+  display:grid;place-items:center;
+  background:#e2e8f0;color:#475569;font-weight:900
+}
+.rank-1 .rank-number{background:#fef3c7;color:#92400e}
+.rank-2 .rank-number{background:#e2e8f0;color:#334155}
+.rank-3 .rank-number{background:#ffedd5;color:#9a3412}
+.rank-main{display:grid;gap:4px;min-width:0}
+.rank-main strong,.rank-main small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-main small{color:var(--muted)}
+.rank-progress{height:7px;border-radius:999px;background:var(--surface);overflow:hidden}
+.rank-progress span{display:block;height:100%;background:linear-gradient(90deg,#0ea5e9,#22c55e)}
+.rank-stats{display:grid;text-align:center}
+.rank-stats b{font-size:16px}
+.rank-stats small{color:var(--muted)}
+.representative-comparison-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:12px;
+  align-items:center;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface-2)
+}
+.representative-comparison-row>div:first-child{display:grid;gap:3px;min-width:0}
+.representative-comparison-row small{color:var(--muted)}
+.comparison-metric{display:grid;gap:4px;text-align:center}
+.comparison-metric span{font-size:10px;color:var(--muted)}
+.comparison-metric b{font-size:12px;border-radius:999px;padding:4px 7px}
+.comparison-metric b.positive{background:#dcfce7;color:#166534}
+.comparison-metric b.negative{background:#fee2e2;color:#b91c1c}
+.trend-12m-panel{margin-bottom:18px}
+.trend-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.trend-legend span::before{
+  content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-left:5px
+}
+.trend-legend .customers::before{background:#0ea5e9}
+.trend-legend .followups::before{background:#8b5cf6}
+.trend-legend .quotations::before{background:#22c55e}
+.trend-legend .value::before{background:#f59e0b}
+.reports-yearly-trend{
+  display:flex;gap:8px;align-items:end;height:300px;padding-top:10px
+}
+.yearly-trend-column{
+  flex:1;min-width:0;height:100%;display:grid;grid-template-rows:1fr auto;gap:8px;text-align:center
+}
+.yearly-bars{display:flex;align-items:end;justify-content:center;gap:2px;height:100%}
+.yearly-bars span{width:20%;min-height:3px;border-radius:4px 4px 0 0}
+.yearly-bars .customers{background:#0ea5e9}
+.yearly-bars .followups{background:#8b5cf6}
+.yearly-bars .quotations{background:#22c55e}
+.yearly-bars .value{background:#f59e0b}
+.yearly-trend-column small{font-size:9px;color:var(--muted);white-space:nowrap}
+.top10-grid{grid-template-columns:1fr 1fr}
+.top10-list{display:grid;gap:8px}
+.top10-item{
+  display:grid;grid-template-columns:30px 1fr auto;gap:9px;align-items:center;
+  padding:10px;border:1px solid var(--border);border-radius:11px;background:var(--surface-2)
+}
+.top10-item>span{
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  background:#e0f2fe;color:#0369a1;font-weight:900;font-size:10px
+}
+.top10-item>div{display:grid;gap:3px;min-width:0}
+.top10-item strong,.top10-item small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top10-item small{color:var(--muted)}
+.top10-item b{font-size:12px;white-space:nowrap}
+
+@media(max-width:1000px){
+  .representative-dashboard-grid,.top10-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .representative-comparison-row{grid-template-columns:1fr 1fr}
+  .representative-comparison-row>div:first-child{grid-column:1/-1}
+  .reports-yearly-trend{overflow-x:auto}
+  .yearly-trend-column{min-width:48px}
+}
