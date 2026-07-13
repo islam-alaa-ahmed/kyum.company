@@ -431,8 +431,7 @@
           </div>
           <div class="reports-actions">
             <button id="refreshReportsBtn" class="secondary-btn" type="button">تحديث التقرير</button>
-            <button id="exportReportsCsvBtn" class="secondary-btn" type="button">تصدير CSV</button>
-            <button id="printReportsBtn" class="primary-btn" type="button">طباعة التقرير</button>
+            <button id="openExportCenterBtn" class="primary-btn" type="button">مركز التصدير</button>
           </div>
         </div>
 
@@ -751,6 +750,65 @@
           </div>
         </article>
       </section>
+
+  <dialog id="reportsExportDialog" class="reports-export-dialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3>مركز تصدير التقارير</h3>
+          <p>اختر نوع الملف ومستوى التفاصيل قبل إنشاء التقرير.</p>
+        </div>
+        <button id="closeReportsExportDialogBtn" class="icon-btn" type="button">×</button>
+      </div>
+
+      <div class="export-center-grid">
+        <article class="export-option-card">
+          <div class="export-option-icon">XLSX</div>
+          <div>
+            <h4>Excel</h4>
+            <p>ملف منظم يحتوي المؤشرات والـFunnel وأداء المندوبين والـTop 10.</p>
+          </div>
+          <button id="exportReportsExcelBtn" class="secondary-btn" type="button">تصدير Excel</button>
+        </article>
+
+        <article class="export-option-card">
+          <div class="export-option-icon">PDF</div>
+          <div>
+            <h4>Executive PDF</h4>
+            <p>تقرير إداري مختصر بهوية KYUM Company قابل للطباعة والحفظ PDF.</p>
+          </div>
+          <button id="exportReportsPdfBtn" class="primary-btn" type="button">إنشاء PDF</button>
+        </article>
+
+        <article class="export-option-card">
+          <div class="export-option-icon">PNG</div>
+          <div>
+            <h4>صورة PNG</h4>
+            <p>لقطة كاملة للوحة التنفيذية الحالية بدون أزرار أو عناصر تحكم.</p>
+          </div>
+          <button id="exportReportsPngBtn" class="secondary-btn" type="button">تصدير PNG</button>
+        </article>
+
+        <article class="export-option-card">
+          <div class="export-option-icon">CSV</div>
+          <div>
+            <h4>CSV</h4>
+            <p>ملف سريع للبيانات الأساسية وأداء المندوبين.</p>
+          </div>
+          <button id="exportReportsCsvBtn" class="secondary-btn" type="button">تصدير CSV</button>
+        </article>
+      </div>
+
+      <article class="export-summary-card">
+        <h4>Executive Summary</h4>
+        <textarea id="executiveSummaryText" rows="8" readonly></textarea>
+      </article>
+
+      <div class="dialog-actions">
+        <button id="closeReportsExportDialogFooterBtn" class="secondary-btn" type="button">إغلاق</button>
+      </div>
+    </form>
+  </dialog>
 
       <section id="usersView" class="view-section hidden">
         <div class="actions-row">

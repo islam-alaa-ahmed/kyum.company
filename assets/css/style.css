@@ -1144,3 +1144,70 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .reports-yearly-trend{overflow-x:auto}
   .yearly-trend-column{min-width:48px}
 }
+
+
+.reports-export-dialog{max-width:980px;width:min(94vw,980px)}
+.export-center-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px
+}
+.export-option-card{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:12px;
+  align-items:start;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  border-radius:16px;
+  padding:15px
+}
+.export-option-card>button{grid-column:1/-1}
+.export-option-card h4,.export-option-card p{margin:0}
+.export-option-card p{color:var(--muted);line-height:1.7;font-size:12px;margin-top:5px}
+.export-option-icon{
+  width:58px;height:58px;border-radius:16px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#0f766e,#0f172a);
+  color:white;font-weight:900;font-size:12px
+}
+.export-summary-card{
+  margin-top:16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:15px;
+  background:var(--surface-2)
+}
+.export-summary-card h4{margin:0 0 10px}
+.export-summary-card textarea{
+  width:100%;
+  resize:vertical;
+  font-family:inherit;
+  line-height:1.7;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px
+}
+body.reports-exporting .sidebar,
+body.reports-exporting .topbar,
+body.reports-exporting .reports-actions,
+body.reports-exporting .reports-filter-bar,
+body.reports-exporting .data-status,
+body.reports-exporting dialog{
+  display:none!important
+}
+body.reports-exporting #reportsOverviewView{
+  display:block!important;
+  background:#fff!important;
+  color:#172033!important;
+  padding:20px!important
+}
+body.reports-exporting #reportsOverviewView *{
+  animation:none!important;
+  transition:none!important
+}
+
+@media(max-width:700px){
+  .export-center-grid{grid-template-columns:1fr}
+}

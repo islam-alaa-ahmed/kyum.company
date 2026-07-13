@@ -1971,6 +1971,62 @@ function resetReportsFilters() {
   renderReportsOverview();
 }
 
+function openReportsExportCenter() {
+  if (!currentReportsSnapshot) renderReportsOverview();
+
+  document.getElementById("executiveSummaryText").value =
+    window.ReportsExportCenter.executiveSummary(currentReportsSnapshot);
+
+  document.getElementById("reportsExportDialog").showModal();
+}
+
+function closeReportsExportCenter() {
+  document.getElementById("reportsExportDialog").close();
+}
+
+function exportReportsExcel() {
+  if (!currentReportsSnapshot) renderReportsOverview();
+  try {
+    window.ReportsExportCenter.createExcel(currentReportsSnapshot);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر إنشاء ملف Excel.");
+  }
+}
+
+function exportReportsPdf() {
+  if (!currentReportsSnapshot) renderReportsOverview();
+
+  const popup = window.open("", "_blank");
+  if (!popup) {
+    alert("اسمح للنوافذ المنبثقة لإنشاء تقرير PDF.");
+    return;
+  }
+
+  popup.document.open();
+  popup.document.write(window.ReportsExportCenter.pdfHtml(currentReportsSnapshot));
+  popup.document.close();
+}
+
+async function exportReportsPng() {
+  if (!currentReportsSnapshot) renderReportsOverview();
+
+  const button = document.getElementById("exportReportsPngBtn");
+  button.disabled = true;
+  button.textContent = "جاري إنشاء الصورة...";
+
+  try {
+    await window.ReportsExportCenter.createPng(
+      document.getElementById("reportsOverviewView"),
+      currentReportsSnapshot
+    );
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "تعذر إنشاء صورة PNG.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "تصدير PNG";
+  }
+}
+
 function exportReportsCsv() {
   if (!currentReportsSnapshot) renderReportsOverview();
   const csv = window.ReportsEngine.toCsv(currentReportsSnapshot);
@@ -3503,8 +3559,13 @@ document.getElementById("refreshReportsBtn")?.addEventListener("click", async ()
   populateReportsRepresentativeFilter();
   renderReportsOverview();
 });
+document.getElementById("openExportCenterBtn")?.addEventListener("click", openReportsExportCenter);
+document.getElementById("closeReportsExportDialogBtn")?.addEventListener("click", closeReportsExportCenter);
+document.getElementById("closeReportsExportDialogFooterBtn")?.addEventListener("click", closeReportsExportCenter);
+document.getElementById("exportReportsExcelBtn")?.addEventListener("click", exportReportsExcel);
+document.getElementById("exportReportsPdfBtn")?.addEventListener("click", exportReportsPdf);
+document.getElementById("exportReportsPngBtn")?.addEventListener("click", exportReportsPng);
 document.getElementById("exportReportsCsvBtn")?.addEventListener("click", exportReportsCsv);
-document.getElementById("printReportsBtn")?.addEventListener("click", () => window.print());
 document.getElementById("resetReportsFiltersBtn")?.addEventListener("click", resetReportsFilters);
 ["reportsDateFrom","reportsDateTo","reportsRepresentativeFilter"].forEach(id => {
   document.getElementById(id)?.addEventListener("change", renderReportsOverview);

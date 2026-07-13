@@ -1,22 +1,21 @@
-# KYUM Phase 15.2.3 — Representative Dashboard + Trends
+# KYUM Phase 15.2.4 — Export Center + Executive PDF
 
 ## Modified/New Files
 
 - `index.html`
 - `assets/css/style.css`
 - `assets/js/app.js`
-- `assets/js/reports-engine.js`
+- `assets/js/export-center.js`
 
 ## Implemented
 
-- Advanced representative leaderboard.
-- Representative ranking by accepted quotation value, conversion and activity.
-- Current-vs-previous-period representative comparisons.
-- Representative activity score.
-- 12-month trends for customers, follow-ups, quotations and quotation value.
-- Top 10 representatives by accepted value.
-- Top 10 customer interests.
-- Top 10 customers by quotation value.
-- Top 10 loss reasons.
-- All analytics respect report date and representative filters.
+- Central reports export dialog.
+- Excel export with multiple sheets.
+- Executive PDF/print report.
+- Full-dashboard PNG export.
+- CSV export retained.
+- Executive Summary generation.
+- Automatic file naming by date range and representative.
+- Export-safe UI mode hiding controls and navigation.
+- KYUM Company report branding.
 - No SQL migration or Edge Function.
