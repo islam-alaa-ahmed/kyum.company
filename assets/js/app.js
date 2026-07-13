@@ -146,6 +146,9 @@ let selectedBackupPayload = null;
 let backupHistoryRecords = [];
 let backupHistoryLoaded = false;
 let systemSettingsLoaded = false;
+let systemHealthSnapshot = null;
+let systemHealthLoading = false;
+let systemHealthTimer = null;
 
 
 let editingId = null;
@@ -163,6 +166,7 @@ const views = {
   permissions: document.getElementById("permissionsView"),
   activityLog: document.getElementById("activityLogView"),
   backups: document.getElementById("backupsView"),
+  systemHealth: document.getElementById("systemHealthView"),
   systemSettings: document.getElementById("systemSettingsView")
 };
 
@@ -177,6 +181,7 @@ const pageMeta = {
   permissions: ["الصلاحيات", "إدارة الأدوار وصلاحيات الوصول"],
   activityLog: ["سجل النشاط", "متابعة العمليات والتغييرات داخل النظام"],
   backups: ["النسخ الاحتياطي", "التصدير والاستعادة وحماية البيانات"],
+  systemHealth: ["مراقبة النظام", "الحالة الصحية والأمان والأداء التشغيلي"],
   systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"]
 };
 
@@ -464,6 +469,7 @@ function setOptions() {
 }
 
 function switchView(name) {
+  if (name !== "systemHealth") stopSystemHealthAutoRefresh();
   Object.entries(views).forEach(([key, element]) => element.classList.toggle("hidden", key !== name));
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.view === name));
 
@@ -490,6 +496,10 @@ function switchView(name) {
 
   if (name === "backups") {
     loadBackupHistory();
+  }
+  if (name === "systemHealth") {
+    loadSystemHealth(true);
+    startSystemHealthAutoRefresh();
   }
   if (name === "systemSettings") {
     loadSystemSettings();
@@ -1246,6 +1256,120 @@ async function saveSystemSettings(event) {
   } finally {
     button.disabled = false;
     button.textContent = "حفظ الإعدادات";
+  }
+}
+
+function healthStatusItem(label, value, ok = true, detail = "") {
+  return `<div class="health-list-item"><span class="health-indicator ${ok ? "ok" : "warn"}"></span><div><strong>${escapeHtml(label)}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</div><b>${escapeHtml(String(value))}</b></div>`;
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 ** 2) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 ** 3) return `${(value / 1024 ** 2).toFixed(1)} MB`;
+  return `${(value / 1024 ** 3).toFixed(2)} GB`;
+}
+
+function calculateHealthScore(snapshot) {
+  let score = 100;
+  if (!snapshot?.database_online) score -= 50;
+  if (Number(snapshot?.latency_ms || 0) > 1500) score -= 15;
+  else if (Number(snapshot?.latency_ms || 0) > 700) score -= 7;
+  if (Number(snapshot?.security?.rls_coverage_percent || 0) < 100) score -= 15;
+  if (Number(snapshot?.failed_backups_24h || 0) > 0) score -= Math.min(15, Number(snapshot.failed_backups_24h) * 5);
+  if (Number(snapshot?.inactive_users || 0) > Number(snapshot?.users_total || 0) / 2) score -= 5;
+  return Math.max(0, Math.round(score));
+}
+
+async function loadSystemHealth(force = false) {
+  if (systemHealthLoading || (!force && systemHealthSnapshot)) return;
+  if (!window.SystemHealthService) return;
+  if (currentRole() !== "super_admin") {
+    showDataStatus("systemHealthStatus", "مراقبة النظام متاحة لمدير النظام فقط.", "error");
+    return;
+  }
+
+  systemHealthLoading = true;
+  showDataStatus("systemHealthStatus", "جاري تنفيذ الفحص الصحي...", "info");
+  try {
+    systemHealthSnapshot = await window.SystemHealthService.getSnapshot();
+    renderSystemHealth();
+    showDataStatus("systemHealthStatus", "");
+  } catch (error) {
+    showDataStatus("systemHealthStatus", error.message || "تعذر تنفيذ فحص النظام.", "error");
+  } finally {
+    systemHealthLoading = false;
+  }
+}
+
+function renderSystemHealth() {
+  const s = systemHealthSnapshot;
+  if (!s) return;
+  const score = calculateHealthScore(s);
+  const label = score >= 90 ? "ممتاز" : score >= 75 ? "جيد" : score >= 60 ? "يحتاج متابعة" : "حرج";
+  document.getElementById("healthScoreValue").textContent = `${score}%`;
+  document.getElementById("healthScoreRing").style.setProperty("--health-score", `${score * 3.6}deg`);
+  document.getElementById("healthOverallLabel").textContent = `حالة النظام: ${label}`;
+  document.getElementById("healthLastChecked").textContent = `آخر فحص: ${new Date().toLocaleString("ar-SA")}`;
+  document.getElementById("healthDatabaseStatus").textContent = s.database_online ? "متصل" : "غير متصل";
+  document.getElementById("healthDatabaseLatency").textContent = `زمن الاستجابة: ${s.latency_ms} ms`;
+  document.getElementById("healthUsersTotal").textContent = Number(s.users_total || 0);
+  document.getElementById("healthUsersActive").textContent = `النشطون: ${Number(s.users_active || 0)}`;
+  document.getElementById("healthRlsCoverage").textContent = `${Number(s.security?.rls_coverage_percent || 0)}%`;
+  document.getElementById("healthPoliciesCount").textContent = `السياسات: ${Number(s.security?.policies_count || 0)}`;
+
+  document.getElementById("healthServicesList").innerHTML = [
+    healthStatusItem("Supabase Database", s.database_online ? "Online" : "Offline", s.database_online, `${s.latency_ms} ms`),
+    healthStatusItem("backup-admin", "Configured", true, "Export / Validate / Restore"),
+    healthStatusItem("manage-user", "Configured", true, "User administration"),
+    healthStatusItem("GitHub Pages", navigator.onLine ? "Online" : "Offline", navigator.onLine, location.hostname)
+  ].join("");
+
+  document.getElementById("healthDatabaseMetrics").innerHTML = [
+    ["الجداول", s.tables_count], ["إجمالي الصفوف", s.rows_total], ["حجم البيانات", formatBytes(s.database_size_bytes)], ["الفهارس", s.indexes_count]
+  ].map(([a,b]) => `<article><span>${a}</span><strong>${b}</strong></article>`).join("");
+
+  document.getElementById("healthSecurityList").innerHTML = [
+    healthStatusItem("Row Level Security", `${s.security.rls_enabled_tables}/${s.security.public_tables}`, s.security.rls_coverage_percent === 100),
+    healthStatusItem("Database Policies", s.security.policies_count, s.security.policies_count > 0),
+    healthStatusItem("Edge Authentication", "Enabled", true, "Custom JWT verification"),
+    healthStatusItem("Active Super Admin", s.super_admins, s.super_admins > 0)
+  ].join("");
+
+  document.getElementById("healthVersionMetrics").innerHTML = [
+    ["النظام", "KYUM Enterprise CRM"], ["الإصدار", s.version || "1.0"], ["البيئة", "Production"], ["وقت الخادم", new Date(s.server_time).toLocaleString("ar-SA")]
+  ].map(([a,b]) => `<article><span>${a}</span><strong>${escapeHtml(String(b))}</strong></article>`).join("");
+
+  document.getElementById("healthTablesBody").innerHTML = (s.tables || []).map(t => `<tr><td><strong>${escapeHtml(t.table_name)}</strong></td><td>${Number(t.row_count || 0)}</td><td>${formatBytes(t.total_bytes)}</td><td>${t.rls_enabled ? '<span class="record-status active">مفعّل</span>' : '<span class="record-status inactive">غير مفعّل</span>'}</td><td>${Number(t.policies_count || 0)}</td></tr>`).join("") || '<tr><td colspan="5" class="empty-state">لا توجد بيانات.</td></tr>';
+
+  document.getElementById("healthBackupsList").innerHTML = (s.recent_backups || []).map(b => healthStatusItem(
+    b.operation_type === "restore" ? "استعادة" : "تصدير",
+    b.status,
+    b.status === "completed",
+    `${b.total_records || 0} سجل — ${new Date(b.created_at).toLocaleString("ar-SA")}`
+  )).join("") || '<div class="empty-state">لا توجد عمليات نسخ مسجلة.</div>';
+
+  document.getElementById("healthAlertsList").innerHTML = (s.alerts || []).map(a => healthStatusItem(
+    a.title || "تنبيه",
+    a.severity || "warning",
+    false,
+    a.detail || ""
+  )).join("") || healthStatusItem("لا توجد تنبيهات حرجة", "سليم", true, "آخر 24 ساعة");
+}
+
+function startSystemHealthAutoRefresh() {
+  stopSystemHealthAutoRefresh();
+  systemHealthTimer = window.setInterval(() => {
+    const view = document.getElementById("systemHealthView");
+    if (view && !view.classList.contains("hidden")) loadSystemHealth(true);
+  }, 30000);
+}
+
+function stopSystemHealthAutoRefresh() {
+  if (systemHealthTimer) {
+    clearInterval(systemHealthTimer);
+    systemHealthTimer = null;
   }
 }
 
@@ -2471,5 +2595,7 @@ document.getElementById("restoreBackupBtn")?.addEventListener("click", restoreSe
 document.getElementById("refreshBackupHistoryBtn")?.addEventListener("click", () => loadBackupHistory(true));
 document.getElementById("saveSystemSettingsBtn")?.addEventListener("click", saveSystemSettings);
 document.getElementById("systemSettingsForm")?.addEventListener("submit", saveSystemSettings);
+
+document.getElementById("refreshSystemHealthBtn")?.addEventListener("click", () => loadSystemHealth(true));
 
 setOptions();

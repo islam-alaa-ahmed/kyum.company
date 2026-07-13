@@ -1,14 +1,20 @@
-# KYUM Phase 13.1 — Generated Columns Restore Fix
+# KYUM Phase 14.1 — System Health Dashboard
 
-## Root Cause
-The backup contains values for generated database columns such as
-`customers.normalized_phone`. PostgreSQL rejects explicit inserts into
-generated columns.
+## Modified/New Files
+- index.html
+- assets/css/style.css
+- assets/js/app.js
+- assets/js/permissions.js
+- assets/js/system-health-service.js
+- supabase/migrations/phase14_1_system_health_dashboard.sql
 
-## Fix
-- Builds the writable INSERT column list from PostgreSQL metadata.
-- Automatically excludes every generated column.
-- Preserves IDs, relationships, timestamps, and normal writable fields.
-- Preserves safe-delete `WHERE true`.
-- Preserves parent/child restore order.
-- Preserves atomic rollback behavior.
+## Implemented
+- Super-Admin system monitoring screen.
+- Database status and client-measured latency.
+- Users and active-user metrics.
+- RLS coverage and policy counts.
+- Database size, rows, tables and indexes.
+- Table-level size and security view.
+- Recent backup operations and 24-hour alerts.
+- Calculated system health score.
+- Manual refresh and 30-second active-screen refresh.

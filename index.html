@@ -87,6 +87,7 @@
             <button class="nav-item privacy-nav-item" data-view="permissions">الصلاحيات</button>
             <button class="nav-item privacy-nav-item" data-view="activityLog">سجل النشاط</button>
             <button class="nav-item privacy-nav-item" data-view="backups">النسخ الاحتياطي</button>
+            <button class="nav-item privacy-nav-item" data-view="systemHealth">مراقبة النظام</button>
             <button class="nav-item privacy-nav-item" data-view="systemSettings">إعدادات النظام</button>
           </div>
         </section>
@@ -539,6 +540,93 @@
             </table>
           </div>
         </article>
+      </section>
+
+
+      <section id="systemHealthView" class="view-section hidden">
+        <div class="actions-row">
+          <div>
+            <h3 class="section-title">مراقبة النظام</h3>
+            <p class="section-note">متابعة صحة قاعدة البيانات والأمان والمستخدمين والنسخ الاحتياطية من مكان واحد.</p>
+          </div>
+          <button id="refreshSystemHealthBtn" class="primary-btn">تشغيل الفحص</button>
+        </div>
+
+        <div id="systemHealthStatus" class="data-status hidden"></div>
+
+        <div class="health-hero-grid">
+          <article class="panel health-score-card">
+            <div class="health-score-ring" id="healthScoreRing">
+              <strong id="healthScoreValue">—</strong>
+              <span>درجة الصحة</span>
+            </div>
+            <div>
+              <h3 id="healthOverallLabel">جاري انتظار الفحص</h3>
+              <p id="healthLastChecked">لم يتم تنفيذ فحص بعد.</p>
+            </div>
+          </article>
+
+          <article class="panel health-summary-card">
+            <span>قاعدة البيانات</span>
+            <strong id="healthDatabaseStatus">—</strong>
+            <small id="healthDatabaseLatency">زمن الاستجابة: —</small>
+          </article>
+
+          <article class="panel health-summary-card">
+            <span>المستخدمون</span>
+            <strong id="healthUsersTotal">—</strong>
+            <small id="healthUsersActive">النشطون: —</small>
+          </article>
+
+          <article class="panel health-summary-card">
+            <span>الأمان</span>
+            <strong id="healthRlsCoverage">—</strong>
+            <small id="healthPoliciesCount">السياسات: —</small>
+          </article>
+        </div>
+
+        <div class="health-details-grid">
+          <article class="panel">
+            <div class="panel-header"><div><h3>حالة الخدمات</h3><p>الخدمات الأساسية المرتبطة بالنظام.</p></div></div>
+            <div id="healthServicesList" class="health-list"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><div><h3>قاعدة البيانات</h3><p>الجداول والصفوف والحجم الإجمالي.</p></div></div>
+            <div id="healthDatabaseMetrics" class="health-metrics-grid"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><div><h3>حالة الأمان</h3><p>RLS والسياسات وحماية الوظائف الحساسة.</p></div></div>
+            <div id="healthSecurityList" class="health-list"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><div><h3>معلومات الإصدار</h3><p>بيانات البناء والبيئة الحالية.</p></div></div>
+            <div id="healthVersionMetrics" class="health-metrics-grid"></div>
+          </article>
+        </div>
+
+        <article class="panel health-table-panel">
+          <div class="panel-header"><div><h3>أحجام الجداول</h3><p>أكبر الجداول وعدد الصفوف التقديري.</p></div></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>الجدول</th><th>الصفوف</th><th>الحجم</th><th>RLS</th><th>السياسات</th></tr></thead>
+            <tbody id="healthTablesBody"></tbody>
+          </table></div>
+        </article>
+
+        <div class="health-details-grid">
+          <article class="panel">
+            <div class="panel-header"><div><h3>آخر عمليات النسخ</h3><p>آخر خمس عمليات نسخ أو استعادة.</p></div></div>
+            <div id="healthBackupsList" class="health-list"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-header"><div><h3>آخر التنبيهات</h3><p>أحدث العمليات الفاشلة أو التنبيهات المسجلة.</p></div></div>
+            <div id="healthAlertsList" class="health-list"></div>
+          </article>
+        </div>
+
+        <p class="health-auto-refresh-note">يتم تحديث الشاشة تلقائيًا كل 30 ثانية أثناء فتحها فقط.</p>
       </section>
 
       <section id="systemSettingsView" class="view-section hidden">
@@ -996,6 +1084,7 @@
   <script src="assets/js/activity-service.js"></script>
   <script src="assets/js/backup-service.js"></script>
   <script src="assets/js/system-settings-service.js"></script>
+  <script src="assets/js/system-health-service.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>
