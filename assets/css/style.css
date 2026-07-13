@@ -1949,3 +1949,31 @@ body.customer360-exporting .customer360-shell *{
     flex:1
   }
 }
+
+/* KYUM Phase 15.4.4 — Dashboard full-width stacked analytics */
+#dashboardView .analytics-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:18px;
+}
+
+#dashboardView .analytics-grid > .panel,
+#dashboardView .analytics-grid > .full-span-panel{
+  width:100%;
+  min-width:0;
+  grid-column:auto!important;
+}
+
+#dashboardView .performance-list,
+#dashboardView .bar-chart,
+#dashboardView .trend-chart,
+#dashboardView #recentCustomers,
+#dashboardView #attentionFollowups{
+  width:100%;
+  min-width:0;
+}
+
+@media(min-width:901px){
+  #dashboardView .analytics-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
