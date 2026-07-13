@@ -17,6 +17,7 @@
       customerNumber: row.customer_number || "",
       name: row.customer_name || "",
       type: row.customer_type || "",
+      contactPersonName: row.contact_person_name || "",
       phone: row.phone || "",
       city: row.city || "",
       interests: interestLinks
@@ -60,6 +61,7 @@
           customer_number,
           customer_name,
           customer_type,
+          contact_person_name,
           phone,
           city,
           representative_id,
@@ -135,6 +137,9 @@
     const payload = {
       customer_name: record.name.trim(),
       customer_type: record.type,
+      contact_person_name: record.type === "شركة"
+        ? (record.contactPersonName?.trim() || null)
+        : null,
       phone: record.phone,
       city: record.city?.trim() || null,
       representative_id: record.representativeId || null,
@@ -182,6 +187,7 @@
       customer_name: payload.customer_name,
       phone: payload.phone,
       customer_type: payload.customer_type,
+      contact_person_name: payload.contact_person_name,
       representative_id: payload.representative_id,
       interest_ids: record.interestIds
     });

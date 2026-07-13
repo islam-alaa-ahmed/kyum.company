@@ -249,6 +249,7 @@
               <tr>
                 <th>رقم العميل (الجوال)</th>
                 <th>اسم العميل</th>
+                <th>اسم المسؤول</th>
                 <th>التصنيف</th>
                 <th>مجال الاهتمام</th>
                 <th>المندوب</th>
@@ -1276,6 +1277,12 @@
           </select>
         </label>
 
+        <label id="customerContactPersonField">
+          اسم المسؤول
+          <input id="customerContactPerson" maxlength="150" autocomplete="name">
+          <small>تظهر هذه الخانة وتصبح إلزامية عند اختيار «شركة».</small>
+        </label>
+
         <label>
           رقم العميل (الجوال)
           <input id="customerPhone" inputmode="tel" placeholder="05XXXXXXXX" required>
@@ -1678,7 +1685,7 @@
   <script src="assets/js/permissions.js"></script>
   <script src="assets/js/auth-session.js"></script>
   <script src="assets/js/reference-data-service.js"></script>
-  <script src="assets/js/customers-service.js"></script>
+  <script src="assets/js/customers-service.js?v=15.4.1"></script>
   <script src="assets/js/followups-service.js"></script>
   <script src="assets/js/quotations-service.js"></script>
   <script src="assets/js/users-service.js"></script>
@@ -1692,7 +1699,7 @@
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
-  <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/app.js?v=15.3.4"></script>
+  <script src="assets/js/customer360-export.js?v=15.4.1"></script>
+  <script src="assets/js/app.js?v=15.4.1"></script>
 </body>
 </html>

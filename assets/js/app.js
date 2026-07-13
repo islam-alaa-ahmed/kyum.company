@@ -2373,6 +2373,7 @@ function filteredCustomers() {
   return customers.filter(customer => {
     const searchable = [
       customer.name,
+      customer.contactPersonName,
       customer.representative,
       customer.phone,
       customer.city,
@@ -2399,7 +2400,7 @@ function renderCustomers() {
   addButton?.classList.toggle("hidden", !canManageCustomers());
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="9" class="empty-state">${
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${
       customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء..."
     }</td></tr>`;
   } else {
@@ -2413,6 +2414,7 @@ function renderCustomers() {
           <strong>${escapeHtml(customer.name)}</strong><br>
           <small>${customer.city ? escapeHtml(customer.city) : ""}</small>
         </td>
+        <td>${customer.type === "شركة" ? escapeHtml(customer.contactPersonName || "—") : "—"}</td>
         <td><span class="badge">${escapeHtml(customer.type)}</span></td>
         <td>${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—"}</td>
         <td>${escapeHtml(customer.representative || "—")}</td>
@@ -2583,12 +2585,31 @@ async function saveReferenceForm(event) {
   }
 }
 
+function syncCustomerContactPersonField() {
+  const type = document.getElementById("customerType")?.value;
+  const field = document.getElementById("customerContactPersonField");
+  const input = document.getElementById("customerContactPerson");
+  const isCompany = type === "شركة";
+
+  if (!field || !input) return;
+
+  field.classList.toggle("hidden", !isCompany);
+  input.required = isCompany;
+
+  if (!isCompany) {
+    input.value = "";
+    input.setCustomValidity("");
+  }
+}
+
 function openCustomerDialog(customer = null) {
   editingId = customer?.id || null;
   document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
   document.getElementById("customerId").value = customer?.id || "";
   document.getElementById("customerName").value = customer?.name || "";
   document.getElementById("customerType").value = customer?.type || "شركة";
+  document.getElementById("customerContactPerson").value = customer?.contactPersonName || "";
+  syncCustomerContactPersonField();
   document.getElementById("customerPhone").value = customer?.phone || "";
   document.getElementById("customerCity").value = customer?.city || "";
   document.getElementById("customerRepresentative").value = customer?.representativeId || representatives[0]?.uuid || "";
@@ -2626,6 +2647,18 @@ async function handleCustomerSubmit(event) {
     return;
   }
 
+  const customerType = document.getElementById("customerType").value;
+  const contactPersonInput = document.getElementById("customerContactPerson");
+  const contactPersonName = contactPersonInput.value.trim();
+
+  if (customerType === "شركة" && !contactPersonName) {
+    contactPersonInput.setCustomValidity("أدخل اسم المسؤول عن الشركة.");
+    contactPersonInput.reportValidity();
+    contactPersonInput.focus();
+    return;
+  }
+  contactPersonInput.setCustomValidity("");
+
   const phoneInput = document.getElementById("customerPhone").value;
   const normalizedPhone = normalizePhone(phoneInput);
 
@@ -2652,7 +2685,8 @@ async function handleCustomerSubmit(event) {
     await window.CustomersService.saveCustomer({
       id: editingId,
       name: document.getElementById("customerName").value,
-      type: document.getElementById("customerType").value,
+      type: customerType,
+      contactPersonName: customerType === "شركة" ? contactPersonName : "",
       phone: normalizedPhone,
       city: document.getElementById("customerCity").value,
       interestIds: selectedInterestIds,
@@ -3051,6 +3085,7 @@ function showCustomerDetails(customerId) {
     ["رقم العميل", customer.customerNumber || customer.phone || "—"],
     ["رقم الجوال", customer.phone || "—"],
     ["التصنيف", customer.type || "—"],
+    ["اسم المسؤول", customer.type === "شركة" ? (customer.contactPersonName || "—") : "—"],
     ["المدينة", customer.city || "—"],
     ["المندوب", customer.representative || "—"],
     ["تاريخ التواصل", formatDate(customer.contactDate)],
@@ -3652,6 +3687,7 @@ document.getElementById("resetDashboardFilters").addEventListener("click", () =>
 document.querySelector("[data-open-followups]").addEventListener("click", () => switchView("followups"));
 
 document.getElementById("addCustomerBtn").addEventListener("click", () => openCustomerDialog());
+document.getElementById("customerType")?.addEventListener("change", syncCustomerContactPersonField);
 document.getElementById("addFollowupBtn").addEventListener("click", () => openFollowupDialog());
 document.getElementById("addQuotationBtn").addEventListener("click", () => openQuotationDialog());
 document.getElementById("closeQuotationDialogBtn").addEventListener("click", closeQuotationDialog);

@@ -49,6 +49,7 @@
       ["Customer", customer.name || ""],
       ["Phone", customer.phone || ""],
       ["Type", customer.type || ""],
+      ["Contact Person", customer.type === "شركة" ? (customer.contactPersonName || "") : ""],
       ["City", customer.city || ""],
       ["Representative", customer.representative || ""],
       ["Status", view.status.label],
@@ -219,6 +220,7 @@ footer{margin-top:20px;font-size:10px;color:#667085}
 <section class="section">
 <h2>البيانات الأساسية</h2>
 <p><b>التصنيف:</b> ${safe(customer.type || "—")}</p>
+<p><b>اسم المسؤول:</b> ${safe(customer.type === "شركة" ? (customer.contactPersonName || "—") : "—")}</p>
 <p><b>المدينة:</b> ${safe(customer.city || "—")}</p>
 <p><b>المندوب:</b> ${safe(customer.representative || "—")}</p>
 <p><b>الاهتمامات:</b> ${safe((customer.interests || []).join("، ") || "—")}</p>

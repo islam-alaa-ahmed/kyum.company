@@ -1801,3 +1801,13 @@ body.customer360-exporting .customer360-shell *{
 @media(max-width:700px){
   .customer360-export-grid{grid-template-columns:1fr}
 }
+
+
+/* KYUM Phase 15.4.1 — Company contact person */
+#customerContactPersonField.hidden{
+  display:none!important;
+}
+#customerContactPersonField small{
+  color:var(--muted);
+  line-height:1.6;
+}
