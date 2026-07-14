@@ -29,7 +29,7 @@
       .select(`
         id, task_key, work_date, user_id, representative_id,
         is_completed, completed_at, updated_at,
-        user_profile:user_profiles(full_name, role, is_active),
+        user_profile:user_profiles!daily_task_completions_user_profile_fkey(full_name, role, is_active),
         representative:sales_representatives(id, full_name, representative_code, is_active)
       `)
       .eq("work_date", workDate);

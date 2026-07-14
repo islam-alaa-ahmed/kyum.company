@@ -130,7 +130,7 @@
       .select(`
         id,user_id,representative_id,task_key,is_completed,completed_at,updated_at,
         task:daily_task_definitions(task_name),
-        user_profile:user_profiles(full_name,role)
+        user_profile:user_profiles!daily_task_completions_user_profile_fkey(full_name,role)
       `)
       .eq("work_date", workDate)
       .order("updated_at", { ascending: false });
