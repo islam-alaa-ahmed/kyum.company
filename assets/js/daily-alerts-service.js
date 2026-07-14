@@ -18,7 +18,7 @@
         id, work_date, alert_type, severity, status, title, details,
         user_id, representative_id, source_key, created_at, updated_at,
         resolved_at, escalated_at, supervisor_note,
-        user_profile:user_profiles(full_name,role),
+        user_profile:user_profiles!daily_alerts_user_profile_fkey(full_name,role),
         representative:sales_representatives(full_name,representative_code)
       `)
       .eq("work_date", workDate)

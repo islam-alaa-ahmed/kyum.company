@@ -94,7 +94,7 @@
       .select(`
         id,user_id,representative_id,work_date,first_activity_at,
         last_activity_at,ended_at,heartbeat_count,event_count,last_event_type,
-        user_profile:user_profiles(full_name,role,is_active),
+        user_profile:user_profiles!daily_employee_sessions_user_profile_fkey(full_name,role,is_active),
         representative:sales_representatives(full_name,representative_code)
       `)
       .eq("work_date", workDate)
@@ -113,7 +113,7 @@
       .from("audit_logs")
       .select(`
         id,user_id,action,entity_type,entity_id,new_data,metadata,created_at,
-        user:user_profiles(full_name,role,representative_id)
+        user:user_profiles!audit_logs_user_profile_fkey(full_name,role,representative_id)
       `)
       .gte("created_at", from)
       .lt("created_at", toDate.toISOString())
@@ -144,7 +144,7 @@
       .from("daily_alert_actions")
       .select(`
         id,alert_id,action_type,note,action_by,created_at,
-        user:user_profiles!daily_alert_actions_action_by_fkey(full_name,role),
+        user:user_profiles!daily_alert_actions_user_profile_fkey(full_name,role),
         alert:daily_alerts!daily_alert_actions_alert_id_fkey(
           work_date,title,alert_type,severity,user_id,representative_id
         )
