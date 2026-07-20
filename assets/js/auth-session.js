@@ -59,7 +59,13 @@
     const avatar = document.querySelector(".avatar");
     if (avatar) avatar.textContent = (profile.full_name || session.user.email || "م").trim().charAt(0).toUpperCase();
     window.CustomerPermissions?.apply(profile);
-    await window.CustomerPermissions?.loadCurrentPermissions?.();
+    try {
+      await window.CustomerPermissions?.loadCurrentPermissions?.();
+    } catch (error) {
+      state.session = null; state.user = null; state.profile = null;
+      await window.customerSupabase.auth.signOut();
+      throw new Error(`تعذر تحميل صلاحيات المستخدم: ${error instanceof Error ? error.message : error}`);
+    }
     window.CustomerPermissions?.applyScreenVisibility?.();
     showApp();
     window.dispatchEvent(new CustomEvent("customer-auth-ready", { detail: { session, user: session.user, profile } }));
@@ -92,6 +98,7 @@
     try { await window.customerSupabase?.auth.signOut(); }
     finally {
       state.session = null; state.user = null; state.profile = null;
+      window.CustomerPermissions?.reset?.();
       showLogin(); message("تم تسجيل الخروج بنجاح.", "success");
     }
   }

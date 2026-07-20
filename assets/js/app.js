@@ -494,7 +494,26 @@ function setOptions() {
   refreshReferenceOptions();
 }
 
-function switchView(name) {
+function switchView(requestedName, options = {}) {
+  const requestedView = String(requestedName || "").trim();
+  const permissions = window.CustomerPermissions;
+  const authState = window.CustomerAuth?.getState?.();
+
+  if (!views[requestedView]) {
+    console.warn(`Unknown view blocked: ${requestedView}`);
+    return false;
+  }
+
+  if (authState?.profile && !permissions?.canScreen?.(requestedView, "view")) {
+    const fallback = permissions?.firstAllowedScreen?.("dashboard");
+    console.warn(`Unauthorized view blocked: ${requestedView}`);
+    if (!options.silent && fallback && fallback !== requestedView) {
+      return switchView(fallback, { silent: true, permissionFallback: true });
+    }
+    return false;
+  }
+
+  const name = requestedView;
   const viewRenderStartedAt = performance.now();
   if (name !== "systemHealth") stopSystemHealthAutoRefresh();
   Object.entries(views).forEach(([key, element]) => element.classList.toggle("hidden", key !== name));
@@ -571,6 +590,7 @@ function switchView(name) {
     loadReferenceDataFromSupabase();
     renderReferenceData();
   }
+  return true;
 }
 
 
@@ -5082,8 +5102,16 @@ function initializeSidebarGroups() {
 
 initializeSidebarGroups();
 
-document.querySelectorAll(".nav-item").forEach(button => {
-  button.addEventListener("click", () => switchView(button.dataset.view));
+window.addEventListener("customer-auth-ready", () => {
+  const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");
+  if (fallback) switchView(fallback, { silent: true });
+});
+
+document.querySelectorAll(".nav-item[data-view]").forEach(button => {
+  button.addEventListener("click", event => {
+    event.preventDefault();
+    switchView(button.dataset.view);
+  });
 });
 
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));

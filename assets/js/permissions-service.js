@@ -37,8 +37,12 @@
   }
 
   async function getCurrentUserPermissions() {
-    const role = window.CustomerAuth?.getState?.().profile?.role;
-    return role ? getRolePermissions(role) : [];
+    const profile = window.CustomerAuth?.getState?.().profile;
+    const role = profile?.role;
+    if (!profile?.id || !role) throw new Error("ملف المستخدم أو الدور غير متاح.");
+    if (role === "super_admin") return [];
+    const rows = await getRolePermissions(role);
+    return rows.map(row => Object.freeze({ ...row }));
   }
 
   window.PermissionsService = Object.freeze({
