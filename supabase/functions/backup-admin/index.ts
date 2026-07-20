@@ -382,18 +382,146 @@ Deno.serve(async (request) => {
       }, result.valid ? 200 : 400);
     }
 
-    if (action === "restore") {
-      throw new HttpError(
-        409,
-        "RESTORE_REQUIRES_PHASE_17_3_B",
-        "Enterprise restore is disabled until Phase 17.3-B is deployed.",
+    if (action === "restore_dry_run") {
+      const integrity = await verifyBackupIntegrity(body.backup);
+      if (!integrity.valid) {
+        return jsonResponse({
+          success: false,
+          code: "BACKUP_INTEGRITY_FAILED",
+          ...integrity,
+        }, 400);
+      }
+
+      const { data: dryRun, error: dryRunError } = await admin.rpc(
+        "kyum_validate_backup_restore",
+        {
+          p_backup: body.backup,
+          p_actor: caller.id,
+        },
       );
+
+      if (dryRunError) {
+        throw new HttpError(400, "RESTORE_DRY_RUN_FAILED", dryRunError.message);
+      }
+
+      return jsonResponse({
+        success: Boolean(dryRun?.valid),
+        dry_run: true,
+        integrity,
+        validation: dryRun,
+      }, dryRun?.valid ? 200 : 400);
+    }
+
+    if (action === "restore") {
+      if (body.confirmation !== "RESTORE KYUM DATA") {
+        throw new HttpError(
+          400,
+          "INVALID_RESTORE_CONFIRMATION",
+          "Restore confirmation phrase is invalid.",
+        );
+      }
+
+      const integrity = await verifyBackupIntegrity(body.backup);
+      if (!integrity.valid) {
+        throw new HttpError(
+          400,
+          "BACKUP_INTEGRITY_FAILED",
+          integrity.errors.join("; "),
+        );
+      }
+
+      const { data: dryRun, error: dryRunError } = await admin.rpc(
+        "kyum_validate_backup_restore",
+        {
+          p_backup: body.backup,
+          p_actor: caller.id,
+        },
+      );
+
+      if (dryRunError) {
+        throw new HttpError(400, "RESTORE_DRY_RUN_FAILED", dryRunError.message);
+      }
+
+      if (!dryRun?.valid) {
+        return jsonResponse({
+          success: false,
+          code: "RESTORE_VALIDATION_FAILED",
+          validation: dryRun,
+        }, 400);
+      }
+
+      const operationFileName =
+        `restore-${new Date().toISOString().replaceAll(":", "-")}.json`;
+
+      const { data: operation, error: operationError } = await admin
+        .from("backup_operations")
+        .insert({
+          operation_type: "restore",
+          file_name: operationFileName,
+          total_records: integrity.total_records,
+          status: "started",
+          details: {
+            format_version: body.backup?.format_version ?? null,
+            schema_version: body.backup?.schema_version ?? null,
+            payload_sha256: integrity.payload_sha256,
+            dry_run: dryRun,
+          },
+          created_by: caller.id,
+        })
+        .select("id")
+        .single();
+
+      if (operationError) {
+        throw new HttpError(400, "RESTORE_LOG_CREATE_FAILED", operationError.message);
+      }
+
+      const { data: restored, error: restoreError } = await admin.rpc(
+        "restore_kyum_backup_enterprise",
+        {
+          p_backup: body.backup,
+          p_actor: caller.id,
+        },
+      );
+
+      if (restoreError) {
+        await admin.from("backup_operations").update({
+          status: "failed",
+          details: {
+            format_version: body.backup?.format_version ?? null,
+            schema_version: body.backup?.schema_version ?? null,
+            payload_sha256: integrity.payload_sha256,
+            dry_run: dryRun,
+            error: restoreError.message,
+          },
+        }).eq("id", operation.id);
+
+        throw new HttpError(400, "TRANSACTIONAL_RESTORE_FAILED", restoreError.message);
+      }
+
+      await admin.from("backup_operations").update({
+        status: "completed",
+        total_records: restored?.total_records ?? integrity.total_records,
+        details: {
+          format_version: body.backup?.format_version ?? null,
+          schema_version: body.backup?.schema_version ?? null,
+          payload_sha256: integrity.payload_sha256,
+          dry_run: dryRun,
+          restore_result: restored,
+        },
+      }).eq("id", operation.id);
+
+      return jsonResponse({
+        success: true,
+        dry_run: dryRun,
+        integrity,
+        restore: restored,
+      });
     }
 
     throw new HttpError(
       400,
       "UNSUPPORTED_ACTION",
-      "Supported actions: export, validate.",
+      "Supported actions: export, validate, restore_dry_run, restore.",
     );
   } catch (error) {
     const status = error instanceof HttpError ? error.status : 400;

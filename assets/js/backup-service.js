@@ -27,6 +27,11 @@
     return invoke({ action: "validate", backup });
   }
 
+  async function dryRunRestore(backup) {
+    requirePermission("backup", "edit");
+    return invoke({ action: "restore_dry_run", backup });
+  }
+
   async function restoreBackup(backup, confirmation) {
     requirePermission("backup", "edit");
     return invoke({ action: "restore", backup, confirmation });
@@ -58,6 +63,7 @@
   window.BackupService = Object.freeze({
     createBackup,
     validateBackup,
+    dryRunRestore,
     restoreBackup,
     listHistory
   });
