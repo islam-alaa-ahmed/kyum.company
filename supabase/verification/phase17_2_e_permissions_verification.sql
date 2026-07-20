@@ -92,7 +92,7 @@ left join public.role_screen_permissions rp
   on rp.role = 'super_admin'
  and rp.screen_key = s.screen_key
 where s.is_active = true
-order by s.sort_order nulls last, s.screen_key;
+order by s.screen_key;
 
 -- 6) Detect invalid permission rows that reference missing screens.
 select rp.*
