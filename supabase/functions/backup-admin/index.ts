@@ -3,7 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const TABLE_ORDER = [
@@ -44,12 +43,17 @@ function validateStructure(backup: any) {
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (request.method !== "POST") {
+    return jsonResponse({ success: false, error: "POST is required." }, 405);
+  }
 
   try {
     const url = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const authorization = request.headers.get("Authorization");
-    if (!authorization) throw new Error("Missing authorization.");
+    if (!authorization?.startsWith("Bearer ")) {
+      return jsonResponse({ success: false, error: "Missing authorization." }, 401);
+    }
 
     const admin = createClient(url, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -57,7 +61,9 @@ Deno.serve(async (request) => {
 
     const token = authorization.replace("Bearer ", "");
     const { data: callerData, error: callerError } = await admin.auth.getUser(token);
-    if (callerError || !callerData.user) throw new Error("Invalid authenticated user.");
+    if (callerError || !callerData.user) {
+      return jsonResponse({ success: false, error: "Invalid authenticated user." }, 401);
+    }
 
     const { data: profile, error: profileError } = await admin
       .from("user_profiles")
@@ -95,7 +101,11 @@ Deno.serve(async (request) => {
         file_name: fileName,
         total_records: totalRecords,
         status: "completed",
-        details: { table_counts: Object.fromEntries(TABLE_ORDER.map((table) => [table, tables[table].length])) },
+        details: {
+          table_counts: Object.fromEntries(
+            TABLE_ORDER.map((table) => [table, tables[table].length]),
+          ),
+        },
         created_by: callerData.user.id,
       });
 

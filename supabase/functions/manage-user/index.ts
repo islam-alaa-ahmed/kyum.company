@@ -5,213 +5,262 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const TABLE_ORDER = [
-  "interest_categories",
-  "no_sale_reasons",
-  "sales_representatives",
-  "customers",
-  "customer_interests",
-  "customer_followups",
-  "quotations",
-  "system_settings",
-  "app_screens",
-  "role_screen_permissions",
-];
+type JsonRecord = Record<string, unknown>;
 
-const RESTORE_DELETE_ORDER = [
-  "customer_interests",
-  "customer_followups",
-  "quotations",
-  "customers",
-  "sales_representatives",
-  "interest_categories",
-  "no_sale_reasons",
-  "role_screen_permissions",
-  "app_screens",
-  "system_settings",
-];
+class HttpError extends Error {
+  status: number;
+  code: string;
 
-function jsonResponse(body: unknown, status = 200) {
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+function jsonResponse(body: JsonRecord, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
-function countRecords(tables: Record<string, unknown[]>) {
-  return Object.values(tables).reduce(
-    (sum, rows) => sum + (Array.isArray(rows) ? rows.length : 0),
-    0,
-  );
+function requireString(value: unknown, field: string) {
+  const text = String(value ?? "").trim();
+  if (!text) throw new HttpError(400, "VALIDATION_ERROR", `${field} is required.`);
+  return text;
 }
 
-function validateStructure(backup: any) {
-  if (!backup || typeof backup !== "object") throw new Error("Invalid backup object.");
-  if (backup.product !== "KYUM CRM") throw new Error("This file is not a KYUM CRM backup.");
-  if (!backup.version || !backup.tables || typeof backup.tables !== "object") {
-    throw new Error("Backup metadata or tables are missing.");
+function normalizeEmail(value: unknown) {
+  const email = requireString(value, "email").toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpError(400, "INVALID_EMAIL", "A valid email is required.");
   }
+  return email;
+}
 
-  const counts: Record<string, number> = {};
-  for (const table of TABLE_ORDER) {
-    const rows = backup.tables[table];
-    if (!Array.isArray(rows)) throw new Error(`Missing or invalid table: ${table}`);
-    counts[table] = rows.length;
+function validatePassword(value: unknown) {
+  const password = requireString(value, "password");
+  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+    throw new HttpError(
+      400,
+      "WEAK_PASSWORD",
+      "Password must be at least 8 characters and include letters and numbers.",
+    );
   }
+  return password;
+}
 
-  return counts;
+function normalizeRole(value: unknown) {
+  const role = String(value ?? "viewer").trim();
+  const allowedRoles = new Set([
+    "super_admin",
+    "admin",
+    "sales_supervisor",
+    "auditor",
+    "viewer",
+  ]);
+  if (!allowedRoles.has(role)) {
+    throw new HttpError(400, "INVALID_ROLE", "Unsupported user role.");
+  }
+  return role;
+}
+
+async function writeAudit(
+  admin: ReturnType<typeof createClient>,
+  payload: JsonRecord,
+) {
+  try {
+    await admin.from("audit_logs").insert(payload);
+  } catch {
+    // Audit failure must not hide the main operation result.
+  }
 }
 
 Deno.serve(async (request) => {
-  if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (request.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (request.method !== "POST") {
+    return jsonResponse(
+      { success: false, code: "METHOD_NOT_ALLOWED", error: "POST is required." },
+      405,
+    );
+  }
 
   try {
-    const url = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const authorization = request.headers.get("Authorization");
+    const url = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !serviceKey) {
+      throw new HttpError(500, "SERVER_CONFIG_ERROR", "Missing Supabase environment variables.");
+    }
 
-    if (!authorization) throw new Error("Missing authorization.");
+    const authorization = request.headers.get("Authorization");
+    if (!authorization?.startsWith("Bearer ")) {
+      throw new HttpError(401, "UNAUTHORIZED", "Missing bearer token.");
+    }
 
     const admin = createClient(url, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const token = authorization.replace("Bearer ", "");
+    const token = authorization.slice("Bearer ".length).trim();
     const { data: callerData, error: callerError } = await admin.auth.getUser(token);
+    if (callerError || !callerData.user) {
+      throw new HttpError(401, "UNAUTHORIZED", "Invalid authenticated user.");
+    }
 
-    if (callerError || !callerData.user) throw new Error("Invalid authenticated user.");
-
-    const { data: profile, error: profileError } = await admin
+    const { data: callerProfile, error: profileError } = await admin
       .from("user_profiles")
-      .select("role,is_active")
+      .select("id,role,is_active")
       .eq("id", callerData.user.id)
       .single();
 
-    if (profileError || !profile?.is_active || profile.role !== "super_admin") {
-      return jsonResponse({ success: false, error: "Super Admin only." }, 403);
+    if (profileError || !callerProfile?.is_active || callerProfile.role !== "super_admin") {
+      throw new HttpError(403, "FORBIDDEN", "Super Admin only.");
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const action = String(body.action ?? "").trim();
 
-    if (body.action === "export") {
-      const tables: Record<string, unknown[]> = {};
+    if (action === "create") {
+      const email = normalizeEmail(body.email);
+      const password = validatePassword(
+        body.password ?? body.temporary_password ?? body.temporaryPassword,
+      );
+      const fullName = requireString(
+        body.full_name ?? body.fullName ?? body.name,
+        "full_name",
+      );
+      const role = normalizeRole(body.role);
+      const isActive = body.is_active ?? body.isActive ?? true;
 
-      for (const table of TABLE_ORDER) {
-        const { data, error } = await admin.from(table).select("*");
-        if (error) throw new Error(`Export failed for ${table}: ${error.message}`);
-        tables[table] = data || [];
+      const { data: existing } = await admin.auth.admin.listUsers({
+        page: 1,
+        perPage: 1000,
+      });
+      const duplicate = existing?.users?.find(
+        (user) => String(user.email ?? "").toLowerCase() === email,
+      );
+      if (duplicate) {
+        throw new HttpError(409, "USER_ALREADY_EXISTS", "A user with this email already exists.");
       }
 
-      const generatedAt = new Date().toISOString();
-      const fileName = `kyum-crm-backup-${generatedAt.slice(0, 10)}-${generatedAt.slice(11, 19).replaceAll(":", "-")}.json`;
-      const totalRecords = countRecords(tables);
+      const { data: created, error: createError } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: fullName },
+      });
 
-      const backup = {
-        product: "KYUM CRM",
-        version: "1.0",
-        generated_at: generatedAt,
-        generated_by: callerData.user.id,
-        tables,
+      if (createError || !created.user) {
+        throw new HttpError(
+          400,
+          "AUTH_USER_CREATE_FAILED",
+          createError?.message ?? "Unable to create auth user.",
+        );
+      }
+
+      const userId = created.user.id;
+      const profilePayload = {
+        id: userId,
+        full_name: fullName,
+        role,
+        is_active: Boolean(isActive),
       };
 
-      await admin.from("backup_operations").insert({
-        operation_type: "export",
-        file_name: fileName,
-        total_records: totalRecords,
-        status: "completed",
-        details: { table_counts: Object.fromEntries(TABLE_ORDER.map(t => [t, tables[t].length])) },
-        created_by: callerData.user.id,
-      });
+      const { error: upsertError } = await admin
+        .from("user_profiles")
+        .upsert(profilePayload, { onConflict: "id" });
 
-      return jsonResponse({
-        success: true,
-        file_name: fileName,
-        total_records: totalRecords,
-        backup,
-      });
-    }
-
-    if (body.action === "validate") {
-      const counts = validateStructure(body.backup);
-      return jsonResponse({
-        success: true,
-        version: body.backup.version,
-        generated_at: body.backup.generated_at || null,
-        table_counts: counts,
-        total_records: Object.values(counts).reduce((sum, count) => sum + count, 0),
-      });
-    }
-
-    if (body.action === "restore") {
-      if (body.confirmation !== "RESTORE KYUM DATA") {
-        throw new Error("Restore confirmation phrase is invalid.");
+      if (upsertError) {
+        await admin.auth.admin.deleteUser(userId);
+        throw new HttpError(
+          400,
+          "PROFILE_CREATE_FAILED",
+          `Auth user was rolled back: ${upsertError.message}`,
+        );
       }
 
-      const counts = validateStructure(body.backup);
-      const backup = body.backup;
-      const fileName = `restored-backup-${new Date().toISOString()}.json`;
+      await writeAudit(admin, {
+        action: "user_create",
+        entity_type: "user_profile",
+        entity_id: userId,
+        actor_id: callerData.user.id,
+        details: { email, full_name: fullName, role, is_active: Boolean(isActive) },
+      });
 
-      const { data: operation, error: operationError } = await admin
-        .from("backup_operations")
-        .insert({
-          operation_type: "restore",
-          file_name: fileName,
-          total_records: Object.values(counts).reduce((sum, count) => sum + count, 0),
-          status: "started",
-          details: { table_counts: counts },
-          created_by: callerData.user.id,
-        })
-        .select("id")
-        .single();
+      return jsonResponse({
+        success: true,
+        user: {
+          id: userId,
+          email,
+          full_name: fullName,
+          role,
+          is_active: Boolean(isActive),
+        },
+      }, 201);
+    }
 
-      if (operationError) throw operationError;
+    if (action === "reset_password") {
+      const password = validatePassword(
+        body.password ?? body.new_password ?? body.newPassword ?? body.temporary_password,
+      );
 
-      try {
-        for (const table of RESTORE_DELETE_ORDER) {
-          const { error } = await admin.from(table).delete().not("created_at", "is", null);
-          if (error) {
-            // Tables without created_at need a different universal predicate.
-            const fallback = await admin.from(table).delete().neq(
-              table === "system_settings" ? "setting_key" : table === "app_screens" ? "screen_key" : table === "role_screen_permissions" ? "screen_key" : "id",
-              "__never__",
-            );
-            if (fallback.error) throw new Error(`Delete failed for ${table}: ${fallback.error.message}`);
-          }
-        }
+      let userId = String(body.user_id ?? body.userId ?? "").trim();
+      const email = String(body.email ?? "").trim().toLowerCase();
 
-        for (const table of TABLE_ORDER) {
-          const rows = backup.tables[table];
-          if (!rows.length) continue;
-
-          const { error } = await admin.from(table).insert(rows);
-          if (error) throw new Error(`Restore failed for ${table}: ${error.message}`);
-        }
-
-        await admin.from("backup_operations")
-          .update({ status: "completed" })
-          .eq("id", operation.id);
-
-        return jsonResponse({
-          success: true,
-          total_records: Object.values(counts).reduce((sum, count) => sum + count, 0),
-          table_counts: counts,
+      if (!userId && email) {
+        const { data: listed, error: listError } = await admin.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
         });
-      } catch (error) {
-        await admin.from("backup_operations")
-          .update({
-            status: "failed",
-            details: { table_counts: counts, error: error instanceof Error ? error.message : String(error) },
-          })
-          .eq("id", operation.id);
-        throw error;
+        if (listError) {
+          throw new HttpError(400, "USER_LOOKUP_FAILED", listError.message);
+        }
+        userId = listed.users.find(
+          (user) => String(user.email ?? "").toLowerCase() === email,
+        )?.id ?? "";
       }
+
+      if (!userId) {
+        throw new HttpError(400, "USER_ID_REQUIRED", "user_id or email is required.");
+      }
+
+      const { data: targetUser, error: getUserError } =
+        await admin.auth.admin.getUserById(userId);
+      if (getUserError || !targetUser.user) {
+        throw new HttpError(404, "USER_NOT_FOUND", "User was not found.");
+      }
+
+      const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
+        password,
+      });
+      if (updateError) {
+        throw new HttpError(400, "PASSWORD_RESET_FAILED", updateError.message);
+      }
+
+      await writeAudit(admin, {
+        action: "user_password_reset",
+        entity_type: "user_profile",
+        entity_id: userId,
+        actor_id: callerData.user.id,
+        details: { email: targetUser.user.email ?? null },
+      });
+
+      return jsonResponse({
+        success: true,
+        user_id: userId,
+        message: "Password updated successfully.",
+      });
     }
 
-    throw new Error("Unsupported action.");
+    throw new HttpError(400, "UNSUPPORTED_ACTION", "Supported actions: create, reset_password.");
   } catch (error) {
-    return jsonResponse({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    }, 400);
+    const status = error instanceof HttpError ? error.status : 400;
+    const code = error instanceof HttpError ? error.code : "REQUEST_FAILED";
+    const message = error instanceof Error ? error.message : String(error);
+    return jsonResponse({ success: false, code, error: message }, status);
   }
 });
