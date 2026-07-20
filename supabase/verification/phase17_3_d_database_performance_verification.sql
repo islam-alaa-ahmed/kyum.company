@@ -30,18 +30,18 @@ with foreign_keys as (
     and n.nspname = 'public'
 ),
 indexed_foreign_keys as (
-  select
+  select distinct
     fk.constraint_oid
   from foreign_keys fk
   join pg_index i
     on i.indrelid = fk.conrelid
    and i.indisvalid
    and i.indisready
-   and (
-     i.indkey::smallint[][
-       0:cardinality(fk.fk_columns) - 1
-     ] = fk.fk_columns
-   )
+  where not exists (
+    select 1
+    from unnest(fk.fk_columns) with ordinality as fkc(attnum, position)
+    where (i.indkey::smallint[])[fkc.position] <> fkc.attnum
+  )
 )
 select
   fk.schema_name,
