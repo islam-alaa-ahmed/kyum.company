@@ -494,6 +494,21 @@ function setOptions() {
   refreshReferenceOptions();
 }
 
+let activeViewKey = null;
+
+function routeFromLocation() {
+  const raw = String(window.location.hash || "").replace(/^#\/?/, "").trim();
+  return raw || null;
+}
+
+function syncRouteLocation(viewKey, replace = false) {
+  if (!viewKey) return;
+  const nextHash = `#/${encodeURIComponent(viewKey)}`;
+  if (window.location.hash === nextHash) return;
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({ kyumView: viewKey }, "", nextHash);
+}
+
 function switchView(requestedName, options = {}) {
   const requestedView = String(requestedName || "").trim();
   const permissions = window.CustomerPermissions;
@@ -501,22 +516,44 @@ function switchView(requestedName, options = {}) {
 
   if (!views[requestedView]) {
     console.warn(`Unknown view blocked: ${requestedView}`);
+    window.dispatchEvent(new CustomEvent("kyum-navigation-blocked", {
+      detail: { requestedView, reason: "unknown_view" }
+    }));
     return false;
   }
 
-  if (authState?.profile && !permissions?.canScreen?.(requestedView, "view")) {
-    const fallback = permissions?.firstAllowedScreen?.("dashboard");
-    console.warn(`Unauthorized view blocked: ${requestedView}`);
-    if (!options.silent && fallback && fallback !== requestedView) {
-      return switchView(fallback, { silent: true, permissionFallback: true });
+  if (authState?.profile) {
+    const authorization = permissions?.authorizeView?.(requestedView, "dashboard") || {
+      allowed: permissions?.canScreen?.(requestedView, "view") === true,
+      target: permissions?.firstAllowedScreen?.("dashboard") || null,
+      reason: "permission_denied"
+    };
+
+    if (!authorization.allowed) {
+      console.warn(`Unauthorized view blocked: ${requestedView}`);
+      window.dispatchEvent(new CustomEvent("kyum-navigation-blocked", {
+        detail: { requestedView, reason: authorization.reason, fallback: authorization.target }
+      }));
+      if (authorization.target && authorization.target !== requestedView) {
+        return switchView(authorization.target, {
+          silent: true,
+          permissionFallback: true,
+          replaceHistory: true
+        });
+      }
+      return false;
     }
-    return false;
   }
 
   const name = requestedView;
   const viewRenderStartedAt = performance.now();
   if (name !== "systemHealth") stopSystemHealthAutoRefresh();
-  Object.entries(views).forEach(([key, element]) => element.classList.toggle("hidden", key !== name));
+  Object.entries(views).forEach(([key, element]) => {
+    const isActive = key === name;
+    element.classList.toggle("hidden", !isActive);
+    element.setAttribute("aria-hidden", String(!isActive));
+    if ("inert" in element) element.inert = !isActive;
+  });
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.view === name));
 
   const activeNavItem = document.querySelector(`.nav-item[data-view="${name}"]`);
@@ -590,8 +627,20 @@ function switchView(requestedName, options = {}) {
     loadReferenceDataFromSupabase();
     renderReferenceData();
   }
+
+  activeViewKey = name;
+  if (!options.fromHistory) {
+    syncRouteLocation(name, Boolean(options.replaceHistory || options.permissionFallback));
+  }
+  window.dispatchEvent(new CustomEvent("kyum-view-changed", { detail: { view: name } }));
   return true;
 }
+
+window.KYUMNavigation = Object.freeze({
+  open: (viewKey, options = {}) => switchView(viewKey, options),
+  current: () => activeViewKey,
+  canOpen: viewKey => Boolean(views[viewKey]) && Boolean(window.CustomerPermissions?.canScreen?.(viewKey, "view"))
+});
 
 
 function dashboardFilterState() {
@@ -5103,8 +5152,22 @@ function initializeSidebarGroups() {
 initializeSidebarGroups();
 
 window.addEventListener("customer-auth-ready", () => {
+  const requested = routeFromLocation();
   const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");
-  if (fallback) switchView(fallback, { silent: true });
+  const target = requested && views[requested] ? requested : fallback;
+  if (target) switchView(target, { silent: true, replaceHistory: !requested });
+});
+
+window.addEventListener("popstate", () => {
+  const requested = routeFromLocation();
+  if (!requested || !views[requested]) return;
+  switchView(requested, { silent: true, fromHistory: true, replaceHistory: true });
+});
+
+window.addEventListener("hashchange", () => {
+  const requested = routeFromLocation();
+  if (!requested || requested === activeViewKey || !views[requested]) return;
+  switchView(requested, { silent: true, fromHistory: true, replaceHistory: true });
 });
 
 document.querySelectorAll(".nav-item[data-view]").forEach(button => {

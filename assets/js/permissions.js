@@ -27,7 +27,12 @@ window.CustomerPermissions = {
     return window.CustomerAuth?.getState?.().profile?.role || "viewer";
   },
 
+  normalizeScreenKey(screenKey) {
+    return String(screenKey || "").trim();
+  },
+
   canScreen(screenKey, action = "view") {
+    screenKey = this.normalizeScreenKey(screenKey);
     if (!screenKey) return false;
     const role = this.currentRole();
     if (role === "super_admin") return true;
@@ -65,6 +70,21 @@ window.CustomerPermissions = {
       .map(row => row.screen_key);
   },
 
+  authorizeView(screenKey, preferred = "dashboard") {
+    const requested = this.normalizeScreenKey(screenKey);
+    if (requested && this.canScreen(requested, "view")) {
+      return Object.freeze({ allowed: true, requested, target: requested, reason: "allowed" });
+    }
+
+    const fallback = this.firstAllowedScreen(preferred);
+    return Object.freeze({
+      allowed: false,
+      requested,
+      target: fallback,
+      reason: requested ? "permission_denied" : "invalid_view"
+    });
+  },
+
   firstAllowedScreen(preferred = "dashboard") {
     if (this.canScreen(preferred, "view")) return preferred;
     const navOrder = [...document.querySelectorAll(".nav-item[data-view]")]
@@ -78,6 +98,7 @@ window.CustomerPermissions = {
       const allowed = this.canScreen(button.dataset.view, "view");
       button.classList.toggle("hidden", !allowed);
       button.setAttribute("aria-hidden", String(!allowed));
+      button.setAttribute("tabindex", allowed ? "0" : "-1");
       button.disabled = !allowed;
     });
     document.querySelectorAll(".nav-group").forEach(group => {
