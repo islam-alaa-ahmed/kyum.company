@@ -916,6 +916,14 @@ function renderActivityTrend(data) {
     </div>`;
 }
 
+function canScreenAction(screenKey, action = "view") {
+  return Boolean(window.CustomerPermissions?.canScreen?.(screenKey, action));
+}
+
+function requireScreenAction(screenKey, action, message) {
+  return Boolean(window.CustomerPermissions?.requireAction?.(screenKey, action, { message }));
+}
+
 function roleLabel(role) {
   return window.CustomerPermissions?.roleLabels?.[role] || role;
 }
@@ -975,6 +983,8 @@ function renderUsers() {
 }
 
 function openUserDialog(user = null) {
+  const action = user ? "edit" : "add";
+  if (!requireScreenAction("users", action, `لا توجد صلاحية ${user ? "تعديل" : "إضافة"} المستخدمين.`)) return;
   editingUserId = user?.id || null;
   document.getElementById("userDialogTitle").textContent = user ? "تعديل المستخدم" : "إضافة مستخدم";
   document.getElementById("userFullName").value = user?.full_name || "";
@@ -998,6 +1008,8 @@ function closeUserDialog() {
 }
 
 async function saveUserForm(event) {
+  const action = editingUserId ? "edit" : "add";
+  if (!requireScreenAction("users", action, "لا توجد صلاحية حفظ المستخدمين.")) return;
   event.preventDefault();
   const button = event.submitter;
   try {
@@ -1025,6 +1037,7 @@ async function saveUserForm(event) {
 }
 
 async function resetUserPassword(userId) {
+  if (!requireScreenAction("users", "edit", "لا توجد صلاحية إعادة تعيين كلمات المرور.")) return;
   const password = prompt("أدخل كلمة مرور مؤقتة من 8 أحرف على الأقل:");
   if (!password) return;
   if (password.length < 8) return alert("كلمة المرور قصيرة.");
@@ -1074,6 +1087,7 @@ function renderPermissionsMatrix(role) {
 }
 
 async function savePermissions() {
+  if (!requireScreenAction("permissions", "edit", "لا توجد صلاحية تعديل الصلاحيات.")) return;
   const role = document.getElementById("permissionsRoleSelect").value;
   if (role === "super_admin") return alert("مدير النظام يمتلك كل الصلاحيات تلقائيًا.");
   const rows = [...document.querySelectorAll(".permission-row[data-screen-key]")].map(row => ({
@@ -2540,8 +2554,8 @@ function currentRole() {
   return window.CustomerAuth?.getState?.().profile?.role || "viewer";
 }
 
-function canManageReferenceData() {
-  return ["super_admin", "sales_manager"].includes(currentRole());
+function canManageReferenceData(action = "edit", screenKey = "settings") {
+  return canScreenAction(screenKey, action);
 }
 
 function filteredRepresentativeRecords() {
@@ -2678,6 +2692,7 @@ async function toggleRepresentativeStatus(id) {
 }
 
 async function deleteRepresentativeRecord(id) {
+  if (!requireScreenAction("representatives", "delete", "لا توجد صلاحية حذف مندوبي المبيعات.")) return;
   if (!canManageReferenceData()) return;
 
   const record = representativeRecords.find(item => item.id === id);
@@ -2780,6 +2795,7 @@ function syncReferenceDataPanel() {
 }
 
 async function deleteReferenceItem(type, id) {
+  if (!requireScreenAction("settings", "delete", "لا توجد صلاحية حذف البيانات المرجعية.")) return;
   if (!canManageReferenceData()) return;
 
   const records = type === "interest" ? interestRecords : reasonRecords;
@@ -2829,6 +2845,8 @@ async function deleteReferenceItem(type, id) {
 }
 
 function openRepresentativeDialog(record = null) {
+  const action = record ? "edit" : "add";
+  if (!requireScreenAction("representatives", action, "لا توجد صلاحية إدارة مندوبي المبيعات.")) return;
   editingRepresentativeId = record?.id || null;
   document.getElementById("representativeDialogTitle").textContent =
     record ? "تعديل مندوب المبيعات" : "إضافة مندوب مبيعات";
@@ -2848,6 +2866,8 @@ function closeRepresentativeDialog() {
 }
 
 async function saveRepresentativeForm(event) {
+  const action = editingRepresentativeId ? "edit" : "add";
+  if (!requireScreenAction("representatives", action, "لا توجد صلاحية حفظ مندوبي المبيعات.")) return;
   event.preventDefault();
   try {
     await window.ReferenceDataService.saveRepresentative({
@@ -2867,6 +2887,8 @@ async function saveRepresentativeForm(event) {
 }
 
 function openReferenceDialog(type, record = null) {
+  const action = record ? "edit" : "add";
+  if (!requireScreenAction("settings", action, "لا توجد صلاحية إدارة البيانات المرجعية.")) return;
   editingReferenceItemId = record?.id || null;
   document.getElementById("referenceDialogTitle").textContent =
     `${record ? "تعديل" : "إضافة"} ${type === "interest" ? "مجال اهتمام" : "سبب عدم بيع"}`;
@@ -2884,6 +2906,8 @@ function closeReferenceDialog() {
 }
 
 async function saveReferenceForm(event) {
+  const action = editingReferenceItemId ? "edit" : "add";
+  if (!requireScreenAction("settings", action, "لا توجد صلاحية حفظ البيانات المرجعية.")) return;
   event.preventDefault();
   const type = document.getElementById("referenceItemType").value;
   const payload = {
@@ -2918,6 +2942,8 @@ function syncCustomerContactPersonField() {
 }
 
 function openCustomerDialog(customer = null) {
+  const action = customer ? "edit" : "add";
+  if (!requireScreenAction("customers", action, `لا توجد صلاحية ${customer ? "تعديل" : "إضافة"} العملاء.`)) return;
   editingId = customer?.id || null;
   document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
   document.getElementById("customerId").value = customer?.id || "";
@@ -2947,6 +2973,8 @@ function closeCustomerDialog() {
 }
 
 async function handleCustomerSubmit(event) {
+  const action = editingId ? "edit" : "add";
+  if (!requireScreenAction("customers", action, "لا توجد صلاحية حفظ العملاء.")) return;
   event.preventDefault();
 
   if (!canManageCustomers()) {
@@ -3027,6 +3055,7 @@ async function handleCustomerSubmit(event) {
 }
 
 async function deleteCustomer(id) {
+  if (!requireScreenAction("customers", "delete", "لا توجد صلاحية حذف العملاء.")) return;
   if (!canDeleteCustomers()) {
     alert("حذف العملاء متاح للإدارة فقط.");
     return;
@@ -3172,6 +3201,8 @@ function renderFollowups() {
 }
 
 function openFollowupDialog(customerId = null, followup = null) {
+  const action = followup ? "edit" : "add";
+  if (!requireScreenAction("followups", action, `لا توجد صلاحية ${followup ? "تعديل" : "إضافة"} المتابعات.`)) return;
   editingFollowupId = followup?.id || null;
   document.getElementById("followupDialogTitle").textContent =
     followup ? "تعديل المتابعة" : "إضافة متابعة جديدة";
@@ -3200,6 +3231,8 @@ function closeFollowupDialog() {
 }
 
 async function handleFollowupSubmit(event) {
+  const action = editingFollowupId ? "edit" : "add";
+  if (!requireScreenAction("followups", action, "لا توجد صلاحية حفظ المتابعات.")) return;
   event.preventDefault();
 
   if (!canManageFollowups()) {
@@ -3259,6 +3292,7 @@ async function handleFollowupSubmit(event) {
 }
 
 async function deleteFollowup(id) {
+  if (!requireScreenAction("followups", "delete", "لا توجد صلاحية حذف المتابعات.")) return;
   if (!canManageFollowups()) {
     alert("لا توجد صلاحية لحذف المتابعات.");
     return;
@@ -4837,8 +4871,8 @@ async function updateDailyTask(taskKey, completed) {
   }
 }
 
-function canManageQuotations() {
-  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+function canManageQuotations(action = "edit") {
+  return canScreenAction("quotations", action);
 }
 
 async function loadQuotationsFromSupabase(force = false) {
@@ -4921,7 +4955,7 @@ function renderQuotations() {
   const rows = allRows.slice(start, start + QUOTATIONS_PAGE_SIZE);
 
   document.getElementById("addQuotationBtn")
-    ?.classList.toggle("hidden", !canManageQuotations());
+    ?.classList.toggle("hidden", !canManageQuotations("add"));
 
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
@@ -4947,8 +4981,8 @@ function renderQuotations() {
           <td>${escapeHtml(item.rejectionReason || "—")}</td>
           <td>
             <div class="row-actions">
-              ${canManageQuotations() ? `<button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>` : ""}
-              ${canManageQuotations() ? `<button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>` : ""}
+              ${canManageQuotations("edit") ? `<button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>` : ""}
+              ${canManageQuotations("delete") ? `<button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>` : ""}
             </div>
           </td>
         </tr>`;
@@ -4967,6 +5001,8 @@ function renderQuotations() {
 }
 
 function openQuotationDialog(quotation = null, customerId = null) {
+  const action = quotation ? "edit" : "add";
+  if (!requireScreenAction("quotations", action, `لا توجد صلاحية ${quotation ? "تعديل" : "إضافة"} عروض الأسعار.`)) return;
   editingQuotationId = quotation?.id || null;
   document.getElementById("quotationDialogTitle").textContent =
     quotation ? "تعديل عرض السعر" : "إضافة عرض سعر";
@@ -4999,9 +5035,11 @@ function closeQuotationDialog() {
 }
 
 async function handleQuotationSubmit(event) {
+  const action = editingQuotationId ? "edit" : "add";
+  if (!requireScreenAction("quotations", action, "لا توجد صلاحية حفظ عروض الأسعار.")) return;
   event.preventDefault();
 
-  if (!canManageQuotations()) {
+  if (!canManageQuotations(action)) {
     alert("لا توجد صلاحية لإدارة عروض الأسعار.");
     return;
   }
@@ -5089,7 +5127,8 @@ async function handleQuotationSubmit(event) {
 }
 
 async function deleteQuotation(id) {
-  if (!canManageQuotations()) {
+  if (!requireScreenAction("quotations", "delete", "لا توجد صلاحية حذف عروض الأسعار.")) return;
+  if (!canManageQuotations("delete")) {
     alert("لا توجد صلاحية لحذف عروض الأسعار.");
     return;
   }

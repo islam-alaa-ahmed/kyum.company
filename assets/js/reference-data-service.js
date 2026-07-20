@@ -1,5 +1,11 @@
 // KYUM Phase 07 — Reference Data Supabase Service
 (function () {
+
+  function requirePermission(screenKey, action) {
+    if (!window.CustomerPermissions?.requireAction?.(screenKey, action, { silent: true })) {
+      throw new Error(`Permission denied: ${screenKey}.${action}`);
+    }
+  }
   function client() {
     if (!window.customerSupabase) {
       throw new Error("اتصال Supabase غير جاهز.");
@@ -29,6 +35,7 @@
   }
 
   async function saveRepresentative(record) {
+    requirePermission("representatives", record?.id ? "edit" : "add");
     const payload = {
       representative_code: record.representative_code.trim(),
       full_name: record.full_name.trim(),
@@ -65,6 +72,7 @@
   }
 
   async function saveReference(table, record) {
+    requirePermission("settings", record?.id ? "edit" : "add");
     const payload = {
       name: record.name.trim(),
       is_active: Boolean(record.is_active)

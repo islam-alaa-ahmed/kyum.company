@@ -1,4 +1,10 @@
 (function () {
+
+  function requirePermission(screenKey, action) {
+    if (!window.CustomerPermissions?.requireAction?.(screenKey, action, { silent: true })) {
+      throw new Error(`Permission denied: ${screenKey}.${action}`);
+    }
+  }
   const client = () => {
     if (!window.customerSupabase) throw new Error("اتصال Supabase غير جاهز.");
     return window.customerSupabase;
@@ -14,6 +20,7 @@
   }
 
   async function createUser(payload) {
+    requirePermission("users", "add");
     const { data, error } = await client().functions.invoke("manage-user", {
       body: {
         action: "create",
@@ -32,6 +39,7 @@
   }
 
   async function updateUser(payload) {
+    requirePermission("users", "edit");
     const { data, error } = await client()
       .from("user_profiles")
       .update({
@@ -50,6 +58,7 @@
   }
 
   async function resetPassword(userId, password) {
+    requirePermission("users", "edit");
     const { data, error } = await client().functions.invoke("manage-user", {
       body: { action: "reset_password", user_id: userId, password }
     });

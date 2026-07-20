@@ -1,5 +1,11 @@
 // KYUM Phase 08 — Customers Supabase Service
 (function () {
+
+  function requirePermission(screenKey, action) {
+    if (!window.CustomerPermissions?.requireAction?.(screenKey, action, { silent: true })) {
+      throw new Error(`Permission denied: ${screenKey}.${action}`);
+    }
+  }
   function client() {
     if (!window.customerSupabase) {
       throw new Error("اتصال Supabase غير جاهز.");
@@ -131,6 +137,7 @@
   }
 
   async function saveCustomer(record) {
+    requirePermission("customers", record?.id ? "edit" : "add");
     const { data: userData, error: userError } = await client().auth.getUser();
     if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
 
@@ -196,6 +203,7 @@
   }
 
   async function deleteCustomer(customerId, customerName) {
+    requirePermission("customers", "delete");
     await unwrap(
       client().from("customers").delete().eq("id", customerId),
       "تعذر حذف العميل"

@@ -1,5 +1,11 @@
 // KYUM Phase 10 — Quotations Supabase Service
 (function () {
+
+  function requirePermission(screenKey, action) {
+    if (!window.CustomerPermissions?.requireAction?.(screenKey, action, { silent: true })) {
+      throw new Error(`Permission denied: ${screenKey}.${action}`);
+    }
+  }
   function client() {
     if (!window.customerSupabase) {
       throw new Error("اتصال Supabase غير جاهز.");
@@ -149,6 +155,7 @@
   }
 
   async function saveQuotation(record) {
+    requirePermission("quotations", record?.id ? "edit" : "add");
     const { data: userData, error: userError } = await client().auth.getUser();
 
     if (userError) {
@@ -212,6 +219,7 @@
   }
 
   async function deleteQuotation(record) {
+    requirePermission("quotations", "delete");
     await unwrap(
       client()
         .from("quotations")

@@ -23,6 +23,45 @@ window.CustomerPermissions = {
     return matrix[role]?.has(action) || false;
   },
 
+
+  actionLabels: Object.freeze({
+    view: "عرض",
+    add: "إضافة",
+    edit: "تعديل",
+    delete: "حذف",
+    export: "تصدير"
+  }),
+
+  canAction(screenKey, action = "view") {
+    return this.canScreen(screenKey, action);
+  },
+
+  requireAction(screenKey, action = "view", options = {}) {
+    const allowed = this.canScreen(screenKey, action);
+    if (allowed) return true;
+
+    const label = options.label || this.actionLabels[action] || action;
+    const message = options.message || `لا توجد صلاحية ${label} لهذه الشاشة.`;
+    window.dispatchEvent(new CustomEvent("kyum-permission-denied", {
+      detail: Object.freeze({ screenKey, action, message })
+    }));
+    if (!options.silent) alert(message);
+    return false;
+  },
+
+  applyActionVisibility(root = document) {
+    root.querySelectorAll("[data-permission-screen][data-permission-action]").forEach(element => {
+      const allowed = this.canScreen(
+        element.dataset.permissionScreen,
+        element.dataset.permissionAction
+      );
+      element.classList.toggle("hidden", !allowed);
+      element.setAttribute("aria-hidden", String(!allowed));
+      if ("disabled" in element) element.disabled = !allowed;
+      element.setAttribute("tabindex", allowed ? "0" : "-1");
+    });
+  },
+
   currentRole() {
     return window.CustomerAuth?.getState?.().profile?.role || "viewer";
   },
@@ -115,6 +154,7 @@ window.CustomerPermissions = {
     document.querySelectorAll(".followup-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_followups")));
     document.querySelectorAll(".quotation-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_quotations")));
     document.querySelectorAll(".users-manage-action,.permissions-manage-action,.backup-manage-action,.system-settings-manage-action").forEach(b => b.classList.toggle("hidden", role !== "super_admin"));
+    this.applyActionVisibility();
   },
 
   reset() {
