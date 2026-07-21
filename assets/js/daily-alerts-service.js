@@ -1,5 +1,9 @@
 // KYUM Phase 16.5 — Daily Alerts Service
 (function () {
+  const syncCache = new Map();
+  const syncInFlight = new Map();
+  const SYNC_TTL_MS = 60 * 1000;
+
   function client() {
     if (!window.customerSupabase) throw new Error("اتصال Supabase غير جاهز.");
     return window.customerSupabase;
@@ -28,13 +32,44 @@
     return data || [];
   }
 
-  async function sync(workDate = todayIso()) {
-    const { data, error } = await client().rpc(
-      "sync_daily_operational_alerts",
-      { p_work_date: workDate }
-    );
-    if (error) throw new Error(`تعذر مزامنة التنبيهات: ${error.message}`);
-    return data;
+  async function sync(workDate = todayIso(), options = {}) {
+    const dateKey = String(workDate || todayIso());
+    const force = Boolean(options?.force);
+    const cached = syncCache.get(dateKey);
+
+    if (!force && cached && (Date.now() - cached.timestamp) < SYNC_TTL_MS) {
+      return cached.data;
+    }
+
+    if (syncInFlight.has(dateKey)) {
+      return syncInFlight.get(dateKey);
+    }
+
+    const request = (async () => {
+      const { data, error } = await client().rpc(
+        "sync_daily_operational_alerts",
+        { p_work_date: dateKey }
+      );
+
+      if (error) {
+        throw new Error(`تعذر مزامنة التنبيهات: ${error.message}`);
+      }
+
+      syncCache.set(dateKey, {
+        data,
+        timestamp: Date.now()
+      });
+
+      return data;
+    })();
+
+    syncInFlight.set(dateKey, request);
+
+    try {
+      return await request;
+    } finally {
+      syncInFlight.delete(dateKey);
+    }
   }
 
   async function act(alertId, actionType, note = "") {

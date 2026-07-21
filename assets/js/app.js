@@ -565,7 +565,7 @@ function switchView(requestedName, options = {}) {
   }
 
   if (name === "dailyOperations") {
-    loadDailyOperations(true);
+    loadDailyOperations(false);
   }
   if (name === "users") {
     populateSecurityOptions();
@@ -4477,7 +4477,7 @@ async function loadDailyAlerts(forceSync = false) {
   showDataStatus("dailyAlertsStatus", "جاري تحميل التنبيهات...", "info");
   try {
     if (forceSync) {
-      await window.DailyAlertsService.sync();
+      await window.DailyAlertsService.sync(undefined, { force: true });
     }
     dailyAlerts = await window.DailyAlertsService.list();
     renderDailyAlerts();
