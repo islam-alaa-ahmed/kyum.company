@@ -3564,3 +3564,112 @@ body.sidebar-menu-open {
     transition: none;
   }
 }
+
+
+/* Phase 17.4-C8 — KYUM scroll logo inside the sticky header */
+.topbar-user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-user-actions .user-chip {
+  min-width: 250px;
+}
+
+.kyum-scroll-control,
+.kyum-scroll-control.is-visible {
+  position: relative;
+  z-index: 1;
+  right: auto;
+  bottom: auto;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,.62);
+  border-radius: 17px;
+  background: rgba(255,255,255,.78);
+  box-shadow:
+    0 10px 26px rgba(15,23,42,.14),
+    inset 0 1px 0 rgba(255,255,255,.8);
+  backdrop-filter: blur(14px) saturate(145%);
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  overflow: hidden;
+}
+
+.kyum-scroll-control img {
+  width: 42px;
+  height: 42px;
+  display: block;
+  border-radius: 13px;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.kyum-scroll-control:hover {
+  transform: translateY(-1px);
+  border-color: rgba(91,74,236,.42);
+  box-shadow:
+    0 14px 30px rgba(15,23,42,.18),
+    0 0 0 4px rgba(91,74,236,.09);
+}
+
+.kyum-scroll-control:active {
+  transform: scale(.96);
+}
+
+.topbar.is-scrolled .kyum-scroll-control {
+  background: rgba(255,255,255,.68);
+  box-shadow: 0 8px 20px rgba(15,23,42,.13);
+}
+
+.kyum-scroll-logo,
+.kyum-scroll-ring {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .topbar-user-actions {
+    grid-column: 1 / -1;
+    width: fit-content;
+  }
+
+  .topbar-user-actions .user-chip {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-user-actions {
+    grid-column: auto;
+    gap: 6px;
+  }
+
+  .topbar-user-actions .user-chip {
+    display: none;
+  }
+
+  .kyum-scroll-control,
+  .kyum-scroll-control.is-visible {
+    right: auto;
+    bottom: auto;
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    border-radius: 14px;
+  }
+
+  .kyum-scroll-control img {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+}

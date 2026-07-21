@@ -137,11 +137,23 @@
           <p id="pageSubtitle">ملخص بيانات العملاء والمتابعة</p>
         </div>
 
-        <div class="user-chip">
-          <span class="avatar">أ</span>
-          <div>
-            <strong id="currentUserName">مستخدم</strong>
-            <small id="currentUserMeta">جاري التحميل...</small>
+        <div class="topbar-user-actions">
+          <button
+            id="kyumScrollControl"
+            class="kyum-scroll-control is-visible"
+            type="button"
+            aria-label="ضغطة واحدة للأعلى، ضغطتان لأسفل"
+            title="ضغطة واحدة: أعلى الصفحة — ضغطتان: أسفل الصفحة"
+          >
+            <img src="assets/images/apple-touch-icon.png" alt="KYUM">
+          </button>
+
+          <div class="user-chip">
+            <span class="avatar">أ</span>
+            <div>
+              <strong id="currentUserName">مستخدم</strong>
+              <small id="currentUserMeta">جاري التحميل...</small>
+            </div>
           </div>
         </div>
       </header>
@@ -2353,16 +2365,6 @@
     </form>
   </dialog>
 
-  <button
-    id="kyumScrollControl"
-    class="kyum-scroll-control"
-    type="button"
-    aria-label="ضغطة واحدة للأعلى، ضغطتان لأسفل"
-    title="ضغطة واحدة: أعلى الصفحة — ضغطتان: أسفل الصفحة"
-  >
-    <span class="kyum-scroll-logo">K</span>
-    <span class="kyum-scroll-ring" aria-hidden="true"></span>
-  </button>
 
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
@@ -2389,6 +2391,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C7"></script>
+  <script src="assets/js/app.js?v=17.4-C8"></script>
 </body>
 </html>

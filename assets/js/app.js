@@ -5641,16 +5641,7 @@ function initializeKyumScrollControl() {
     }
   });
 
-  const updateVisibility = () => {
-    const pageHeight = document.documentElement.scrollHeight;
-    const viewportHeight = window.innerHeight;
-    button.classList.toggle("is-visible", pageHeight > viewportHeight + 120);
-  };
-
-  updateVisibility();
-  window.addEventListener("resize", updateVisibility, { passive: true });
-  window.addEventListener("load", updateVisibility, { once: true });
-  window.setTimeout(updateVisibility, 400);
+  button.classList.add("is-visible");
 }
 
 initializeKyumScrollControl();
