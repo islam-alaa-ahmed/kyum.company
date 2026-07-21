@@ -5582,6 +5582,79 @@ function initializeGlassHeader() {
 
 initializeGlassHeader();
 
+function initializeKyumScrollControl() {
+  const button = document.getElementById("kyumScrollControl");
+  if (!button || button.dataset.initialized === "true") return;
+
+  button.dataset.initialized = "true";
+  let clickTimer = null;
+  let clickCount = 0;
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
+  const scrollToBottom = () => {
+    const bottom = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight
+    );
+
+    window.scrollTo({
+      top: bottom,
+      behavior: "smooth"
+    });
+  };
+
+  button.addEventListener("click", () => {
+    clickCount += 1;
+
+    if (clickCount === 1) {
+      clickTimer = window.setTimeout(() => {
+        scrollToTop();
+        clickCount = 0;
+        clickTimer = null;
+      }, 260);
+      return;
+    }
+
+    if (clickCount === 2) {
+      if (clickTimer) window.clearTimeout(clickTimer);
+      scrollToBottom();
+      clickCount = 0;
+      clickTimer = null;
+    }
+  });
+
+  button.addEventListener("keydown", event => {
+    if (event.key === "Home") {
+      event.preventDefault();
+      scrollToTop();
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      scrollToBottom();
+    }
+  });
+
+  const updateVisibility = () => {
+    const pageHeight = document.documentElement.scrollHeight;
+    const viewportHeight = window.innerHeight;
+    button.classList.toggle("is-visible", pageHeight > viewportHeight + 120);
+  };
+
+  updateVisibility();
+  window.addEventListener("resize", updateVisibility, { passive: true });
+  window.addEventListener("load", updateVisibility, { once: true });
+  window.setTimeout(updateVisibility, 400);
+}
+
+initializeKyumScrollControl();
+
 window.addEventListener("customer-auth-ready", () => {
   const requested = routeFromLocation();
   const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");
