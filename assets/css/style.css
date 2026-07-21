@@ -2882,3 +2882,31 @@ body.customer360-exporting .customer360-shell *{
     align-items:flex-start
   }
 }
+
+
+/* Phase 17.4-C2 — Customer Excel export actions */
+.reference-customers-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reference-customers-actions .compact-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .reference-customers-header {
+    align-items: stretch;
+  }
+
+  .reference-customers-actions {
+    width: 100%;
+  }
+
+  .reference-customers-actions .compact-btn {
+    flex: 1 1 140px;
+  }
+}

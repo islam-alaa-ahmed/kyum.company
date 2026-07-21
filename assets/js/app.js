@@ -2874,6 +2874,13 @@ function renderReferenceCustomers() {
     !canScreenAction("customers", "add")
   );
 
+  document.querySelectorAll(".customer-export-action").forEach(button => {
+    button.classList.toggle(
+      "hidden",
+      !canScreenAction("customers", "export")
+    );
+  });
+
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
       customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء..."
@@ -5624,6 +5631,49 @@ document.getElementById("referenceDataSectionFilter")?.addEventListener(
 document.getElementById("referenceAddCustomerBtn")?.addEventListener("click", () => {
   if (!requireScreenAction("customers", "add", "لا توجد صلاحية إضافة العملاء.")) return;
   openCustomerDialog();
+});
+
+document.getElementById("referenceCustomersExportBtn")?.addEventListener("click", () => {
+  if (!requireScreenAction("customers", "export", "لا توجد صلاحية تصدير بيانات العملاء.")) return;
+
+  try {
+    const filteredRows = filteredReferenceCustomers();
+    const exportedCount = window.CustomerExcelCenter.exportCustomers(
+      filteredRows,
+      { filtered: filteredRows.length !== customers.length }
+    );
+
+    showDataStatus(
+      "referenceCustomersStatus",
+      `تم تصدير ${exportedCount} عميل إلى Excel.`,
+      "success"
+    );
+  } catch (error) {
+    showDataStatus(
+      "referenceCustomersStatus",
+      error instanceof Error ? error.message : "تعذر تصدير بيانات العملاء.",
+      "error"
+    );
+  }
+});
+
+document.getElementById("referenceCustomersTemplateBtn")?.addEventListener("click", () => {
+  if (!requireScreenAction("customers", "export", "لا توجد صلاحية تنزيل نموذج العملاء.")) return;
+
+  try {
+    window.CustomerExcelCenter.downloadTemplate();
+    showDataStatus(
+      "referenceCustomersStatus",
+      "تم تنزيل نموذج استيراد العملاء.",
+      "success"
+    );
+  } catch (error) {
+    showDataStatus(
+      "referenceCustomersStatus",
+      error instanceof Error ? error.message : "تعذر تنزيل النموذج.",
+      "error"
+    );
+  }
 });
 
 document.getElementById("referenceCustomersPrevPage")?.addEventListener("click", () => {

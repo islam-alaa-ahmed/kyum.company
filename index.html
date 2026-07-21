@@ -646,7 +646,11 @@
                 <h3>العملاء</h3>
                 <p>عرض بيانات العملاء والبحث والفلترة والتعديل وفتح ملف العميل.</p>
               </div>
-              <button id="referenceAddCustomerBtn" class="primary-btn compact-btn customer-manage-action" type="button">إضافة عميل</button>
+              <div class="reference-customers-actions">
+                <button id="referenceCustomersExportBtn" class="secondary-btn compact-btn customer-export-action" type="button">تصدير Excel</button>
+                <button id="referenceCustomersTemplateBtn" class="secondary-btn compact-btn customer-export-action" type="button">تنزيل النموذج</button>
+                <button id="referenceAddCustomerBtn" class="primary-btn compact-btn customer-manage-action" type="button">إضافة عميل</button>
+              </div>
             </div>
 
             <div class="reference-customers-filters">
@@ -2251,9 +2255,10 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
+  <script src="assets/js/customer-excel-center.js?v=17.4-C2"></script>
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C1"></script>
+  <script src="assets/js/app.js?v=17.4-C2"></script>
 </body>
 </html>
