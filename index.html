@@ -45,20 +45,6 @@
   </section>
 
   <div id="appView" class="app-shell hidden">
-    <button
-      id="sidebarMenuToggle"
-      class="sidebar-menu-launcher"
-      type="button"
-      aria-controls="mainSidebar"
-      aria-expanded="false"
-    >
-      <span class="brand-mark small">K</span>
-      <span class="sidebar-menu-launcher-text">
-        <strong>KYUM Company</strong>
-        <small>Enterprise CRM</small>
-      </span>
-    </button>
-
     <div id="sidebarBackdrop" class="sidebar-backdrop hidden" aria-hidden="true"></div>
 
     <aside id="mainSidebar" class="sidebar" aria-hidden="true">
@@ -131,11 +117,26 @@
     </aside>
 
     <main class="main-content">
-      <header class="topbar">
-        <div>
+      <header id="appHeader" class="topbar">
+        <button
+          id="sidebarMenuToggle"
+          class="sidebar-menu-launcher"
+          type="button"
+          aria-controls="mainSidebar"
+          aria-expanded="false"
+        >
+          <span class="brand-mark small">K</span>
+          <span class="sidebar-menu-launcher-text">
+            <strong>KYUM Company</strong>
+            <small>Enterprise CRM</small>
+          </span>
+        </button>
+
+        <div class="topbar-title">
           <h2 id="pageTitle">لوحة التحكم</h2>
           <p id="pageSubtitle">ملخص بيانات العملاء والمتابعة</p>
         </div>
+
         <div class="user-chip">
           <span class="avatar">أ</span>
           <div>
@@ -2377,6 +2378,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C5"></script>
+  <script src="assets/js/app.js?v=17.4-C6"></script>
 </body>
 </html>

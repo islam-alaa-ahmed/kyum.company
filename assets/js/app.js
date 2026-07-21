@@ -5569,6 +5569,19 @@ function initializeDynamicSidebar() {
 initializeSidebarGroups();
 initializeDynamicSidebar();
 
+function updateGlassHeaderState() {
+  const header = document.getElementById("appHeader");
+  if (!header) return;
+  header.classList.toggle("is-scrolled", window.scrollY > 18);
+}
+
+function initializeGlassHeader() {
+  updateGlassHeaderState();
+  window.addEventListener("scroll", updateGlassHeaderState, { passive: true });
+}
+
+initializeGlassHeader();
+
 window.addEventListener("customer-auth-ready", () => {
   const requested = routeFromLocation();
   const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");
