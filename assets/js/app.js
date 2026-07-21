@@ -18,6 +18,8 @@ let referenceDataLoadedAt = 0;
 const REFERENCE_DATA_TTL_MS = 5 * 60 * 1000;
 let editingRepresentativeId = null;
 let editingReferenceItemId = null;
+let referenceCustomersPage = 1;
+const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
 
 const seedCustomers = [
   {
@@ -645,7 +647,9 @@ function switchView(requestedName, options = {}) {
   }
   if (name === "settings") {
     loadReferenceDataFromSupabase();
+    loadCustomersFromSupabase();
     renderReferenceData();
+    renderReferenceCustomers();
   }
 
   activeViewKey = name;
@@ -2477,6 +2481,7 @@ async function loadCustomersFromSupabase(force = false) {
     showDataStatus("customersStatus", "");
     refreshReferenceOptions();
     renderCustomers();
+    renderReferenceCustomers();
     renderDashboard();
     renderRepresentatives();
   } catch (error) {
@@ -2802,6 +2807,115 @@ function renderReferenceData() {
   document.querySelectorAll(".reference-manage-action").forEach(button => {
     button.classList.toggle("hidden", !canManage);
   });
+
+  renderReferenceCustomers();
+}
+
+function filteredReferenceCustomers() {
+  const query = (document.getElementById("referenceCustomersSearch")?.value || "")
+    .trim()
+    .toLowerCase();
+  const type = document.getElementById("referenceCustomersTypeFilter")?.value || "";
+  const interest = document.getElementById("referenceCustomersInterestFilter")?.value || "";
+  const representative = document.getElementById("referenceCustomersRepFilter")?.value || "";
+
+  return customers.filter(customer => {
+    const searchable = [
+      customer.name,
+      customer.phone,
+      customer.contactPersonName,
+      customer.city,
+      customer.quotationNumber,
+      customer.representative
+    ].join(" ").toLowerCase();
+
+    return (!query || searchable.includes(query))
+      && (!type || customer.type === type)
+      && (!interest || customer.interests.includes(interest))
+      && (!representative || customer.representative === representative);
+  });
+}
+
+function syncReferenceCustomerFilters() {
+  const interestSelect = document.getElementById("referenceCustomersInterestFilter");
+  const representativeSelect = document.getElementById("referenceCustomersRepFilter");
+  const selectedInterest = interestSelect?.value || "";
+  const selectedRepresentative = representativeSelect?.value || "";
+
+  if (interestSelect) {
+    interestSelect.innerHTML = '<option value="">كل مجالات الاهتمام</option>'
+      + interests.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+    interestSelect.value = interests.includes(selectedInterest) ? selectedInterest : "";
+  }
+
+  if (representativeSelect) {
+    representativeSelect.innerHTML = '<option value="">كل المندوبين</option>'
+      + representatives.map(item => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+    representativeSelect.value = representatives.includes(selectedRepresentative)
+      ? selectedRepresentative
+      : "";
+  }
+}
+
+function renderReferenceCustomers() {
+  const body = document.getElementById("referenceCustomersTableBody");
+  if (!body) return;
+
+  syncReferenceCustomerFilters();
+  const allRows = filteredReferenceCustomers();
+  const pageCount = Math.max(1, Math.ceil(allRows.length / REFERENCE_CUSTOMERS_PAGE_SIZE));
+  if (referenceCustomersPage > pageCount) referenceCustomersPage = pageCount;
+
+  const start = (referenceCustomersPage - 1) * REFERENCE_CUSTOMERS_PAGE_SIZE;
+  const rows = allRows.slice(start, start + REFERENCE_CUSTOMERS_PAGE_SIZE);
+
+  document.getElementById("referenceAddCustomerBtn")?.classList.toggle(
+    "hidden",
+    !canScreenAction("customers", "add")
+  );
+
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${
+      customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء..."
+    }</td></tr>`;
+  } else {
+    body.innerHTML = rows.map(customer => `
+      <tr>
+        <td><strong>${escapeHtml(customer.phone || "—")}</strong></td>
+        <td>
+          <strong>${escapeHtml(customer.name)}</strong>
+          ${customer.city ? `<br><small>${escapeHtml(customer.city)}</small>` : ""}
+        </td>
+        <td>${customer.type === "شركة" ? escapeHtml(customer.contactPersonName || "—") : "—"}</td>
+        <td><span class="badge">${escapeHtml(customer.type)}</span></td>
+        <td>${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—"}</td>
+        <td>${escapeHtml(customer.representative || "—")}</td>
+        <td>${formatDate(customer.contactDate)}</td>
+        <td>${escapeHtml(customer.quotationNumber || "—")}</td>
+        <td>${escapeHtml(customer.noSaleReason || "—")}</td>
+        <td>
+          <div class="row-actions">
+            <button class="edit-btn" type="button" data-reference-customer-details="${customer.id}">فتح</button>
+            ${canScreenAction("customers", "edit")
+              ? `<button class="edit-btn" type="button" data-reference-customer-edit="${customer.id}">تعديل</button>`
+              : ""}
+            ${canScreenAction("customers", "delete")
+              ? `<button class="delete-btn" type="button" data-reference-customer-delete="${customer.id}">حذف</button>`
+              : ""}
+          </div>
+        </td>
+      </tr>`).join("");
+  }
+
+  const info = document.getElementById("referenceCustomersPaginationInfo");
+  const pageNumber = document.getElementById("referenceCustomersPageNumber");
+  const prev = document.getElementById("referenceCustomersPrevPage");
+  const next = document.getElementById("referenceCustomersNextPage");
+
+  if (info) info.textContent = `${allRows.length} عميل`;
+  if (pageNumber) pageNumber.textContent = `${referenceCustomersPage} / ${pageCount}`;
+  if (prev) prev.disabled = referenceCustomersPage <= 1;
+  if (next) next.disabled = referenceCustomersPage >= pageCount;
 }
 
 function syncReferenceDataPanel() {
@@ -5490,8 +5604,69 @@ document.getElementById("settingsView")?.addEventListener("click", event => {
 
 document.getElementById("referenceDataSectionFilter")?.addEventListener(
   "change",
-  syncReferenceDataPanel
+  () => {
+    referenceCustomersPage = 1;
+    syncReferenceDataPanel();
+    renderReferenceCustomers();
+  }
 );
+
+["referenceCustomersSearch", "referenceCustomersTypeFilter", "referenceCustomersInterestFilter", "referenceCustomersRepFilter"]
+  .forEach(id => {
+    const element = document.getElementById(id);
+    const eventName = element?.tagName === "INPUT" ? "input" : "change";
+    element?.addEventListener(eventName, () => {
+      referenceCustomersPage = 1;
+      renderReferenceCustomers();
+    });
+  });
+
+document.getElementById("referenceAddCustomerBtn")?.addEventListener("click", () => {
+  if (!requireScreenAction("customers", "add", "لا توجد صلاحية إضافة العملاء.")) return;
+  openCustomerDialog();
+});
+
+document.getElementById("referenceCustomersPrevPage")?.addEventListener("click", () => {
+  if (referenceCustomersPage > 1) {
+    referenceCustomersPage -= 1;
+    renderReferenceCustomers();
+  }
+});
+
+document.getElementById("referenceCustomersNextPage")?.addEventListener("click", () => {
+  const pageCount = Math.max(
+    1,
+    Math.ceil(filteredReferenceCustomers().length / REFERENCE_CUSTOMERS_PAGE_SIZE)
+  );
+  if (referenceCustomersPage < pageCount) {
+    referenceCustomersPage += 1;
+    renderReferenceCustomers();
+  }
+});
+
+document.getElementById("referenceCustomersTableBody")?.addEventListener("click", event => {
+  const detailsId = event.target.closest("[data-reference-customer-details]")?.dataset.referenceCustomerDetails;
+  const editId = event.target.closest("[data-reference-customer-edit]")?.dataset.referenceCustomerEdit;
+  const deleteId = event.target.closest("[data-reference-customer-delete]")?.dataset.referenceCustomerDelete;
+  const customer = customers.find(item => item.id === (detailsId || editId || deleteId));
+  if (!customer) return;
+
+  if (detailsId) {
+    showCustomerDetails(customer);
+    return;
+  }
+
+  if (editId) {
+    if (!requireScreenAction("customers", "edit", "لا توجد صلاحية تعديل العملاء.")) return;
+    openCustomerDialog(customer);
+    return;
+  }
+
+  if (deleteId) {
+    if (!requireScreenAction("customers", "delete", "لا توجد صلاحية حذف العملاء.")) return;
+    deleteCustomer(customer.id);
+  }
+});
 
 window.addEventListener("customer-auth-ready", async () => {
   window.DailyActivityService?.startHeartbeat?.();

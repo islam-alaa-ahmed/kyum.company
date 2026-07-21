@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/style.css?v=17.4-C1" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -612,6 +612,7 @@
             <select id="referenceDataSectionFilter">
               <option value="interest">مجالات اهتمام العملاء</option>
               <option value="reason">أسباب عدم البيع</option>
+              <option value="customers">العملاء</option>
             </select>
           </label>
         </div>
@@ -637,6 +638,74 @@
               <button class="primary-btn compact-btn reference-manage-action" data-add-reference="reason">إضافة</button>
             </div>
             <div id="settingsReasons" class="reference-list"></div>
+          </article>
+
+          <article class="panel reference-data-panel hidden reference-customers-panel" data-reference-panel="customers">
+            <div class="panel-header reference-customers-header">
+              <div>
+                <h3>العملاء</h3>
+                <p>عرض بيانات العملاء والبحث والفلترة والتعديل وفتح ملف العميل.</p>
+              </div>
+              <button id="referenceAddCustomerBtn" class="primary-btn compact-btn customer-manage-action" type="button">إضافة عميل</button>
+            </div>
+
+            <div class="reference-customers-filters">
+              <label class="reference-customers-search">
+                بحث
+                <input id="referenceCustomersSearch" type="search" placeholder="اسم العميل، الجوال، المسؤول أو رقم العرض">
+              </label>
+              <label>
+                التصنيف
+                <select id="referenceCustomersTypeFilter">
+                  <option value="">كل التصنيفات</option>
+                  <option value="شركة">شركة</option>
+                  <option value="فردي">فردي</option>
+                </select>
+              </label>
+              <label>
+                مجال الاهتمام
+                <select id="referenceCustomersInterestFilter">
+                  <option value="">كل مجالات الاهتمام</option>
+                </select>
+              </label>
+              <label>
+                المندوب
+                <select id="referenceCustomersRepFilter">
+                  <option value="">كل المندوبين</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="referenceCustomersStatus" class="data-status hidden"></div>
+
+            <div class="table-card reference-customers-table-card">
+              <table class="reference-customers-table">
+                <thead>
+                  <tr>
+                    <th>رقم الجوال</th>
+                    <th>اسم العميل</th>
+                    <th>اسم المسؤول</th>
+                    <th>التصنيف</th>
+                    <th>مجال الاهتمام</th>
+                    <th>المندوب</th>
+                    <th>آخر تواصل</th>
+                    <th>عرض السعر</th>
+                    <th>سبب عدم البيع</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="referenceCustomersTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="table-pagination" id="referenceCustomersPagination">
+              <span id="referenceCustomersPaginationInfo">0 عميل</span>
+              <div>
+                <button id="referenceCustomersPrevPage" class="secondary-btn compact-btn" type="button">السابق</button>
+                <span id="referenceCustomersPageNumber">1</span>
+                <button id="referenceCustomersNextPage" class="secondary-btn compact-btn" type="button">التالي</button>
+              </div>
+            </div>
           </article>
         </div>
       </section>
@@ -2185,6 +2254,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=16.6"></script>
+  <script src="assets/js/app.js?v=17.4-C1"></script>
 </body>
 </html>
