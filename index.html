@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta id="browserThemeColor" name="theme-color" content="#f4f7fb" />
+  <script>
+    (() => {
+      const savedTheme = localStorage.getItem("kyum-color-theme");
+      const preferredTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : preferredTheme;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
   <link rel="icon" href="assets/images/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
@@ -13,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=17.4-C1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=17.4-C9" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -138,6 +147,22 @@
         </div>
 
         <div class="topbar-user-actions">
+          <button
+            id="themeToggleButton"
+            class="theme-toggle-button"
+            type="button"
+            aria-label="تفعيل الوضع الداكن"
+            title="تبديل الوضع الفاتح والداكن"
+          >
+            <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+            </svg>
+            <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.5 14.4A8.5 8.5 0 0 1 9.6 3.5 8.5 8.5 0 1 0 20.5 14.4Z"></path>
+            </svg>
+          </button>
+
           <button
             id="kyumScrollControl"
             class="kyum-scroll-control is-visible"
@@ -2391,6 +2416,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C8"></script>
+  <script src="assets/js/app.js?v=17.4-C9"></script>
 </body>
 </html>

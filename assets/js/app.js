@@ -5646,6 +5646,52 @@ function initializeKyumScrollControl() {
 
 initializeKyumScrollControl();
 
+function getKyumTheme() {
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function applyKyumTheme(theme, persist = true) {
+  const safeTheme = theme === "dark" ? "dark" : "light";
+  const root = document.documentElement;
+  const button = document.getElementById("themeToggleButton");
+  const themeColor = document.getElementById("browserThemeColor");
+
+  root.dataset.theme = safeTheme;
+  root.style.colorScheme = safeTheme;
+
+  if (themeColor) {
+    themeColor.setAttribute("content", safeTheme === "dark" ? "#0b1220" : "#f4f7fb");
+  }
+
+  if (button) {
+    const darkActive = safeTheme === "dark";
+    button.setAttribute("aria-pressed", String(darkActive));
+    button.setAttribute(
+      "aria-label",
+      darkActive ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"
+    );
+    button.title = darkActive ? "التبديل إلى الوضع الفاتح" : "التبديل إلى الوضع الداكن";
+  }
+
+  if (persist) {
+    localStorage.setItem("kyum-color-theme", safeTheme);
+  }
+}
+
+function initializeKyumThemeToggle() {
+  const button = document.getElementById("themeToggleButton");
+  if (!button || button.dataset.initialized === "true") return;
+
+  button.dataset.initialized = "true";
+  applyKyumTheme(getKyumTheme(), false);
+
+  button.addEventListener("click", () => {
+    applyKyumTheme(getKyumTheme() === "dark" ? "light" : "dark");
+  });
+}
+
+initializeKyumThemeToggle();
+
 window.addEventListener("customer-auth-ready", () => {
   const requested = routeFromLocation();
   const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");
