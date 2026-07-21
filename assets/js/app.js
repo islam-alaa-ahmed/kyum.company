@@ -13,6 +13,9 @@ let representatives = [];
 
 let referenceDataLoaded = false;
 let referenceDataLoading = false;
+let referenceDataLoadPromise = null;
+let referenceDataLoadedAt = 0;
+const REFERENCE_DATA_TTL_MS = 5 * 60 * 1000;
 let editingRepresentativeId = null;
 let editingReferenceItemId = null;
 
@@ -458,36 +461,53 @@ function showDataStatus(id, message = "", type = "info") {
 }
 
 async function loadReferenceDataFromSupabase(force = false) {
-  if (referenceDataLoading || (referenceDataLoaded && !force)) return;
   if (!window.ReferenceDataService || !window.customerSupabase) return;
+
+  const cacheIsFresh =
+    referenceDataLoaded &&
+    (Date.now() - referenceDataLoadedAt) < REFERENCE_DATA_TTL_MS;
+
+  if (!force && cacheIsFresh) return;
+  if (referenceDataLoadPromise) return referenceDataLoadPromise;
+
+  if (force) {
+    window.ReferenceDataService.invalidate?.();
+  }
 
   referenceDataLoading = true;
   showDataStatus("referenceDataStatus", "جاري تحميل البيانات المرجعية...", "info");
   showDataStatus("representativesStatus", "جاري تحميل المندوبين...", "info");
 
-  try {
-    const [loadedRepresentatives, loadedInterests, loadedReasons] = await Promise.all([
-      window.ReferenceDataService.listRepresentatives(true),
-      window.ReferenceDataService.listInterests(true),
-      window.ReferenceDataService.listReasons(true)
-    ]);
+  referenceDataLoadPromise = (async () => {
+    try {
+      const [loadedRepresentatives, loadedInterests, loadedReasons] = await Promise.all([
+        window.ReferenceDataService.listRepresentatives(true),
+        window.ReferenceDataService.listInterests(true),
+        window.ReferenceDataService.listReasons(true)
+      ]);
 
-    representativeRecords = loadedRepresentatives || [];
-    interestRecords = loadedInterests || [];
-    reasonRecords = loadedReasons || [];
-    referenceDataLoaded = true;
-    refreshReferenceOptions();
+      representativeRecords = loadedRepresentatives || [];
+      interestRecords = loadedInterests || [];
+      reasonRecords = loadedReasons || [];
+      referenceDataLoaded = true;
+      referenceDataLoadedAt = Date.now();
+      refreshReferenceOptions();
 
-    showDataStatus("referenceDataStatus", "");
-    showDataStatus("representativesStatus", "");
-  } catch (error) {
-    console.error("Reference data load failed:", error);
-    const message = error instanceof Error ? error.message : "تعذر تحميل البيانات.";
-    showDataStatus("referenceDataStatus", message, "error");
-    showDataStatus("representativesStatus", message, "error");
-  } finally {
-    referenceDataLoading = false;
-  }
+      showDataStatus("referenceDataStatus", "");
+      showDataStatus("representativesStatus", "");
+    } catch (error) {
+      console.error("Reference data load failed:", error);
+      const message = error instanceof Error ? error.message : "تعذر تحميل البيانات.";
+      showDataStatus("referenceDataStatus", message, "error");
+      showDataStatus("representativesStatus", message, "error");
+      throw error;
+    } finally {
+      referenceDataLoading = false;
+      referenceDataLoadPromise = null;
+    }
+  })();
+
+  return referenceDataLoadPromise;
 }
 
 function setOptions() {

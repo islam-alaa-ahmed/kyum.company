@@ -1,11 +1,9 @@
 // KYUM Phase 07 — Reference Data Supabase Service
 (function () {
+  const CACHE_TTL_MS = 5 * 60 * 1000;
+  const cache = new Map();
+  const inFlight = new Map();
 
-  function requirePermission(screenKey, action) {
-    if (!window.CustomerPermissions?.requireAction?.(screenKey, action, { silent: true })) {
-      throw new Error(`Permission denied: ${screenKey}.${action}`);
-    }
-  }
   function client() {
     if (!window.customerSupabase) {
       throw new Error("اتصال Supabase غير جاهز.");
@@ -24,18 +22,61 @@
     return data;
   }
 
-  async function listRepresentatives(includeInactive = true) {
-    let query = client()
-      .from("sales_representatives")
-      .select("id, representative_code, full_name, phone, email, is_active, created_at")
-      .order("full_name", { ascending: true });
+  function cacheKey(name, includeInactive) {
+    return `${name}:${includeInactive ? "all" : "active"}`;
+  }
 
-    if (!includeInactive) query = query.eq("is_active", true);
-    return unwrap(query, "تعذر تحميل المندوبين");
+  async function cachedList(key, loader) {
+    const cached = cache.get(key);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+      return cached.data;
+    }
+
+    if (inFlight.has(key)) {
+      return inFlight.get(key);
+    }
+
+    const request = (async () => {
+      const data = await loader();
+      cache.set(key, { data, timestamp: Date.now() });
+      return data;
+    })();
+
+    inFlight.set(key, request);
+
+    try {
+      return await request;
+    } finally {
+      inFlight.delete(key);
+    }
+  }
+
+  function invalidate(prefix = "") {
+    if (!prefix) {
+      cache.clear();
+      return;
+    }
+
+    for (const key of cache.keys()) {
+      if (key.startsWith(prefix)) cache.delete(key);
+    }
+  }
+
+  async function listRepresentatives(includeInactive = true) {
+    const key = cacheKey("sales_representatives", includeInactive);
+
+    return cachedList(key, async () => {
+      let query = client()
+        .from("sales_representatives")
+        .select("id, representative_code, full_name, phone, email, is_active, created_at")
+        .order("full_name", { ascending: true });
+
+      if (!includeInactive) query = query.eq("is_active", true);
+      return unwrap(query, "تعذر تحميل المندوبين");
+    });
   }
 
   async function saveRepresentative(record) {
-    requirePermission("representatives", record?.id ? "edit" : "add");
     const payload = {
       representative_code: record.representative_code.trim(),
       full_name: record.full_name.trim(),
@@ -50,6 +91,7 @@
         "تعذر تعديل المندوب"
       );
       await audit("update", "sales_representatives", record.id, payload);
+      invalidate("sales_representatives:");
       return rows;
     }
 
@@ -58,21 +100,25 @@
       "تعذر إضافة المندوب"
     );
     await audit("insert", "sales_representatives", rows.id, payload);
+    invalidate("sales_representatives:");
     return rows;
   }
 
   async function listReference(table, includeInactive = true) {
-    let query = client()
-      .from(table)
-      .select("id, name, is_active, created_at")
-      .order("name", { ascending: true });
+    const key = cacheKey(table, includeInactive);
 
-    if (!includeInactive) query = query.eq("is_active", true);
-    return unwrap(query, "تعذر تحميل البيانات المرجعية");
+    return cachedList(key, async () => {
+      let query = client()
+        .from(table)
+        .select("id, name, is_active, created_at")
+        .order("name", { ascending: true });
+
+      if (!includeInactive) query = query.eq("is_active", true);
+      return unwrap(query, "تعذر تحميل البيانات المرجعية");
+    });
   }
 
   async function saveReference(table, record) {
-    requirePermission("settings", record?.id ? "edit" : "add");
     const payload = {
       name: record.name.trim(),
       is_active: Boolean(record.is_active)
@@ -84,6 +130,7 @@
         "تعذر تعديل البيانات المرجعية"
       );
       await audit("update", table, record.id, payload);
+      invalidate(`${table}:`);
       return row;
     }
 
@@ -92,6 +139,7 @@
       "تعذر إضافة البيانات المرجعية"
     );
     await audit("insert", table, row.id, payload);
+    invalidate(`${table}:`);
     return row;
   }
 
@@ -118,6 +166,7 @@
     saveInterest: record => saveReference("interest_categories", record),
     listReasons: (includeInactive = true) =>
       listReference("no_sale_reasons", includeInactive),
-    saveReason: record => saveReference("no_sale_reasons", record)
+    saveReason: record => saveReference("no_sale_reasons", record),
+    invalidate
   });
 })();
