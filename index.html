@@ -45,13 +45,30 @@
   </section>
 
   <div id="appView" class="app-shell hidden">
-    <aside class="sidebar">
+    <button
+      id="sidebarMenuToggle"
+      class="sidebar-menu-launcher"
+      type="button"
+      aria-controls="mainSidebar"
+      aria-expanded="false"
+    >
+      <span class="brand-mark small">K</span>
+      <span class="sidebar-menu-launcher-text">
+        <strong>KYUM Company</strong>
+        <small>Enterprise CRM</small>
+      </span>
+    </button>
+
+    <div id="sidebarBackdrop" class="sidebar-backdrop hidden" aria-hidden="true"></div>
+
+    <aside id="mainSidebar" class="sidebar" aria-hidden="true">
       <div class="sidebar-brand">
         <div class="brand-mark small">K</div>
         <div>
           <strong>KYUM Company</strong>
           <span>Enterprise CRM</span>
         </div>
+        <button id="sidebarCloseBtn" class="sidebar-close-btn" type="button" aria-label="إغلاق القائمة">×</button>
       </div>
 
       <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
@@ -63,8 +80,8 @@
           <span>لوحة التحكم</span>
         </button>
 
-        <section class="nav-group" data-nav-group="customer-management">
-          <button class="nav-group-toggle" type="button" aria-expanded="true">
+        <section class="nav-group is-collapsed" data-nav-group="customer-management">
+          <button class="nav-group-toggle" type="button" aria-expanded="false">
             <span>إدارة العملاء</span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -79,8 +96,8 @@
           </div>
         </section>
 
-        <section class="nav-group reports-nav-group" data-nav-group="reports-analytics">
-          <button class="nav-group-toggle" type="button" aria-expanded="true">
+        <section class="nav-group reports-nav-group is-collapsed" data-nav-group="reports-analytics">
+          <button class="nav-group-toggle" type="button" aria-expanded="false">
             <span>التقارير والتحليلات</span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -92,8 +109,8 @@
           </div>
         </section>
 
-        <section class="nav-group privacy-nav-group" data-nav-group="settings-privacy">
-          <button class="nav-group-toggle" type="button" aria-expanded="true">
+        <section class="nav-group privacy-nav-group is-collapsed" data-nav-group="settings-privacy">
+          <button class="nav-group-toggle" type="button" aria-expanded="false">
             <span>الإعدادات والخصوصية</span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2360,6 +2377,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C4"></script>
+  <script src="assets/js/app.js?v=17.4-C5"></script>
 </body>
 </html>

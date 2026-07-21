@@ -3185,3 +3185,145 @@ body.customer360-exporting .customer360-shell *{
     max-height: min(43vh, 340px);
   }
 }
+
+
+/* Phase 17.4-C5 — Dynamic off-canvas sidebar */
+.app-shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sidebar-menu-launcher {
+  position: fixed;
+  z-index: 1040;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background: #0f172a;
+  color: #fff;
+  box-shadow: 0 16px 38px rgba(15,23,42,.24);
+  text-align: right;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.sidebar-menu-launcher:hover {
+  transform: translateY(-1px);
+  background: #15213a;
+  box-shadow: 0 20px 44px rgba(15,23,42,.3);
+}
+
+.sidebar-menu-launcher .brand-mark.small {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+}
+
+.sidebar-menu-launcher-text {
+  display: grid;
+  line-height: 1.25;
+}
+
+.sidebar-menu-launcher-text strong {
+  font-size: 14px;
+}
+
+.sidebar-menu-launcher-text small {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.sidebar {
+  position: fixed;
+  z-index: 1100;
+  top: 0;
+  right: 0;
+  width: min(320px, calc(100vw - 28px));
+  height: 100vh;
+  transform: translateX(105%);
+  visibility: hidden;
+  opacity: 0;
+  box-shadow: -24px 0 60px rgba(15,23,42,.28);
+  transition: transform .26s ease, opacity .2s ease, visibility .26s ease;
+  overflow: hidden;
+}
+
+.sidebar.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  opacity: 1;
+}
+
+.sidebar-brand {
+  min-height: 58px;
+  padding: 0 4px;
+}
+
+.sidebar-close-btn {
+  width: 36px;
+  height: 36px;
+  margin-inline-start: auto;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255,255,255,.15);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  z-index: 1080;
+  inset: 0;
+  background: rgba(15,23,42,.42);
+  backdrop-filter: blur(2px);
+}
+
+body.sidebar-menu-open {
+  overflow: hidden;
+}
+
+.main-content {
+  width: 100%;
+  padding-top: 102px;
+}
+
+.sidebar .nav-group.is-collapsed .nav-group-content {
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    display: flex;
+    padding: 18px 14px;
+  }
+
+  .sidebar-brand {
+    margin-bottom: 0;
+  }
+
+  .sidebar-nav {
+    display: grid;
+    overflow-y: auto;
+  }
+
+  .sidebar-menu-launcher {
+    top: 12px;
+    right: 12px;
+    min-width: 174px;
+  }
+
+  .main-content {
+    padding-top: 92px;
+  }
+}
