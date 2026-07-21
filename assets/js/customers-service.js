@@ -233,10 +233,64 @@
     }
   }
 
+  async function importCustomers(rows, mode = "new_only", onProgress = null) {
+    requirePermission("customers", "add");
+    if (mode === "upsert") requirePermission("customers", "edit");
+
+    const results = {
+      inserted: 0,
+      updated: 0,
+      skipped: 0,
+      failed: 0,
+      errors: []
+    };
+
+    for (let index = 0; index < rows.length; index += 1) {
+      const row = rows[index];
+      try {
+        if (row.existingCustomer && mode !== "upsert") {
+          results.skipped += 1;
+          onProgress?.(index + 1, rows.length, row);
+          continue;
+        }
+
+        await saveCustomer({
+          id: row.existingCustomer?.id || null,
+          name: row.name,
+          type: row.type,
+          contactPersonName: row.contactPersonName,
+          phone: row.phone,
+          city: row.city,
+          representativeId: row.representativeId,
+          contactDate: row.contactDate,
+          quotationNumber: row.quotationNumber,
+          noSaleReasonId: row.noSaleReasonId,
+          notes: row.notes,
+          interestIds: row.interestIds
+        });
+
+        if (row.existingCustomer) results.updated += 1;
+        else results.inserted += 1;
+      } catch (error) {
+        results.failed += 1;
+        results.errors.push({
+          sourceRow: row.sourceRow,
+          phone: row.phone,
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
+
+      onProgress?.(index + 1, rows.length, row);
+    }
+
+    return results;
+  }
+
   window.CustomersService = Object.freeze({
     listCustomers,
     findByPhone,
     saveCustomer,
-    deleteCustomer
+    deleteCustomer,
+    importCustomers
   });
 })();

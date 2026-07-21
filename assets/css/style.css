@@ -2910,3 +2910,90 @@ body.customer360-exporting .customer360-shell *{
     flex: 1 1 140px;
   }
 }
+
+
+/* Phase 17.4-C3 — Customer Excel import */
+.customer-import-dialog {
+  width: min(1120px, calc(100vw - 32px));
+  max-width: 1120px;
+}
+
+.customer-import-dialog .dialog-shell {
+  max-height: min(86vh, 900px);
+  overflow: auto;
+}
+
+.customer-import-upload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px dashed var(--border-color);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+.customer-import-upload span {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.customer-import-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(115px, 1fr));
+  gap: 10px;
+}
+
+.customer-import-summary article {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--panel-soft);
+  text-align: center;
+}
+
+.customer-import-summary span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.customer-import-summary strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.25rem;
+}
+
+.customer-import-options {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-import-preview-wrap {
+  max-height: 380px;
+}
+
+.customer-import-preview-table td:last-child {
+  min-width: 260px;
+  white-space: normal;
+}
+
+@media (max-width: 900px) {
+  .customer-import-summary {
+    grid-template-columns: repeat(3, minmax(100px, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .customer-import-upload,
+  .customer-import-options {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .customer-import-summary {
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+  }
+}

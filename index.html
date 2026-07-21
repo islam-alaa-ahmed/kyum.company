@@ -647,6 +647,7 @@
                 <p>عرض بيانات العملاء والبحث والفلترة والتعديل وفتح ملف العميل.</p>
               </div>
               <div class="reference-customers-actions">
+                <button id="referenceCustomersImportBtn" class="secondary-btn compact-btn customer-import-action" type="button">رفع Excel</button>
                 <button id="referenceCustomersExportBtn" class="secondary-btn compact-btn customer-export-action" type="button">تصدير Excel</button>
                 <button id="referenceCustomersTemplateBtn" class="secondary-btn compact-btn customer-export-action" type="button">تنزيل النموذج</button>
                 <button id="referenceAddCustomerBtn" class="primary-btn compact-btn customer-manage-action" type="button">إضافة عميل</button>
@@ -2234,6 +2235,68 @@
   <script src="assets/js/diagnostics-service.js"></script>
   <script src="assets/js/diagnostics-engine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <dialog id="customerImportDialog" class="glass-dialog customer-import-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-header">
+        <div>
+          <h3>استيراد العملاء من Excel</h3>
+          <p>تتم المعاينة والتحقق قبل حفظ أي بيانات.</p>
+        </div>
+        <button id="customerImportCloseBtn" class="icon-btn" type="button" aria-label="إغلاق">×</button>
+      </div>
+
+      <div class="customer-import-upload">
+        <input id="customerImportFileInput" type="file" accept=".xlsx,.xls" hidden>
+        <button id="customerImportChooseFileBtn" class="secondary-btn" type="button">اختيار ملف Excel</button>
+        <span id="customerImportFileName">لم يتم اختيار ملف</span>
+      </div>
+
+      <div id="customerImportStatus" class="data-status hidden"></div>
+
+      <div id="customerImportSummary" class="customer-import-summary hidden">
+        <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
+        <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
+        <article><span>صفوف بها أخطاء</span><strong id="customerImportErrorCount">0</strong></article>
+        <article><span>عملاء جدد</span><strong id="customerImportNewCount">0</strong></article>
+        <article><span>عملاء موجودون</span><strong id="customerImportExistingCount">0</strong></article>
+        <article><span>مكرر داخل الملف</span><strong id="customerImportDuplicateCount">0</strong></article>
+      </div>
+
+      <div class="customer-import-options">
+        <label for="customerImportMode">طريقة التعامل مع العملاء الموجودين</label>
+        <select id="customerImportMode">
+          <option value="new_only">إضافة الجدد فقط</option>
+          <option value="upsert">تحديث الموجود وإضافة الجدد</option>
+          <option value="skip_existing">تجاهل الموجود</option>
+        </select>
+      </div>
+
+      <div class="table-wrap customer-import-preview-wrap">
+        <table class="data-table customer-import-preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>اسم العميل</th>
+              <th>رقم الجوال</th>
+              <th>التصنيف</th>
+              <th>المندوب</th>
+              <th>الحالة</th>
+              <th>الملاحظات</th>
+            </tr>
+          </thead>
+          <tbody id="customerImportPreviewBody">
+            <tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="customerImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
+        <button id="customerImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
+      </div>
+    </form>
+  </dialog>
+
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
   <script src="assets/js/permissions.js"></script>
@@ -2255,10 +2318,10 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
-  <script src="assets/js/customer-excel-center.js?v=17.4-C2"></script>
+  <script src="assets/js/customer-excel-center.js?v=17.4-C3"></script>
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C2"></script>
+  <script src="assets/js/app.js?v=17.4-C3"></script>
 </body>
 </html>
