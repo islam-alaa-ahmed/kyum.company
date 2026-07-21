@@ -1794,11 +1794,49 @@
           <input id="customerCity">
         </label>
 
-        <label class="full-width">
-          مجال الاهتمام
-          <select id="customerInterest" multiple required></select>
-          <small>يمكن اختيار أكثر من مجال باستخدام Ctrl في الكمبيوتر.</small>
-        </label>
+        <div class="full-width customer-interest-field">
+          <label for="customerInterestDropdownButton">مجال الاهتمام</label>
+
+          <div id="customerInterestDropdown" class="checkbox-dropdown">
+            <button
+              id="customerInterestDropdownButton"
+              class="checkbox-dropdown-trigger"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              <span id="customerInterestDropdownText">اختر مجال الاهتمام</span>
+              <span class="checkbox-dropdown-arrow" aria-hidden="true">⌄</span>
+            </button>
+
+            <div id="customerInterestDropdownMenu" class="checkbox-dropdown-menu hidden">
+              <div class="checkbox-dropdown-search-wrap">
+                <input
+                  id="customerInterestSearch"
+                  type="search"
+                  placeholder="ابحث في مجالات الاهتمام..."
+                  autocomplete="off"
+                >
+              </div>
+
+              <div class="checkbox-dropdown-toolbar">
+                <button id="customerInterestSelectAll" type="button">تحديد الكل</button>
+                <button id="customerInterestClearAll" type="button">إلغاء الكل</button>
+                <span id="customerInterestSelectedCount">تم اختيار 0</span>
+              </div>
+
+              <div
+                id="customerInterestOptions"
+                class="checkbox-dropdown-options"
+                role="listbox"
+                aria-multiselectable="true"
+              ></div>
+            </div>
+          </div>
+
+          <select id="customerInterest" class="native-multi-select-hidden" multiple required tabindex="-1" aria-hidden="true"></select>
+          <small>يمكن اختيار مجال واحد أو أكثر من القائمة.</small>
+        </div>
 
         <label>
           المندوب المسؤول
@@ -2322,6 +2360,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.4-C3"></script>
+  <script src="assets/js/app.js?v=17.4-C4"></script>
 </body>
 </html>

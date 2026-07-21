@@ -336,6 +336,170 @@ function replaceSelectOptions(select, options, placeholder = null, selectedValue
   }
 }
 
+
+function getSelectedCustomerInterestIds() {
+  const select = document.getElementById("customerInterest");
+  if (!select) return [];
+  return [...select.selectedOptions].map(option => option.value);
+}
+
+function updateCustomerInterestDropdownSummary() {
+  const select = document.getElementById("customerInterest");
+  const text = document.getElementById("customerInterestDropdownText");
+  const count = document.getElementById("customerInterestSelectedCount");
+  const trigger = document.getElementById("customerInterestDropdownButton");
+  if (!select || !text || !count || !trigger) return;
+
+  const selectedOptions = [...select.selectedOptions];
+  const selectedLabels = selectedOptions.map(option => option.textContent.trim());
+  const selectedCount = selectedLabels.length;
+
+  count.textContent = `تم اختيار ${selectedCount}`;
+  trigger.classList.toggle("has-selection", selectedCount > 0);
+
+  if (!selectedCount) {
+    text.textContent = "اختر مجال الاهتمام";
+    trigger.title = "";
+  } else if (selectedCount <= 2) {
+    text.textContent = selectedLabels.join("، ");
+    trigger.title = selectedLabels.join("، ");
+  } else {
+    text.textContent = `${selectedLabels[0]} +${selectedCount - 1}`;
+    trigger.title = selectedLabels.join("، ");
+  }
+}
+
+function syncCustomerInterestCheckboxes() {
+  const select = document.getElementById("customerInterest");
+  const optionsContainer = document.getElementById("customerInterestOptions");
+  if (!select || !optionsContainer) return;
+
+  const selectedIds = new Set(getSelectedCustomerInterestIds());
+  optionsContainer.querySelectorAll('input[type="checkbox"][data-interest-id]').forEach(checkbox => {
+    checkbox.checked = selectedIds.has(checkbox.dataset.interestId);
+    checkbox.closest(".checkbox-dropdown-option")?.classList.toggle("selected", checkbox.checked);
+  });
+
+  updateCustomerInterestDropdownSummary();
+}
+
+function renderCustomerInterestDropdownOptions() {
+  const select = document.getElementById("customerInterest");
+  const optionsContainer = document.getElementById("customerInterestOptions");
+  const searchInput = document.getElementById("customerInterestSearch");
+  if (!select || !optionsContainer) return;
+
+  const query = (searchInput?.value || "").trim().toLowerCase();
+  const options = [...select.options].filter(option =>
+    !query || option.textContent.toLowerCase().includes(query)
+  );
+
+  if (!options.length) {
+    optionsContainer.innerHTML = '<div class="checkbox-dropdown-empty">لا توجد نتائج مطابقة.</div>';
+    updateCustomerInterestDropdownSummary();
+    return;
+  }
+
+  optionsContainer.innerHTML = options.map(option => `
+    <label class="checkbox-dropdown-option${option.selected ? " selected" : ""}">
+      <input
+        type="checkbox"
+        data-interest-id="${escapeHtml(option.value)}"
+        ${option.selected ? "checked" : ""}
+      >
+      <span>${escapeHtml(option.textContent)}</span>
+    </label>
+  `).join("");
+
+  optionsContainer.querySelectorAll('input[type="checkbox"][data-interest-id]').forEach(checkbox => {
+    checkbox.addEventListener("change", () => {
+      const nativeOption = [...select.options].find(option => option.value === checkbox.dataset.interestId);
+      if (nativeOption) nativeOption.selected = checkbox.checked;
+      checkbox.closest(".checkbox-dropdown-option")?.classList.toggle("selected", checkbox.checked);
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      updateCustomerInterestDropdownSummary();
+    });
+  });
+
+  updateCustomerInterestDropdownSummary();
+}
+
+function setCustomerInterestDropdownOpen(isOpen) {
+  const dropdown = document.getElementById("customerInterestDropdown");
+  const menu = document.getElementById("customerInterestDropdownMenu");
+  const trigger = document.getElementById("customerInterestDropdownButton");
+  const search = document.getElementById("customerInterestSearch");
+  if (!dropdown || !menu || !trigger) return;
+
+  dropdown.classList.toggle("open", isOpen);
+  menu.classList.toggle("hidden", !isOpen);
+  trigger.setAttribute("aria-expanded", String(isOpen));
+
+  if (isOpen) {
+    renderCustomerInterestDropdownOptions();
+    requestAnimationFrame(() => search?.focus());
+  } else if (search) {
+    search.value = "";
+  }
+}
+
+function initializeCustomerInterestDropdown() {
+  const dropdown = document.getElementById("customerInterestDropdown");
+  const trigger = document.getElementById("customerInterestDropdownButton");
+  const search = document.getElementById("customerInterestSearch");
+  const selectAll = document.getElementById("customerInterestSelectAll");
+  const clearAll = document.getElementById("customerInterestClearAll");
+  const select = document.getElementById("customerInterest");
+  if (!dropdown || !trigger || !select || dropdown.dataset.initialized === "true") return;
+
+  dropdown.dataset.initialized = "true";
+
+  trigger.addEventListener("click", () => {
+    setCustomerInterestDropdownOpen(trigger.getAttribute("aria-expanded") !== "true");
+  });
+
+  search?.addEventListener("input", renderCustomerInterestDropdownOptions);
+
+  selectAll?.addEventListener("click", () => {
+    const query = (search?.value || "").trim().toLowerCase();
+    [...select.options].forEach(option => {
+      if (!query || option.textContent.toLowerCase().includes(query)) {
+        option.selected = true;
+      }
+    });
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    renderCustomerInterestDropdownOptions();
+  });
+
+  clearAll?.addEventListener("click", () => {
+    const query = (search?.value || "").trim().toLowerCase();
+    [...select.options].forEach(option => {
+      if (!query || option.textContent.toLowerCase().includes(query)) {
+        option.selected = false;
+      }
+    });
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    renderCustomerInterestDropdownOptions();
+  });
+
+  select.addEventListener("change", syncCustomerInterestCheckboxes);
+
+  document.addEventListener("click", event => {
+    if (!dropdown.contains(event.target)) {
+      setCustomerInterestDropdownOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && trigger.getAttribute("aria-expanded") === "true") {
+      setCustomerInterestDropdownOpen(false);
+      trigger.focus();
+    }
+  });
+
+  updateCustomerInterestDropdownSummary();
+}
+
 function refreshReferenceOptions() {
   interests = interestRecords.filter(item => item.is_active).map(item => item.name);
   noSaleReasons = reasonRecords.filter(item => item.is_active).map(item => item.name);
@@ -365,12 +529,26 @@ function refreshReferenceOptions() {
     current.interestFilter
   );
 
+  const customerInterestSelect = document.getElementById("customerInterest");
+  const currentCustomerInterestIds = customerInterestSelect
+    ? [...customerInterestSelect.selectedOptions].map(option => option.value)
+    : [];
+
   replaceSelectOptions(
-    document.getElementById("customerInterest"),
+    customerInterestSelect,
     interestRecords
       .filter(item => item.is_active)
       .map(item => ({ label: item.name, value: item.id }))
   );
+
+  if (customerInterestSelect) {
+    [...customerInterestSelect.options].forEach(option => {
+      option.selected = currentCustomerInterestIds.includes(option.value);
+    });
+  }
+
+  initializeCustomerInterestDropdown();
+  renderCustomerInterestDropdownOptions();
 
   ["repFilter", "followupRepFilter", "quotationRepFilter", "dashboardRepFilter"].forEach(id => {
     const labels = {
@@ -3113,12 +3291,20 @@ function openCustomerDialog(customer = null) {
     option.selected = customer ? customer.interestIds.includes(option.value) : false;
   });
 
+  const customerInterestSearch = document.getElementById("customerInterestSearch");
+  if (customerInterestSearch) customerInterestSearch.value = "";
+  setCustomerInterestDropdownOpen(false);
+  renderCustomerInterestDropdownOptions();
+  syncCustomerInterestCheckboxes();
+
   document.getElementById("customerDialog").showModal();
 }
 
 function closeCustomerDialog() {
   document.getElementById("customerDialog").close();
   document.getElementById("customerForm").reset();
+  setCustomerInterestDropdownOpen(false);
+  syncCustomerInterestCheckboxes();
   editingId = null;
 }
 
