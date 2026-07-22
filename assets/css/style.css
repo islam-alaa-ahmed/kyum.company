@@ -5639,3 +5639,28 @@ html[data-theme="dark"] .topbar-title p {
     border-radius: 11px !important;
   }
 }
+
+
+/* Phase 17.5.14 — Full KYUM logo visibility only */
+.topbar-logo-banner {
+  box-sizing: border-box;
+}
+
+.topbar-logo-banner .topbar-brand-logo {
+  box-sizing: border-box !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  padding-block: 4px !important;
+}
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    padding-block: 3px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    padding-block: 2px !important;
+  }
+}
