@@ -6808,3 +6808,118 @@ html[data-theme="dark"] {
   --kyum-gold-glow-hover: var(--kyum-depth-2);
   --kyum-red-glow-hover: var(--kyum-depth-2);
 }
+
+
+/* =========================================================
+   Phase 17.8.1 — Daily Tasks Layout Recovery
+   Root cause:
+   Multiple Phase 17.6–17.8 overrides changed the visual surface
+   but did not lock the generated task-row grid areas. In RTL,
+   the status badge collapsed into a narrow column and wrapped
+   vertically, while the task content lost its intended alignment.
+   Scope: daily checklist only.
+   ========================================================= */
+
+#dailyOperationsView .daily-checklist {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+#dailyOperationsView .daily-task-item {
+  direction: rtl;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, 1fr) max-content !important;
+  grid-template-areas: "check content status";
+  align-items: center !important;
+  column-gap: 14px !important;
+  row-gap: 6px !important;
+  width: 100%;
+  min-height: 88px !important;
+  padding: 16px 18px !important;
+  border-radius: 14px;
+  overflow: visible !important;
+  cursor: pointer;
+}
+
+#dailyOperationsView .daily-task-item > input {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#dailyOperationsView .daily-task-item > .daily-task-check {
+  grid-area: check;
+  width: 30px;
+  height: 30px;
+  align-self: center;
+  justify-self: center;
+  flex: 0 0 30px;
+}
+
+#dailyOperationsView .daily-task-item > div {
+  grid-area: content !important;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  text-align: right;
+}
+
+#dailyOperationsView .daily-task-item > div strong {
+  display: block;
+  margin: 0;
+  color: var(--kyum-text-primary, #f3f7fc) !important;
+  line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#dailyOperationsView .daily-task-item > div small {
+  display: block;
+  margin: 0;
+  color: var(--kyum-text-secondary, #b5c2d3) !important;
+  line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#dailyOperationsView .daily-task-item > b {
+  grid-area: status !important;
+  align-self: center;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content !important;
+  min-width: 92px;
+  max-width: none !important;
+  padding: 7px 12px !important;
+  border-radius: 999px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  line-height: 1.2;
+  text-align: center;
+  font-size: 10px;
+}
+
+#dailyOperationsView .daily-task-item.readonly {
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  #dailyOperationsView .daily-task-item {
+    grid-template-columns: 32px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "check content"
+      "check status";
+    min-height: 96px !important;
+  }
+
+  #dailyOperationsView .daily-task-item > b {
+    justify-self: start;
+    min-width: 0;
+  }
+}
