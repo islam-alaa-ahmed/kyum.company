@@ -7433,3 +7433,123 @@ html[data-theme="dark"] #dailyOperationsView [class*="progress-track"] {
 #dailyOperationsView .daily-task-item.is-completed.readonly {
   opacity: 1 !important;
 }
+
+
+/* =========================================================
+   Phase 17.8.4 — Light Mode Text Clarity Fix
+   Root cause:
+   Several Daily Operations labels still inherited low-contrast
+   muted colors and disabled opacity from legacy rules.
+   Scope: text and control contrast only.
+   ========================================================= */
+
+/* Stronger Light Mode text palette. */
+html:not([data-theme="dark"]) #dailyOperationsView {
+  --kyum-text-primary: #0f172a;
+  --kyum-text-secondary: #334155;
+  --kyum-text-muted: #526176;
+}
+
+/* Main headings and KPI values. */
+html:not([data-theme="dark"]) #dailyOperationsView h1,
+html:not([data-theme="dark"]) #dailyOperationsView h2,
+html:not([data-theme="dark"]) #dailyOperationsView h3,
+html:not([data-theme="dark"]) #dailyOperationsView h4,
+html:not([data-theme="dark"]) #dailyOperationsView h5,
+html:not([data-theme="dark"]) #dailyOperationsView h6,
+html:not([data-theme="dark"]) #dailyOperationsView strong,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-kpis > article strong,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-grid > article strong,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-summary > article strong,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card strong,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item > div strong {
+  color: var(--kyum-text-primary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Descriptions, labels, dates and table captions. */
+html:not([data-theme="dark"]) #dailyOperationsView p,
+html:not([data-theme="dark"]) #dailyOperationsView small,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-date,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-date span,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item > div small,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-header p,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-checklist-panel p,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-panel p,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-section-panel p,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-panel p,
+html:not([data-theme="dark"]) #dailyOperationsView th,
+html:not([data-theme="dark"]) #dailyOperationsView td {
+  color: var(--kyum-text-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Muted labels remain secondary, but readable. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-kpis > article small,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-grid > article small,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-summary > article small,
+html:not([data-theme="dark"]) #dailyOperationsView [class*="subtitle"],
+html:not([data-theme="dark"]) #dailyOperationsView [class*="caption"],
+html:not([data-theme="dark"]) #dailyOperationsView [class*="meta"] {
+  color: var(--kyum-text-muted) !important;
+  opacity: 1 !important;
+}
+
+/* Active session status. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card .is-active,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card .active {
+  color: #15803d !important;
+  opacity: 1 !important;
+}
+
+/* Buttons must remain legible, including disabled controls. */
+html:not([data-theme="dark"]) #dailyOperationsView button,
+html:not([data-theme="dark"]) #dailyOperationsView .btn,
+html:not([data-theme="dark"]) #dailyOperationsView [role="button"] {
+  color: #172033 !important;
+  opacity: 1;
+  text-shadow: none !important;
+}
+
+html:not([data-theme="dark"]) #dailyOperationsView button:disabled,
+html:not([data-theme="dark"]) #dailyOperationsView .btn:disabled,
+html:not([data-theme="dark"]) #dailyOperationsView [aria-disabled="true"] {
+  color: #64748b !important;
+  background: #f8fafc !important;
+  border-color: rgba(15, 23, 42, .12) !important;
+  opacity: .72 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, .05) !important;
+}
+
+/* Alert action buttons were especially washed out. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card button:not(:disabled),
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card .btn:not(:disabled) {
+  color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+/* Preserve semantic badge colors with full opacity. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item > b,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card [class*="badge"],
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card [class*="status"] {
+  opacity: 1 !important;
+}
+
+/* Dark Mode: small contrast increase without changing the palette. */
+html[data-theme="dark"] #dailyOperationsView {
+  --kyum-text-primary: #f8fafc;
+  --kyum-text-secondary: #d2dbe8;
+  --kyum-text-muted: #a5b2c4;
+}
+
+html[data-theme="dark"] #dailyOperationsView p,
+html[data-theme="dark"] #dailyOperationsView small,
+html[data-theme="dark"] #dailyOperationsView .daily-task-item > div small,
+html[data-theme="dark"] #dailyOperationsView .daily-operations-date,
+html[data-theme="dark"] #dailyOperationsView th,
+html[data-theme="dark"] #dailyOperationsView td {
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
