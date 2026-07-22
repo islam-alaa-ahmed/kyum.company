@@ -5664,3 +5664,270 @@ html[data-theme="dark"] .topbar-title p {
     padding-block: 2px !important;
   }
 }
+
+
+/* =========================================================
+   Phase 17.6 — KYUM Enterprise Card Borders
+   Scope: Daily Operations cards and report sections only.
+   No layout, sizing, padding, grid, typography or JS changes.
+   ========================================================= */
+
+:root {
+  --kyum-blue: #168cff;
+  --kyum-gold: #e8a900;
+  --kyum-red: #f0444d;
+
+  --kyum-blue-glow:
+    0 0 0 1px rgba(22, 140, 255, .16),
+    0 0 12px rgba(22, 140, 255, .24),
+    0 8px 24px rgba(15, 23, 42, .08);
+
+  --kyum-gold-glow:
+    0 0 0 1px rgba(232, 169, 0, .16),
+    0 0 12px rgba(232, 169, 0, .24),
+    0 8px 24px rgba(15, 23, 42, .08);
+
+  --kyum-red-glow:
+    0 0 0 1px rgba(240, 68, 77, .16),
+    0 0 12px rgba(240, 68, 77, .24),
+    0 8px 24px rgba(15, 23, 42, .08);
+
+  --kyum-blue-glow-hover:
+    0 0 0 1px rgba(22, 140, 255, .22),
+    0 0 17px rgba(22, 140, 255, .34),
+    0 10px 28px rgba(15, 23, 42, .10);
+
+  --kyum-gold-glow-hover:
+    0 0 0 1px rgba(232, 169, 0, .22),
+    0 0 17px rgba(232, 169, 0, .34),
+    0 10px 28px rgba(15, 23, 42, .10);
+
+  --kyum-red-glow-hover:
+    0 0 0 1px rgba(240, 68, 77, .22),
+    0 0 17px rgba(240, 68, 77, .34),
+    0 10px 28px rgba(15, 23, 42, .10);
+}
+
+/* Smooth glow only — no movement or scale. */
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-operations-kpis > article,
+#dailyOperationsView .daily-targets-panel,
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel,
+#dailyOperationsView .daily-alerts-panel,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease;
+}
+
+/* =========================================================
+   Large report sections
+   ========================================================= */
+
+/* Important / main operational section — KYUM Gold */
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-targets-panel {
+  border: 2px solid var(--kyum-gold) !important;
+  box-shadow: var(--kyum-gold-glow) !important;
+}
+
+/* Normal operational sections — KYUM Blue */
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel:not(.daily-overdue-panel) {
+  border: 2px solid var(--kyum-blue) !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+/* Alerts / critical sections — KYUM Red */
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-alerts-panel,
+#dailyOperationsView .daily-overdue-panel {
+  border: 2px solid var(--kyum-red) !important;
+  box-shadow: var(--kyum-red-glow) !important;
+}
+
+/* Remove old one-sided emphasis so the complete colored frame is visible. */
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-overdue-panel {
+  border-inline-start-width: 2px !important;
+}
+
+/* =========================================================
+   KPI cards
+   ========================================================= */
+
+/* Default operational KPIs — KYUM Blue */
+#dailyOperationsView .daily-operations-kpis > article {
+  border: 2px solid var(--kyum-blue) !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+/* Achievement / primary KPI — KYUM Gold */
+#dailyOperationsView .daily-operations-kpis > article:first-child {
+  border-color: var(--kyum-gold) !important;
+  box-shadow: var(--kyum-gold-glow) !important;
+}
+
+/* Critical KPI — KYUM Red */
+#dailyOperationsView .daily-operations-kpis > article.attention,
+#dailyOperationsView .daily-operations-kpis > article:last-child {
+  border-color: var(--kyum-red) !important;
+  box-shadow: var(--kyum-red-glow) !important;
+}
+
+/* Remove the previous side strip; the full 2px frame is now the indicator. */
+#dailyOperationsView .daily-operations-kpis > article::before {
+  display: none !important;
+}
+
+/* =========================================================
+   Cards inside large sections
+   ========================================================= */
+
+/* Daily targets follow the KYUM Blue / Gold / Red identity. */
+#dailyOperationsView .daily-targets-grid > article {
+  border: 2px solid var(--kyum-blue) !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+#dailyOperationsView .daily-targets-grid > article:nth-child(2) {
+  border-color: var(--kyum-gold) !important;
+  box-shadow: var(--kyum-gold-glow) !important;
+}
+
+#dailyOperationsView .daily-targets-grid > article:nth-child(3) {
+  border-color: var(--kyum-red) !important;
+  box-shadow: var(--kyum-red-glow) !important;
+}
+
+/* Daily task rows remain normal operational blue. */
+#dailyOperationsView .daily-task-item {
+  border: 2px solid var(--kyum-blue) !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+/* Alert summary distribution. */
+#dailyOperationsView .daily-alerts-summary > article {
+  border: 2px solid var(--kyum-blue) !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+#dailyOperationsView .daily-alerts-summary > article:nth-child(3) {
+  border-color: var(--kyum-gold) !important;
+  box-shadow: var(--kyum-gold-glow) !important;
+}
+
+#dailyOperationsView .daily-alerts-summary > article:nth-child(4) {
+  border-color: var(--kyum-red) !important;
+  box-shadow: var(--kyum-red-glow) !important;
+}
+
+/* Individual alert cards respect severity. */
+#dailyOperationsView .daily-alert-card {
+  border: 2px solid var(--kyum-blue) !important;
+  border-inline-start-width: 2px !important;
+  box-shadow: var(--kyum-blue-glow) !important;
+}
+
+#dailyOperationsView .daily-alert-card.severity-important {
+  border-color: var(--kyum-gold) !important;
+  box-shadow: var(--kyum-gold-glow) !important;
+}
+
+#dailyOperationsView .daily-alert-card.severity-critical {
+  border-color: var(--kyum-red) !important;
+  box-shadow: var(--kyum-red-glow) !important;
+}
+
+/* =========================================================
+   Hover — stronger glow only, no translate / scale
+   ========================================================= */
+
+#dailyOperationsView .daily-current-session-card:hover,
+#dailyOperationsView .daily-checklist-panel:hover,
+#dailyOperationsView .daily-section-panel:not(.daily-overdue-panel):hover,
+#dailyOperationsView .daily-operations-kpis > article:not(.attention):not(:first-child):hover,
+#dailyOperationsView .daily-targets-grid > article:first-child:hover,
+#dailyOperationsView .daily-task-item:hover,
+#dailyOperationsView .daily-alerts-summary > article:nth-child(-n+2):hover,
+#dailyOperationsView .daily-alert-card:not(.severity-important):not(.severity-critical):hover {
+  box-shadow: var(--kyum-blue-glow-hover) !important;
+}
+
+#dailyOperationsView .daily-operations-header:hover,
+#dailyOperationsView .daily-targets-panel:hover,
+#dailyOperationsView .daily-operations-kpis > article:first-child:hover,
+#dailyOperationsView .daily-targets-grid > article:nth-child(2):hover,
+#dailyOperationsView .daily-alerts-summary > article:nth-child(3):hover,
+#dailyOperationsView .daily-alert-card.severity-important:hover {
+  box-shadow: var(--kyum-gold-glow-hover) !important;
+}
+
+#dailyOperationsView .daily-manager-note:hover,
+#dailyOperationsView .daily-alerts-panel:hover,
+#dailyOperationsView .daily-overdue-panel:hover,
+#dailyOperationsView .daily-operations-kpis > article.attention:hover,
+#dailyOperationsView .daily-operations-kpis > article:last-child:hover,
+#dailyOperationsView .daily-targets-grid > article:nth-child(3):hover,
+#dailyOperationsView .daily-alerts-summary > article:nth-child(4):hover,
+#dailyOperationsView .daily-alert-card.severity-critical:hover {
+  box-shadow: var(--kyum-red-glow-hover) !important;
+}
+
+/* Dark mode: keep the exact same brand colors with a stronger but controlled glow. */
+html[data-theme="dark"] {
+  --kyum-blue-glow:
+    0 0 0 1px rgba(22, 140, 255, .24),
+    0 0 15px rgba(22, 140, 255, .34),
+    0 10px 28px rgba(0, 0, 0, .22);
+
+  --kyum-gold-glow:
+    0 0 0 1px rgba(232, 169, 0, .24),
+    0 0 15px rgba(232, 169, 0, .34),
+    0 10px 28px rgba(0, 0, 0, .22);
+
+  --kyum-red-glow:
+    0 0 0 1px rgba(240, 68, 77, .24),
+    0 0 15px rgba(240, 68, 77, .34),
+    0 10px 28px rgba(0, 0, 0, .22);
+
+  --kyum-blue-glow-hover:
+    0 0 0 1px rgba(22, 140, 255, .30),
+    0 0 21px rgba(22, 140, 255, .46),
+    0 12px 32px rgba(0, 0, 0, .28);
+
+  --kyum-gold-glow-hover:
+    0 0 0 1px rgba(232, 169, 0, .30),
+    0 0 21px rgba(232, 169, 0, .46),
+    0 12px 32px rgba(0, 0, 0, .28);
+
+  --kyum-red-glow-hover:
+    0 0 0 1px rgba(240, 68, 77, .30),
+    0 0 21px rgba(240, 68, 77, .46),
+    0 12px 32px rgba(0, 0, 0, .28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dailyOperationsView .daily-operations-header,
+  #dailyOperationsView .daily-current-session-card,
+  #dailyOperationsView .daily-manager-note,
+  #dailyOperationsView .daily-operations-kpis > article,
+  #dailyOperationsView .daily-targets-panel,
+  #dailyOperationsView .daily-targets-grid > article,
+  #dailyOperationsView .daily-checklist-panel,
+  #dailyOperationsView .daily-section-panel,
+  #dailyOperationsView .daily-alerts-panel,
+  #dailyOperationsView .daily-alerts-summary > article,
+  #dailyOperationsView .daily-alert-card,
+  #dailyOperationsView .daily-task-item {
+    transition: none;
+  }
+}
