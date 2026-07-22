@@ -5522,7 +5522,19 @@ function setSidebarOpen(isOpen) {
   const sidebar = document.getElementById("mainSidebar");
   const launcher = document.getElementById("sidebarMenuToggle");
   const backdrop = document.getElementById("sidebarBackdrop");
-  if (!sidebar || !launcher || !backdrop) return;
+  const sidebarHost = document.getElementById("sidebarLauncherHost");
+  const header = document.getElementById("appHeader");
+  const title = header?.querySelector(".topbar-title");
+  if (!sidebar || !launcher || !backdrop || !sidebarHost || !header) return;
+
+  if (isOpen) {
+    // Move the same KYUM Company button into the opened menu.
+    sidebarHost.appendChild(launcher);
+  } else {
+    // Restore the same button to its original header position.
+    if (title) header.insertBefore(launcher, title);
+    else header.prepend(launcher);
+  }
 
   sidebar.classList.toggle("is-open", isOpen);
   sidebar.setAttribute("aria-hidden", String(!isOpen));
@@ -5531,19 +5543,15 @@ function setSidebarOpen(isOpen) {
   backdrop.setAttribute("aria-hidden", String(!isOpen));
   document.body.classList.toggle("sidebar-menu-open", isOpen);
 
+  collapseAllSidebarGroups();
+
   if (isOpen) {
-    collapseAllSidebarGroups();
-    requestAnimationFrame(() => {
-      sidebar.querySelector(".nav-item, .nav-group-toggle")?.focus();
-    });
-  } else {
-    collapseAllSidebarGroups();
+    requestAnimationFrame(() => launcher.focus());
   }
 }
 
 function initializeDynamicSidebar() {
   const launcher = document.getElementById("sidebarMenuToggle");
-  const closeButton = document.getElementById("sidebarCloseBtn");
   const backdrop = document.getElementById("sidebarBackdrop");
   const sidebar = document.getElementById("mainSidebar");
   if (!launcher || !sidebar || launcher.dataset.initialized === "true") return;
@@ -5555,7 +5563,6 @@ function initializeDynamicSidebar() {
     setSidebarOpen(launcher.getAttribute("aria-expanded") !== "true");
   });
 
-  closeButton?.addEventListener("click", () => setSidebarOpen(false));
   backdrop?.addEventListener("click", () => setSidebarOpen(false));
 
   document.addEventListener("keydown", event => {
