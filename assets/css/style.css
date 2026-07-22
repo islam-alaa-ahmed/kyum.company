@@ -5487,3 +5487,67 @@ html[data-theme="dark"] .topbar-title p {
     border-radius: 18px !important;
   }
 }
+
+
+/* Phase 17.5.11 — Rectangular KYUM logo fill only */
+@media (min-width: 1181px) {
+  .topbar-logo-banner {
+    width: 330px !important;
+    min-width: 330px !important;
+    height: 128px !important;
+    padding-inline-end: 26px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 286px !important;
+    max-width: 286px !important;
+    height: 118px !important;
+    flex: 0 0 286px !important;
+    object-fit: fill !important;
+    object-position: center !important;
+    border-radius: 24px !important;
+  }
+
+  .topbar {
+    grid-template-columns: 330px auto minmax(420px, 1fr) 192px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .topbar-logo-banner {
+    width: 260px !important;
+    min-width: 260px !important;
+    height: 84px !important;
+  }
+
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 226px !important;
+    max-width: 226px !important;
+    height: 82px !important;
+    flex: 0 0 226px !important;
+    object-fit: fill !important;
+    object-position: center !important;
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-logo-banner {
+    width: 170px !important;
+    min-width: 170px !important;
+    height: 52px !important;
+  }
+
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 156px !important;
+    max-width: 156px !important;
+    height: 48px !important;
+    flex: 0 0 156px !important;
+    object-fit: fill !important;
+    object-position: center !important;
+    border-radius: 12px !important;
+  }
+}
