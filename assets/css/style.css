@@ -5039,3 +5039,119 @@ html[data-theme="dark"] .topbar-title h2 {
 html[data-theme="dark"] .topbar-title p {
   color: rgba(205, 224, 237, .72);
 }
+
+
+/* Phase 17.5.8 — Exact KYUM logo palette for header background only */
+.topbar,
+.topbar.is-scrolled {
+  background:
+    radial-gradient(
+      ellipse at 3% 7%,
+      rgba(255, 218, 179, .22) 0%,
+      rgba(255, 218, 179, .07) 13%,
+      transparent 27%
+    ),
+    radial-gradient(
+      ellipse at 22% 118%,
+      transparent 0%,
+      transparent 39%,
+      rgba(48, 196, 255, .30) 41%,
+      rgba(48, 196, 255, .10) 48%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse at 58% 122%,
+      transparent 0%,
+      transparent 47%,
+      rgba(22, 150, 211, .26) 49%,
+      rgba(22, 150, 211, .08) 56%,
+      transparent 65%
+    ),
+    linear-gradient(
+      116deg,
+      #001019 0%,
+      #001a26 20%,
+      #002638 42%,
+      #002b40 61%,
+      #063c55 80%,
+      #155575 100%
+    );
+  border-color: rgba(99, 194, 232, .28);
+  box-shadow:
+    0 18px 46px rgba(0, 16, 25, .34),
+    inset 0 1px 0 rgba(255, 255, 255, .10);
+}
+
+.topbar::before {
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, .22) 0%,
+      rgba(255, 255, 255, .07) 10%,
+      transparent 24%
+    ),
+    radial-gradient(
+      ellipse at 52% 112%,
+      transparent 0%,
+      transparent 45%,
+      rgba(58, 204, 255, .38) 46.5%,
+      rgba(58, 204, 255, .12) 51%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse at 82% 118%,
+      transparent 0%,
+      transparent 51%,
+      rgba(29, 157, 215, .30) 52.5%,
+      rgba(29, 157, 215, .08) 58%,
+      transparent 65%
+    ),
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 54%,
+      rgba(255, 255, 255, .035) 55%,
+      transparent 56%,
+      transparent 100%
+    );
+  opacity: 1;
+}
+
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .topbar.is-scrolled {
+  background:
+    radial-gradient(
+      ellipse at 3% 7%,
+      rgba(255, 208, 164, .15) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      ellipse at 22% 118%,
+      transparent 0%,
+      transparent 40%,
+      rgba(35, 183, 240, .26) 42%,
+      rgba(35, 183, 240, .08) 49%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse at 62% 122%,
+      transparent 0%,
+      transparent 48%,
+      rgba(15, 130, 187, .23) 50%,
+      rgba(15, 130, 187, .07) 57%,
+      transparent 66%
+    ),
+    linear-gradient(
+      116deg,
+      #000b12 0%,
+      #001019 21%,
+      #001a26 43%,
+      #002235 63%,
+      #002f46 82%,
+      #0b415e 100%
+    );
+  border-color: rgba(61, 145, 183, .24);
+  box-shadow:
+    0 22px 56px rgba(0, 0, 0, .46),
+    inset 0 1px 0 rgba(255, 255, 255, .07);
+}
