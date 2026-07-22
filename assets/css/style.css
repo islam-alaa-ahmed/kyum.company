@@ -6318,3 +6318,191 @@ html[data-theme="dark"] {
     transition: none;
   }
 }
+
+
+/* =========================================================
+   Phase 17.7.1 — Glass Clarity Fix
+   Root cause fix for washed-out overlays, weak text contrast,
+   over-applied glass reflection and noisy accent lines.
+   CSS-only. No layout or logic changes.
+   ========================================================= */
+
+#dailyOperationsView {
+  --surface: rgba(10, 27, 49, .90);
+  --surface-2: rgba(12, 31, 55, .86);
+  --border: rgba(255, 255, 255, .12);
+  --muted: #a9b7ca;
+
+  color: #f4f7fb;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(86, 134, 199, .13), transparent 30%),
+    radial-gradient(circle at 86% 10%, rgba(45, 91, 157, .09), transparent 28%),
+    linear-gradient(145deg, #06152a 0%, #091c34 52%, #0c223d 100%);
+}
+
+/* Remove the overlaid reflection layer that was washing out content. */
+#dailyOperationsView .daily-operations-header::after,
+#dailyOperationsView .daily-current-session-card::after,
+#dailyOperationsView .daily-manager-note::after,
+#dailyOperationsView .daily-operations-kpis > article::after,
+#dailyOperationsView .daily-targets-panel::after,
+#dailyOperationsView .daily-targets-grid > article::after,
+#dailyOperationsView .daily-checklist-panel::after,
+#dailyOperationsView .daily-section-panel::after,
+#dailyOperationsView .daily-alerts-panel::after,
+#dailyOperationsView .daily-alerts-summary > article::after,
+#dailyOperationsView .daily-alert-card::after,
+#dailyOperationsView .daily-task-item::after {
+  display: none !important;
+}
+
+/* Clean, darker glass surfaces with enough opacity for readability. */
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-operations-kpis > article,
+#dailyOperationsView .daily-targets-panel,
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel,
+#dailyOperationsView .daily-alerts-panel,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, .035) 0%,
+      rgba(255, 255, 255, .012) 42%,
+      transparent 100%),
+    rgba(9, 27, 50, .88) !important;
+  border: 1px solid rgba(255, 255, 255, .13) !important;
+  border-inline-start-width: 1px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .035),
+    0 8px 22px rgba(0, 0, 0, .17) !important;
+  backdrop-filter: blur(10px) saturate(112%);
+  -webkit-backdrop-filter: blur(10px) saturate(112%);
+}
+
+/* Restore clear text hierarchy in both global light and dark modes. */
+#dailyOperationsView h1,
+#dailyOperationsView h2,
+#dailyOperationsView h3,
+#dailyOperationsView h4,
+#dailyOperationsView h5,
+#dailyOperationsView h6,
+#dailyOperationsView strong,
+#dailyOperationsView .daily-task-item > div strong {
+  color: #f5f7fb;
+}
+
+#dailyOperationsView p,
+#dailyOperationsView small,
+#dailyOperationsView span:not(.daily-target-progress span),
+#dailyOperationsView .daily-task-item > div small,
+#dailyOperationsView .daily-operations-date span {
+  color: #a9b7ca;
+}
+
+#dailyOperationsView .daily-task-item.readonly {
+  opacity: 1;
+}
+
+/* Keep semantic text colors readable. */
+#dailyOperationsView .daily-manager-note strong,
+#dailyOperationsView .daily-overdue-panel strong,
+#dailyOperationsView .daily-alert-card.severity-critical strong {
+  color: #ff6969;
+}
+
+#dailyOperationsView .daily-current-session-card .is-active,
+#dailyOperationsView .daily-current-session-card .active,
+#dailyOperationsView .daily-current-session-card strong[style*="green"] {
+  color: #3ed27d !important;
+}
+
+/* Remove noisy repeated accent bars from task and inner section cards. */
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  background-image:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, .035) 0%,
+      rgba(255, 255, 255, .012) 42%,
+      transparent 100%) !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* KPI accents remain, but become short and calm. */
+#dailyOperationsView .daily-operations-kpis > article::before {
+  display: block !important;
+  inset-inline: 20px auto;
+  bottom: 0;
+  top: auto;
+  width: 34%;
+  height: 2px;
+  border-radius: 999px 999px 0 0;
+  background: var(--kyum-card-accent);
+  opacity: .62;
+  box-shadow: none;
+}
+
+/* Large panels use only a restrained top tint. */
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-targets-panel {
+  border-top-color: rgba(216, 179, 93, .34) !important;
+}
+
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel:not(.daily-overdue-panel) {
+  border-top-color: rgba(77, 163, 255, .34) !important;
+}
+
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-alerts-panel,
+#dailyOperationsView .daily-overdue-panel {
+  border-top-color: rgba(226, 85, 85, .34) !important;
+}
+
+/* Buttons remain glass, but with higher text contrast and no white blocks. */
+#dailyOperationsView .daily-operations-header button,
+#dailyOperationsView .daily-current-session-card button,
+#dailyOperationsView .daily-manager-note button,
+#dailyOperationsView .daily-targets-panel button,
+#dailyOperationsView .daily-checklist-panel button,
+#dailyOperationsView .daily-section-panel button,
+#dailyOperationsView .daily-alerts-panel button {
+  color: #eef4ff !important;
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, .075),
+      rgba(255, 255, 255, .025)) !important;
+  border: 1px solid rgba(255, 255, 255, .14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .045),
+    0 5px 14px rgba(0, 0, 0, .12) !important;
+}
+
+/* Hover remains subtle and does not move anything. */
+#dailyOperationsView .daily-operations-header:hover,
+#dailyOperationsView .daily-current-session-card:hover,
+#dailyOperationsView .daily-manager-note:hover,
+#dailyOperationsView .daily-operations-kpis > article:hover,
+#dailyOperationsView .daily-targets-panel:hover,
+#dailyOperationsView .daily-targets-grid > article:hover,
+#dailyOperationsView .daily-checklist-panel:hover,
+#dailyOperationsView .daily-section-panel:hover,
+#dailyOperationsView .daily-alerts-panel:hover,
+#dailyOperationsView .daily-alerts-summary > article:hover,
+#dailyOperationsView .daily-alert-card:hover,
+#dailyOperationsView .daily-task-item:hover {
+  border-color: rgba(255, 255, 255, .18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .045),
+    0 10px 25px rgba(0, 0, 0, .19) !important;
+  transform: none !important;
+}
