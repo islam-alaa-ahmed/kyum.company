@@ -7808,3 +7808,191 @@ html[data-theme="dark"] {
 .sidebar * {
   /* Intentionally untouched by Phase 17.8.5. */
 }
+
+
+/* =========================================================
+   Phase 17.8.6 — Badge Contrast Fix
+   Scope:
+   - Dark Mode gray bubbles become navy with white text.
+   - Light Mode bubble text becomes black.
+   - Preserve semantic red / gold / green bubbles.
+   - Header and Sidebar remain untouched.
+   ========================================================= */
+
+/* Generic gray / neutral badges in Light Mode. */
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  .badge,
+  .pill,
+  .status,
+  .chip,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+/* Generic gray / neutral badges in Dark Mode. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .badge,
+  .pill,
+  .status,
+  .chip,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Neutral/open bubbles specifically called out in the reported screens. */
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  .badge-neutral,
+  .pill-neutral,
+  .status-neutral,
+  .badge-open,
+  .pill-open,
+  .status-open,
+  [class*="neutral"],
+  [class*="open"]
+) {
+  background: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: rgba(17, 24, 39, .12) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .badge-neutral,
+  .pill-neutral,
+  .status-neutral,
+  .badge-open,
+  .pill-open,
+  .status-open,
+  [class*="neutral"],
+  [class*="open"]
+) {
+  background: #173052 !important;
+  color: #ffffff !important;
+  border-color: rgba(147, 197, 253, .20) !important;
+}
+
+/* Daily alert status bubbles. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card
+:is(
+  .badge,
+  .pill,
+  .status,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"]
+) {
+  color: #111827 !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-alert-card
+:is(
+  .badge,
+  .pill,
+  .status,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"]
+) {
+  background: #173052 !important;
+  color: #ffffff !important;
+  border-color: rgba(147, 197, 253, .20) !important;
+}
+
+/* Overdue table delay bubble. */
+html:not([data-theme="dark"]) #dailyOperationsView
+:is(
+  .overdue-days,
+  .delay-badge,
+  [class*="overdue"][class*="badge"],
+  [class*="delay"][class*="badge"]
+) {
+  color: #111827 !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView
+:is(
+  .overdue-days,
+  .delay-badge,
+  [class*="overdue"][class*="badge"],
+  [class*="delay"][class*="badge"]
+) {
+  background: #173052 !important;
+  color: #ffffff !important;
+  border-color: rgba(147, 197, 253, .20) !important;
+}
+
+/* Preserve semantic colors after the generic neutral rules. */
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  [class*="danger"],
+  [class*="error"],
+  [class*="critical"],
+  [class*="urgent"]
+) {
+  color: #991b1b !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="danger"],
+  [class*="error"],
+  [class*="critical"],
+  [class*="urgent"]
+) {
+  color: #ffffff !important;
+}
+
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  [class*="warning"],
+  [class*="important"]
+) {
+  color: #78350f !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="warning"],
+  [class*="important"]
+) {
+  color: #ffffff !important;
+}
+
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  [class*="success"],
+  [class*="completed"],
+  [class*="approved"]
+) {
+  color: #166534 !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="success"],
+  [class*="completed"],
+  [class*="approved"]
+) {
+  color: #ffffff !important;
+}
+
+/* Explicitly protect approved header and sidebar. */
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* No visual changes in this phase. */
+}
