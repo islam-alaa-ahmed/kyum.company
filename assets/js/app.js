@@ -5699,6 +5699,45 @@ function initializeKyumThemeToggle() {
 
 initializeKyumThemeToggle();
 
+function setHeaderUserMenuOpen(isOpen) {
+  const menu = document.getElementById("headerUserMenu");
+  const button = document.getElementById("headerUserMenuButton");
+  const dropdown = document.getElementById("headerUserMenuDropdown");
+  if (!menu || !button || !dropdown) return;
+
+  menu.classList.toggle("is-open", isOpen);
+  dropdown.classList.toggle("hidden", !isOpen);
+  button.setAttribute("aria-expanded", String(isOpen));
+}
+
+function initializeHeaderUserMenu() {
+  const menu = document.getElementById("headerUserMenu");
+  const button = document.getElementById("headerUserMenuButton");
+  if (!menu || !button || menu.dataset.initialized === "true") return;
+
+  menu.dataset.initialized = "true";
+
+  button.addEventListener("click", event => {
+    event.stopPropagation();
+    setHeaderUserMenuOpen(button.getAttribute("aria-expanded") !== "true");
+  });
+
+  document.addEventListener("click", event => {
+    if (!menu.contains(event.target)) {
+      setHeaderUserMenuOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
+      setHeaderUserMenuOpen(false);
+      button.focus();
+    }
+  });
+}
+
+initializeHeaderUserMenu();
+
 window.addEventListener("customer-auth-ready", () => {
   const requested = routeFromLocation();
   const fallback = window.CustomerPermissions?.firstAllowedScreen?.("dashboard");

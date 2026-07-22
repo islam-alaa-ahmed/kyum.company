@@ -115,7 +115,6 @@
         </section>
       </nav>
 
-      <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
     </aside>
 
     <main class="main-content">
@@ -140,6 +139,41 @@
         </div>
 
         <div class="topbar-user-actions">
+          <div id="headerUserMenu" class="header-user-menu">
+            <button
+              id="headerUserMenuButton"
+              class="user-chip compact-user-chip"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+            >
+              <span class="avatar">أ</span>
+              <strong id="currentUserName">مستخدم</strong>
+              <svg class="user-menu-chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <div id="headerUserMenuDropdown" class="header-user-dropdown hidden" role="menu">
+              <button id="logoutBtn" class="header-logout-btn" type="button" role="menuitem">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 17l5-5-5-5M15 12H3M14 3h4a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>تسجيل الخروج</span>
+              </button>
+            </div>
+          </div>
+
+          <button
+            id="kyumScrollControl"
+            class="kyum-scroll-control is-visible"
+            type="button"
+            aria-label="ضغطة واحدة للأعلى، ضغطتان لأسفل"
+            title="ضغطة واحدة: أعلى الصفحة — ضغطتان: أسفل الصفحة"
+          >
+            <img src="assets/images/apple-touch-icon.png" alt="KYUM">
+          </button>
+
           <button
             id="themeToggleButton"
             class="theme-toggle-button"
@@ -155,36 +189,14 @@
               <path d="M20.5 14.4A8.5 8.5 0 0 1 9.6 3.5 8.5 8.5 0 1 0 20.5 14.4Z"></path>
             </svg>
           </button>
-
-          <button
-            id="kyumScrollControl"
-            class="kyum-scroll-control is-visible"
-            type="button"
-            aria-label="ضغطة واحدة للأعلى، ضغطتان لأسفل"
-            title="ضغطة واحدة: أعلى الصفحة — ضغطتان: أسفل الصفحة"
-          >
-            <img src="assets/images/apple-touch-icon.png" alt="KYUM">
-          </button>
-
-          <div class="user-chip">
-            <span class="avatar">أ</span>
-            <div>
-              <strong id="currentUserName">مستخدم</strong>
-              <small id="currentUserMeta">جاري التحميل...</small>
-            </div>
-          </div>
         </div>
 
-        <div class="topbar-brand" aria-label="KYUM Enterprise CRM">
+        <div class="topbar-brand topbar-logo-banner" aria-label="KYUM">
           <img
             class="topbar-brand-logo"
             src="assets/images/kyum-header-logo.png"
             alt="KYUM"
           >
-          <div class="topbar-brand-copy">
-            <strong>KYUM</strong>
-            <span>Enterprise CRM</span>
-          </div>
         </div>
 
         <div class="topbar-watermark" aria-hidden="true">
@@ -2426,6 +2438,6 @@
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
-  <script src="assets/js/app.js?v=17.5.4"></script>
+  <script src="assets/js/app.js?v=17.5.5"></script>
 </body>
 </html>
