@@ -7996,3 +7996,203 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 .sidebar * {
   /* No visual changes in this phase. */
 }
+
+
+/* =========================================================
+   Phase 17.8.7 — Global Secondary Text Clarity
+   Scope:
+   - Apply larger, clearer secondary text across all program screens.
+   - Light Mode secondary text: black.
+   - Dark Mode secondary text: white.
+   - Preserve semantic colors and the approved Header / Sidebar.
+   - No layout, spacing, component, border, shadow or behavior changes.
+   ========================================================= */
+
+/* Global secondary typography sizing tokens. */
+:root {
+  --app-secondary-text-color: #111827;
+  --app-secondary-text-size: 14px;
+  --app-small-text-size: 13px;
+  --app-caption-text-size: 12px;
+}
+
+html[data-theme="dark"] {
+  --app-secondary-text-color: #ffffff;
+}
+
+/* ---------------------------------------------------------
+   Main application screens
+   --------------------------------------------------------- */
+
+/* Common secondary text elements across every screen. */
+.main-content > :not(#appHeader) p,
+.main-content > :not(#appHeader) small,
+.main-content > :not(#appHeader) label,
+.main-content > :not(#appHeader) time,
+.main-content > :not(#appHeader) caption,
+.main-content > :not(#appHeader) .subtitle,
+.main-content > :not(#appHeader) [class*="subtitle"],
+.main-content > :not(#appHeader) [class*="description"],
+.main-content > :not(#appHeader) [class*="caption"],
+.main-content > :not(#appHeader) [class*="meta"],
+.main-content > :not(#appHeader) [class*="date"],
+.main-content > :not(#appHeader) [class*="time"],
+.main-content > :not(#appHeader) [class*="label"],
+.main-content > :not(#appHeader) [class*="helper"],
+.main-content > :not(#appHeader) [class*="hint"],
+.main-content > :not(#appHeader) [class*="note"],
+.main-content > :not(#appHeader) [class*="subtext"],
+.main-content > :not(#appHeader) [class*="summary"],
+.main-content > :not(#appHeader) [class*="empty"],
+.main-content > :not(#appHeader) [class*="no-data"] {
+  color: var(--app-secondary-text-color) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Standard secondary copy. */
+.main-content > :not(#appHeader) p,
+.main-content > :not(#appHeader) label,
+.main-content > :not(#appHeader) time,
+.main-content > :not(#appHeader) .subtitle,
+.main-content > :not(#appHeader) [class*="subtitle"],
+.main-content > :not(#appHeader) [class*="description"],
+.main-content > :not(#appHeader) [class*="meta"],
+.main-content > :not(#appHeader) [class*="date"],
+.main-content > :not(#appHeader) [class*="time"],
+.main-content > :not(#appHeader) [class*="helper"],
+.main-content > :not(#appHeader) [class*="hint"],
+.main-content > :not(#appHeader) [class*="note"],
+.main-content > :not(#appHeader) [class*="subtext"] {
+  font-size: max(var(--app-secondary-text-size), 1em) !important;
+  line-height: 1.65 !important;
+}
+
+/* Small labels and card footers. */
+.main-content > :not(#appHeader) small,
+.main-content > :not(#appHeader) [class*="caption"],
+.main-content > :not(#appHeader) [class*="label"] {
+  font-size: max(var(--app-small-text-size), 1em) !important;
+  line-height: 1.55 !important;
+}
+
+/* Table secondary text. */
+.main-content > :not(#appHeader) th,
+.main-content > :not(#appHeader) td {
+  color: var(--app-secondary-text-color) !important;
+  opacity: 1 !important;
+}
+
+.main-content > :not(#appHeader) td small,
+.main-content > :not(#appHeader) th small {
+  font-size: var(--app-caption-text-size) !important;
+}
+
+/* Form help and placeholder text. */
+.main-content > :not(#appHeader) input::placeholder,
+.main-content > :not(#appHeader) textarea::placeholder {
+  color: var(--app-secondary-text-color) !important;
+  opacity: 1 !important;
+  font-size: var(--app-secondary-text-size) !important;
+}
+
+/* ---------------------------------------------------------
+   Dialogs, modals, dropdown panels and tooltips
+   --------------------------------------------------------- */
+
+.modal p,
+.modal small,
+.modal label,
+.dialog p,
+.dialog small,
+.dialog label,
+[role="dialog"] p,
+[role="dialog"] small,
+[role="dialog"] label,
+.dropdown-menu p,
+.dropdown-menu small,
+.tooltip,
+[role="tooltip"] {
+  color: var(--app-secondary-text-color) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.modal p,
+.modal label,
+.dialog p,
+.dialog label,
+[role="dialog"] p,
+[role="dialog"] label,
+.dropdown-menu p {
+  font-size: max(var(--app-secondary-text-size), 1em) !important;
+  line-height: 1.65 !important;
+}
+
+.modal small,
+.dialog small,
+[role="dialog"] small,
+.dropdown-menu small,
+.tooltip,
+[role="tooltip"] {
+  font-size: max(var(--app-small-text-size), 1em) !important;
+  line-height: 1.55 !important;
+}
+
+/* ---------------------------------------------------------
+   Daily Operations specific secondary labels
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-operations-kpis > article small,
+#dailyOperationsView .daily-targets-grid > article small,
+#dailyOperationsView .daily-alerts-summary > article small,
+#dailyOperationsView .daily-task-item > div small,
+#dailyOperationsView .daily-operations-date,
+#dailyOperationsView .daily-operations-date span {
+  color: var(--app-secondary-text-color) !important;
+  font-size: var(--app-small-text-size) !important;
+  line-height: 1.55 !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Semantic color protection
+   --------------------------------------------------------- */
+
+/* Do not flatten semantic text colors inside colored badges / statuses. */
+.main-content > :not(#appHeader)
+:is(
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"],
+  .success,
+  .danger,
+  .warning,
+  .error,
+  .critical,
+  .urgent,
+  .completed,
+  .approved
+) {
+  font-size: inherit;
+}
+
+/* Preserve approved checkbox colors. */
+#dailyOperationsView .daily-task-item.completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.completed > .daily-task-check::after,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check::after {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   Explicit Header and Sidebar protection
+   --------------------------------------------------------- */
+
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* Intentionally unchanged in Phase 17.8.7. */
+}
