@@ -6923,3 +6923,322 @@ html[data-theme="dark"] {
     min-width: 0;
   }
 }
+
+
+/* =========================================================
+   Phase 17.8.2 — Light / Dark Theme Architecture Fix
+   Scope: Daily Operations visual tokens only.
+   Fixes hard-coded dark surfaces leaking into Light Mode.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Light Mode tokens (default)
+   --------------------------------------------------------- */
+
+#dailyOperationsView {
+  --kyum-bg-canvas: #eef3f9;
+  --kyum-bg-canvas-2: #f7f9fc;
+
+  --kyum-surface-1: rgba(255, 255, 255, .96);
+  --kyum-surface-2: rgba(248, 250, 252, .98);
+  --kyum-surface-3: rgba(241, 245, 249, .98);
+
+  --kyum-glass-soft: rgba(255, 255, 255, .78);
+  --kyum-glass-strong: rgba(255, 255, 255, .92);
+
+  --kyum-border-soft: rgba(15, 23, 42, .10);
+  --kyum-border-medium: rgba(15, 23, 42, .16);
+  --kyum-border-strong: rgba(37, 99, 235, .28);
+
+  --kyum-text-primary: #172033;
+  --kyum-text-secondary: #526178;
+  --kyum-text-muted: #7a8799;
+
+  --kyum-accent-blue: #2563eb;
+  --kyum-accent-gold: #b7791f;
+  --kyum-accent-red: #dc2626;
+  --kyum-accent-green: #15803d;
+
+  --kyum-depth-1:
+    0 6px 16px rgba(15, 23, 42, .06);
+  --kyum-depth-2:
+    0 10px 26px rgba(15, 23, 42, .09);
+  --kyum-depth-3:
+    0 14px 36px rgba(15, 23, 42, .12);
+
+  --kyum-focus-ring:
+    0 0 0 3px rgba(37, 99, 235, .14);
+
+  color: var(--kyum-text-primary);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(37, 99, 235, .07), transparent 30%),
+    radial-gradient(circle at 86% 8%, rgba(14, 116, 144, .05), transparent 28%),
+    linear-gradient(145deg, var(--kyum-bg-canvas), var(--kyum-bg-canvas-2));
+}
+
+/* ---------------------------------------------------------
+   Dark Mode token overrides
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] #dailyOperationsView {
+  --kyum-bg-canvas: #071425;
+  --kyum-bg-canvas-2: #0a1b30;
+
+  --kyum-surface-1: #0f1d31;
+  --kyum-surface-2: #13243a;
+  --kyum-surface-3: #172b45;
+
+  --kyum-glass-soft: rgba(18, 37, 61, .72);
+  --kyum-glass-strong: rgba(15, 31, 51, .86);
+
+  --kyum-border-soft: rgba(173, 194, 222, .14);
+  --kyum-border-medium: rgba(173, 194, 222, .22);
+  --kyum-border-strong: rgba(173, 194, 222, .30);
+
+  --kyum-text-primary: #f3f7fc;
+  --kyum-text-secondary: #b5c2d3;
+  --kyum-text-muted: #8392a8;
+
+  --kyum-accent-blue: #4d9dff;
+  --kyum-accent-gold: #d5ad54;
+  --kyum-accent-red: #e45c61;
+  --kyum-accent-green: #40c97a;
+
+  --kyum-depth-1:
+    0 6px 16px rgba(0, 0, 0, .14);
+  --kyum-depth-2:
+    0 10px 26px rgba(0, 0, 0, .18);
+  --kyum-depth-3:
+    0 14px 36px rgba(0, 0, 0, .22);
+
+  --kyum-focus-ring:
+    0 0 0 3px rgba(77, 157, 255, .16);
+
+  color: var(--kyum-text-primary);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(66, 111, 171, .12), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(30, 72, 129, .08), transparent 28%),
+    linear-gradient(145deg, var(--kyum-bg-canvas), var(--kyum-bg-canvas-2));
+}
+
+/* ---------------------------------------------------------
+   Token-driven surfaces
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-targets-panel,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel,
+#dailyOperationsView .daily-alerts-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .28), transparent 34%),
+    var(--kyum-surface-2) !important;
+  border-color: var(--kyum-border-medium) !important;
+  color: var(--kyum-text-primary);
+  box-shadow: var(--kyum-depth-2) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-operations-header,
+html[data-theme="dark"] #dailyOperationsView .daily-targets-panel,
+html[data-theme="dark"] #dailyOperationsView .daily-checklist-panel,
+html[data-theme="dark"] #dailyOperationsView .daily-section-panel,
+html[data-theme="dark"] #dailyOperationsView .daily-alerts-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .018), transparent 34%),
+    var(--kyum-surface-2) !important;
+}
+
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-operations-kpis > article,
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .34), transparent 32%),
+    var(--kyum-surface-1) !important;
+  border-color: var(--kyum-border-soft) !important;
+  color: var(--kyum-text-primary);
+  box-shadow: var(--kyum-depth-1) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-current-session-card,
+html[data-theme="dark"] #dailyOperationsView .daily-manager-note,
+html[data-theme="dark"] #dailyOperationsView .daily-operations-kpis > article,
+html[data-theme="dark"] #dailyOperationsView .daily-targets-grid > article,
+html[data-theme="dark"] #dailyOperationsView .daily-alerts-summary > article,
+html[data-theme="dark"] #dailyOperationsView .daily-alert-card,
+html[data-theme="dark"] #dailyOperationsView .daily-task-item {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .014), transparent 32%),
+    var(--kyum-surface-1) !important;
+}
+
+/* ---------------------------------------------------------
+   Text hierarchy
+   --------------------------------------------------------- */
+
+#dailyOperationsView h1,
+#dailyOperationsView h2,
+#dailyOperationsView h3,
+#dailyOperationsView h4,
+#dailyOperationsView h5,
+#dailyOperationsView h6,
+#dailyOperationsView strong,
+#dailyOperationsView .daily-task-item > div strong {
+  color: var(--kyum-text-primary) !important;
+}
+
+#dailyOperationsView p,
+#dailyOperationsView small,
+#dailyOperationsView .daily-operations-date,
+#dailyOperationsView .daily-task-item > div small,
+#dailyOperationsView .daily-operations-header p,
+#dailyOperationsView .daily-checklist-panel p {
+  color: var(--kyum-text-secondary) !important;
+}
+
+#dailyOperationsView .daily-operations-kpis > article small,
+#dailyOperationsView .daily-targets-grid > article small,
+#dailyOperationsView .daily-alerts-summary > article small {
+  color: var(--kyum-text-muted) !important;
+}
+
+/* ---------------------------------------------------------
+   Controls and icons
+   --------------------------------------------------------- */
+
+#dailyOperationsView button,
+#dailyOperationsView .btn,
+#dailyOperationsView [role="button"] {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .26)),
+    var(--kyum-glass-strong) !important;
+  color: var(--kyum-text-primary) !important;
+  border-color: var(--kyum-border-medium) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .55),
+    var(--kyum-depth-1) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView button,
+html[data-theme="dark"] #dailyOperationsView .btn,
+html[data-theme="dark"] #dailyOperationsView [role="button"] {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .025)),
+    var(--kyum-glass-strong) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .045),
+    0 6px 14px rgba(0, 0, 0, .12) !important;
+}
+
+#dailyOperationsView .daily-operations-kpis .icon,
+#dailyOperationsView .daily-operations-kpis [class*="icon"],
+#dailyOperationsView .daily-targets-grid .icon,
+#dailyOperationsView .daily-targets-grid [class*="icon"],
+#dailyOperationsView .daily-alerts-summary .icon,
+#dailyOperationsView .daily-alerts-summary [class*="icon"] {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .68), rgba(255, 255, 255, .30)),
+    var(--kyum-glass-soft) !important;
+  border-color: var(--kyum-border-medium) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .58),
+    var(--kyum-depth-1) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-operations-kpis .icon,
+html[data-theme="dark"] #dailyOperationsView .daily-operations-kpis [class*="icon"],
+html[data-theme="dark"] #dailyOperationsView .daily-targets-grid .icon,
+html[data-theme="dark"] #dailyOperationsView .daily-targets-grid [class*="icon"],
+html[data-theme="dark"] #dailyOperationsView .daily-alerts-summary .icon,
+html[data-theme="dark"] #dailyOperationsView .daily-alerts-summary [class*="icon"] {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .025)),
+    var(--kyum-glass-soft) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .05),
+    0 6px 14px rgba(0, 0, 0, .12) !important;
+}
+
+/* ---------------------------------------------------------
+   Checklist details
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-task-item > .daily-task-check {
+  border-color: var(--kyum-border-strong) !important;
+  background: var(--kyum-surface-1) !important;
+}
+
+#dailyOperationsView .daily-task-item > b {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid rgba(220, 38, 38, .14);
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item > b {
+  background: rgba(226, 85, 85, .16) !important;
+  color: #ff8b8f !important;
+  border-color: rgba(226, 85, 85, .24);
+}
+
+#dailyOperationsView .daily-task-item.completed > b,
+#dailyOperationsView .daily-task-item.is-completed > b {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: rgba(5, 150, 105, .15);
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.completed > b,
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.is-completed > b {
+  background: rgba(64, 201, 122, .16) !important;
+  color: #75e5a7 !important;
+  border-color: rgba(64, 201, 122, .24);
+}
+
+/* ---------------------------------------------------------
+   Progress tracks
+   --------------------------------------------------------- */
+
+#dailyOperationsView .progress-track,
+#dailyOperationsView .daily-target-progress,
+#dailyOperationsView [class*="progress-track"] {
+  background: rgba(15, 23, 42, .08) !important;
+  border-color: rgba(15, 23, 42, .08) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .progress-track,
+html[data-theme="dark"] #dailyOperationsView .daily-target-progress,
+html[data-theme="dark"] #dailyOperationsView [class*="progress-track"] {
+  background: rgba(255, 255, 255, .07) !important;
+  border-color: rgba(255, 255, 255, .08) !important;
+}
+
+/* ---------------------------------------------------------
+   Hover / focus
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-operations-header:hover,
+#dailyOperationsView .daily-current-session-card:hover,
+#dailyOperationsView .daily-manager-note:hover,
+#dailyOperationsView .daily-operations-kpis > article:hover,
+#dailyOperationsView .daily-targets-panel:hover,
+#dailyOperationsView .daily-targets-grid > article:hover,
+#dailyOperationsView .daily-checklist-panel:hover,
+#dailyOperationsView .daily-section-panel:hover,
+#dailyOperationsView .daily-alerts-panel:hover,
+#dailyOperationsView .daily-alerts-summary > article:hover,
+#dailyOperationsView .daily-alert-card:hover,
+#dailyOperationsView .daily-task-item:hover {
+  border-color: var(--kyum-border-medium) !important;
+  box-shadow: var(--kyum-depth-2) !important;
+  transform: none !important;
+}
+
+#dailyOperationsView button:focus-visible,
+#dailyOperationsView .btn:focus-visible,
+#dailyOperationsView [role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--kyum-focus-ring), var(--kyum-depth-2) !important;
+}
