@@ -8196,3 +8196,306 @@ html[data-theme="dark"] {
 .sidebar * {
   /* Intentionally unchanged in Phase 17.8.7. */
 }
+
+
+/* =========================================================
+   Phase 17.8.8 — Enterprise Typography Final Audit
+   Scope:
+   - Final readability audit across all program content screens.
+   - Fix legacy 9px–11px labels and remaining muted text.
+   - Preserve Header and Sidebar exactly as currently approved.
+   - No layout, spacing, card, border, shadow, glass or logic changes.
+   ========================================================= */
+
+:root {
+  --audit-text-main: #111827;
+  --audit-text-secondary: #111827;
+  --audit-text-disabled: #4b5563;
+
+  --audit-font-caption: 12px;
+  --audit-font-small: 13px;
+  --audit-font-secondary: 14px;
+}
+
+html[data-theme="dark"] {
+  --audit-text-main: #ffffff;
+  --audit-text-secondary: #ffffff;
+  --audit-text-disabled: #cbd5e1;
+}
+
+/* ---------------------------------------------------------
+   Content-level text clarity
+   Header and Sidebar are excluded through the content scope.
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader) {
+  --text-primary: var(--audit-text-main);
+  --text-secondary: var(--audit-text-secondary);
+  --text-muted: var(--audit-text-secondary);
+  --text-disabled: var(--audit-text-disabled);
+}
+
+.main-content > :not(#appHeader)
+:is(
+  .card,
+  .panel,
+  .section,
+  .widget,
+  .metric-card,
+  .kpi-card,
+  .report-card,
+  .customer-card,
+  .quotation-card,
+  .followup-card,
+  .alert-card,
+  .empty-state,
+  [class*="-card"],
+  [class*="-panel"],
+  [class*="-section"],
+  [class*="-widget"]
+)
+:is(p, small, label, span, time, caption) {
+  color: var(--audit-text-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* ---------------------------------------------------------
+   Audited legacy selectors that previously used 9px–11px.
+   --------------------------------------------------------- */
+
+.performance-metric span,
+.trend-day-label,
+.record-status,
+.activity-details,
+.health-score-ring span,
+.performance-request-item small,
+.score-breakdown-item small,
+.smart-alert span,
+.health-recommendation span,
+.diagnostics-summary-grid span,
+.diagnostics-summary-grid small,
+.diagnostics-test-status span,
+.reports-kpi-grid span,
+.reports-kpi-grid small,
+.monthly-column small,
+.executive-period-summary span,
+.kpi-delta,
+.executive-funnel-summary span,
+.analytics-tab,
+.analytics-bar-row > div:first-child span,
+.quotation-value-kpis span,
+.customer-action-item > span,
+.comparison-metric span,
+.yearly-trend-column small,
+.top10-item > span,
+.customer360-status,
+.customer360-status-card span,
+.customer360-status-card small,
+.customer360-metric span,
+.customer360-metric small,
+.customer360-section-header p,
+.customer360-section-header > span,
+.customer360-followup-summary span,
+.customer360-activity-summary span,
+.customer360-activity-summary small,
+.customer360-activity-filter,
+.customer360-activity-head > span,
+.customer360-gauge-ring span,
+.customer360-risk-card-head span,
+.customer360-risk-card-head > b,
+.customer360-risk-reasons,
+.customer360-next-action > span,
+.customer360-export-icon,
+.representatives-list-toolbar label,
+.representative-actions button,
+.reference-data-toolbar label,
+.reference-item-actions button,
+.daily-operations-date span,
+.daily-operations-kpis span,
+.daily-operations-kpis small,
+.daily-permission-badge,
+.daily-task-item > b,
+.daily-overdue-badge,
+.daily-performance-filters label,
+.daily-performance-report-selector label,
+.daily-performance-kpis span,
+.daily-performance-kpis small,
+.daily-performance-status,
+.daily-targets-grid span,
+.daily-performance-target-badges span,
+.daily-performance-target-row > b,
+.daily-alerts-summary span,
+.daily-alert-severity,
+.daily-alert-status,
+.daily-attendance-status,
+.daily-activity-filters label,
+.daily-activity-event-time small,
+.reference-customers-filters label {
+  color: var(--audit-text-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Elements previously at 9px–10px. */
+.score-breakdown-item small,
+.smart-alert span,
+.diagnostics-test-status span,
+.monthly-column small,
+.kpi-delta,
+.executive-funnel-summary span,
+.analytics-bar-row > div:first-child span,
+.customer-action-item > span,
+.comparison-metric span,
+.yearly-trend-column small,
+.top10-item > span,
+.customer360-status-card small,
+.customer360-metric span,
+.customer360-metric small,
+.customer360-section-header > span,
+.customer360-followup-summary span,
+.customer360-activity-summary span,
+.customer360-activity-summary small,
+.customer360-activity-head > span,
+.customer360-gauge-ring span,
+.customer360-risk-card-head span,
+.customer360-risk-card-head > b,
+.customer360-next-action > span,
+.daily-operations-date span,
+.daily-operations-kpis span,
+.daily-operations-kpis small,
+.daily-permission-badge,
+.daily-task-item > b,
+.daily-overdue-badge,
+.daily-performance-kpis span,
+.daily-performance-kpis small,
+.daily-performance-status,
+.daily-performance-target-badges span,
+.daily-performance-target-row > b,
+.daily-alerts-summary span,
+.daily-alert-severity,
+.daily-alert-status,
+.daily-attendance-status,
+.daily-activity-event-time small {
+  font-size: var(--audit-font-small) !important;
+  line-height: 1.55 !important;
+}
+
+/* Elements previously at 11px. */
+.performance-metric span,
+.trend-day-label,
+.record-status,
+.activity-details,
+.health-score-ring span,
+.performance-request-item small,
+.health-recommendation span,
+.diagnostics-summary-grid span,
+.diagnostics-summary-grid small,
+.reports-kpi-grid span,
+.reports-kpi-grid small,
+.executive-period-summary span,
+.analytics-tab,
+.quotation-value-kpis span,
+.customer360-status,
+.customer360-section-header p,
+.customer360-activity-filter,
+.customer360-risk-reasons,
+.customer360-export-icon,
+.representatives-list-toolbar label,
+.representative-actions button,
+.reference-data-toolbar label,
+.reference-item-actions button,
+.daily-performance-filters label,
+.daily-performance-report-selector label,
+.daily-targets-grid span,
+.daily-activity-filters label,
+.reference-customers-filters label {
+  font-size: var(--audit-font-secondary) !important;
+  line-height: 1.6 !important;
+}
+
+/* ---------------------------------------------------------
+   Remaining muted text inside application content.
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader)
+:is(
+  p,
+  small,
+  label,
+  time,
+  caption,
+  th,
+  td,
+  [class*="subtitle"],
+  [class*="description"],
+  [class*="caption"],
+  [class*="meta"],
+  [class*="date"],
+  [class*="time"],
+  [class*="helper"],
+  [class*="hint"],
+  [class*="note"],
+  [class*="subtext"],
+  [class*="empty"],
+  [class*="no-data"]
+) {
+  color: var(--audit-text-secondary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Disabled text stays readable without opacity fading. */
+.main-content > :not(#appHeader)
+:is(
+  :disabled,
+  [aria-disabled="true"],
+  .disabled,
+  [class*="disabled"]
+) {
+  color: var(--audit-text-disabled) !important;
+  opacity: 1 !important;
+}
+
+/* Form placeholder readability. */
+.main-content > :not(#appHeader) input::placeholder,
+.main-content > :not(#appHeader) textarea::placeholder {
+  color: var(--audit-text-disabled) !important;
+  opacity: 1 !important;
+  font-size: var(--audit-font-small) !important;
+}
+
+/* ---------------------------------------------------------
+   Semantic color protection
+   --------------------------------------------------------- */
+
+/* Keep colored badges and statuses semantically recognizable. */
+.main-content > :not(#appHeader)
+:is(
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Approved task checkbox remains unchanged. */
+#dailyOperationsView .daily-task-item.completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.completed > .daily-task-check::after,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check::after {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   Explicit protection — no Header or Sidebar changes.
+   --------------------------------------------------------- */
+
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* Intentionally untouched by Phase 17.8.8. */
+}
