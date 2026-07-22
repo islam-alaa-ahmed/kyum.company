@@ -7553,3 +7553,258 @@ html[data-theme="dark"] #dailyOperationsView td {
   opacity: 1 !important;
   text-shadow: none !important;
 }
+
+
+/* =========================================================
+   Phase 17.8.5 — Typography Theme System
+   Scope:
+   - Unified text colors outside the approved Header and Sidebar.
+   - Dark Mode: white text hierarchy.
+   - Light Mode: black text hierarchy.
+   - Semantic bubbles keep contrast-aware text colors.
+   - No layout, spacing, border, shadow, glass or behavior changes.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Global typography tokens
+   --------------------------------------------------------- */
+
+:root {
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #4b5563;
+  --text-disabled: #6b7280;
+
+  --text-on-dark: #ffffff;
+  --text-on-light: #111827;
+
+  --text-success: #166534;
+  --text-danger: #991b1b;
+  --text-warning: #78350f;
+  --text-info: #1e3a8a;
+}
+
+html[data-theme="dark"] {
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-muted: #cbd5e1;
+  --text-disabled: #94a3b8;
+
+  --text-on-dark: #ffffff;
+  --text-on-light: #111827;
+
+  --text-success: #86efac;
+  --text-danger: #fda4af;
+  --text-warning: #fde68a;
+  --text-info: #bfdbfe;
+}
+
+/* ---------------------------------------------------------
+   Application content only
+   Explicitly excludes:
+   - #appHeader
+   - .sidebar
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader) {
+  color: var(--text-primary);
+}
+
+.main-content > :not(#appHeader) h1,
+.main-content > :not(#appHeader) h2,
+.main-content > :not(#appHeader) h3,
+.main-content > :not(#appHeader) h4,
+.main-content > :not(#appHeader) h5,
+.main-content > :not(#appHeader) h6,
+.main-content > :not(#appHeader) strong,
+.main-content > :not(#appHeader) b,
+.main-content > :not(#appHeader) legend,
+.main-content > :not(#appHeader) .title,
+.main-content > :not(#appHeader) [class*="title"],
+.main-content > :not(#appHeader) [class*="heading"],
+.main-content > :not(#appHeader) [class*="headline"],
+.main-content > :not(#appHeader) [class*="value"],
+.main-content > :not(#appHeader) [class*="amount"],
+.main-content > :not(#appHeader) [class*="number"],
+.main-content > :not(#appHeader) [class*="total"] {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.main-content > :not(#appHeader) p,
+.main-content > :not(#appHeader) small,
+.main-content > :not(#appHeader) label,
+.main-content > :not(#appHeader) time,
+.main-content > :not(#appHeader) caption,
+.main-content > :not(#appHeader) th,
+.main-content > :not(#appHeader) td,
+.main-content > :not(#appHeader) .subtitle,
+.main-content > :not(#appHeader) [class*="subtitle"],
+.main-content > :not(#appHeader) [class*="description"],
+.main-content > :not(#appHeader) [class*="caption"],
+.main-content > :not(#appHeader) [class*="meta"],
+.main-content > :not(#appHeader) [class*="date"],
+.main-content > :not(#appHeader) [class*="time"],
+.main-content > :not(#appHeader) [class*="label"] {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Forms and interactive text. */
+.main-content > :not(#appHeader) input,
+.main-content > :not(#appHeader) textarea,
+.main-content > :not(#appHeader) select,
+.main-content > :not(#appHeader) option,
+.main-content > :not(#appHeader) button,
+.main-content > :not(#appHeader) .btn,
+.main-content > :not(#appHeader) [role="button"],
+.main-content > :not(#appHeader) [role="menuitem"],
+.main-content > :not(#appHeader) [role="option"],
+.main-content > :not(#appHeader) [role="tab"],
+.main-content > :not(#appHeader) [role="dialog"] {
+  color: var(--text-primary) !important;
+  text-shadow: none !important;
+}
+
+.main-content > :not(#appHeader) input::placeholder,
+.main-content > :not(#appHeader) textarea::placeholder {
+  color: var(--text-disabled) !important;
+  opacity: 1 !important;
+}
+
+/* Disabled state uses a distinct color, not reduced opacity. */
+.main-content > :not(#appHeader) :disabled,
+.main-content > :not(#appHeader) [aria-disabled="true"],
+.main-content > :not(#appHeader) .disabled,
+.main-content > :not(#appHeader) [class*="disabled"] {
+  color: var(--text-disabled) !important;
+  opacity: 1 !important;
+}
+
+/* Empty and no-data messages. */
+.main-content > :not(#appHeader) .empty-state,
+.main-content > :not(#appHeader) [class*="empty-state"],
+.main-content > :not(#appHeader) [class*="no-data"],
+.main-content > :not(#appHeader) [class*="empty-message"] {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Semantic badges, bubbles, pills and statuses
+   --------------------------------------------------------- */
+
+/* Success / completed bubbles. */
+.main-content > :not(#appHeader) .success,
+.main-content > :not(#appHeader) .completed,
+.main-content > :not(#appHeader) .is-completed,
+.main-content > :not(#appHeader) [class*="success"],
+.main-content > :not(#appHeader) [class*="completed"],
+.main-content > :not(#appHeader) [class*="approved"] {
+  --semantic-text-color: var(--text-success);
+}
+
+.main-content > :not(#appHeader) .success[class*="badge"],
+.main-content > :not(#appHeader) .success[class*="pill"],
+.main-content > :not(#appHeader) .success[class*="status"],
+.main-content > :not(#appHeader) [class*="badge"][class*="success"],
+.main-content > :not(#appHeader) [class*="pill"][class*="success"],
+.main-content > :not(#appHeader) [class*="status"][class*="success"],
+.main-content > :not(#appHeader) [class*="badge"][class*="completed"],
+.main-content > :not(#appHeader) [class*="pill"][class*="completed"],
+.main-content > :not(#appHeader) [class*="status"][class*="completed"] {
+  color: var(--text-success) !important;
+  opacity: 1 !important;
+}
+
+/* Danger / error / overdue bubbles. */
+.main-content > :not(#appHeader) [class*="badge"][class*="danger"],
+.main-content > :not(#appHeader) [class*="pill"][class*="danger"],
+.main-content > :not(#appHeader) [class*="status"][class*="danger"],
+.main-content > :not(#appHeader) [class*="badge"][class*="error"],
+.main-content > :not(#appHeader) [class*="pill"][class*="error"],
+.main-content > :not(#appHeader) [class*="status"][class*="error"],
+.main-content > :not(#appHeader) [class*="badge"][class*="overdue"],
+.main-content > :not(#appHeader) [class*="pill"][class*="overdue"],
+.main-content > :not(#appHeader) [class*="status"][class*="overdue"],
+.main-content > :not(#appHeader) [class*="badge"][class*="critical"],
+.main-content > :not(#appHeader) [class*="pill"][class*="critical"],
+.main-content > :not(#appHeader) [class*="status"][class*="critical"] {
+  color: var(--text-danger) !important;
+  opacity: 1 !important;
+}
+
+/* Warning bubbles. */
+.main-content > :not(#appHeader) [class*="badge"][class*="warning"],
+.main-content > :not(#appHeader) [class*="pill"][class*="warning"],
+.main-content > :not(#appHeader) [class*="status"][class*="warning"],
+.main-content > :not(#appHeader) [class*="badge"][class*="pending"],
+.main-content > :not(#appHeader) [class*="pill"][class*="pending"],
+.main-content > :not(#appHeader) [class*="status"][class*="pending"] {
+  color: var(--text-warning) !important;
+  opacity: 1 !important;
+}
+
+/* Info bubbles. */
+.main-content > :not(#appHeader) [class*="badge"][class*="info"],
+.main-content > :not(#appHeader) [class*="pill"][class*="info"],
+.main-content > :not(#appHeader) [class*="status"][class*="info"] {
+  color: var(--text-info) !important;
+  opacity: 1 !important;
+}
+
+/* Dark solid bubbles must always use white text. */
+.main-content > :not(#appHeader) .badge-dark,
+.main-content > :not(#appHeader) .pill-dark,
+.main-content > :not(#appHeader) .status-dark,
+.main-content > :not(#appHeader) [class*="badge"][class*="dark"],
+.main-content > :not(#appHeader) [class*="pill"][class*="dark"],
+.main-content > :not(#appHeader) [class*="status"][class*="dark"] {
+  color: var(--text-on-dark) !important;
+}
+
+/* Light solid bubbles must always use dark text. */
+.main-content > :not(#appHeader) .badge-light,
+.main-content > :not(#appHeader) .pill-light,
+.main-content > :not(#appHeader) .status-light,
+.main-content > :not(#appHeader) [class*="badge"][class*="light"],
+.main-content > :not(#appHeader) [class*="pill"][class*="light"],
+.main-content > :not(#appHeader) [class*="status"][class*="light"] {
+  color: var(--text-on-light) !important;
+}
+
+/* Daily task status bubbles keep semantic contrast. */
+#dailyOperationsView .daily-task-item > b {
+  color: var(--text-danger) !important;
+  opacity: 1 !important;
+}
+
+#dailyOperationsView .daily-task-item.completed > b,
+#dailyOperationsView .daily-task-item.is-completed > b {
+  color: var(--text-success) !important;
+  opacity: 1 !important;
+}
+
+/* Checkbox remains exactly as previously approved. */
+#dailyOperationsView .daily-task-item.completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check {
+  color: #ffffff !important;
+}
+
+#dailyOperationsView .daily-task-item.completed > .daily-task-check::after,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check::after {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   Explicit Header and Sidebar protection
+   --------------------------------------------------------- */
+
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* Intentionally untouched by Phase 17.8.5. */
+}
