@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta id="browserThemeColor" name="theme-color" content="#f4f7fb" />
   <script>
     (() => {
@@ -23,6 +23,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=18.2.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=M1.0.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1826,6 +1827,28 @@
       </section>
 
     </main>
+    <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="التنقل السريع على الهاتف">
+      <button class="mobile-nav-item is-active" type="button" data-mobile-view="dashboard" aria-label="الرئيسية">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>
+        <span>الرئيسية</span>
+      </button>
+      <button class="mobile-nav-item" type="button" data-mobile-view="customers" aria-label="العملاء">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>العملاء</span>
+      </button>
+      <button class="mobile-nav-item" type="button" data-mobile-view="followups" aria-label="المتابعات">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11 12 14 22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>المتابعات</span>
+      </button>
+      <button class="mobile-nav-item" type="button" data-mobile-view="quotations" aria-label="العروض">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8ZM14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+        <span>العروض</span>
+      </button>
+      <button class="mobile-nav-item mobile-menu-item" type="button" data-mobile-action="menu" aria-label="فتح القائمة" aria-controls="mainSidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span>القائمة</span>
+      </button>
+    </nav>
   </div>
 
   <dialog id="customerDialog">
@@ -2439,5 +2462,6 @@
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
   <script src="assets/js/app.js?v=17.5.5"></script>
+  <script src="assets/js/mobile.js?v=M1.0.0"></script>
 </body>
 </html>
