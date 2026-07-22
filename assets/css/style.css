@@ -8785,3 +8785,461 @@ html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even
 .sidebar * {
   /* Intentionally untouched by Phase 17.8.9. */
 }
+
+
+/* =========================================================
+   Phase 17.9 — Enterprise UI Final Audit & Production Lock
+   Scope:
+   - Final Light/Dark contrast normalization across application content.
+   - Final typography readability normalization.
+   - Final controls, badges, forms, tables and empty-state audit.
+   - Header and Sidebar remain explicitly protected.
+   - No JavaScript, data, logic, layout or responsive changes.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Final enterprise theme tokens
+   --------------------------------------------------------- */
+
+:root {
+  --ui-final-text: #111827;
+  --ui-final-secondary: #111827;
+  --ui-final-disabled: #4b5563;
+
+  --ui-final-page: #f3f6fa;
+  --ui-final-surface: #ffffff;
+  --ui-final-surface-2: #f8fafc;
+  --ui-final-surface-3: #eef2f7;
+  --ui-final-border: rgba(15, 23, 42, .14);
+  --ui-final-border-strong: rgba(15, 23, 42, .22);
+
+  --ui-final-control: #ffffff;
+  --ui-final-control-hover: #f8fafc;
+  --ui-final-shadow: 0 6px 18px rgba(15, 23, 42, .07);
+
+  --ui-final-font-caption: 12px;
+  --ui-final-font-small: 13px;
+  --ui-final-font-body: 14px;
+}
+
+html[data-theme="dark"] {
+  --ui-final-text: #ffffff;
+  --ui-final-secondary: #ffffff;
+  --ui-final-disabled: #cbd5e1;
+
+  --ui-final-page: #081322;
+  --ui-final-surface: #101f34;
+  --ui-final-surface-2: #14263e;
+  --ui-final-surface-3: #192c47;
+  --ui-final-border: rgba(148, 163, 184, .22);
+  --ui-final-border-strong: rgba(148, 163, 184, .34);
+
+  --ui-final-control: #192b45;
+  --ui-final-control-hover: #223751;
+  --ui-final-shadow: 0 7px 20px rgba(0, 0, 0, .18);
+}
+
+/* ---------------------------------------------------------
+   Typography final lock — application content only
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader) {
+  color: var(--ui-final-text);
+  --text-primary: var(--ui-final-text);
+  --text-secondary: var(--ui-final-secondary);
+  --text-muted: var(--ui-final-secondary);
+  --text-disabled: var(--ui-final-disabled);
+}
+
+.main-content > :not(#appHeader)
+:is(
+  h1, h2, h3, h4, h5, h6,
+  strong, b, legend,
+  p, small, label, time, caption, th, td,
+  [class*="title"],
+  [class*="heading"],
+  [class*="subtitle"],
+  [class*="description"],
+  [class*="caption"],
+  [class*="meta"],
+  [class*="date"],
+  [class*="time"],
+  [class*="label"],
+  [class*="helper"],
+  [class*="hint"],
+  [class*="note"],
+  [class*="subtext"],
+  [class*="empty"],
+  [class*="no-data"]
+) {
+  color: var(--ui-final-text) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.main-content > :not(#appHeader)
+:is(
+  p,
+  label,
+  time,
+  [class*="subtitle"],
+  [class*="description"],
+  [class*="meta"],
+  [class*="date"],
+  [class*="time"],
+  [class*="helper"],
+  [class*="hint"],
+  [class*="note"],
+  [class*="subtext"]
+) {
+  font-size: max(var(--ui-final-font-body), 1em) !important;
+  line-height: 1.6 !important;
+}
+
+.main-content > :not(#appHeader)
+:is(
+  small,
+  [class*="caption"],
+  [class*="label"]
+) {
+  font-size: max(var(--ui-final-font-small), 1em) !important;
+  line-height: 1.55 !important;
+}
+
+.main-content > :not(#appHeader)
+:is(
+  :disabled,
+  [aria-disabled="true"],
+  .disabled,
+  [class*="disabled"]
+) {
+  color: var(--ui-final-disabled) !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Card and panel inner-surface final lock
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .card,
+  .panel,
+  .section-card,
+  .metric-card,
+  .kpi-card,
+  .report-card,
+  .customer-card,
+  .quotation-card,
+  .followup-card,
+  .alert-card,
+  .empty-state,
+  [class*="-card"],
+  [class*="-panel"],
+  [class*="-widget"]
+) {
+  color: var(--ui-final-text);
+  border-color: var(--ui-final-border) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .performance-metric,
+  .reports-kpi-grid > *,
+  .performance-metrics > *,
+  .executive-period-summary > *,
+  .executive-funnel-summary > *,
+  .quotation-value-kpis > *,
+  .diagnostics-summary-grid > *,
+  .daily-performance-kpis > *,
+  .daily-alerts-summary > *,
+  .customer360-status-grid > *,
+  .customer360-metrics-grid > *,
+  .top-customer-item,
+  .customer-action-item,
+  .reference-item,
+  .daily-activity-event,
+  .diagnostics-test,
+  .health-recommendation,
+  .performance-request-item
+) {
+  background: var(--ui-final-surface) !important;
+  color: var(--ui-final-text) !important;
+  border-color: var(--ui-final-border) !important;
+  box-shadow: var(--ui-final-shadow) !important;
+}
+
+/* ---------------------------------------------------------
+   Buttons and actions final lock
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  button,
+  .btn,
+  [role="button"]
+) {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .secondary-btn,
+  .compact-btn,
+  .edit-btn,
+  .text-btn,
+  .row-actions button,
+  .representative-actions button,
+  .reference-item-actions button,
+  .reference-customers-actions button,
+  .daily-alert-card button,
+  .table-pagination button,
+  .pagination button
+) {
+  background: var(--ui-final-control) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--ui-final-border) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .secondary-btn,
+  .compact-btn,
+  .edit-btn,
+  .text-btn,
+  .row-actions button,
+  .representative-actions button,
+  .reference-item-actions button,
+  .reference-customers-actions button,
+  .daily-alert-card button,
+  .table-pagination button,
+  .pagination button
+):hover {
+  background: var(--ui-final-control-hover) !important;
+  color: #ffffff !important;
+  filter: none !important;
+}
+
+/* Semantic action buttons. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.delete-btn, [class*="delete"], [class*="danger"]) {
+  background: rgba(127, 29, 29, .34) !important;
+  color: #ffffff !important;
+  border-color: rgba(248, 113, 113, .40) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.warning-btn, [class*="warning"], [class*="important"]) {
+  background: rgba(120, 53, 15, .34) !important;
+  color: #ffffff !important;
+  border-color: rgba(251, 191, 36, .42) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.activate-btn, [class*="success"], [class*="approved"]) {
+  background: rgba(20, 83, 45, .36) !important;
+  color: #ffffff !important;
+  border-color: rgba(74, 222, 128, .38) !important;
+}
+
+/* Light Mode action text remains dark. */
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(button, .btn, [role="button"]) {
+  color: #111827 !important;
+}
+
+/* ---------------------------------------------------------
+   Badges, pills and statuses final lock
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .badge,
+  .pill,
+  .chip,
+  .status-badge,
+  .record-status,
+  .quotation-status,
+  .customer360-status,
+  .daily-permission-badge,
+  .daily-overdue-badge,
+  .daily-alert-status,
+  .daily-alert-severity,
+  .daily-attendance-status,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  background: #173052 !important;
+  color: #ffffff !important;
+  border-color: rgba(147, 197, 253, .25) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Success. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="completed"],
+  [class*="approved"],
+  [class*="success"],
+  [class*="active"]
+) {
+  color: #ffffff !important;
+}
+
+/* Warning. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="pending"],
+  [class*="warning"],
+  [class*="important"]
+) {
+  color: #ffffff !important;
+}
+
+/* Danger. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  [class*="danger"],
+  [class*="error"],
+  [class*="critical"],
+  [class*="urgent"],
+  [class*="overdue"],
+  [class*="rejected"]
+) {
+  color: #ffffff !important;
+}
+
+/* Light Mode status text remains dark on pale bubbles. */
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(
+  .badge,
+  .pill,
+  .chip,
+  .status-badge,
+  .record-status,
+  .quotation-status,
+  .customer360-status,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Forms, dropdowns and placeholders final lock
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  input,
+  select,
+  textarea,
+  .checkbox-dropdown-trigger,
+  .checkbox-dropdown-menu,
+  .checkbox-dropdown-option,
+  [role="listbox"],
+  [role="option"]
+) {
+  background-color: var(--ui-final-surface-2) !important;
+  color: #ffffff !important;
+  border-color: var(--ui-final-border) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(input, textarea)::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+  font-size: var(--ui-final-font-small) !important;
+}
+
+html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+:is(input, select, textarea)::placeholder {
+  color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Tables and pagination final lock
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader)
+:is(table, th, td, caption) {
+  color: var(--ui-final-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(table, .table-wrap, .data-table, [class*="table-wrap"]) {
+  border-color: var(--ui-final-border) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, .018) !important;
+}
+
+/* ---------------------------------------------------------
+   Empty states, alerts and chart labels
+   --------------------------------------------------------- */
+
+.main-content > :not(#appHeader)
+:is(
+  .empty-state,
+  [class*="empty-state"],
+  [class*="no-data"],
+  [class*="empty-message"],
+  [class*="chart-label"],
+  [class*="legend-label"]
+) {
+  color: var(--ui-final-text) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .alert,
+  .notification,
+  [class*="alert"],
+  [class*="notification"]
+) {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   Approved checkbox final protection
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-task-item.completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+#dailyOperationsView .daily-task-item.completed > .daily-task-check::after,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check::after {
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   Explicit production protection
+   --------------------------------------------------------- */
+
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* Approved and intentionally untouched in Phase 17.9. */
+}
