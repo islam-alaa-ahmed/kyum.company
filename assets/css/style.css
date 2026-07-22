@@ -4804,3 +4804,72 @@ html[data-theme="dark"] .header-logout-btn:hover {
     left: 0;
   }
 }
+
+
+/* Phase 17.5.6 — Header logo dimensions and visible user dropdown */
+.topbar {
+  overflow: visible;
+}
+
+.topbar::before {
+  border-radius: inherit;
+}
+
+.topbar-logo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.topbar-logo-banner .topbar-brand-logo {
+  width: auto;
+  max-width: 224px;
+  height: 76px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: left center;
+  border-radius: 18px;
+}
+
+.header-user-menu {
+  z-index: 20;
+}
+
+.header-user-dropdown {
+  z-index: 1700;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 178px;
+  max-width: min(240px, calc(100vw - 24px));
+}
+
+.header-logout-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    width: auto;
+    max-width: 188px;
+    height: 62px;
+    flex-basis: auto;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    width: auto;
+    max-width: 138px;
+    height: 48px;
+    flex-basis: auto;
+    object-fit: contain;
+  }
+
+  .header-user-dropdown {
+    right: auto;
+    left: 0;
+    max-width: calc(100vw - 24px);
+  }
+}
