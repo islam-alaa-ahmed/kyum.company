@@ -5601,3 +5601,41 @@ html[data-theme="dark"] .topbar-title p {
     border-radius: 11px !important;
   }
 }
+
+
+/* Phase 17.5.13 — Use a real rectangular logo asset without stretching */
+@media (min-width: 1181px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 286px !important;
+    max-width: 286px !important;
+    height: 118px !important;
+    flex: 0 0 286px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 22px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1180px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 226px !important;
+    max-width: 226px !important;
+    height: 94px !important;
+    flex: 0 0 226px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 17px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar-logo-banner .topbar-brand-logo {
+    width: 156px !important;
+    max-width: 156px !important;
+    height: 65px !important;
+    flex: 0 0 156px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 11px !important;
+  }
+}
