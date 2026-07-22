@@ -5931,3 +5931,76 @@ html[data-theme="dark"] {
     transition: none;
   }
 }
+
+
+/* =========================================================
+   Phase 17.6.1 — Soften KYUM card glow only
+   Scope lock:
+   - Keep all 2px borders unchanged.
+   - Keep all card colors and assignments unchanged.
+   - Reduce only outer glow intensity and hover amplification.
+   ========================================================= */
+
+:root {
+  --kyum-blue-glow:
+    0 0 0 1px rgba(22, 140, 255, .10),
+    0 0 6px rgba(22, 140, 255, .11),
+    0 6px 18px rgba(15, 23, 42, .06);
+
+  --kyum-gold-glow:
+    0 0 0 1px rgba(232, 169, 0, .10),
+    0 0 6px rgba(232, 169, 0, .11),
+    0 6px 18px rgba(15, 23, 42, .06);
+
+  --kyum-red-glow:
+    0 0 0 1px rgba(240, 68, 77, .10),
+    0 0 6px rgba(240, 68, 77, .11),
+    0 6px 18px rgba(15, 23, 42, .06);
+
+  --kyum-blue-glow-hover:
+    0 0 0 1px rgba(22, 140, 255, .13),
+    0 0 8px rgba(22, 140, 255, .15),
+    0 7px 20px rgba(15, 23, 42, .07);
+
+  --kyum-gold-glow-hover:
+    0 0 0 1px rgba(232, 169, 0, .13),
+    0 0 8px rgba(232, 169, 0, .15),
+    0 7px 20px rgba(15, 23, 42, .07);
+
+  --kyum-red-glow-hover:
+    0 0 0 1px rgba(240, 68, 77, .13),
+    0 0 8px rgba(240, 68, 77, .15),
+    0 7px 20px rgba(15, 23, 42, .07);
+}
+
+html[data-theme="dark"] {
+  --kyum-blue-glow:
+    0 0 0 1px rgba(22, 140, 255, .14),
+    0 0 7px rgba(22, 140, 255, .16),
+    0 7px 20px rgba(0, 0, 0, .16);
+
+  --kyum-gold-glow:
+    0 0 0 1px rgba(232, 169, 0, .14),
+    0 0 7px rgba(232, 169, 0, .16),
+    0 7px 20px rgba(0, 0, 0, .16);
+
+  --kyum-red-glow:
+    0 0 0 1px rgba(240, 68, 77, .14),
+    0 0 7px rgba(240, 68, 77, .16),
+    0 7px 20px rgba(0, 0, 0, .16);
+
+  --kyum-blue-glow-hover:
+    0 0 0 1px rgba(22, 140, 255, .17),
+    0 0 9px rgba(22, 140, 255, .20),
+    0 8px 22px rgba(0, 0, 0, .18);
+
+  --kyum-gold-glow-hover:
+    0 0 0 1px rgba(232, 169, 0, .17),
+    0 0 9px rgba(232, 169, 0, .20),
+    0 8px 22px rgba(0, 0, 0, .18);
+
+  --kyum-red-glow-hover:
+    0 0 0 1px rgba(240, 68, 77, .17),
+    0 0 9px rgba(240, 68, 77, .20),
+    0 8px 22px rgba(0, 0, 0, .18);
+}
