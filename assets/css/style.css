@@ -4873,3 +4873,169 @@ html[data-theme="dark"] .header-logout-btn:hover {
     max-width: calc(100vw - 24px);
   }
 }
+
+
+/* Phase 17.5.7 — KYUM logo-inspired header background only */
+.topbar {
+  background:
+    radial-gradient(
+      ellipse at 4% 18%,
+      rgba(255, 221, 190, .34) 0%,
+      rgba(255, 221, 190, .12) 14%,
+      transparent 34%
+    ),
+    radial-gradient(
+      ellipse at 18% 92%,
+      rgba(26, 199, 255, .26) 0%,
+      rgba(26, 199, 255, .09) 28%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 82% 6%,
+      rgba(86, 169, 255, .20) 0%,
+      transparent 42%
+    ),
+    linear-gradient(
+      118deg,
+      rgba(6, 21, 34, .96) 0%,
+      rgba(7, 37, 57, .94) 25%,
+      rgba(8, 58, 82, .90) 48%,
+      rgba(10, 82, 110, .86) 68%,
+      rgba(15, 109, 140, .82) 100%
+    );
+  border-color: rgba(112, 214, 255, .30);
+  box-shadow:
+    0 18px 46px rgba(3, 20, 35, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .16);
+}
+
+/* Metallic/glass sweep inspired by the existing KYUM logo artwork. */
+.topbar::before {
+  background:
+    linear-gradient(
+      152deg,
+      rgba(255, 255, 255, .30) 0%,
+      rgba(255, 255, 255, .09) 13%,
+      transparent 28%
+    ),
+    radial-gradient(
+      ellipse at 35% 120%,
+      transparent 0%,
+      transparent 41%,
+      rgba(38, 195, 255, .28) 43%,
+      rgba(38, 195, 255, .08) 49%,
+      transparent 57%
+    ),
+    radial-gradient(
+      ellipse at 66% 118%,
+      transparent 0%,
+      transparent 49%,
+      rgba(89, 221, 255, .22) 51%,
+      rgba(89, 221, 255, .06) 57%,
+      transparent 64%
+    ),
+    linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 49%,
+      rgba(255, 255, 255, .05) 50%,
+      transparent 51%,
+      transparent 100%
+    );
+  opacity: 1;
+  border-radius: inherit;
+}
+
+/* Keep all current header content readable without changing layout or dimensions. */
+.topbar-title h2,
+.topbar-title p,
+.topbar .compact-user-chip,
+.topbar .theme-toggle-button,
+.topbar .kyum-scroll-control {
+  position: relative;
+  z-index: 2;
+}
+
+.topbar-title h2 {
+  color: #f8fbff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .24);
+}
+
+.topbar-title p {
+  color: rgba(231, 242, 250, .76);
+}
+
+.topbar.is-scrolled {
+  background:
+    radial-gradient(
+      ellipse at 4% 18%,
+      rgba(255, 221, 190, .26) 0%,
+      rgba(255, 221, 190, .08) 14%,
+      transparent 34%
+    ),
+    radial-gradient(
+      ellipse at 18% 92%,
+      rgba(26, 199, 255, .21) 0%,
+      rgba(26, 199, 255, .07) 28%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 82% 6%,
+      rgba(86, 169, 255, .16) 0%,
+      transparent 42%
+    ),
+    linear-gradient(
+      118deg,
+      rgba(6, 21, 34, .88) 0%,
+      rgba(7, 37, 57, .86) 25%,
+      rgba(8, 58, 82, .84) 48%,
+      rgba(10, 82, 110, .80) 68%,
+      rgba(15, 109, 140, .78) 100%
+    );
+  border-color: rgba(112, 214, 255, .25);
+  box-shadow:
+    0 20px 52px rgba(3, 20, 35, .32),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+
+/* Dark mode keeps the same KYUM identity with deeper contrast only. */
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .topbar.is-scrolled {
+  background:
+    radial-gradient(
+      ellipse at 4% 18%,
+      rgba(255, 204, 164, .18) 0%,
+      transparent 31%
+    ),
+    radial-gradient(
+      ellipse at 18% 92%,
+      rgba(9, 184, 247, .22) 0%,
+      rgba(9, 184, 247, .07) 28%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 82% 6%,
+      rgba(38, 117, 198, .20) 0%,
+      transparent 43%
+    ),
+    linear-gradient(
+      118deg,
+      rgba(3, 12, 23, .98) 0%,
+      rgba(4, 25, 40, .97) 27%,
+      rgba(5, 43, 61, .95) 52%,
+      rgba(5, 61, 82, .93) 74%,
+      rgba(8, 77, 99, .91) 100%
+    );
+  border-color: rgba(66, 177, 224, .24);
+  box-shadow:
+    0 22px 58px rgba(0, 0, 0, .40),
+    inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+html[data-theme="dark"] .topbar-title h2 {
+  color: #f6fbff;
+}
+
+html[data-theme="dark"] .topbar-title p {
+  color: rgba(205, 224, 237, .72);
+}
