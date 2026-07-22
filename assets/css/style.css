@@ -7242,3 +7242,194 @@ html[data-theme="dark"] #dailyOperationsView [class*="progress-track"] {
   outline: none;
   box-shadow: var(--kyum-focus-ring), var(--kyum-depth-2) !important;
 }
+
+
+/* =========================================================
+   Phase 17.8.3 — Checkbox State + Theme Contrast Fix
+   Scope:
+   - Restore the green completed checkbox.
+   - Improve Light/Dark readability in Daily Operations.
+   - No layout or behavior changes.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Stronger readable theme tokens
+   --------------------------------------------------------- */
+
+#dailyOperationsView {
+  --kyum-text-primary: #111827;
+  --kyum-text-secondary: #475569;
+  --kyum-text-muted: #64748b;
+
+  --kyum-border-soft: rgba(15, 23, 42, .14);
+  --kyum-border-medium: rgba(15, 23, 42, .20);
+  --kyum-border-strong: rgba(37, 99, 235, .38);
+
+  --kyum-surface-1: #ffffff;
+  --kyum-surface-2: #f8fafc;
+  --kyum-surface-3: #f1f5f9;
+}
+
+html[data-theme="dark"] #dailyOperationsView {
+  --kyum-text-primary: #f8fafc;
+  --kyum-text-secondary: #cbd5e1;
+  --kyum-text-muted: #94a3b8;
+
+  --kyum-border-soft: rgba(148, 163, 184, .20);
+  --kyum-border-medium: rgba(148, 163, 184, .28);
+  --kyum-border-strong: rgba(96, 165, 250, .46);
+
+  --kyum-surface-1: #0f1d31;
+  --kyum-surface-2: #13243a;
+  --kyum-surface-3: #172b45;
+}
+
+/* ---------------------------------------------------------
+   Checkbox: restore clear green completed state
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-task-item > .daily-task-check {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  border: 2px solid #93a4bb !important;
+  background: transparent !important;
+  color: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item > .daily-task-check {
+  border-color: #60758f !important;
+  background: rgba(15, 29, 49, .66) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+
+#dailyOperationsView .daily-task-item.completed > .daily-task-check,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    0 3px 9px rgba(22, 163, 74, .18) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.completed > .daily-task-check,
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.is-completed > .daily-task-check {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    0 3px 10px rgba(34, 197, 94, .22) !important;
+}
+
+#dailyOperationsView .daily-task-item.completed > .daily-task-check::after,
+#dailyOperationsView .daily-task-item.is-completed > .daily-task-check::after {
+  content: "✓" !important;
+  display: block !important;
+  color: #ffffff !important;
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------
+   Checklist and target readability
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-targets-panel {
+  border-color: var(--kyum-border-medium) !important;
+}
+
+#dailyOperationsView .daily-task-item {
+  border-color: var(--kyum-border-soft) !important;
+}
+
+#dailyOperationsView .daily-task-item > div strong,
+#dailyOperationsView .daily-checklist-panel h2,
+#dailyOperationsView .daily-checklist-panel h3,
+#dailyOperationsView .daily-targets-panel h2,
+#dailyOperationsView .daily-targets-panel h3 {
+  color: var(--kyum-text-primary) !important;
+  opacity: 1 !important;
+}
+
+#dailyOperationsView .daily-task-item > div small,
+#dailyOperationsView .daily-checklist-panel p,
+#dailyOperationsView .daily-targets-panel p,
+#dailyOperationsView .daily-targets-grid > article small {
+  color: var(--kyum-text-secondary) !important;
+  opacity: 1 !important;
+}
+
+/* Light Mode cards: stronger separation from the page canvas. */
+html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item,
+html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-grid > article {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, .13) !important;
+  box-shadow:
+    0 5px 14px rgba(15, 23, 42, .055) !important;
+}
+
+/* Dark Mode cards: clearer borders without neon. */
+html[data-theme="dark"] #dailyOperationsView .daily-task-item,
+html[data-theme="dark"] #dailyOperationsView .daily-targets-grid > article {
+  border-color: rgba(148, 163, 184, .20) !important;
+}
+
+/* ---------------------------------------------------------
+   Status badges: improve contrast
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-task-item > b {
+  background: #fff1f2 !important;
+  color: #be123c !important;
+  border-color: rgba(190, 18, 60, .20) !important;
+  font-weight: 800;
+}
+
+#dailyOperationsView .daily-task-item.completed > b,
+#dailyOperationsView .daily-task-item.is-completed > b {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border-color: rgba(22, 101, 52, .20) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item > b {
+  background: rgba(244, 63, 94, .15) !important;
+  color: #fda4af !important;
+  border-color: rgba(251, 113, 133, .25) !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.completed > b,
+html[data-theme="dark"] #dailyOperationsView .daily-task-item.is-completed > b {
+  background: rgba(34, 197, 94, .15) !important;
+  color: #86efac !important;
+  border-color: rgba(74, 222, 128, .25) !important;
+}
+
+/* ---------------------------------------------------------
+   Progress tracks: make palette clearer
+   --------------------------------------------------------- */
+
+#dailyOperationsView .daily-target-progress,
+#dailyOperationsView .progress-track,
+#dailyOperationsView [class*="progress-track"] {
+  background: #e5e7eb !important;
+  border-color: #d1d5db !important;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-target-progress,
+html[data-theme="dark"] #dailyOperationsView .progress-track,
+html[data-theme="dark"] #dailyOperationsView [class*="progress-track"] {
+  background: #203149 !important;
+  border-color: #32445e !important;
+}
+
+/* Keep the completed state readable when a readonly class is also present. */
+#dailyOperationsView .daily-task-item.completed.readonly,
+#dailyOperationsView .daily-task-item.is-completed.readonly {
+  opacity: 1 !important;
+}
