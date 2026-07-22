@@ -4387,4 +4387,119 @@ html[data-theme="dark"] .topbar .user-chip {
     animation: none;
   }
 }
-\n\n/* Phase 17.5.1 — Header physical layout correction */\n.topbar {\n  direction: ltr;\n  grid-template-columns: auto auto minmax(280px, 1fr) auto;\n  grid-template-areas: "brand actions title menu";\n}\n\n.topbar-brand {\n  grid-area: brand;\n  direction: ltr;\n  justify-self: start;\n}\n\n.topbar-brand-icon {\n  width: 58px;\n  height: 58px;\n  flex: 0 0 58px;\n  display: block;\n  border-radius: 17px;\n  object-fit: cover;\n  box-shadow:\n    0 10px 24px rgba(15, 23, 42, .18),\n    0 0 0 1px rgba(255, 255, 255, .76),\n    0 0 22px rgba(91, 74, 236, .13);\n}\n\n.topbar-brand-copy {\n  direction: ltr;\n  text-align: left;\n}\n\n.topbar-user-actions {\n  grid-area: actions;\n  direction: ltr;\n  justify-self: start;\n}\n\n.topbar-user-actions .user-chip {\n  order: 1;\n  direction: rtl;\n}\n\n.topbar-user-actions .kyum-scroll-control {\n  order: 2;\n}\n\n.topbar-user-actions .theme-toggle-button {\n  order: 3;\n}\n\n.topbar-title {\n  grid-area: title;\n  direction: rtl;\n  justify-self: end;\n  text-align: right;\n}\n\n.sidebar-menu-launcher {\n  grid-area: menu;\n  direction: rtl;\n  justify-self: end;\n}\n\nhtml[data-theme="dark"] .topbar-brand-icon {\n  box-shadow:\n    0 12px 28px rgba(0, 0, 0, .36),\n    0 0 0 1px rgba(109, 124, 255, .2),\n    0 0 24px rgba(34, 211, 238, .16),\n    0 0 32px rgba(124, 58, 237, .12);\n}\n\n@media (max-width: 1180px) {\n  .topbar {\n    direction: ltr;\n    grid-template-columns: auto minmax(240px, 1fr) auto;\n    grid-template-areas:\n      "actions title menu"\n      "brand brand brand";\n  }\n\n  .topbar-brand {\n    justify-self: start;\n  }\n}\n\n@media (max-width: 768px) {\n  .topbar {\n    direction: ltr;\n    grid-template-columns: auto minmax(0, 1fr) auto;\n    grid-template-areas:\n      "actions title menu"\n      "brand brand brand";\n  }\n\n  .topbar-brand-icon {\n    width: 40px;\n    height: 40px;\n    flex-basis: 40px;\n    border-radius: 12px;\n  }\n\n  .topbar-user-actions .user-chip {\n    display: none;\n  }\n}\n
+
+
+/* Phase 17.5.2 — Final Header Layout Lock
+   Physical layout is intentionally LTR so RTL document direction cannot mirror
+   the KYUM brand and menu launcher positions. Text remains RTL where required. */
+.topbar {
+  direction: ltr;
+  grid-template-columns: auto auto minmax(280px, 1fr) auto;
+  grid-template-areas: "brand actions title menu";
+}
+
+.topbar-brand {
+  grid-area: brand;
+  direction: ltr;
+  justify-self: start;
+  min-width: 230px;
+}
+
+.topbar-brand-logo {
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  display: block;
+  object-fit: contain;
+  border-radius: 18px;
+  background: transparent;
+  filter:
+    drop-shadow(0 9px 17px rgba(25, 90, 139, .22))
+    drop-shadow(0 0 8px rgba(34, 211, 238, .15));
+}
+
+.topbar-brand-mark,
+.topbar-brand-k-left,
+.topbar-brand-k-right {
+  display: none !important;
+}
+
+.topbar-brand-copy {
+  direction: ltr;
+  text-align: left;
+}
+
+.topbar-user-actions {
+  grid-area: actions;
+  direction: rtl;
+  justify-self: start;
+}
+
+.topbar-title {
+  grid-area: title;
+  direction: rtl;
+  justify-self: end;
+  text-align: right;
+}
+
+.sidebar-menu-launcher {
+  grid-area: menu;
+  direction: rtl;
+  justify-self: end;
+  margin: 0;
+}
+
+/* The KYUM Company launcher is the only menu control in the header. */
+.topbar > .sidebar-menu-launcher + .topbar-title {
+  margin: 0;
+}
+
+html[data-theme="dark"] .topbar-brand-logo {
+  filter:
+    drop-shadow(0 10px 20px rgba(0, 0, 0, .42))
+    drop-shadow(0 0 12px rgba(34, 211, 238, .28))
+    drop-shadow(0 0 18px rgba(124, 58, 237, .16));
+}
+
+@media (max-width: 1180px) {
+  .topbar {
+    direction: ltr;
+    grid-template-columns: auto minmax(240px, 1fr) auto;
+    grid-template-areas:
+      "actions title menu"
+      "brand brand brand";
+  }
+
+  .topbar-brand {
+    justify-self: start;
+  }
+
+  .sidebar-menu-launcher {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    direction: ltr;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "title actions menu"
+      "brand brand brand";
+  }
+
+  .topbar-brand-logo {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    border-radius: 12px;
+  }
+
+  .topbar-brand {
+    justify-self: start;
+  }
+
+  .sidebar-menu-launcher {
+    justify-self: end;
+  }
+}
