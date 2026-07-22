@@ -5155,3 +5155,110 @@ html[data-theme="dark"] .topbar.is-scrolled {
     0 22px 56px rgba(0, 0, 0, .46),
     inset 0 1px 0 rgba(255, 255, 255, .07);
 }
+
+
+/* Phase 17.5.9 — Header matched to the approved reference image */
+.topbar,
+.topbar.is-scrolled,
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .topbar.is-scrolled {
+  background:
+    /* warm metallic reflection at the top-left */
+    radial-gradient(
+      ellipse at 1% 1%,
+      rgba(255, 207, 160, .34) 0%,
+      rgba(255, 207, 160, .12) 8%,
+      rgba(255, 207, 160, 0) 21%
+    ),
+
+    /* upper-right cold blue reflection */
+    radial-gradient(
+      ellipse at 94% -8%,
+      rgba(41, 142, 209, .16) 0%,
+      rgba(41, 142, 209, 0) 36%
+    ),
+
+    /* main glossy blue wave */
+    radial-gradient(
+      ellipse 74% 62% at 54% 132%,
+      transparent 0%,
+      transparent 52%,
+      rgba(18, 133, 201, .30) 53.5%,
+      rgba(36, 187, 255, .54) 55.2%,
+      rgba(97, 224, 255, .92) 56.1%,
+      rgba(26, 160, 224, .42) 57.4%,
+      rgba(26, 160, 224, .10) 60.5%,
+      transparent 65%
+    ),
+
+    /* lower wave */
+    radial-gradient(
+      ellipse 88% 60% at 75% 151%,
+      transparent 0%,
+      transparent 53%,
+      rgba(11, 104, 171, .22) 54%,
+      rgba(25, 168, 235, .48) 55.2%,
+      rgba(90, 221, 255, .88) 56.1%,
+      rgba(15, 126, 194, .30) 57.5%,
+      transparent 62%
+    ),
+
+    /* faint top arc */
+    radial-gradient(
+      ellipse 92% 42% at 64% -21%,
+      transparent 0%,
+      transparent 60%,
+      rgba(40, 143, 210, .20) 61%,
+      rgba(93, 214, 255, .42) 62.2%,
+      rgba(34, 137, 204, .14) 63.2%,
+      transparent 66%
+    ),
+
+    /* approved dark-blue base */
+    linear-gradient(
+      108deg,
+      #07131d 0%,
+      #081923 16%,
+      #082333 38%,
+      #09293b 57%,
+      #0a3146 76%,
+      #0c3c55 100%
+    ) !important;
+
+  border-color: rgba(69, 150, 201, .30) !important;
+  box-shadow:
+    0 18px 46px rgba(2, 14, 24, .38),
+    inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+}
+
+/* glossy highlight and subtle steel sweep matching the reference */
+.topbar::before {
+  background:
+    linear-gradient(
+      151deg,
+      rgba(255, 255, 255, .24) 0%,
+      rgba(255, 255, 255, .08) 9%,
+      rgba(255, 255, 255, 0) 23%
+    ),
+    linear-gradient(
+      102deg,
+      transparent 0%,
+      transparent 47%,
+      rgba(255, 255, 255, .025) 49%,
+      transparent 52%,
+      transparent 100%
+    ) !important;
+  opacity: 1 !important;
+}
+
+/* approved reference uses white title and soft silver subtitle */
+.topbar-title h2,
+html[data-theme="dark"] .topbar-title h2 {
+  color: #f7fbff !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .28);
+}
+
+.topbar-title p,
+html[data-theme="dark"] .topbar-title p {
+  color: rgba(212, 225, 236, .76) !important;
+}
