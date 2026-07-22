@@ -9243,3 +9243,140 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 .sidebar * {
   /* Approved and intentionally untouched in Phase 17.9. */
 }
+
+/* =========================================================
+   Phase 18.1 — Enterprise Badge & Status Color System
+   Root cause:
+   legacy pastel badge backgrounds were retained in Dark Mode,
+   producing washed-out KPI deltas, counters, status pills and
+   ranking markers. This layer replaces only those badge-like
+   elements with solid enterprise colors and stronger contrast.
+   Scope lock: CSS only; no layout, header, sidebar or logic changes.
+   ========================================================= */
+
+html[data-theme="dark"] {
+  --badge-success-bg: #15803d;
+  --badge-success-border: #4ade80;
+  --badge-info-bg: #1d4ed8;
+  --badge-info-border: #60a5fa;
+  --badge-warning-bg: #b45309;
+  --badge-warning-border: #fbbf24;
+  --badge-danger-bg: #b91c1c;
+  --badge-danger-border: #f87171;
+  --badge-neutral-bg: #334155;
+  --badge-neutral-border: #64748b;
+  --badge-purple-bg: #6d28d9;
+  --badge-purple-border: #a78bfa;
+  --badge-cyan-bg: #0e7490;
+  --badge-cyan-border: #22d3ee;
+}
+
+/* Shared high-contrast badge treatment. */
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(
+  .kpi-delta,
+  .analytics-bar-row > div:first-child span,
+  .customer-action-item > span,
+  .comparison-metric b,
+  .top10-item > span,
+  .rank-number,
+  .daily-performance-rank .rank,
+  .daily-performance-checklist-summary,
+  .daily-performance-target-badges span
+) {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .22) !important;
+}
+
+/* KPI percentage deltas. */
+html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.positive {
+  background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
+  border-color: rgba(74, 222, 128, .65) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.negative {
+  background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
+  border-color: rgba(248, 113, 113, .65) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.neutral {
+  background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
+  border-color: rgba(148, 163, 184, .48) !important;
+}
+
+/* Customer analysis counters and Top 10 counters. */
+html[data-theme="dark"] .main-content > :not(#appHeader) .analytics-bar-row > div:first-child span {
+  background: linear-gradient(135deg, #2563eb, var(--badge-info-bg)) !important;
+  border-color: rgba(96, 165, 250, .60) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .top10-item > span {
+  background: linear-gradient(135deg, #0891b2, var(--badge-cyan-bg)) !important;
+  border-color: rgba(34, 211, 238, .55) !important;
+}
+
+/* Follow-up state pills. */
+html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span.warning {
+  background: linear-gradient(135deg, #d97706, var(--badge-warning-bg)) !important;
+  border-color: rgba(251, 191, 36, .64) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span.critical {
+  background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
+  border-color: rgba(248, 113, 113, .66) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span:not(.warning):not(.critical) {
+  background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
+  border-color: rgba(148, 163, 184, .48) !important;
+}
+
+/* Representative comparison percentages. */
+html[data-theme="dark"] .main-content > :not(#appHeader) .comparison-metric b.positive {
+  background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
+  border-color: rgba(74, 222, 128, .62) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .comparison-metric b.negative {
+  background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
+  border-color: rgba(248, 113, 113, .62) !important;
+}
+
+/* Representative rank markers. */
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-number, .daily-performance-rank .rank) {
+  background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
+  border-color: rgba(148, 163, 184, .50) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-1 .rank-number, .daily-performance-rank.rank-1 .rank) {
+  background: linear-gradient(135deg, #f59e0b, #b45309) !important;
+  border-color: rgba(253, 224, 71, .72) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-2 .rank-number, .daily-performance-rank.rank-2 .rank) {
+  background: linear-gradient(135deg, #64748b, #334155) !important;
+  border-color: rgba(203, 213, 225, .64) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-3 .rank-number, .daily-performance-rank.rank-3 .rank) {
+  background: linear-gradient(135deg, #c2410c, #7c2d12) !important;
+  border-color: rgba(251, 146, 60, .68) !important;
+}
+
+/* Daily performance task counters and target pills. */
+html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-checklist-summary {
+  background: linear-gradient(135deg, #2563eb, var(--badge-info-bg)) !important;
+  border-color: rgba(96, 165, 250, .60) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-target-badges span.met {
+  background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
+  border-color: rgba(74, 222, 128, .62) !important;
+}
+html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-target-badges span.pending {
+  background: linear-gradient(135deg, #d97706, var(--badge-warning-bg)) !important;
+  border-color: rgba(251, 191, 36, .62) !important;
+}
+
+/* Preserve compact geometry while improving legibility. */
+html[data-theme="dark"] .main-content > :not(#appHeader) :is(
+  .kpi-delta,
+  .customer-action-item > span,
+  .comparison-metric b,
+  .daily-performance-target-badges span
+) {
+  font-size: max(11px, 1em) !important;
+  font-weight: 900 !important;
+}
