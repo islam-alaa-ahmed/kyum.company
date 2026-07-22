@@ -9380,3 +9380,60 @@ html[data-theme="dark"] .main-content > :not(#appHeader) :is(
   font-size: max(11px, 1em) !important;
   font-weight: 900 !important;
 }
+
+
+/* =========================================================
+   Phase 18.2 — Dashboard Attention Card Dark Mode Fix
+   ========================================================= */
+html[data-theme="dark"] #dashboardView #attentionFollowups {
+  display: grid;
+  gap: 10px;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(217,119,6,.15), rgba(15,31,52,.96) 42%), #0f1f34 !important;
+  color: #fff !important;
+  border: 1px solid rgba(245,158,11,.42) !important;
+  border-inline-start: 4px solid #d97706 !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item.overdue {
+  background: linear-gradient(135deg, rgba(220,38,38,.17), rgba(15,31,52,.96) 42%), #0f1f34 !important;
+  border-color: rgba(248,113,113,.46) !important;
+  border-inline-start-color: #dc2626 !important;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item:hover {
+  transform: none !important;
+  filter: none !important;
+  background: linear-gradient(135deg, rgba(217,119,6,.22), rgba(20,38,62,.98) 44%), #14263e !important;
+  border-color: rgba(251,191,36,.62) !important;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item.overdue:hover {
+  background: linear-gradient(135deg, rgba(220,38,38,.24), rgba(20,38,62,.98) 44%), #14263e !important;
+  border-color: rgba(248,113,113,.66) !important;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item strong,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item span,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item small,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item p,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item a {
+  color: #fff !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item span,
+html[data-theme="dark"] #dashboardView #attentionFollowups .attention-item small {
+  color: #e5e7eb !important;
+}
+html:not([data-theme="dark"]) #dashboardView #attentionFollowups .attention-item {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+html:not([data-theme="dark"]) #dashboardView #attentionFollowups .attention-item span,
+html:not([data-theme="dark"]) #dashboardView #attentionFollowups .attention-item small {
+  color: #4b5563 !important;
+  opacity: 1 !important;
+}
