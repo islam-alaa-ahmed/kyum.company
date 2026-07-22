@@ -6506,3 +6506,305 @@ html[data-theme="dark"] {
     0 10px 25px rgba(0, 0, 0, .19) !important;
   transform: none !important;
 }
+
+
+/* =========================================================
+   Phase 17.8 — KYUM Enterprise Design System Foundation
+   Goal: Establish a consistent premium hierarchy without
+   forcing glass effects on every surface.
+   Scope: CSS only. No layout, markup, JS, data, or logic changes.
+   ========================================================= */
+
+:root {
+  /* Core surfaces */
+  --kyum-bg-canvas: #071425;
+  --kyum-bg-canvas-2: #0a1b30;
+  --kyum-surface-1: #0f1d31;
+  --kyum-surface-2: #13243a;
+  --kyum-surface-3: #172b45;
+
+  /* Glass surfaces: reserved for navigation and controls */
+  --kyum-glass-soft: rgba(18, 37, 61, .72);
+  --kyum-glass-strong: rgba(15, 31, 51, .86);
+
+  /* Borders */
+  --kyum-border-soft: rgba(173, 194, 222, .14);
+  --kyum-border-medium: rgba(173, 194, 222, .22);
+  --kyum-border-strong: rgba(173, 194, 222, .30);
+
+  /* Text */
+  --kyum-text-primary: #f3f7fc;
+  --kyum-text-secondary: #b5c2d3;
+  --kyum-text-muted: #8392a8;
+
+  /* Brand accents */
+  --kyum-accent-blue: #4d9dff;
+  --kyum-accent-gold: #d5ad54;
+  --kyum-accent-red: #e45c61;
+  --kyum-accent-green: #40c97a;
+
+  /* Radius */
+  --kyum-radius-sm: 10px;
+  --kyum-radius-md: 14px;
+  --kyum-radius-lg: 18px;
+  --kyum-radius-xl: 22px;
+
+  /* Depth */
+  --kyum-depth-1:
+    0 6px 16px rgba(0, 0, 0, .14);
+  --kyum-depth-2:
+    0 10px 26px rgba(0, 0, 0, .18);
+  --kyum-depth-3:
+    0 14px 36px rgba(0, 0, 0, .22);
+
+  /* Focus */
+  --kyum-focus-ring:
+    0 0 0 3px rgba(77, 157, 255, .16);
+}
+
+/* =========================================================
+   Global dark canvas
+   ========================================================= */
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(66, 111, 171, .12), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(30, 72, 129, .08), transparent 28%),
+    linear-gradient(145deg, var(--kyum-bg-canvas), var(--kyum-bg-canvas-2));
+  color: var(--kyum-text-primary);
+}
+
+/* =========================================================
+   Surface hierarchy
+   ========================================================= */
+
+/* Level 2: major dashboard/report panels */
+#dailyOperationsView .daily-operations-header,
+#dailyOperationsView .daily-targets-panel,
+#dailyOperationsView .daily-checklist-panel,
+#dailyOperationsView .daily-section-panel,
+#dailyOperationsView .daily-alerts-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.018), transparent 34%),
+    var(--kyum-surface-2) !important;
+  border: 1px solid var(--kyum-border-medium) !important;
+  box-shadow: var(--kyum-depth-2) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Level 1: KPI and inner cards */
+#dailyOperationsView .daily-current-session-card,
+#dailyOperationsView .daily-manager-note,
+#dailyOperationsView .daily-operations-kpis > article,
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.014), transparent 32%),
+    var(--kyum-surface-1) !important;
+  border: 1px solid var(--kyum-border-soft) !important;
+  box-shadow: var(--kyum-depth-1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Remove all reflection overlays from data surfaces. */
+#dailyOperationsView .daily-operations-header::after,
+#dailyOperationsView .daily-current-session-card::after,
+#dailyOperationsView .daily-manager-note::after,
+#dailyOperationsView .daily-operations-kpis > article::after,
+#dailyOperationsView .daily-targets-panel::after,
+#dailyOperationsView .daily-targets-grid > article::after,
+#dailyOperationsView .daily-checklist-panel::after,
+#dailyOperationsView .daily-section-panel::after,
+#dailyOperationsView .daily-alerts-panel::after,
+#dailyOperationsView .daily-alerts-summary > article::after,
+#dailyOperationsView .daily-alert-card::after,
+#dailyOperationsView .daily-task-item::after {
+  display: none !important;
+}
+
+/* =========================================================
+   Internal visual hierarchy
+   ========================================================= */
+
+#dailyOperationsView h1,
+#dailyOperationsView h2,
+#dailyOperationsView h3,
+#dailyOperationsView h4,
+#dailyOperationsView h5,
+#dailyOperationsView h6,
+#dailyOperationsView strong {
+  color: var(--kyum-text-primary);
+}
+
+#dailyOperationsView p,
+#dailyOperationsView small,
+#dailyOperationsView .daily-operations-date,
+#dailyOperationsView .daily-task-item > div small {
+  color: var(--kyum-text-secondary);
+}
+
+/* KPI values should carry focus, labels should recede. */
+#dailyOperationsView .daily-operations-kpis > article strong,
+#dailyOperationsView .daily-targets-grid > article strong,
+#dailyOperationsView .daily-alerts-summary > article strong {
+  color: var(--kyum-text-primary);
+  letter-spacing: -.02em;
+}
+
+#dailyOperationsView .daily-operations-kpis > article small,
+#dailyOperationsView .daily-targets-grid > article small,
+#dailyOperationsView .daily-alerts-summary > article small {
+  color: var(--kyum-text-muted);
+}
+
+/* =========================================================
+   Accent discipline
+   ========================================================= */
+
+#dailyOperationsView .daily-operations-kpis > article,
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-alerts-summary > article {
+  --kyum-card-accent: var(--kyum-accent-blue);
+}
+
+#dailyOperationsView .daily-operations-kpis > article:first-child,
+#dailyOperationsView .daily-targets-grid > article:nth-child(2),
+#dailyOperationsView .daily-alerts-summary > article:nth-child(3) {
+  --kyum-card-accent: var(--kyum-accent-gold);
+}
+
+#dailyOperationsView .daily-operations-kpis > article.attention,
+#dailyOperationsView .daily-operations-kpis > article:last-child,
+#dailyOperationsView .daily-targets-grid > article:nth-child(3),
+#dailyOperationsView .daily-alerts-summary > article:nth-child(4) {
+  --kyum-card-accent: var(--kyum-accent-red);
+}
+
+#dailyOperationsView .daily-operations-kpis > article::before {
+  content: "";
+  display: block !important;
+  position: absolute;
+  inset-inline-start: 20px;
+  inset-inline-end: auto;
+  bottom: 0;
+  top: auto;
+  width: 38px;
+  height: 2px;
+  border-radius: 999px 999px 0 0;
+  background: var(--kyum-card-accent);
+  opacity: .72;
+  box-shadow: none;
+}
+
+/* No long decorative lines on task and report cards. */
+#dailyOperationsView .daily-targets-grid > article,
+#dailyOperationsView .daily-alerts-summary > article,
+#dailyOperationsView .daily-alert-card,
+#dailyOperationsView .daily-task-item {
+  background-image: none !important;
+}
+
+/* =========================================================
+   Icons and controls: glass is reserved here
+   ========================================================= */
+
+#dailyOperationsView .daily-operations-kpis .icon,
+#dailyOperationsView .daily-operations-kpis [class*="icon"],
+#dailyOperationsView .daily-targets-grid .icon,
+#dailyOperationsView .daily-targets-grid [class*="icon"],
+#dailyOperationsView .daily-alerts-summary .icon,
+#dailyOperationsView .daily-alerts-summary [class*="icon"] {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+    var(--kyum-glass-soft) !important;
+  border: 1px solid var(--kyum-border-medium) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 6px 14px rgba(0,0,0,.12) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+#dailyOperationsView button,
+#dailyOperationsView .btn,
+#dailyOperationsView [role="button"] {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025)),
+    var(--kyum-glass-strong) !important;
+  color: var(--kyum-text-primary) !important;
+  border: 1px solid var(--kyum-border-medium) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 6px 14px rgba(0,0,0,.12) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* =========================================================
+   Status colors
+   ========================================================= */
+
+#dailyOperationsView .daily-manager-note strong,
+#dailyOperationsView .daily-overdue-panel strong,
+#dailyOperationsView .daily-alert-card.severity-critical strong {
+  color: var(--kyum-accent-red);
+}
+
+#dailyOperationsView .daily-current-session-card .is-active,
+#dailyOperationsView .daily-current-session-card .active {
+  color: var(--kyum-accent-green) !important;
+}
+
+/* =========================================================
+   Hover and focus
+   ========================================================= */
+
+#dailyOperationsView .daily-operations-header:hover,
+#dailyOperationsView .daily-current-session-card:hover,
+#dailyOperationsView .daily-manager-note:hover,
+#dailyOperationsView .daily-operations-kpis > article:hover,
+#dailyOperationsView .daily-targets-panel:hover,
+#dailyOperationsView .daily-targets-grid > article:hover,
+#dailyOperationsView .daily-checklist-panel:hover,
+#dailyOperationsView .daily-section-panel:hover,
+#dailyOperationsView .daily-alerts-panel:hover,
+#dailyOperationsView .daily-alerts-summary > article:hover,
+#dailyOperationsView .daily-alert-card:hover,
+#dailyOperationsView .daily-task-item:hover {
+  border-color: var(--kyum-border-medium) !important;
+  box-shadow: var(--kyum-depth-2) !important;
+  transform: none !important;
+}
+
+#dailyOperationsView button:hover,
+#dailyOperationsView .btn:hover,
+#dailyOperationsView [role="button"]:hover {
+  border-color: var(--kyum-border-strong) !important;
+  box-shadow: var(--kyum-depth-2) !important;
+  transform: none !important;
+}
+
+#dailyOperationsView button:focus-visible,
+#dailyOperationsView .btn:focus-visible,
+#dailyOperationsView [role="button"]:focus-visible {
+  outline: none;
+  box-shadow: var(--kyum-focus-ring), var(--kyum-depth-2) !important;
+}
+
+/* =========================================================
+   Explicitly neutralize previous full-card glow rules
+   ========================================================= */
+
+:root,
+html[data-theme="dark"] {
+  --kyum-blue-glow: var(--kyum-depth-1);
+  --kyum-gold-glow: var(--kyum-depth-1);
+  --kyum-red-glow: var(--kyum-depth-1);
+  --kyum-blue-glow-hover: var(--kyum-depth-2);
+  --kyum-gold-glow-hover: var(--kyum-depth-2);
+  --kyum-red-glow-hover: var(--kyum-depth-2);
+}
