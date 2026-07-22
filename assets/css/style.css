@@ -8499,3 +8499,289 @@ html[data-theme="dark"] {
 .sidebar * {
   /* Intentionally untouched by Phase 17.8.8. */
 }
+
+
+/* =========================================================
+   Phase 17.8.9 — Dark Mode Surface & Contrast Recovery
+   Root cause:
+   Several legacy components still use fixed light backgrounds
+   (#fff / pale semantic colors). Typography phases made their text
+   white in Dark Mode, producing white-on-white controls and cards.
+   Scope: Dark Mode component surfaces and semantic contrast only.
+   Header and Sidebar are explicitly excluded.
+   ========================================================= */
+
+html[data-theme="dark"] {
+  --dark-control-surface: #1b2940;
+  --dark-control-surface-hover: #22334e;
+  --dark-inner-surface: #17263d;
+  --dark-inner-surface-2: #1a2b45;
+  --dark-control-border: rgba(148, 163, 184, .24);
+  --dark-control-text: #ffffff;
+}
+
+/* ---------------------------------------------------------
+   Legacy inner cards that retained fixed white backgrounds
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .performance-metric,
+  .top-customer-item,
+  .customer-action-item,
+  .customer360-status-card,
+  .customer360-metric,
+  .customer360-risk-card,
+  .customer360-next-action,
+  .reference-item,
+  .daily-performance-status,
+  .daily-performance-target-row,
+  .daily-alert-card,
+  .daily-activity-event,
+  .export-option-card,
+  .diagnostics-test,
+  .health-recommendation,
+  .performance-request-item,
+  [class*="summary-item"],
+  [class*="metric-item"],
+  [class*="kpi-item"]
+) {
+  background: var(--dark-inner-surface) !important;
+  color: var(--dark-control-text) !important;
+  border-color: var(--dark-control-border) !important;
+}
+
+/* KPI / report inner cells visible as white blocks in the dashboard. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .performance-metrics > *,
+  .reports-kpi-grid > *,
+  .executive-period-summary > *,
+  .executive-funnel-summary > *,
+  .quotation-value-kpis > *,
+  .diagnostics-summary-grid > *,
+  .daily-performance-kpis > *,
+  .daily-alerts-summary > *,
+  .customer360-status-grid > *,
+  .customer360-metrics-grid > *
+) {
+  background-color: var(--dark-inner-surface) !important;
+  color: var(--dark-control-text) !important;
+  border-color: var(--dark-control-border) !important;
+}
+
+/* ---------------------------------------------------------
+   Buttons: remove pale Light Mode backgrounds in Dark Mode
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .secondary-btn,
+  .compact-btn,
+  .edit-btn,
+  .warning-btn,
+  .activate-btn,
+  .delete-btn,
+  .text-btn,
+  .row-actions button,
+  .representative-actions button,
+  .reference-item-actions button,
+  .reference-customers-actions button,
+  .daily-alert-card button,
+  .daily-alert-card .btn,
+  .table-pagination button,
+  .pagination button
+) {
+  background: var(--dark-control-surface) !important;
+  color: var(--dark-control-text) !important;
+  border: 1px solid var(--dark-control-border) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Retain semantic border accents without using pale backgrounds. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.delete-btn, [class*="delete"], [class*="danger"]) {
+  background: rgba(127, 29, 29, .28) !important;
+  color: #ffffff !important;
+  border-color: rgba(248, 113, 113, .36) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.warning-btn, [class*="warning"], [class*="important"]) {
+  background: rgba(120, 53, 15, .28) !important;
+  color: #ffffff !important;
+  border-color: rgba(251, 191, 36, .38) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(.activate-btn, [class*="success"], [class*="approved"]) {
+  background: rgba(20, 83, 45, .30) !important;
+  color: #ffffff !important;
+  border-color: rgba(74, 222, 128, .34) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .secondary-btn,
+  .compact-btn,
+  .edit-btn,
+  .warning-btn,
+  .activate-btn,
+  .delete-btn,
+  .row-actions button,
+  .representative-actions button,
+  .reference-item-actions button,
+  .reference-customers-actions button,
+  .daily-alert-card button,
+  .table-pagination button,
+  .pagination button
+):hover {
+  filter: none !important;
+  background-color: var(--dark-control-surface-hover) !important;
+}
+
+/* ---------------------------------------------------------
+   Badges / pills / status bubbles
+   --------------------------------------------------------- */
+
+/* Neutral / open / inactive status. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .badge,
+  .status-badge,
+  .record-status,
+  .quotation-status,
+  .customer360-status,
+  .daily-permission-badge,
+  .daily-overdue-badge,
+  .daily-alert-status,
+  .daily-alert-severity,
+  .daily-attendance-status,
+  .representative-customer-count,
+  [class*="badge"],
+  [class*="pill"],
+  [class*="status"],
+  [class*="chip"]
+) {
+  background: #173052 !important;
+  color: #ffffff !important;
+  border-color: rgba(147, 197, 253, .22) !important;
+  opacity: 1 !important;
+}
+
+/* Success status. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .status-completed,
+  .record-status.active,
+  .quotation-status-accepted,
+  .customer360-status.active,
+  .daily-permission-badge.allowed,
+  .daily-performance-status.completed,
+  .daily-attendance-status.active,
+  [class*="status"][class*="completed"],
+  [class*="badge"][class*="success"],
+  [class*="badge"][class*="approved"]
+) {
+  background: rgba(20, 83, 45, .36) !important;
+  color: #ffffff !important;
+  border-color: rgba(74, 222, 128, .34) !important;
+}
+
+/* Warning / pending status. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .status-upcoming,
+  .quotation-status-review,
+  .customer360-status.needs_followup,
+  .daily-performance-target-badges span.pending,
+  [class*="status"][class*="pending"],
+  [class*="badge"][class*="warning"],
+  [class*="badge"][class*="important"]
+) {
+  background: rgba(120, 53, 15, .34) !important;
+  color: #ffffff !important;
+  border-color: rgba(251, 191, 36, .36) !important;
+}
+
+/* Danger / overdue / rejected status. */
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  .status-overdue,
+  .quotation-status-rejected,
+  .customer360-status.overdue,
+  .daily-overdue-badge,
+  .daily-performance-status.missed,
+  .daily-attendance-status.not_started,
+  [class*="status"][class*="overdue"],
+  [class*="badge"][class*="danger"],
+  [class*="badge"][class*="critical"],
+  [class*="badge"][class*="urgent"],
+  [class*="badge"][class*="error"]
+) {
+  background: rgba(127, 29, 29, .34) !important;
+  color: #ffffff !important;
+  border-color: rgba(248, 113, 113, .38) !important;
+}
+
+/* ---------------------------------------------------------
+   Forms and dropdown surfaces
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  input,
+  select,
+  textarea,
+  .checkbox-dropdown-trigger,
+  .checkbox-dropdown-menu,
+  .checkbox-dropdown-option,
+  [role="listbox"],
+  [role="option"]
+) {
+  background-color: var(--dark-inner-surface) !important;
+  color: #ffffff !important;
+  border-color: var(--dark-control-border) !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(input, textarea)::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   Follow-up and customer tables
+   --------------------------------------------------------- */
+
+html[data-theme="dark"] .main-content > :not(#appHeader)
+:is(
+  table,
+  tbody,
+  tbody tr,
+  .table-wrap,
+  .data-table,
+  [class*="table-wrap"]
+) {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr {
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, .015) !important;
+}
+
+/* ---------------------------------------------------------
+   Explicit protection
+   --------------------------------------------------------- */
+
+#appHeader,
+#appHeader *,
+.sidebar,
+.sidebar * {
+  /* Intentionally untouched by Phase 17.8.9. */
+}
