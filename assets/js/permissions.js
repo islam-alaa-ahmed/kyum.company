@@ -138,7 +138,8 @@ window.CustomerPermissions = {
       button.classList.toggle("hidden", !allowed);
       button.setAttribute("aria-hidden", String(!allowed));
       button.setAttribute("tabindex", allowed ? "0" : "-1");
-      button.disabled = !allowed;
+      button.setAttribute("aria-disabled", String(!allowed));
+      if ("disabled" in button) button.disabled = !allowed;
     });
     document.querySelectorAll(".nav-group").forEach(group => {
       const visible = [...group.querySelectorAll(".nav-item[data-view]")].some(item => !item.classList.contains("hidden"));

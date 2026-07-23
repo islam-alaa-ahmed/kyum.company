@@ -5801,45 +5801,9 @@ function openSidebarView(button) {
   return true;
 }
 
-// Phase M7.3.2 — dedicated Daily Operations navigation binding.
-// The first root item is handled directly because the mobile drawer can consume
-// its synthesized click after a touch. Pointer-up performs the transition before
-// any drawer state mutation; the following click is suppressed as a duplicate.
-function initializeDailyOperationsNavigation() {
-  const button = document.getElementById("dailyOperationsNavButton")
-    || document.querySelector('.nav-item[data-view="dailyOperations"]');
-  if (!button || button.dataset.dailyNavigationBound === "true") return;
-
-  button.dataset.dailyNavigationBound = "true";
-  let lastPointerNavigationAt = 0;
-
-  const navigate = event => {
-    if (event.type === "click" && performance.now() - lastPointerNavigationAt < 700) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    const opened = switchView("dailyOperations", { trustedNavigation: true });
-    if (!opened) return;
-
-    setSidebarOpen(false);
-    document.getElementById("mobileBottomMenu")?.classList.remove("is-active");
-  };
-
-  button.addEventListener("pointerup", event => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    lastPointerNavigationAt = performance.now();
-    navigate(event);
-  }, { capture: true });
-
-  button.addEventListener("click", navigate, { capture: true });
-}
-
-initializeDailyOperationsNavigation();
+// Phase M7.3.3 — Daily Operations uses its native hash link as the
+// canonical navigation path. The direct route is already proven to load this
+// screen correctly on mobile, so no pointer/click interception is applied.
 
 // One bubbling handler owns all remaining sidebar destinations.
 document.addEventListener("click", event => {
