@@ -5801,19 +5801,51 @@ function openSidebarView(button) {
   return true;
 }
 
-// Phase M7.3.3 — Daily Operations uses its native hash link as the
-// canonical navigation path. The direct route is already proven to load this
-// screen correctly on mobile, so no pointer/click interception is applied.
+// Phase M7.3.4 — canonical sidebar navigation.
+// A single listener is attached to the sidebar itself so navigation does not
+// depend on synthetic click delivery to an individual first-row button.
+// This also survives launcher movement and mobile drawer animations.
+function initializeCanonicalSidebarNavigation() {
+  const sidebar = document.getElementById("mainSidebar");
+  if (!sidebar || sidebar.dataset.canonicalNavigationBound === "true") return;
 
-// One bubbling handler owns all remaining sidebar destinations.
-document.addEventListener("click", event => {
-  const button = event.target.closest?.(".nav-item[data-view]");
-  if (!button || button.dataset.view === "dailyOperations") return;
+  sidebar.dataset.canonicalNavigationBound = "true";
+  let lastPointerNavigationAt = 0;
 
-  event.preventDefault();
-  event.stopPropagation();
-  openSidebarView(button);
-});
+  const navigateFromEvent = event => {
+    const button = event.target.closest?.(".nav-item[data-view]");
+    if (!button || !sidebar.contains(button)) return;
+
+    if (event.type === "click" && performance.now() - lastPointerNavigationAt < 700) {
+      event.preventDefault();
+      return;
+    }
+
+    const viewKey = String(button.dataset.view || "").trim();
+    if (!viewKey || !views[viewKey]) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const opened = switchView(viewKey, {
+      trustedNavigation: viewKey === "dailyOperations"
+    });
+    if (!opened) return;
+
+    setSidebarOpen(false);
+    document.getElementById("mobileBottomMenu")?.classList.remove("is-active");
+  };
+
+  sidebar.addEventListener("pointerup", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    lastPointerNavigationAt = performance.now();
+    navigateFromEvent(event);
+  }, { capture: true });
+
+  sidebar.addEventListener("click", navigateFromEvent);
+}
+
+initializeCanonicalSidebarNavigation();
 
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
 
