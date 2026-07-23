@@ -2067,3 +2067,101 @@ html.is-offline body::before {
     color:#111827!important;
   }
 }
+
+/* Phase M8.2.2 — Mobile Light Mode Menu Contrast Fix */
+@media (max-width: 767px){
+  html[data-theme="light"] #mainSidebar.sidebar{
+    background:#f8fafc!important;
+    color:#0f172a!important;
+    border-left:1px solid #dbe3ef!important;
+    box-shadow:-24px 0 60px rgba(15,23,42,.18)!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-launcher-host{
+    border-bottom-color:#d8e1ed!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher{
+    background:#ffffff!important;
+    color:#0f172a!important;
+    border:1px solid #cfd9e7!important;
+    box-shadow:0 8px 22px rgba(15,23,42,.08)!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher .brand-mark.small{
+    color:#ffffff!important;
+    background:linear-gradient(145deg,#0f766e,#2563eb)!important;
+    border-color:rgba(37,99,235,.26)!important;
+    opacity:1!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text,
+  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text strong{
+    color:#0f172a!important;
+    opacity:1!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text small{
+    color:#64748b!important;
+    opacity:1!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-toggle{
+    background:#ffffff!important;
+    color:#172033!important;
+    border-color:#d5deea!important;
+    box-shadow:0 4px 14px rgba(15,23,42,.045)!important;
+    opacity:1!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-toggle > span,
+  html[data-theme="light"] #mainSidebar .nav-group-toggle .nav-chevron,
+  html[data-theme="light"] #mainSidebar .nav-group-toggle svg,
+  html[data-theme="light"] #mainSidebar .nav-group-toggle path{
+    color:#172033!important;
+    stroke:currentColor!important;
+    opacity:1!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"]{
+    background:#eef2ff!important;
+    color:#1e3a8a!important;
+    border-color:#bfcdfc!important;
+    box-shadow:0 5px 16px rgba(37,99,235,.09)!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] > span,
+  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] .nav-chevron{
+    color:#1e3a8a!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item{
+    color:#334155!important;
+    background:#ffffff!important;
+    border-color:#e2e8f0!important;
+    opacity:1!important;
+    text-shadow:none!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item::before{
+    background:#64748b!important;
+    opacity:.72!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item:hover,
+  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active{
+    color:#1d4ed8!important;
+    background:#eaf1ff!important;
+    border-color:#bfd0fa!important;
+  }
+
+  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active::before{
+    background:#2563eb!important;
+    opacity:1!important;
+    box-shadow:0 0 0 4px rgba(37,99,235,.12)!important;
+  }
+
+  html[data-theme="light"] .sidebar-backdrop{
+    background:rgba(15,23,42,.42)!important;
+  }
+}
