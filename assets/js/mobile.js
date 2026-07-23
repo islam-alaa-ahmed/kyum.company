@@ -601,3 +601,137 @@
   window.addEventListener("hashchange", syncMobileState);
   MOBILE_MEDIA.addEventListener?.("change", syncMobileState);
 })();
+
+/* KYUM Mobile Enterprise — Phase M6: Daily Operations */
+(() => {
+  "use strict";
+
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const view = document.getElementById("dailyOperationsView");
+  if (!view) return;
+
+  const tableLabels = new Map([
+    ["dailyFollowupsBody", ["العميل", "المندوب", "طريقة التواصل", "النتيجة", "المتابعة القادمة"]],
+    ["dailyCustomersBody", ["العميل", "التصنيف", "اسم المسؤول", "المندوب", "وقت الإضافة"]],
+    ["dailyQuotationsBody", ["العميل", "المندوب", "رقم العرض", "الحالة", "القيمة"]],
+    ["dailyOverdueBody", ["العميل", "المندوب", "الموعد", "التأخير", "النتيجة السابقة"]]
+  ]);
+
+  let observer = null;
+  let refreshTimer = null;
+
+  function labelRows(body, labels) {
+    if (!body) return;
+    [...body.rows].forEach(row => {
+      [...row.cells].forEach((cell, index) => {
+        if (!cell.classList.contains("empty-state")) {
+          cell.dataset.mobileLabel = labels[index] || "بيان";
+        }
+      });
+    });
+  }
+
+  function syncTables() {
+    tableLabels.forEach((labels, id) => labelRows(document.getElementById(id), labels));
+  }
+
+  function completionPercent() {
+    const value = document.getElementById("dailyTasksCompletionRate")?.textContent || "0";
+    return Math.max(0, Math.min(100, Number.parseInt(value, 10) || 0));
+  }
+
+  function syncProgress() {
+    const ring = view.querySelector(".mobile-daily-progress-ring");
+    const value = view.querySelector("[data-mobile-daily-progress-value]");
+    const meta = view.querySelector("[data-mobile-daily-progress-meta]");
+    const percent = completionPercent();
+    if (ring) ring.style.setProperty("--progress", String(percent));
+    if (value) value.textContent = `${percent}%`;
+    if (meta) meta.textContent = document.getElementById("dailyTasksCompletionText")?.textContent || "0 من 0";
+  }
+
+  function scrollToSelector(selector) {
+    const target = view.querySelector(selector);
+    if (!target) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  }
+
+  function openView(viewName) {
+    document.querySelector(`.nav-item[data-view="${viewName}"]`)?.click();
+  }
+
+  function refreshDailyOperations() {
+    if (!MOBILE_MEDIA.matches) return;
+    view.classList.add("mobile-daily-refreshing");
+    document.querySelector('.nav-item[data-view="dailyOperations"]')?.click();
+    window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(() => {
+      syncTables();
+      syncProgress();
+      view.classList.remove("mobile-daily-refreshing");
+    }, 900);
+  }
+
+  function ensureToolbar() {
+    if (view.querySelector(".mobile-daily-toolbar")) return;
+    const toolbar = document.createElement("div");
+    toolbar.className = "mobile-daily-toolbar";
+    toolbar.innerHTML = `
+      <div class="mobile-daily-toolbar-head">
+        <div class="mobile-daily-progress">
+          <div class="mobile-daily-progress-ring" aria-hidden="true"><strong data-mobile-daily-progress-value>0%</strong></div>
+          <div class="mobile-daily-progress-copy">
+            <strong>تقدم يوم العمل</strong>
+            <small data-mobile-daily-progress-meta>0 من 0</small>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-daily-toolbar-actions">
+        <button type="button" class="secondary-btn" data-mobile-daily-refresh>تحديث اليوم</button>
+        <button type="button" class="primary-btn" data-mobile-daily-report>تقرير الأداء</button>
+      </div>
+      <nav class="mobile-daily-jump-nav" aria-label="أقسام التشغيل اليومي">
+        <button type="button" data-mobile-daily-jump=".daily-checklist-panel">المهام</button>
+        <button type="button" data-mobile-daily-jump=".daily-targets-panel">الأهداف</button>
+        <button type="button" data-mobile-daily-jump="#dailyFollowupsBody">المتابعات</button>
+        <button type="button" data-mobile-daily-jump="#dailyCustomersBody">العملاء</button>
+        <button type="button" data-mobile-daily-jump=".daily-alerts-panel">التنبيهات</button>
+        <button type="button" data-mobile-daily-jump=".daily-overdue-panel">المتأخرة</button>
+      </nav>`;
+    view.prepend(toolbar);
+
+    toolbar.querySelector("[data-mobile-daily-refresh]")?.addEventListener("click", refreshDailyOperations);
+    toolbar.querySelector("[data-mobile-daily-report]")?.addEventListener("click", () => openView("dailyPerformanceReport"));
+    toolbar.querySelectorAll("[data-mobile-daily-jump]").forEach(button => {
+      button.addEventListener("click", () => scrollToSelector(button.dataset.mobileDailyJump));
+    });
+  }
+
+  function connectObserver() {
+    observer?.disconnect();
+    observer = new MutationObserver(() => {
+      syncTables();
+      syncProgress();
+    });
+    [
+      document.getElementById("dailyChecklist"),
+      document.getElementById("dailyFollowupsBody"),
+      document.getElementById("dailyCustomersBody"),
+      document.getElementById("dailyQuotationsBody"),
+      document.getElementById("dailyOverdueBody"),
+      document.getElementById("dailyTasksCompletionRate"),
+      document.getElementById("dailyTasksCompletionText")
+    ].filter(Boolean).forEach(node => observer.observe(node, { childList: true, subtree: true, characterData: true }));
+  }
+
+  function initialize() {
+    ensureToolbar();
+    syncTables();
+    syncProgress();
+    connectObserver();
+  }
+
+  initialize();
+  MOBILE_MEDIA.addEventListener?.("change", initialize);
+})();

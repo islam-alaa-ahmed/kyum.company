@@ -426,3 +426,293 @@
   #followupsView #addFollowupBtn{width:100%}
   #followupsView .row-actions{grid-template-columns:1fr}
 }
+
+/* KYUM Mobile Enterprise — Phase M6: Daily Operations */
+@media (max-width: 767px) {
+  #dailyOperationsView {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  #dailyOperationsView .mobile-daily-toolbar {
+    position: sticky;
+    top: calc(58px + env(safe-area-inset-top));
+    z-index: 18;
+    display: grid;
+    gap: 10px;
+    margin: -2px -2px 14px;
+    padding: 12px;
+    border: 1px solid var(--border-color, rgba(148, 163, 184, .24));
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--surface, #fff) 90%, transparent);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .10);
+    backdrop-filter: blur(18px);
+  }
+
+  #dailyOperationsView .mobile-daily-toolbar-head,
+  #dailyOperationsView .mobile-daily-toolbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #dailyOperationsView .mobile-daily-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  #dailyOperationsView .mobile-daily-progress-ring {
+    --progress: 0;
+    width: 48px;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary, #2563eb) calc(var(--progress) * 1%), rgba(148,163,184,.22) 0);
+    position: relative;
+  }
+
+  #dailyOperationsView .mobile-daily-progress-ring::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: inherit;
+    background: var(--surface, #fff);
+  }
+
+  #dailyOperationsView .mobile-daily-progress-ring strong {
+    position: relative;
+    z-index: 1;
+    font-size: 11px;
+  }
+
+  #dailyOperationsView .mobile-daily-progress-copy {
+    min-width: 0;
+  }
+
+  #dailyOperationsView .mobile-daily-progress-copy strong,
+  #dailyOperationsView .mobile-daily-progress-copy small {
+    display: block;
+  }
+
+  #dailyOperationsView .mobile-daily-progress-copy small {
+    color: var(--muted-text, #64748b);
+    margin-top: 2px;
+  }
+
+  #dailyOperationsView .mobile-daily-toolbar-actions button {
+    min-height: 42px;
+    flex: 1 1 0;
+    padding-inline: 12px;
+  }
+
+  #dailyOperationsView .mobile-daily-jump-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 1px 1px 4px;
+    scrollbar-width: none;
+  }
+
+  #dailyOperationsView .mobile-daily-jump-nav::-webkit-scrollbar { display: none; }
+
+  #dailyOperationsView .mobile-daily-jump-nav button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color, rgba(148,163,184,.28));
+    background: var(--surface, #fff);
+    color: inherit;
+    padding: 7px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  #dailyOperationsView .daily-operations-header {
+    padding: 16px;
+    border-radius: 18px;
+    gap: 12px;
+  }
+
+  #dailyOperationsView .daily-operations-header h3 { font-size: 19px; }
+  #dailyOperationsView .daily-operations-header p { font-size: 13px; line-height: 1.7; }
+  #dailyOperationsView .daily-operations-date { width: 100%; text-align: start; }
+
+  #dailyOperationsView .daily-current-session-card,
+  #dailyOperationsView .daily-manager-note {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  #dailyOperationsView .daily-current-session-card button,
+  #dailyOperationsView .daily-manager-note button { width: 100%; min-height: 44px; }
+
+  #dailyOperationsView .daily-operations-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  #dailyOperationsView .daily-operations-kpis > article {
+    min-height: 112px;
+    padding: 14px;
+    border-radius: 17px;
+  }
+
+  #dailyOperationsView .daily-operations-kpis > article:first-child,
+  #dailyOperationsView .daily-operations-kpis > article.attention {
+    grid-column: 1 / -1;
+    min-height: 96px;
+  }
+
+  #dailyOperationsView .daily-operations-kpis strong { font-size: 25px; }
+
+  #dailyOperationsView .panel {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  #dailyOperationsView .panel-header {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  #dailyOperationsView .panel-header > div:first-child { min-width: 0; }
+  #dailyOperationsView .panel-header h3 { font-size: 16px; }
+  #dailyOperationsView .panel-header p { font-size: 12px; line-height: 1.6; }
+  #dailyOperationsView .panel-header .text-btn,
+  #dailyOperationsView .panel-header .compact-btn { flex: 0 0 auto; }
+
+  #dailyOperationsView .daily-targets-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  #dailyOperationsView .daily-task-item {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 11px;
+    align-items: start;
+    padding: 14px 12px;
+    border-radius: 15px;
+    min-height: 76px;
+  }
+
+  #dailyOperationsView .daily-task-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #dailyOperationsView .daily-task-check {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+
+  #dailyOperationsView .daily-task-item > b {
+    grid-column: 2;
+    justify-self: start;
+    font-size: 11px;
+  }
+
+  #dailyOperationsView .daily-task-item strong { font-size: 14px; line-height: 1.5; }
+  #dailyOperationsView .daily-task-item small { line-height: 1.55; }
+
+  #dailyOperationsView .table-wrap { overflow: visible; }
+  #dailyOperationsView .daily-operations-table,
+  #dailyOperationsView .daily-operations-table tbody,
+  #dailyOperationsView .daily-operations-table tr,
+  #dailyOperationsView .daily-operations-table td { display: block; width: 100%; }
+  #dailyOperationsView .daily-operations-table thead { display: none; }
+  #dailyOperationsView .daily-operations-table tbody { display: grid; gap: 10px; }
+
+  #dailyOperationsView .daily-operations-table tr {
+    padding: 13px;
+    border: 1px solid var(--border-color, rgba(148,163,184,.23));
+    border-radius: 15px;
+    background: var(--surface, #fff);
+    box-shadow: 0 6px 18px rgba(15,23,42,.05);
+  }
+
+  #dailyOperationsView .daily-operations-table td {
+    display: grid;
+    grid-template-columns: minmax(92px, 34%) 1fr;
+    gap: 10px;
+    padding: 7px 0;
+    border: 0;
+    text-align: start;
+    align-items: start;
+    overflow-wrap: anywhere;
+  }
+
+  #dailyOperationsView .daily-operations-table td::before {
+    content: attr(data-mobile-label);
+    color: var(--muted-text, #64748b);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  #dailyOperationsView .daily-operations-table td:first-child {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color, rgba(148,163,184,.18));
+  }
+
+  #dailyOperationsView .daily-operations-table td:first-child::before { display: none; }
+  #dailyOperationsView .daily-operations-table td.empty-state { display: block; text-align: center; border: 0; }
+  #dailyOperationsView .daily-operations-table td.empty-state::before { display: none; }
+
+  #dailyOperationsView .daily-alerts-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  #dailyOperationsView .daily-alerts-actions button,
+  #dailyOperationsView .daily-alerts-actions select { width: 100%; min-height: 44px; }
+  #dailyOperationsView .daily-alerts-summary { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+
+  #dailyOperationsView.mobile-daily-refreshing::after {
+    content: "جاري تحديث يوم العمل...";
+    position: fixed;
+    inset-inline: 20px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    z-index: 80;
+    padding: 11px 14px;
+    border-radius: 14px;
+    background: rgba(15,23,42,.9);
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  #dailyPerformanceReportView .daily-performance-header,
+  #dailyPerformanceReportView .daily-performance-actions,
+  #dailyPerformanceReportView .daily-performance-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #dailyPerformanceReportView .daily-performance-actions,
+  #dailyPerformanceReportView .daily-performance-filters { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  #dailyPerformanceReportView .daily-performance-actions button,
+  #dailyPerformanceReportView .daily-performance-filters button,
+  #dailyPerformanceReportView .daily-performance-filters label { width: 100%; }
+  #dailyPerformanceReportView .daily-performance-kpis.expanded { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  #dailyPerformanceReportView .daily-performance-kpis.expanded > article { min-height: 110px; padding: 13px; }
+  #dailyPerformanceReportView .daily-performance-table-panel .table-wrap,
+  #dailyPerformanceReportView .daily-attendance-summary-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 390px) {
+  #dailyOperationsView .mobile-daily-toolbar-actions { display: grid; grid-template-columns: 1fr; }
+  #dailyOperationsView .daily-operations-kpis { grid-template-columns: 1fr; }
+  #dailyOperationsView .daily-operations-kpis > article { grid-column: auto !important; }
+}
