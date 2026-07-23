@@ -215,8 +215,113 @@
     }
   });
 
+  const customersView = document.getElementById("customersView");
+  let customersFiltersOpen = false;
+
+  function customerPhoneFromRow(row) {
+    const cell = row?.querySelector("td:first-child strong");
+    return String(cell?.textContent || "").replace(/[^\d+]/g, "");
+  }
+
+  function decorateCustomerRows() {
+    if (!customersView) return;
+    const labels = ["رقم العميل", "اسم العميل", "اسم المسؤول", "التصنيف", "مجال الاهتمام", "المندوب", "تاريخ التواصل", "رقم عرض السعر", "سبب عدم البيع", "الإجراءات"];
+    const fields = ["phone", "name", "contact", "type", "interests", "representative", "date", "quotation", "reason", "actions"];
+    customersView.querySelectorAll("#customersTableBody tr").forEach(row => {
+      const cells = [...row.children];
+      if (cells.length !== 10) return;
+      cells.forEach((cell, index) => {
+        cell.dataset.mobileLabel = labels[index];
+        cell.dataset.mobileField = fields[index];
+      });
+      const actions = cells[9]?.querySelector(".row-actions");
+      const phone = customerPhoneFromRow(row);
+      if (!actions || !phone) return;
+      if (!actions.querySelector(".mobile-customer-call")) {
+        const call = document.createElement("a");
+        call.className = "mobile-customer-call";
+        call.href = `tel:${phone}`;
+        call.textContent = "اتصال";
+        call.setAttribute("aria-label", `اتصال بالعميل ${phone}`);
+        actions.append(call);
+      }
+      if (!actions.querySelector(".mobile-customer-whatsapp")) {
+        const whatsapp = document.createElement("a");
+        whatsapp.className = "mobile-customer-whatsapp";
+        whatsapp.href = `https://wa.me/${phone.replace(/^00/, "").replace(/^\+/, "")}`;
+        whatsapp.target = "_blank";
+        whatsapp.rel = "noopener noreferrer";
+        whatsapp.textContent = "WhatsApp";
+        whatsapp.setAttribute("aria-label", `فتح واتساب للعميل ${phone}`);
+        actions.append(whatsapp);
+      }
+    });
+  }
+
+  function closeCustomersFilters() {
+    if (!customersView) return;
+    customersFiltersOpen = false;
+    customersView.classList.remove("mobile-customers-filters-open");
+    customersView.querySelector("[data-mobile-customers-filter]")?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-customers-sheet-open");
+  }
+
+  function syncCustomersFilterState() {
+    if (!customersView) return;
+    const active = [...customersView.querySelectorAll(".filters-row select")].some(select => Boolean(select.value));
+    customersView.querySelector("[data-mobile-customers-filter]")?.classList.toggle("has-filter", active);
+  }
+
+  function installCustomersShell() {
+    if (!customersView || customersView.querySelector("[data-mobile-customers-filter]")) return;
+    const actions = customersView.querySelector(".actions-row");
+    const filters = customersView.querySelector(".filters-row");
+    if (!actions || !filters) return;
+
+    const filterButton = document.createElement("button");
+    filterButton.type = "button";
+    filterButton.className = "mobile-customers-filter-btn";
+    filterButton.dataset.mobileCustomersFilter = "";
+    filterButton.setAttribute("aria-label", "فتح فلاتر العملاء");
+    filterButton.setAttribute("aria-expanded", "false");
+    filterButton.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>`;
+    actions.append(filterButton);
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "mobile-customers-filter-close";
+    close.setAttribute("aria-label", "إغلاق فلاتر العملاء");
+    close.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+    filters.prepend(close);
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "mobile-customers-filter-backdrop";
+    backdrop.setAttribute("aria-label", "إغلاق فلاتر العملاء");
+    customersView.append(backdrop);
+
+    filterButton.addEventListener("click", () => {
+      customersFiltersOpen = !customersFiltersOpen;
+      customersView.classList.toggle("mobile-customers-filters-open", customersFiltersOpen);
+      filterButton.setAttribute("aria-expanded", String(customersFiltersOpen));
+      document.body.classList.toggle("mobile-customers-sheet-open", customersFiltersOpen);
+    });
+    close.addEventListener("click", closeCustomersFilters);
+    backdrop.addEventListener("click", closeCustomersFilters);
+    filters.querySelectorAll("select").forEach(select => select.addEventListener("change", () => {
+      syncCustomersFilterState();
+      window.setTimeout(closeCustomersFilters, 120);
+    }));
+
+    const body = customersView.querySelector("#customersTableBody");
+    if (body) new MutationObserver(decorateCustomerRows).observe(body, { childList: true, subtree: true });
+    decorateCustomerRows();
+    syncCustomersFilterState();
+  }
+
   installDashboardShell();
   installPullToRefresh();
+  installCustomersShell();
   syncPermissionVisibility();
   syncActiveState();
 })();

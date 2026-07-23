@@ -238,3 +238,50 @@
   .mobile-dashboard-action{width:40px;padding:7px}
   #dashboardView .dashboard-stats .stat-card strong{font-size:19px}
 }
+
+/* KYUM Company CRM Mobile Enterprise — Phase M3: Customers */
+@media (max-width: 767px){
+  #customersView{position:relative}
+  #customersView .actions-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-bottom:12px}
+  #customersView .search-box{min-width:0}
+  #customersView .search-box input{width:100%;height:46px;border-radius:15px;padding-inline:14px}
+  #customersView #addCustomerBtn{height:46px;padding:0 13px;border-radius:15px;font-size:12px;white-space:nowrap}
+  .mobile-customers-filter-btn{display:inline-grid;place-items:center;width:46px;height:46px;padding:0;border:1px solid var(--border);border-radius:15px;background:var(--surface);color:var(--text)}
+  .mobile-customers-filter-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .mobile-customers-filter-btn.has-filter{border-color:var(--primary);color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,var(--surface))}
+
+  #customersView .filters-row{position:fixed;z-index:1092;right:0;bottom:0;left:0;display:grid;gap:10px;margin:0;padding:58px 16px calc(18px + var(--mobile-safe-bottom));border:1px solid var(--border);border-radius:24px 24px 0 0;background:var(--surface);box-shadow:0 -22px 60px rgba(2,6,23,.24);transform:translateY(110%);transition:transform .22s ease}
+  #customersView.mobile-customers-filters-open .filters-row{transform:translateY(0)}
+  #customersView .filters-row::before{content:"فلترة العملاء";position:absolute;top:18px;right:18px;font-size:16px;font-weight:900;color:var(--text)}
+  #customersView .filters-row select{width:100%;height:48px;border-radius:14px;background:var(--surface-soft)}
+  .mobile-customers-filter-close{position:absolute;top:13px;left:14px;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid var(--border);border-radius:12px;background:var(--surface-soft);color:var(--text)}
+  .mobile-customers-filter-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+  .mobile-customers-filter-backdrop{position:fixed;z-index:1091;inset:0;display:block;border:0;background:rgba(2,6,23,.58);opacity:0;visibility:hidden;pointer-events:none;transition:.2s ease}
+  #customersView.mobile-customers-filters-open .mobile-customers-filter-backdrop{opacity:1;visibility:visible;pointer-events:auto}
+
+  #customersView .table-card{overflow:visible;border:0;background:transparent;box-shadow:none}
+  #customersView table,#customersView tbody{display:block;width:100%}
+  #customersView thead{display:none}
+  #customersView tbody{display:grid;gap:12px}
+  #customersView tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 10px 28px rgba(15,23,42,.07)}
+  #customersView tbody tr:has(.empty-state){display:block;text-align:center}
+  #customersView tbody td{display:block;min-width:0;padding:0;border:0;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+  #customersView tbody td::before{content:attr(data-mobile-label);display:block;margin-bottom:3px;color:var(--muted);font-size:9px;font-weight:800}
+  #customersView tbody td[data-mobile-field="phone"],#customersView tbody td[data-mobile-field="name"],#customersView tbody td[data-mobile-field="interests"],#customersView tbody td[data-mobile-field="actions"]{grid-column:1/-1}
+  #customersView tbody td[data-mobile-field="phone"]{padding-bottom:10px;border-bottom:1px solid var(--border)}
+  #customersView tbody td[data-mobile-field="phone"] strong{font-size:16px;color:var(--primary)}
+  #customersView tbody td[data-mobile-field="name"] strong{font-size:15px}
+  #customersView tbody td[data-mobile-field="interests"] .badge{display:inline-flex;margin:2px 0 2px 4px}
+  #customersView tbody td[data-mobile-field="actions"]{padding-top:10px;border-top:1px solid var(--border)}
+  #customersView .row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #customersView .row-actions button,#customersView .row-actions a{display:flex;align-items:center;justify-content:center;min-height:40px;padding:8px 10px;border-radius:12px;font-size:11px;font-weight:800;text-decoration:none}
+  #customersView .mobile-customer-call{border:1px solid var(--border);background:var(--surface-soft);color:var(--text)}
+  #customersView .mobile-customer-whatsapp{border:1px solid color-mix(in srgb,#22c55e 50%,var(--border));background:color-mix(in srgb,#22c55e 12%,var(--surface));color:#15803d}
+  [data-theme="dark"] #customersView .mobile-customer-whatsapp{color:#86efac}
+  #customersView .table-pagination{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+}
+
+@media (max-width: 390px){
+  #customersView .actions-row{grid-template-columns:minmax(0,1fr) 44px}
+  #customersView #addCustomerBtn{grid-column:1/-1;width:100%}
+}
