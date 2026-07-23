@@ -954,3 +954,153 @@
   initialize();
   MOBILE_MEDIA.addEventListener?.("change", initialize);
 })();
+
+/* Phase M8 — Mobile Reports */
+(() => {
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const view = document.getElementById("reportsOverviewView");
+  const filters = view?.querySelector(".reports-filter-bar");
+  const performanceBody = document.getElementById("representativePerformanceBody");
+  if (!view || !filters) return;
+
+  let observer;
+  let refreshTimer;
+  const performanceLabels = ["المندوب", "العملاء", "المتابعات", "العروض", "المقبولة", "قيمة العروض", "نسبة التحويل"];
+  const jumpTargets = [
+    ["المؤشرات", ".reports-kpi-grid"],
+    ["المبيعات", ".report-funnel-panel"],
+    ["العملاء", "#customerAnalyticsBreakdown"],
+    ["الخسارة", "#lossReasonsAnalytics"],
+    ["الاتجاه", "#reportsMonthlyTrend"],
+    ["المندوبون", "#representativeLeaderboard"],
+    ["أفضل 10", ".top10-grid"],
+    ["الأداء", "#representativePerformanceBody"]
+  ];
+
+  function scrollToTarget(selector) {
+    const target = view.querySelector(selector);
+    if (!target) return;
+    const panel = target.closest(".panel") || target;
+    panel.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  function closeFilters() {
+    view.classList.remove("mobile-reports-filters-open");
+    document.body.classList.remove("mobile-reports-sheet-open");
+    view.querySelector("[data-mobile-reports-filter]")?.setAttribute("aria-expanded", "false");
+  }
+
+  function syncPeriodSummary() {
+    const current = document.getElementById("executiveCurrentPeriod")?.textContent?.trim() || "—";
+    const target = document.getElementById("executiveTargetAchievement")?.textContent?.trim() || "0%";
+    const currentNode = view.querySelector("[data-mobile-report-period]");
+    const targetNode = view.querySelector("[data-mobile-report-target]");
+    if (currentNode) currentNode.textContent = current;
+    if (targetNode) targetNode.textContent = target;
+  }
+
+  function enhancePerformanceTable() {
+    if (!performanceBody || !MOBILE_MEDIA.matches) return;
+    [...performanceBody.rows].forEach(row => {
+      if (row.querySelector(".empty-state")) return;
+      [...row.cells].forEach((cell, index) => cell.dataset.mobileLabel = performanceLabels[index] || "");
+    });
+  }
+
+  function setLoading(active) {
+    view.classList.toggle("mobile-reports-loading", active);
+  }
+
+  function refreshReports() {
+    if (!MOBILE_MEDIA.matches) return;
+    setLoading(true);
+    document.getElementById("refreshReportsBtn")?.click();
+    window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(() => {
+      syncPeriodSummary();
+      enhancePerformanceTable();
+      setLoading(false);
+    }, 900);
+  }
+
+  function ensureToolbar() {
+    if (view.querySelector(".mobile-reports-toolbar")) return;
+    const toolbar = document.createElement("section");
+    toolbar.className = "mobile-reports-toolbar";
+    toolbar.innerHTML = `
+      <div class="mobile-reports-toolbar-copy">
+        <span>ملخص تنفيذي</span>
+        <strong>التقارير والتحليلات</strong>
+        <small><b data-mobile-report-period>—</b><i>تحقيق الهدف <b data-mobile-report-target>0%</b></i></small>
+      </div>
+      <div class="mobile-reports-toolbar-actions">
+        <button type="button" data-mobile-reports-refresh aria-label="تحديث التقارير">تحديث</button>
+        <button type="button" data-mobile-reports-filter aria-expanded="false">الفلاتر</button>
+        <button type="button" data-mobile-reports-export>تصدير</button>
+      </div>
+      <nav class="mobile-reports-jump-nav" aria-label="أقسام التقارير">
+        ${jumpTargets.map(([label, selector], index) => `<button type="button" data-mobile-report-jump="${selector}"${index === 0 ? ' class="active"' : ""}>${label}</button>`).join("")}
+      </nav>`;
+    view.prepend(toolbar);
+
+    toolbar.querySelector("[data-mobile-reports-refresh]")?.addEventListener("click", refreshReports);
+    toolbar.querySelector("[data-mobile-reports-export]")?.addEventListener("click", () => document.getElementById("openExportCenterBtn")?.click());
+    toolbar.querySelector("[data-mobile-reports-filter]")?.addEventListener("click", event => {
+      const open = !view.classList.contains("mobile-reports-filters-open");
+      view.classList.toggle("mobile-reports-filters-open", open);
+      document.body.classList.toggle("mobile-reports-sheet-open", open);
+      event.currentTarget.setAttribute("aria-expanded", String(open));
+    });
+    toolbar.querySelectorAll("[data-mobile-report-jump]").forEach(button => {
+      button.addEventListener("click", () => {
+        toolbar.querySelectorAll("[data-mobile-report-jump]").forEach(item => item.classList.toggle("active", item === button));
+        scrollToTarget(button.dataset.mobileReportJump);
+      });
+    });
+  }
+
+  function ensureFilterSheet() {
+    if (filters.classList.contains("mobile-reports-filter-sheet")) return;
+    filters.classList.add("mobile-reports-filter-sheet");
+    const header = document.createElement("div");
+    header.className = "mobile-reports-sheet-header";
+    header.innerHTML = `<div><strong>فلاتر التقارير</strong><small>حدد الفترة والمندوب والهدف</small></div><button type="button" aria-label="إغلاق">×</button>`;
+    filters.prepend(header);
+    header.querySelector("button")?.addEventListener("click", closeFilters);
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "mobile-reports-filter-backdrop";
+    backdrop.setAttribute("aria-label", "إغلاق الفلاتر");
+    backdrop.addEventListener("click", closeFilters);
+    view.append(backdrop);
+
+    document.getElementById("resetReportsFiltersBtn")?.addEventListener("click", () => window.setTimeout(syncPeriodSummary, 0));
+    filters.querySelectorAll("input, select").forEach(control => control.addEventListener("change", () => window.setTimeout(syncPeriodSummary, 0)));
+  }
+
+  function connectObserver() {
+    observer?.disconnect();
+    observer = new MutationObserver(() => {
+      syncPeriodSummary();
+      enhancePerformanceTable();
+    });
+    [
+      document.getElementById("executiveCurrentPeriod"),
+      document.getElementById("executiveTargetAchievement"),
+      performanceBody,
+      document.getElementById("reportsStatus")
+    ].filter(Boolean).forEach(node => observer.observe(node, { childList: true, subtree: true, characterData: true }));
+  }
+
+  function initialize() {
+    ensureToolbar();
+    ensureFilterSheet();
+    syncPeriodSummary();
+    enhancePerformanceTable();
+    connectObserver();
+  }
+
+  initialize();
+  MOBILE_MEDIA.addEventListener?.("change", initialize);
+})();

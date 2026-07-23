@@ -1036,3 +1036,175 @@
   #appHeader .theme-toggle-button,
   #appHeader .theme-toggle-button.is-visible{width:38px;height:38px;min-width:38px;flex-basis:38px}
 }
+
+/* KYUM Company CRM Mobile Enterprise — Phase M8 Mobile Reports */
+@media (max-width: 767px){
+  body.mobile-reports-sheet-open{overflow:hidden}
+
+  #reportsOverviewView{display:block;min-width:0}
+  #reportsOverviewView.hidden{display:none}
+  #reportsOverviewView>.reports-header-row,
+  #reportsOverviewView>.reports-filter-bar{margin-top:0}
+
+  #reportsOverviewView>.reports-header-row{display:none}
+
+  #reportsOverviewView .mobile-reports-toolbar{
+    display:grid;
+    gap:12px;
+    margin:0 0 12px;
+    padding:15px;
+    border:1px solid var(--border-color,rgba(148,163,184,.24));
+    border-radius:20px;
+    background:var(--surface,#fff);
+    box-shadow:0 8px 24px rgba(15,23,42,.06)
+  }
+  #reportsOverviewView .mobile-reports-toolbar-copy>span{display:block;color:var(--muted-text,#64748b);font-size:11px;font-weight:800}
+  #reportsOverviewView .mobile-reports-toolbar-copy>strong{display:block;margin-top:2px;font-size:21px;line-height:1.3}
+  #reportsOverviewView .mobile-reports-toolbar-copy>small{display:flex;flex-wrap:wrap;gap:7px 12px;margin-top:8px;color:var(--muted-text,#64748b);font-size:11px}
+  #reportsOverviewView .mobile-reports-toolbar-copy>small b{color:inherit}
+  #reportsOverviewView .mobile-reports-toolbar-copy>small i{font-style:normal}
+  #reportsOverviewView .mobile-reports-toolbar-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  #reportsOverviewView .mobile-reports-toolbar-actions button{
+    min-height:43px;
+    border:1px solid var(--border-color,rgba(148,163,184,.28));
+    border-radius:13px;
+    background:color-mix(in srgb,var(--surface,#fff) 88%,var(--primary,#6366f1) 12%);
+    color:inherit;
+    font:inherit;
+    font-size:12px;
+    font-weight:800
+  }
+  #reportsOverviewView .mobile-reports-jump-nav{display:flex;gap:7px;margin-inline:-3px;padding:2px 3px 3px;overflow-x:auto;scrollbar-width:none}
+  #reportsOverviewView .mobile-reports-jump-nav::-webkit-scrollbar{display:none}
+  #reportsOverviewView .mobile-reports-jump-nav button{
+    flex:0 0 auto;
+    min-height:36px;
+    padding:7px 12px;
+    border:1px solid var(--border-color,rgba(148,163,184,.25));
+    border-radius:999px;
+    background:transparent;
+    color:var(--muted-text,#64748b);
+    font:inherit;
+    font-size:11px;
+    font-weight:800
+  }
+  #reportsOverviewView .mobile-reports-jump-nav button.active{border-color:var(--primary,#6366f1);background:color-mix(in srgb,var(--primary,#6366f1) 14%,transparent);color:var(--primary,#6366f1)}
+
+  #reportsOverviewView .mobile-reports-filter-sheet{
+    position:fixed;
+    inset-inline:0;
+    bottom:0;
+    z-index:1101;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+    max-height:min(78dvh,620px);
+    margin:0;
+    padding:16px 16px calc(18px + env(safe-area-inset-bottom));
+    overflow-y:auto;
+    border:0;
+    border-radius:24px 24px 0 0;
+    background:var(--surface,#fff);
+    box-shadow:0 -20px 50px rgba(15,23,42,.25);
+    transform:translateY(110%);
+    transition:transform .24s ease
+  }
+  #reportsOverviewView.mobile-reports-filters-open .mobile-reports-filter-sheet{transform:translateY(0)}
+  #reportsOverviewView .mobile-reports-filter-sheet label{display:grid;gap:6px;font-size:12px;font-weight:700}
+  #reportsOverviewView .mobile-reports-filter-sheet input,
+  #reportsOverviewView .mobile-reports-filter-sheet select,
+  #reportsOverviewView .mobile-reports-filter-sheet>button{width:100%;min-height:46px}
+  #reportsOverviewView .mobile-reports-sheet-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+  #reportsOverviewView .mobile-reports-sheet-header strong,
+  #reportsOverviewView .mobile-reports-sheet-header small{display:block}
+  #reportsOverviewView .mobile-reports-sheet-header small{margin-top:2px;color:var(--muted-text,#64748b);font-size:11px}
+  #reportsOverviewView .mobile-reports-sheet-header button{width:42px;height:42px;border:0;border-radius:13px;background:rgba(148,163,184,.16);color:inherit;font-size:25px}
+  #reportsOverviewView .mobile-reports-filter-backdrop{position:fixed;inset:0;z-index:1100;display:none;border:0;background:rgba(2,6,23,.56)}
+  #reportsOverviewView.mobile-reports-filters-open .mobile-reports-filter-backdrop{display:block}
+
+  #reportsOverviewView .executive-period-summary{grid-template-columns:1fr;gap:8px;margin:0 0 12px}
+  #reportsOverviewView .executive-period-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:11px 13px;border-radius:15px}
+
+  #reportsOverviewView .reports-kpi-grid,
+  #reportsOverviewView .executive-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #reportsOverviewView .executive-kpi-card{min-height:128px;padding:14px;border-radius:18px}
+  #reportsOverviewView .executive-kpi-card .kpi-card-head{align-items:flex-start;gap:6px}
+  #reportsOverviewView .executive-kpi-card .kpi-card-head span{font-size:11px;line-height:1.45}
+  #reportsOverviewView .executive-kpi-card .kpi-delta{font-size:9px}
+  #reportsOverviewView .executive-kpi-card>strong{font-size:24px;overflow-wrap:anywhere}
+  #reportsOverviewView .executive-kpi-card>small{font-size:10px;line-height:1.45}
+
+  #reportsOverviewView .reports-dashboard-grid,
+  #reportsOverviewView .reports-dashboard-grid.analytics-grid,
+  #reportsOverviewView .representative-dashboard-grid,
+  #reportsOverviewView .top10-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  #reportsOverviewView .panel{min-width:0;padding:14px;border-radius:18px;scroll-margin-top:82px}
+  #reportsOverviewView .panel-header{align-items:flex-start;gap:8px}
+  #reportsOverviewView .panel-header h3{font-size:16px;line-height:1.4}
+  #reportsOverviewView .panel-header p{font-size:10px;line-height:1.55}
+
+  #reportsOverviewView .analytics-tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  #reportsOverviewView .analytics-tabs::-webkit-scrollbar{display:none}
+  #reportsOverviewView .analytics-tab{flex:0 0 auto;min-height:38px;padding:8px 12px;border-radius:12px;font-size:11px}
+
+  #reportsOverviewView .quotation-value-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #reportsOverviewView .quotation-value-kpis article{min-height:84px;padding:11px;border-radius:14px}
+  #reportsOverviewView .quotation-value-kpis span{font-size:10px}
+  #reportsOverviewView .quotation-value-kpis strong{font-size:15px;overflow-wrap:anywhere}
+
+  #reportsOverviewView .reports-funnel,
+  #reportsOverviewView .report-status-breakdown,
+  #reportsOverviewView .analytics-breakdown,
+  #reportsOverviewView .top-customer-list,
+  #reportsOverviewView .customer-action-list,
+  #reportsOverviewView .followup-report-summary,
+  #reportsOverviewView .representative-leaderboard,
+  #reportsOverviewView .representative-comparison,
+  #reportsOverviewView .top10-list{min-width:0;overflow-wrap:anywhere}
+
+  #reportsOverviewView .reports-monthly-trend,
+  #reportsOverviewView .reports-yearly-trend{min-width:560px}
+  #reportsOverviewView .panel:has(.reports-monthly-trend),
+  #reportsOverviewView .trend-12m-panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #reportsOverviewView .trend-legend{position:sticky;inset-inline-start:0;width:max-content;min-width:100%;gap:10px;font-size:10px}
+
+  #reportsOverviewView .table-wrap{overflow:visible}
+  #reportsOverviewView .table-wrap table,
+  #reportsOverviewView .table-wrap tbody,
+  #reportsOverviewView .table-wrap tr,
+  #reportsOverviewView .table-wrap td{display:block;width:100%}
+  #reportsOverviewView .table-wrap thead{display:none}
+  #reportsOverviewView #representativePerformanceBody{display:grid;gap:10px}
+  #reportsOverviewView #representativePerformanceBody tr{padding:14px;border:1px solid var(--border-color,rgba(148,163,184,.24));border-radius:16px;background:color-mix(in srgb,var(--surface,#fff) 94%,var(--primary,#6366f1) 6%)}
+  #reportsOverviewView #representativePerformanceBody td{display:grid;grid-template-columns:minmax(92px,38%) 1fr;gap:8px;padding:6px 0;border:0;text-align:start;overflow-wrap:anywhere}
+  #reportsOverviewView #representativePerformanceBody td::before{content:attr(data-mobile-label);color:var(--muted-text,#64748b);font-size:10px;font-weight:800}
+  #reportsOverviewView #representativePerformanceBody td:first-child{grid-template-columns:1fr;padding:0 0 10px;margin-bottom:4px;border-bottom:1px solid var(--border-color,rgba(148,163,184,.18));font-size:15px;font-weight:800}
+  #reportsOverviewView #representativePerformanceBody td:first-child::before{display:none}
+  #reportsOverviewView #representativePerformanceBody td.empty-state{display:block;text-align:center}
+  #reportsOverviewView #representativePerformanceBody td.empty-state::before{display:none}
+
+  #reportsExportDialog{width:min(100% - 14px,620px);max-height:calc(100dvh - 18px);border-radius:22px}
+  #reportsExportDialog form{max-height:calc(100dvh - 18px);overflow-y:auto}
+  #reportsExportDialog .dialog-header{position:sticky;top:0;z-index:2;padding-bottom:10px;background:var(--surface,#fff)}
+  #reportsExportDialog .export-center-grid{grid-template-columns:1fr;gap:10px}
+  #reportsExportDialog .dialog-actions{position:sticky;bottom:0;padding-top:10px;background:var(--surface,#fff)}
+
+  #reportsOverviewView.mobile-reports-loading .reports-kpi-grid,
+  #reportsOverviewView.mobile-reports-loading .reports-dashboard-grid,
+  #reportsOverviewView.mobile-reports-loading>.panel{opacity:.52;pointer-events:none}
+  #reportsOverviewView.mobile-reports-loading .mobile-reports-toolbar{position:relative;overflow:hidden}
+  #reportsOverviewView.mobile-reports-loading .mobile-reports-toolbar::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.18) 45%,transparent 70%);animation:mobileReportsShimmer 1s linear infinite}
+}
+
+@media (max-width: 390px){
+  #reportsOverviewView .mobile-reports-toolbar-actions{grid-template-columns:1fr 1fr}
+  #reportsOverviewView .mobile-reports-toolbar-actions button:last-child{grid-column:1/-1}
+}
+
+@media (max-width: 340px){
+  #reportsOverviewView .reports-kpi-grid,
+  #reportsOverviewView .executive-kpi-grid,
+  #reportsOverviewView .quotation-value-kpis{grid-template-columns:1fr}
+}
+
+@keyframes mobileReportsShimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
