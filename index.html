@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.3.0" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.3.1" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=M7.3" />
 </head>
 <body>
@@ -120,6 +120,7 @@
             <button class="nav-item privacy-nav-item" data-view="backups">النسخ الاحتياطي</button>
             <button class="nav-item privacy-nav-item" data-view="systemHealth">مراقبة النظام</button>
             <button class="nav-item privacy-nav-item" data-view="systemSettings">إعدادات النظام</button>
+            <button class="nav-item privacy-nav-item" data-view="aboutApp">حول التطبيق</button>
           </div>
         </section>
       </nav>
@@ -1834,6 +1835,53 @@
         </form>
       </section>
 
+      <section id="aboutAppView" class="view-section hidden" aria-hidden="true">
+        <div class="actions-row about-app-heading">
+          <div>
+            <h3 class="section-title">حول التطبيق</h3>
+            <p class="section-note">معلومات إصدار KYUM Company CRM وحالة التحديثات.</p>
+          </div>
+          <button id="aboutCheckUpdatesBtn" class="primary-btn" type="button">التحقق من وجود تحديثات</button>
+        </div>
+
+        <div class="about-app-grid">
+          <article class="panel about-app-identity">
+            <img src="assets/images/apple-touch-icon.png" alt="" class="about-app-logo">
+            <div>
+              <h3>KYUM Company CRM</h3>
+              <p>Enterprise Edition</p>
+              <span id="aboutEnvironmentBadge" class="about-status-badge is-success">Production</span>
+            </div>
+          </article>
+
+          <article class="panel about-version-panel">
+            <div class="about-version-row"><span>الإصدار الحالي</span><strong id="aboutCurrentVersion">—</strong></div>
+            <div class="about-version-row"><span>رقم البناء</span><strong id="aboutCurrentBuild">—</strong></div>
+            <div class="about-version-row"><span>تاريخ الإصدار</span><strong id="aboutReleaseDate">—</strong></div>
+            <div class="about-version-row"><span>آخر فحص للتحديثات</span><strong id="aboutLastUpdateCheck">لم يتم الفحص بعد</strong></div>
+          </article>
+
+          <article class="panel about-update-panel">
+            <div class="about-update-status-line">
+              <span id="aboutUpdateStatusBadge" class="about-status-badge">جارٍ التحقق...</span>
+              <strong id="aboutUpdateHeadline">حالة التحديث</strong>
+            </div>
+            <p id="aboutUpdateMessage">يتم فحص أحدث إصدار منشور على الخادم.</p>
+            <div id="aboutLatestVersionBlock" class="about-latest-version hidden">
+              <span>الإصدار الجديد</span>
+              <strong id="aboutLatestVersion">—</strong>
+              <ul id="aboutReleaseNotes" class="about-release-notes"></ul>
+            </div>
+            <div class="about-app-actions">
+              <button id="aboutUpdateNowBtn" class="primary-btn hidden" type="button">تحديث الآن</button>
+              <button id="aboutClearCacheBtn" class="secondary-btn" type="button">مسح الكاش وإعادة التحميل</button>
+              <button id="aboutCopyVersionBtn" class="secondary-btn" type="button">نسخ معلومات الإصدار</button>
+            </div>
+            <p id="aboutActionStatus" class="data-status hidden" role="status"></p>
+          </article>
+        </div>
+      </section>
+
     </main>
     <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="التنقل السريع على الهاتف">
       <button class="mobile-nav-item is-active" type="button" data-mobile-view="dashboard" aria-label="الرئيسية">
@@ -2471,7 +2519,7 @@
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
   <script src="assets/js/app.js?v=M7.3.2"></script>
   <script src="assets/js/mobile.js?v=M7.3.2"></script>
-  <script src="assets/js/pwa.js?v=18.3.0"></script>
+  <script src="assets/js/pwa.js?v=18.3.1"></script>
   <script src="assets/js/native.js?v=M7.3"></script>
 </body>
 </html>

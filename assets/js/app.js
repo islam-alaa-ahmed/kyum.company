@@ -196,7 +196,8 @@ const views = {
   systemHealth: document.getElementById("systemHealthView"),
   reportsOverview: document.getElementById("reportsOverviewView"),
   dailyPerformanceReport: document.getElementById("dailyPerformanceReportView"),
-  systemSettings: document.getElementById("systemSettingsView")
+  systemSettings: document.getElementById("systemSettingsView"),
+  aboutApp: document.getElementById("aboutAppView")
 };
 
 const pageMeta = {
@@ -214,7 +215,8 @@ const pageMeta = {
   systemHealth: ["مراقبة النظام", "الحالة الصحية والأمان والأداء التشغيلي"],
   reportsOverview: ["مركز التقارير", "تحليلات العملاء والمتابعات والعروض وأداء المندوبين"],
   dailyPerformanceReport: ["تقرير الأداء اليومي", "متابعة تنفيذ المهام والنشاط اليومي للموظفين"],
-  systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"]
+  systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"],
+  aboutApp: ["حول التطبيق", "معلومات الإصدار وحالة التحديثات"]
 };
 
 function loadCustomers() {
@@ -763,6 +765,11 @@ function switchView(requestedName, options = {}) {
   });
   document.querySelectorAll(".nav-item").forEach(btn => btn.classList.toggle("active", btn.dataset.view === name));
 
+
+  if (name === "aboutApp") {
+    initializeAboutAppCenter();
+    renderAboutAppCenter();
+  }
 
   if (name === "dailyOperations") {
     loadDailyOperations(false);
@@ -5690,6 +5697,144 @@ function applyKyumTheme(theme, persist = true) {
   }
 }
 
+function formatAboutDate(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+function setAboutActionStatus(message, isError = false) {
+  const status = document.getElementById("aboutActionStatus");
+  if (!status) return;
+  status.textContent = message || "";
+  status.classList.toggle("hidden", !message);
+  status.classList.toggle("error", Boolean(isError));
+}
+
+function renderAboutAppCenter() {
+  const api = window.KYUM_UPDATE;
+  if (!api) return;
+  const state = api.getStatus?.() || {};
+  const manifest = state.manifest || {};
+  const release = state.latestRelease || null;
+  const currentVersion = api.currentVersion || window.KYUM_RELEASE_VERSION || "—";
+  const currentBuild = manifest.build || window.KYUM_RELEASE_BUILD || "—";
+
+  const setText = (id, value) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = value;
+  };
+  setText("aboutCurrentVersion", `v${currentVersion}`);
+  setText("aboutCurrentBuild", currentBuild);
+  setText("aboutReleaseDate", manifest.releaseDate || "—");
+  setText("aboutLastUpdateCheck", state.lastCheckedAt ? formatAboutDate(state.lastCheckedAt) : "لم يتم الفحص بعد");
+
+  const badge = document.getElementById("aboutUpdateStatusBadge");
+  const headline = document.getElementById("aboutUpdateHeadline");
+  const message = document.getElementById("aboutUpdateMessage");
+  const latestBlock = document.getElementById("aboutLatestVersionBlock");
+  const latestVersion = document.getElementById("aboutLatestVersion");
+  const notes = document.getElementById("aboutReleaseNotes");
+  const updateButton = document.getElementById("aboutUpdateNowBtn");
+  if (!badge || !headline || !message || !latestBlock || !latestVersion || !notes || !updateButton) return;
+
+  badge.className = "about-status-badge";
+  if (state.checking) {
+    badge.textContent = "جارٍ الفحص";
+    badge.classList.add("is-pending");
+    headline.textContent = "يتم التحقق من الإصدار";
+    message.textContent = "جارٍ الاتصال بخادم التحديثات...";
+  } else if (state.lastError) {
+    badge.textContent = "تعذر الفحص";
+    badge.classList.add("is-error");
+    headline.textContent = "تعذر التحقق من التحديثات";
+    message.textContent = "تحقق من اتصال الإنترنت ثم أعد المحاولة.";
+  } else if (release) {
+    badge.textContent = release.forceUpdate ? "تحديث إلزامي" : "تحديث متاح";
+    badge.classList.add("is-warning");
+    headline.textContent = `يوجد إصدار أحدث v${release.version}`;
+    message.textContent = "اضغط تحديث الآن لتنشيط آخر تطويرات البرنامج.";
+  } else {
+    badge.textContent = "محدّث";
+    badge.classList.add("is-success");
+    headline.textContent = "لديك أحدث إصدار";
+    message.textContent = "نسخة البرنامج الحالية هي أحدث نسخة منشورة.";
+  }
+
+  latestBlock.classList.toggle("hidden", !release);
+  updateButton.classList.toggle("hidden", !release);
+  if (release) {
+    latestVersion.textContent = `v${release.version}`;
+    notes.replaceChildren(...(Array.isArray(release.notes) ? release.notes : []).map(note => {
+      const item = document.createElement("li");
+      item.textContent = note;
+      return item;
+    }));
+  } else {
+    notes.replaceChildren();
+  }
+}
+
+function initializeAboutAppCenter() {
+  const view = document.getElementById("aboutAppView");
+  if (!view || view.dataset.initialized === "true") return;
+  view.dataset.initialized = "true";
+
+  document.getElementById("aboutCheckUpdatesBtn")?.addEventListener("click", async event => {
+    event.currentTarget.disabled = true;
+    setAboutActionStatus("جارٍ التحقق من وجود تحديثات...");
+    try {
+      const result = await window.KYUM_UPDATE?.checkDetailed?.();
+      setAboutActionStatus(result?.latestRelease ? `يوجد إصدار أحدث v${result.latestRelease.version}.` : "لديك أحدث إصدار من البرنامج.");
+    } catch (error) {
+      console.error("Manual update check failed", error);
+      setAboutActionStatus("تعذر التحقق من التحديثات. تحقق من الاتصال ثم أعد المحاولة.", true);
+    } finally {
+      event.currentTarget.disabled = false;
+      renderAboutAppCenter();
+    }
+  });
+
+  document.getElementById("aboutUpdateNowBtn")?.addEventListener("click", () => {
+    const release = window.KYUM_UPDATE?.getStatus?.().latestRelease;
+    if (release) window.KYUM_UPDATE?.updateNow?.(release);
+  });
+
+  document.getElementById("aboutClearCacheBtn")?.addEventListener("click", async event => {
+    event.currentTarget.disabled = true;
+    setAboutActionStatus("جارٍ مسح الكاش وإعادة تحميل التطبيق...");
+    try {
+      await window.KYUM_UPDATE?.clearCaches?.();
+      window.setTimeout(() => window.KYUM_UPDATE?.reload?.(), 250);
+    } catch (error) {
+      console.error("Cache clear failed", error);
+      setAboutActionStatus("تعذر مسح الكاش.", true);
+      event.currentTarget.disabled = false;
+    }
+  });
+
+  document.getElementById("aboutCopyVersionBtn")?.addEventListener("click", async () => {
+    const state = window.KYUM_UPDATE?.getStatus?.() || {};
+    const manifest = state.manifest || {};
+    const text = [
+      "KYUM Company CRM — Enterprise Edition",
+      `Version: ${window.KYUM_UPDATE?.currentVersion || "—"}`,
+      `Build: ${manifest.build || "—"}`,
+      `Environment: Production`,
+      `URL: ${location.href}`
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setAboutActionStatus("تم نسخ معلومات الإصدار.");
+    } catch {
+      setAboutActionStatus("تعذر نسخ معلومات الإصدار.", true);
+    }
+  });
+
+  window.addEventListener("kyum-update-state", renderAboutAppCenter);
+}
+
 function initializeKyumThemeToggle() {
   const button = document.getElementById("themeToggleButton");
   if (!button || button.dataset.initialized === "true") return;
@@ -5801,51 +5946,55 @@ function openSidebarView(button) {
   return true;
 }
 
-// Phase M7.3.4 — canonical sidebar navigation.
-// A single listener is attached to the sidebar itself so navigation does not
-// depend on synthetic click delivery to an individual first-row button.
-// This also survives launcher movement and mobile drawer animations.
-function initializeCanonicalSidebarNavigation() {
-  const sidebar = document.getElementById("mainSidebar");
-  if (!sidebar || sidebar.dataset.canonicalNavigationBound === "true") return;
+// Phase M7.3.2 — dedicated Daily Operations navigation binding.
+// The first root item is handled directly because the mobile drawer can consume
+// its synthesized click after a touch. Pointer-up performs the transition before
+// any drawer state mutation; the following click is suppressed as a duplicate.
+function initializeDailyOperationsNavigation() {
+  const button = document.getElementById("dailyOperationsNavButton")
+    || document.querySelector('.nav-item[data-view="dailyOperations"]');
+  if (!button || button.dataset.dailyNavigationBound === "true") return;
 
-  sidebar.dataset.canonicalNavigationBound = "true";
+  button.dataset.dailyNavigationBound = "true";
   let lastPointerNavigationAt = 0;
 
-  const navigateFromEvent = event => {
-    const button = event.target.closest?.(".nav-item[data-view]");
-    if (!button || !sidebar.contains(button)) return;
-
+  const navigate = event => {
     if (event.type === "click" && performance.now() - lastPointerNavigationAt < 700) {
       event.preventDefault();
+      event.stopImmediatePropagation();
       return;
     }
 
-    const viewKey = String(button.dataset.view || "").trim();
-    if (!viewKey || !views[viewKey]) return;
-
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
 
-    const opened = switchView(viewKey, {
-      trustedNavigation: viewKey === "dailyOperations"
-    });
+    const opened = switchView("dailyOperations", { trustedNavigation: true });
     if (!opened) return;
 
     setSidebarOpen(false);
     document.getElementById("mobileBottomMenu")?.classList.remove("is-active");
   };
 
-  sidebar.addEventListener("pointerup", event => {
+  button.addEventListener("pointerup", event => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     lastPointerNavigationAt = performance.now();
-    navigateFromEvent(event);
+    navigate(event);
   }, { capture: true });
 
-  sidebar.addEventListener("click", navigateFromEvent);
+  button.addEventListener("click", navigate, { capture: true });
 }
 
-initializeCanonicalSidebarNavigation();
+initializeDailyOperationsNavigation();
+
+// One bubbling handler owns all remaining sidebar destinations.
+document.addEventListener("click", event => {
+  const button = event.target.closest?.(".nav-item[data-view]");
+  if (!button || button.dataset.view === "dailyOperations") return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  openSidebarView(button);
+});
 
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
 

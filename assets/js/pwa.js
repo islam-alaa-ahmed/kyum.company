@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const CURRENT_VERSION = "18.3.0";
+  const CURRENT_VERSION = "18.3.1";
   const VERSION_ENDPOINT = "./version.json";
   const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
   const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
@@ -9,6 +9,17 @@
   let deferredPrompt = null;
   let serviceWorkerRegistration = null;
   let updateInProgress = false;
+  const updateState = {
+    checking: false,
+    lastCheckedAt: null,
+    lastError: null,
+    latestRelease: null,
+    manifest: null
+  };
+
+  function emitUpdateState() {
+    window.dispatchEvent(new CustomEvent("kyum-update-state", { detail: { ...updateState } }));
+  }
 
   window.KYUM_RELEASE_VERSION = CURRENT_VERSION;
 
@@ -134,21 +145,39 @@
       headers: { "Cache-Control": "no-cache" }
     });
     if (!response.ok) throw new Error(`Version request failed: ${response.status}`);
-    return response.json();
+    const manifest = await response.json();
+    updateState.manifest = manifest;
+    window.KYUM_RELEASE_BUILD = manifest.build || null;
+    return manifest;
   }
 
-  async function checkForUpdate({ silent = true } = {}) {
-    if (isNative || location.protocol === "file:" || !navigator.onLine) return null;
+  async function checkForUpdate({ silent = true, showDialog = true } = {}) {
+    if (isNative || location.protocol === "file:") return null;
+    updateState.checking = true;
+    updateState.lastError = null;
+    emitUpdateState();
+    if (!navigator.onLine) {
+      updateState.checking = false;
+      updateState.lastCheckedAt = new Date().toISOString();
+      updateState.lastError = "offline";
+      emitUpdateState();
+      return null;
+    }
     try {
       const release = await fetchLatestRelease();
-      if (release?.version && compareVersions(release.version, CURRENT_VERSION) > 0) {
-        showUpdateDialog(release);
-        return release;
-      }
-      return null;
+      updateState.lastCheckedAt = new Date().toISOString();
+      updateState.latestRelease = release?.version && compareVersions(release.version, CURRENT_VERSION) > 0 ? release : null;
+      if (updateState.latestRelease && showDialog) showUpdateDialog(updateState.latestRelease);
+      return updateState.latestRelease;
     } catch (error) {
+      updateState.lastCheckedAt = new Date().toISOString();
+      updateState.lastError = error?.message || "update_check_failed";
+      updateState.latestRelease = null;
       if (!silent) console.warn("KYUM update check failed", error);
       return null;
+    } finally {
+      updateState.checking = false;
+      emitUpdateState();
     }
   }
 
@@ -215,7 +244,17 @@
 
   window.KYUM_UPDATE = Object.freeze({
     currentVersion: CURRENT_VERSION,
-    check: () => checkForUpdate({ silent: false })
+    check: () => checkForUpdate({ silent: false }),
+    checkDetailed: async () => {
+      await checkForUpdate({ silent: false, showDialog: false });
+      return { ...updateState };
+    },
+    getStatus: () => ({ ...updateState }),
+    updateNow: release => {
+      if (release) showUpdateDialog(release);
+    },
+    clearCaches: clearApplicationCaches,
+    reload: reloadWithCacheBuster
   });
 
   window.addEventListener("beforeinstallprompt", event => {

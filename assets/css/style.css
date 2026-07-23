@@ -9546,3 +9546,41 @@ html[data-theme="light"] .kyum-update-status { color: #08796d; }
   .kyum-update-dialog { width: calc(100vw - 28px); }
   .kyum-update-shell { padding: 24px 18px 18px; border-radius: 24px; }
 }
+
+
+/* Phase M8.1 — Enterprise App Center */
+.about-app-heading { align-items: center; }
+.about-app-grid { display: grid; grid-template-columns: minmax(240px, .75fr) minmax(300px, 1fr); gap: 18px; }
+.about-app-identity { display: flex; align-items: center; gap: 18px; min-height: 170px; }
+.about-app-logo { width: 84px; height: 84px; border-radius: 24px; object-fit: cover; box-shadow: 0 16px 36px rgba(15,23,42,.18); }
+.about-app-identity h3 { margin: 0 0 6px; font-size: 1.35rem; }
+.about-app-identity p { margin: 0 0 14px; color: var(--muted, #64748b); }
+.about-version-panel { display: grid; align-content: center; gap: 0; }
+.about-version-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 13px 0; border-bottom: 1px solid rgba(148,163,184,.22); }
+.about-version-row:last-child { border-bottom: 0; }
+.about-version-row span { color: var(--muted, #64748b); }
+.about-version-row strong { direction: ltr; text-align: left; }
+.about-update-panel { grid-column: 1 / -1; }
+.about-update-status-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.about-status-badge { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 5px 12px; border-radius: 999px; background: rgba(100,116,139,.13); color: #475569; font-weight: 800; font-size: .82rem; }
+.about-status-badge.is-success { background: rgba(22,163,74,.14); color: #15803d; }
+.about-status-badge.is-warning { background: rgba(245,158,11,.16); color: #b45309; }
+.about-status-badge.is-error { background: rgba(220,38,38,.14); color: #b91c1c; }
+.about-status-badge.is-pending { background: rgba(37,99,235,.14); color: #1d4ed8; }
+.about-latest-version { margin-top: 18px; padding: 16px; border: 1px solid rgba(59,130,246,.22); border-radius: 16px; background: rgba(59,130,246,.06); }
+.about-latest-version > span { color: var(--muted, #64748b); margin-inline-end: 8px; }
+.about-latest-version > strong { font-size: 1.15rem; direction: ltr; }
+.about-release-notes { margin: 12px 0 0; padding-inline-start: 22px; }
+.about-release-notes li + li { margin-top: 6px; }
+.about-app-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+@media (max-width: 760px) {
+  .about-app-heading { align-items: stretch; }
+  .about-app-heading > button { width: 100%; }
+  .about-app-grid { grid-template-columns: 1fr; }
+  .about-update-panel { grid-column: auto; }
+  .about-app-identity { min-height: auto; }
+  .about-app-logo { width: 68px; height: 68px; border-radius: 20px; }
+  .about-version-row { align-items: flex-start; }
+  .about-app-actions { display: grid; grid-template-columns: 1fr; }
+  .about-app-actions button { width: 100%; }
+}

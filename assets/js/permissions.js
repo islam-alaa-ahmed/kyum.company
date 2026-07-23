@@ -73,6 +73,7 @@ window.CustomerPermissions = {
   canScreen(screenKey, action = "view") {
     screenKey = this.normalizeScreenKey(screenKey);
     if (!screenKey) return false;
+    if (screenKey === "aboutApp" && action === "view") return true;
     const role = this.currentRole();
     if (role === "super_admin") return true;
     if (!this.permissionsLoaded) return false;
@@ -138,8 +139,7 @@ window.CustomerPermissions = {
       button.classList.toggle("hidden", !allowed);
       button.setAttribute("aria-hidden", String(!allowed));
       button.setAttribute("tabindex", allowed ? "0" : "-1");
-      button.setAttribute("aria-disabled", String(!allowed));
-      if ("disabled" in button) button.disabled = !allowed;
+      button.disabled = !allowed;
     });
     document.querySelectorAll(".nav-group").forEach(group => {
       const visible = [...group.querySelectorAll(".nav-item[data-view]")].some(item => !item.classList.contains("hidden"));
