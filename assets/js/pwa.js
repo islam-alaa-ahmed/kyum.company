@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const CURRENT_VERSION = "18.3.1";
+  const CURRENT_VERSION = "18.3.3";
   const VERSION_ENDPOINT = "./version.json";
   const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
   const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
@@ -187,10 +187,25 @@
     await Promise.all(keys.filter(key => key.startsWith("kyum-crm-")).map(key => caches.delete(key)));
   }
 
-  function reloadWithCacheBuster() {
+  function reloadWithCacheBuster(targetVersion = "") {
     const url = new URL(location.href);
     url.searchParams.set("updated", Date.now().toString());
+    if (targetVersion) url.searchParams.set("release", targetVersion);
     location.replace(url.toString());
+  }
+
+  function withTimeout(promise, timeoutMs = 5000) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => window.setTimeout(() => reject(new Error("update_timeout")), timeoutMs))
+    ]);
+  }
+
+  async function unregisterServiceWorkers() {
+    if (!("serviceWorker" in navigator)) return;
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(registration => registration.unregister().catch(() => false)));
+    serviceWorkerRegistration = null;
   }
 
   async function activateLatestVersion(dialog) {
@@ -203,21 +218,23 @@
     status.textContent = "جارٍ تنزيل التحديث وتفعيله...";
 
     try {
-      await clearApplicationCaches();
-      if (serviceWorkerRegistration) {
-        await serviceWorkerRegistration.update();
-        const waitingWorker = serviceWorkerRegistration.waiting;
-        if (waitingWorker) {
-          const controllerChanged = new Promise(resolve => {
-            navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
-            window.setTimeout(resolve, 2500);
-          });
-          waitingWorker.postMessage({ type: "SKIP_WAITING" });
-          await controllerChanged;
-        }
-      }
-      status.textContent = "تم التحديث. جارٍ إعادة تشغيل التطبيق...";
-      window.setTimeout(reloadWithCacheBuster, 350);
+      const targetVersion = updateState.latestRelease?.version || updateState.manifest?.version || "";
+      status.textContent = "جارٍ إزالة النسخة المخزنة...";
+
+      // A hard reset is required on iOS standalone PWAs because an already active
+      // service worker may keep serving the previous JavaScript bundle even after
+      // registration.update() succeeds.
+      await withTimeout(clearApplicationCaches(), 5000).catch(() => undefined);
+      await withTimeout(unregisterServiceWorkers(), 5000).catch(() => undefined);
+      await withTimeout(clearApplicationCaches(), 5000).catch(() => undefined);
+
+      try {
+        localStorage.setItem("kyumExpectedRelease", targetVersion);
+        localStorage.setItem("kyumUpdateRequestedAt", new Date().toISOString());
+      } catch (_) {}
+
+      status.textContent = "تم تنزيل التحديث. جارٍ إعادة تشغيل التطبيق...";
+      window.setTimeout(() => reloadWithCacheBuster(targetVersion), 250);
     } catch (error) {
       console.error("KYUM update activation failed", error);
       status.textContent = "تعذر إكمال التحديث. تحقق من الاتصال ثم حاول مرة أخرى.";
