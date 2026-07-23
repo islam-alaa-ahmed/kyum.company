@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.3.1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.3.2" />
   <link rel="stylesheet" href="assets/css/mobile.css?v=M7.3" />
 </head>
 <body>
@@ -69,13 +69,18 @@
       <div id="sidebarLauncherHost" class="sidebar-brand sidebar-launcher-host"></div>
 
       <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
-        <button id="dailyOperationsNavButton" class="nav-item nav-root-item" data-view="dailyOperations" type="button">
-          <span>إدارة المهام اليومية</span>
-        </button>
-
-        <button class="nav-item nav-root-item active" data-view="dashboard">
-          <span>لوحة التحكم</span>
-        </button>
+        <section class="nav-group main-nav-group" data-nav-group="main-navigation" data-default-open="true">
+          <button class="nav-group-toggle" type="button" aria-expanded="true">
+            <span>الرئيسية</span>
+            <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="nav-group-content">
+            <button class="nav-item active" data-view="dashboard" type="button">لوحة التحكم</button>
+            <button id="dailyOperationsNavButton" class="nav-item" data-view="dailyOperations" type="button">إدارة المهام اليومية</button>
+          </div>
+        </section>
 
         <section class="nav-group is-collapsed" data-nav-group="customer-management">
           <button class="nav-group-toggle" type="button" aria-expanded="false">
@@ -2519,7 +2524,7 @@
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
   <script src="assets/js/app.js?v=M7.3.2"></script>
   <script src="assets/js/mobile.js?v=M7.3.2"></script>
-  <script src="assets/js/pwa.js?v=18.3.1"></script>
+  <script src="assets/js/pwa.js?v=18.3.2"></script>
   <script src="assets/js/native.js?v=M7.3"></script>
 </body>
 </html>

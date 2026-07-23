@@ -5520,12 +5520,27 @@ function collapseAllSidebarGroups() {
 function initializeSidebarGroups() {
   collapseAllSidebarGroups();
 
-  document.querySelectorAll(".nav-group").forEach(group => {
+  const groups = Array.from(document.querySelectorAll(".nav-group"));
+  const defaultGroup = groups.find(group => group.dataset.defaultOpen === "true");
+  if (defaultGroup) {
+    defaultGroup.classList.remove("is-collapsed");
+    defaultGroup.querySelector(".nav-group-toggle")?.setAttribute("aria-expanded", "true");
+  }
+
+  groups.forEach(group => {
     const toggle = group.querySelector(".nav-group-toggle");
     toggle?.addEventListener("click", event => {
       event.stopPropagation();
-      const collapsed = group.classList.toggle("is-collapsed");
-      toggle.setAttribute("aria-expanded", String(!collapsed));
+      const willOpen = group.classList.contains("is-collapsed");
+
+      groups.forEach(otherGroup => {
+        if (otherGroup === group) return;
+        otherGroup.classList.add("is-collapsed");
+        otherGroup.querySelector(".nav-group-toggle")?.setAttribute("aria-expanded", "false");
+      });
+
+      group.classList.toggle("is-collapsed", !willOpen);
+      toggle.setAttribute("aria-expanded", String(willOpen));
     });
   });
 }
