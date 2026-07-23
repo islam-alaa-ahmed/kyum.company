@@ -40,7 +40,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .sidebar-brand div:last-child{display:grid}
 .sidebar-brand span{font-size:12px;color:#94a3b8}
 .sidebar-nav{display:grid;gap:10px;min-height:0;overflow-y:auto;padding-left:2px}
-.nav-item{display:block;width:100%;background:transparent;color:#cbd5e1;text-align:right;text-decoration:none;padding:11px 14px;border-radius:12px;transition:background .2s,color .2s,transform .2s}
+.nav-item{width:100%;background:transparent;color:#cbd5e1;text-align:right;padding:11px 14px;border-radius:12px;transition:background .2s,color .2s,transform .2s}
 .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
 .nav-item:hover{transform:translateX(-2px)}
 .nav-root-item{font-weight:700}
@@ -9436,4 +9436,113 @@ html:not([data-theme="dark"]) #dashboardView #attentionFollowups .attention-item
 html:not([data-theme="dark"]) #dashboardView #attentionFollowups .attention-item small {
   color: #4b5563 !important;
   opacity: 1 !important;
+}
+
+
+/* Phase M8 — Enterprise Update System */
+.kyum-update-dialog {
+  width: min(92vw, 440px);
+  max-width: 440px;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+.kyum-update-dialog::backdrop {
+  background: rgba(2, 12, 18, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.kyum-update-shell {
+  padding: 28px 24px 22px;
+  border: 1px solid rgba(108, 218, 199, 0.26);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(14, 45, 55, 0.98), rgba(7, 27, 38, 0.98));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+  text-align: center;
+}
+
+html[data-theme="light"] .kyum-update-shell {
+  border-color: rgba(14, 116, 105, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(239, 250, 248, 0.99));
+  box-shadow: 0 28px 80px rgba(15, 45, 52, 0.22);
+}
+
+.kyum-update-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 14px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2bc6ae, #138d80);
+  color: #fff;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 12px 30px rgba(20, 166, 148, 0.32);
+}
+
+.kyum-update-shell h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 5vw, 1.7rem);
+}
+
+.kyum-update-version {
+  margin: 0 0 16px;
+  opacity: 0.82;
+}
+
+.kyum-update-version strong {
+  color: #48d7c0;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[data-theme="light"] .kyum-update-version strong { color: #08796d; }
+
+.kyum-update-notes {
+  margin: 0 0 18px;
+  padding: 14px 34px 14px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  text-align: right;
+  line-height: 1.8;
+}
+
+html[data-theme="light"] .kyum-update-notes { background: rgba(8, 121, 109, 0.07); }
+.kyum-update-notes:empty { display: none; }
+
+.kyum-update-status {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(72, 215, 192, 0.1);
+  color: #6fe8d4;
+  font-weight: 700;
+}
+
+html[data-theme="light"] .kyum-update-status { color: #08796d; }
+
+.kyum-update-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.kyum-update-actions button {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.kyum-update-actions button[hidden] { display: none; }
+
+@media (max-width: 480px) {
+  .kyum-update-dialog { width: calc(100vw - 28px); }
+  .kyum-update-shell { padding: 24px 18px 18px; border-radius: 24px; }
 }

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-m7-3-v1";
+const CACHE_VERSION = "kyum-crm-pwa-18-3-0";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";
@@ -8,6 +8,7 @@ const APP_SHELL = [
   "./index.html",
   "./offline.html",
   "./site.webmanifest",
+  "./version.json",
   "./assets/css/style.css",
   "./assets/css/mobile.css",
   "./assets/js/activity-service.js",
@@ -87,6 +88,10 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+  if (url.pathname.endsWith("/version.json")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
   if (isDynamicOrSensitive(url)) return;
 
   if (request.mode === "navigate") {

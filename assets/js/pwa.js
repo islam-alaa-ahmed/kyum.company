@@ -1,11 +1,31 @@
 (() => {
   "use strict";
 
+  const CURRENT_VERSION = "18.3.0";
+  const VERSION_ENDPOINT = "./version.json";
+  const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
   const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
-  if (isNative) return;
-
   const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   let deferredPrompt = null;
+  let serviceWorkerRegistration = null;
+  let updateInProgress = false;
+
+  window.KYUM_RELEASE_VERSION = CURRENT_VERSION;
+
+  function normalizeVersion(value) {
+    return String(value || "0").trim().replace(/^v/i, "").split(".").map(part => Number.parseInt(part, 10) || 0);
+  }
+
+  function compareVersions(left, right) {
+    const a = normalizeVersion(left);
+    const b = normalizeVersion(right);
+    const length = Math.max(a.length, b.length);
+    for (let index = 0; index < length; index += 1) {
+      const delta = (a[index] || 0) - (b[index] || 0);
+      if (delta !== 0) return delta > 0 ? 1 : -1;
+    }
+    return 0;
+  }
 
   function createInstallBanner() {
     if (document.getElementById("pwaInstallBanner") || isStandalone()) return null;
@@ -46,7 +66,6 @@
     });
   }
 
-
   function openShortcutView() {
     const view = new URLSearchParams(location.search).get("view");
     if (!view) return;
@@ -63,22 +82,141 @@
     }, 300);
   }
 
-  async function registerServiceWorker() {
-    if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
+  function ensureUpdateDialog() {
+    let dialog = document.getElementById("kyumUpdateDialog");
+    if (dialog) return dialog;
+    dialog = document.createElement("dialog");
+    dialog.id = "kyumUpdateDialog";
+    dialog.className = "kyum-update-dialog";
+    dialog.innerHTML = `
+      <div class="kyum-update-shell" dir="rtl">
+        <div class="kyum-update-icon" aria-hidden="true">↻</div>
+        <h2 data-update-title>يوجد إصدار أحدث</h2>
+        <p class="kyum-update-version">الإصدار الجديد <strong data-update-version></strong></p>
+        <ul class="kyum-update-notes" data-update-notes></ul>
+        <p class="kyum-update-status" data-update-status hidden></p>
+        <div class="kyum-update-actions">
+          <button type="button" class="primary-btn kyum-update-now" data-update-now>تحديث</button>
+          <button type="button" class="secondary-btn kyum-update-later" data-update-later>لاحقًا</button>
+        </div>
+      </div>`;
+    document.body.appendChild(dialog);
+    dialog.addEventListener("cancel", event => {
+      if (dialog.dataset.forceUpdate === "true") event.preventDefault();
+    });
+    dialog.querySelector("[data-update-later]").addEventListener("click", () => dialog.close());
+    dialog.querySelector("[data-update-now]").addEventListener("click", () => activateLatestVersion(dialog));
+    return dialog;
+  }
+
+  function showUpdateDialog(release) {
+    const dialog = ensureUpdateDialog();
+    dialog.dataset.forceUpdate = String(Boolean(release.forceUpdate));
+    dialog.querySelector("[data-update-title]").textContent = release.title || "يوجد إصدار أحدث";
+    dialog.querySelector("[data-update-version]").textContent = `v${release.version}`;
+    const notes = dialog.querySelector("[data-update-notes]");
+    notes.replaceChildren(...(Array.isArray(release.notes) ? release.notes : []).map(note => {
+      const item = document.createElement("li");
+      item.textContent = note;
+      return item;
+    }));
+    const laterButton = dialog.querySelector("[data-update-later]");
+    laterButton.hidden = Boolean(release.forceUpdate);
+    dialog.querySelector("[data-update-status]").hidden = true;
+    dialog.querySelector("[data-update-now]").disabled = false;
+    if (!dialog.open) dialog.showModal();
+  }
+
+  async function fetchLatestRelease() {
+    const separator = VERSION_ENDPOINT.includes("?") ? "&" : "?";
+    const response = await fetch(`${VERSION_ENDPOINT}${separator}t=${Date.now()}`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" }
+    });
+    if (!response.ok) throw new Error(`Version request failed: ${response.status}`);
+    return response.json();
+  }
+
+  async function checkForUpdate({ silent = true } = {}) {
+    if (isNative || location.protocol === "file:" || !navigator.onLine) return null;
     try {
-      const registration = await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });
-      registration.addEventListener("updatefound", () => {
-        const worker = registration.installing;
+      const release = await fetchLatestRelease();
+      if (release?.version && compareVersions(release.version, CURRENT_VERSION) > 0) {
+        showUpdateDialog(release);
+        return release;
+      }
+      return null;
+    } catch (error) {
+      if (!silent) console.warn("KYUM update check failed", error);
+      return null;
+    }
+  }
+
+  async function clearApplicationCaches() {
+    if (!("caches" in window)) return;
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith("kyum-crm-")).map(key => caches.delete(key)));
+  }
+
+  function reloadWithCacheBuster() {
+    const url = new URL(location.href);
+    url.searchParams.set("updated", Date.now().toString());
+    location.replace(url.toString());
+  }
+
+  async function activateLatestVersion(dialog) {
+    if (updateInProgress) return;
+    updateInProgress = true;
+    const button = dialog.querySelector("[data-update-now]");
+    const status = dialog.querySelector("[data-update-status]");
+    button.disabled = true;
+    status.hidden = false;
+    status.textContent = "جارٍ تنزيل التحديث وتفعيله...";
+
+    try {
+      await clearApplicationCaches();
+      if (serviceWorkerRegistration) {
+        await serviceWorkerRegistration.update();
+        const waitingWorker = serviceWorkerRegistration.waiting;
+        if (waitingWorker) {
+          const controllerChanged = new Promise(resolve => {
+            navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
+            window.setTimeout(resolve, 2500);
+          });
+          waitingWorker.postMessage({ type: "SKIP_WAITING" });
+          await controllerChanged;
+        }
+      }
+      status.textContent = "تم التحديث. جارٍ إعادة تشغيل التطبيق...";
+      window.setTimeout(reloadWithCacheBuster, 350);
+    } catch (error) {
+      console.error("KYUM update activation failed", error);
+      status.textContent = "تعذر إكمال التحديث. تحقق من الاتصال ثم حاول مرة أخرى.";
+      button.disabled = false;
+      updateInProgress = false;
+    }
+  }
+
+  async function registerServiceWorker() {
+    if (!("serviceWorker" in navigator) || location.protocol === "file:" || isNative) return;
+    try {
+      serviceWorkerRegistration = await navigator.serviceWorker.register("./service-worker.js", { scope: "./", updateViaCache: "none" });
+      await serviceWorkerRegistration.update();
+      serviceWorkerRegistration.addEventListener("updatefound", () => {
+        const worker = serviceWorkerRegistration.installing;
         worker?.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller) {
-            document.documentElement.dataset.pwaUpdateReady = "true";
-          }
+          if (worker.state === "installed" && navigator.serviceWorker.controller) checkForUpdate({ silent: true });
         });
       });
     } catch (error) {
       console.warn("KYUM PWA registration failed", error);
     }
   }
+
+  window.KYUM_UPDATE = Object.freeze({
+    currentVersion: CURRENT_VERSION,
+    check: () => checkForUpdate({ silent: false })
+  });
 
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
@@ -93,13 +231,21 @@
     document.getElementById("pwaInstallBanner")?.remove();
   });
 
-  window.addEventListener("online", () => document.documentElement.classList.remove("is-offline"));
+  window.addEventListener("online", () => {
+    document.documentElement.classList.remove("is-offline");
+    checkForUpdate({ silent: true });
+  });
   window.addEventListener("offline", () => document.documentElement.classList.add("is-offline"));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") checkForUpdate({ silent: true });
+  });
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     if (!navigator.onLine) document.documentElement.classList.add("is-offline");
-    registerServiceWorker();
+    await registerServiceWorker();
     openShortcutView();
+    checkForUpdate({ silent: true });
+    window.setInterval(() => checkForUpdate({ silent: true }), UPDATE_CHECK_INTERVAL_MS);
     setTimeout(showIosHint, 1800);
   });
 })();
