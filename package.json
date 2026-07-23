@@ -1,0 +1,27 @@
+{
+  "name": "kyum-company-crm-mobile",
+  "version": "11.0.0",
+  "private": true,
+  "description": "Native Android/iOS packaging layer for KYUM Company CRM.",
+  "scripts": {
+    "native:prepare": "node scripts/prepare-native-web.mjs",
+    "native:add:android": "npm run native:prepare && npx cap add android",
+    "native:add:ios": "npm run native:prepare && npx cap add ios",
+    "native:sync": "npm run native:prepare && npx cap sync",
+    "native:open:android": "npx cap open android",
+    "native:open:ios": "npx cap open ios",
+    "native:doctor": "npx cap doctor"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}

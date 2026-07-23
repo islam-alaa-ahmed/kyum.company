@@ -1,6 +1,9 @@
 (() => {
   "use strict";
 
+  const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
+  if (isNative) return;
+
   const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   let deferredPrompt = null;
 
