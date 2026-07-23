@@ -285,3 +285,69 @@
   #customersView .actions-row{grid-template-columns:minmax(0,1fr) 44px}
   #customersView #addCustomerBtn{grid-column:1/-1;width:100%}
 }
+
+/* KYUM Mobile Enterprise — Phase M4: Customer 360 */
+@media (max-width: 767px){
+  body.mobile-customer360-open{overflow:hidden}
+  #customerDetailsDialog.customer360-dialog{inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--surface)}
+  #customerDetailsDialog::backdrop{background:rgba(15,23,42,.56);backdrop-filter:blur(5px)}
+  #customerDetailsDialog .customer360-shell{display:flex;flex-direction:column;height:100dvh;max-height:none;border-radius:0;background:var(--surface)}
+  #customerDetailsDialog .customer360-header{position:relative;flex:0 0 auto;padding:calc(12px + env(safe-area-inset-top)) 14px 12px;gap:10px;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(18px)}
+  #customerDetailsDialog .customer360-header>div:first-child{min-width:0;padding-inline-end:44px}
+  #customerDetailsDialog .customer360-title-row{gap:7px}
+  #customerDetailsDialog .customer360-title-row h3{max-width:100%;font-size:17px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #customerDetailsDialog #customerDetailsSubtitle{margin:5px 0 0;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+  #customerDetailsDialog #closeCustomerDetailsBtn{position:absolute;top:calc(10px + env(safe-area-inset-top));left:12px;width:38px;height:38px;border-radius:12px}
+  #customerDetailsDialog .customer360-header-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:7px}
+  #customerDetailsDialog .customer360-header-actions #closeCustomerDetailsBtn{display:flex}
+  #customerDetailsDialog .customer360-header-actions button:not(#closeCustomerDetailsBtn){min-height:40px;padding:8px 7px;font-size:10px;white-space:nowrap}
+  #customerDetailsDialog #customerDetailsContent{flex:1 1 auto;max-height:none;min-height:0;padding:12px 12px calc(96px + env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;scroll-behavior:smooth}
+  #customerDetailsDialog .mobile-customer360-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px}
+  #customerDetailsDialog .mobile-customer360-actions a{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:1px solid var(--border);border-radius:14px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:900;text-decoration:none}
+  #customerDetailsDialog .mobile-customer360-actions a[data-kind="whatsapp"]{border-color:color-mix(in srgb,#22c55e 48%,var(--border));background:color-mix(in srgb,#22c55e 11%,var(--surface));color:#15803d}
+  [data-theme="dark"] #customerDetailsDialog .mobile-customer360-actions a[data-kind="whatsapp"]{color:#86efac}
+  #customerDetailsDialog .mobile-customer360-jumpnav{position:sticky;top:-1px;z-index:4;display:flex;gap:7px;margin:0 -12px 12px;padding:8px 12px;overflow-x:auto;scrollbar-width:none;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  #customerDetailsDialog .mobile-customer360-jumpnav::-webkit-scrollbar{display:none}
+  #customerDetailsDialog .mobile-customer360-jumpnav button{flex:0 0 auto;min-height:34px;padding:6px 11px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:10px;font-weight:900}
+  #customerDetailsDialog .customer360-overview{gap:10px;margin-bottom:12px}
+  #customerDetailsDialog .customer360-status-card{grid-template-columns:1fr 1fr;gap:10px;padding:13px;border-radius:14px}
+  #customerDetailsDialog .customer360-status-card strong{font-size:16px}
+  #customerDetailsDialog .customer360-last-contact{text-align:right}
+  #customerDetailsDialog .customer360-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #customerDetailsDialog .customer360-kpis .customer360-metric:last-child{grid-column:1/-1}
+  #customerDetailsDialog .customer360-value-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #customerDetailsDialog .customer360-metric{padding:11px;border-radius:12px}
+  #customerDetailsDialog .customer360-metric strong{font-size:15px;white-space:normal;overflow-wrap:anywhere}
+  #customerDetailsDialog .customer360-risk-dashboard{grid-template-columns:1fr;gap:9px}
+  #customerDetailsDialog .customer360-health-gauge,#customerDetailsDialog .customer360-risk-card,#customerDetailsDialog .customer360-next-action{padding:13px;border-radius:14px}
+  #customerDetailsDialog .customer360-layout{display:block}
+  #customerDetailsDialog .customer360-main,#customerDetailsDialog .customer360-side{display:block}
+  #customerDetailsDialog .customer360-section{margin-bottom:12px;padding:13px;border-radius:14px;scroll-margin-top:58px}
+  #customerDetailsDialog .customer360-profile-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #customerDetailsDialog .profile-item{min-width:0;padding:10px;border-radius:11px}
+  #customerDetailsDialog .profile-item strong{font-size:12px;overflow-wrap:anywhere}
+  #customerDetailsDialog .customer360-section-header{gap:8px;margin-bottom:10px}
+  #customerDetailsDialog .customer360-section-header h3{font-size:14px}
+  #customerDetailsDialog .customer360-section-header p{font-size:9px}
+  #customerDetailsDialog .customer360-followup-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  #customerDetailsDialog .customer360-quotation-list article{grid-template-columns:1fr;gap:8px;padding:11px}
+  #customerDetailsDialog .customer360-quotation-list article>div:last-child{text-align:right}
+  #customerDetailsDialog .customer360-activity-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  #customerDetailsDialog .customer360-activity-summary article{padding:10px 7px;min-width:0}
+  #customerDetailsDialog .customer360-activity-summary strong{font-size:13px;overflow-wrap:anywhere}
+  #customerDetailsDialog .customer360-activity-filters{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}
+  #customerDetailsDialog .customer360-activity-filters::-webkit-scrollbar{display:none}
+  #customerDetailsDialog .customer360-activity-filter{flex:0 0 auto;min-height:36px}
+  #customerDetailsDialog .customer360-activity-item{grid-template-columns:34px minmax(0,1fr);gap:9px;padding:10px}
+  #customerDetailsDialog .timeline-card{padding:11px}
+  #customerDetailsDialog .timeline-card-header{display:grid;gap:4px}
+  #customer360ExportDialog.customer360-export-dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);margin:auto;border-radius:18px}
+  #customer360ExportDialog .customer360-export-grid{grid-template-columns:1fr;max-height:60dvh;overflow:auto}
+}
+
+@media (max-width: 390px){
+  #customerDetailsDialog .customer360-header-actions{grid-template-columns:1fr 1fr}
+  #customerDetailsDialog #customer360ExportBtn{grid-column:1/-1}
+  #customerDetailsDialog .customer360-status-card{grid-template-columns:1fr}
+  #customerDetailsDialog .customer360-profile-grid{grid-template-columns:1fr}
+}

@@ -319,9 +319,67 @@
     syncCustomersFilterState();
   }
 
+
+  function normalizeCustomer360Phone(value) {
+    return String(value || "").replace(/[^\d+]/g, "").trim();
+  }
+
+  function decorateCustomer360() {
+    const dialog = document.getElementById("customerDetailsDialog");
+    const content = document.getElementById("customerDetailsContent");
+    const subtitle = document.getElementById("customerDetailsSubtitle");
+    if (!dialog || !content || !dialog.open || !MOBILE_MEDIA.matches) return;
+
+    document.body.classList.add("mobile-customer360-open");
+    const phoneCandidate = normalizeCustomer360Phone((subtitle?.textContent || "").split("·")[0]);
+    const hasPhone = /\d{7,}/.test(phoneCandidate);
+
+    let actions = content.querySelector(".mobile-customer360-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "mobile-customer360-actions";
+      content.prepend(actions);
+    }
+    actions.innerHTML = hasPhone ? `
+      <a href="tel:${phoneCandidate}" data-kind="call" aria-label="اتصال بالعميل">اتصال بالعميل</a>
+      <a href="https://wa.me/${phoneCandidate.replace(/^00/, "").replace(/^\+/, "")}" target="_blank" rel="noopener noreferrer" data-kind="whatsapp" aria-label="فتح واتساب للعميل">WhatsApp</a>
+    ` : "";
+    actions.hidden = !hasPhone;
+
+    let jumpNav = content.querySelector(".mobile-customer360-jumpnav");
+    if (!jumpNav) {
+      jumpNav = document.createElement("nav");
+      jumpNav.className = "mobile-customer360-jumpnav";
+      jumpNav.setAttribute("aria-label", "أقسام ملف العميل");
+      const sections = [...content.querySelectorAll(".customer360-section")];
+      const wanted = ["البيانات الأساسية", "عروض الأسعار", "ملخص المتابعة", "سجل النشاط الموحد", "سجل المتابعات"];
+      wanted.forEach(label => {
+        const target = sections.find(section => section.querySelector("h3")?.textContent.trim() === label);
+        if (!target) return;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label.replace("سجل النشاط الموحد", "النشاط").replace("البيانات الأساسية", "البيانات").replace("ملخص المتابعة", "المتابعة").replace("سجل المتابعات", "السجل");
+        button.addEventListener("click", () => target.scrollIntoView({ behavior: "smooth", block: "start" }));
+        jumpNav.append(button);
+      });
+      actions.after(jumpNav);
+    }
+  }
+
+  function installCustomer360Shell() {
+    const dialog = document.getElementById("customerDetailsDialog");
+    const content = document.getElementById("customerDetailsContent");
+    if (!dialog || !content) return;
+    const observer = new MutationObserver(() => window.requestAnimationFrame(decorateCustomer360));
+    observer.observe(content, { childList: true, subtree: false });
+    dialog.addEventListener("close", () => document.body.classList.remove("mobile-customer360-open"));
+    dialog.addEventListener("cancel", () => document.body.classList.remove("mobile-customer360-open"));
+  }
+
   installDashboardShell();
   installPullToRefresh();
   installCustomersShell();
+  installCustomer360Shell();
   syncPermissionVisibility();
   syncActiveState();
 })();
