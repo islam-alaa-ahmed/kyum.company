@@ -1585,3 +1585,132 @@ html.is-offline body::before {
   #permissionsView .permission-row[data-screen-key]{grid-template-columns:minmax(88px,1fr) repeat(5,28px);gap:2px}
   #permissionsView .permission-row input{width:22px;height:22px}
 }
+
+
+/* KYUM Company CRM Mobile Enterprise — Phase M7.2.1 Corrective Hotfix */
+@media (max-width: 767px){
+  html,
+  body,
+  #appView.app-shell,
+  .main-content{
+    margin:0!important;
+    padding-top:0!important;
+  }
+
+  /* Paint the iPhone status/safe area with the same header surface. */
+  body::before{
+    content:"";
+    position:fixed;
+    z-index:1049;
+    inset:0 0 auto;
+    height:max(env(safe-area-inset-top),1px);
+    background:#062238;
+    pointer-events:none;
+  }
+  html[data-theme="dark"] body::before{background:#061a2d}
+
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled{
+    top:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0 0 14px!important;
+    padding-top:calc(10px + env(safe-area-inset-top))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    min-height:calc(82px + env(safe-area-inset-top))!important;
+    border-radius:0 0 22px 22px!important;
+  }
+
+  html:not([data-theme="dark"]) #appHeader.topbar,
+  html:not([data-theme="dark"]) #appHeader.topbar.is-scrolled{
+    background:#062238!important;
+    color:#fff!important;
+  }
+  html:not([data-theme="dark"]) #appHeader .mobile-app-brand{color:#fff!important}
+
+  .main-content{
+    padding-right:10px!important;
+    padding-left:10px!important;
+    padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px)!important;
+  }
+
+  /* Real mobile rendering: no desktop-width leakage. */
+  #customersView,
+  #permissionsView,
+  #dailyPerformanceReportView,
+  #dailyOperationsView{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-x:hidden!important;
+  }
+
+  #permissionsView>.actions-row{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  #permissionsView>.actions-row>button{width:100%!important}
+  #permissionsView .permission-row[data-screen-key]{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding:14px!important;
+  }
+  #permissionsView .permission-row[data-screen-key]>strong{
+    width:100%!important;
+    font-size:14px!important;
+  }
+  #permissionsView .permission-row[data-screen-key] label{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    width:100%!important;
+    min-height:40px!important;
+  }
+
+  #dailyPerformanceReportView .daily-task-matrix-panel .table-wrap{
+    overflow:visible!important;
+  }
+  #dailyPerformanceReportView .daily-task-matrix-table{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  #dailyPerformanceReportView .daily-task-matrix-table thead{display:none!important}
+  #dailyPerformanceReportView .daily-task-matrix-table tbody{display:grid!important;gap:10px!important}
+  #dailyPerformanceReportView .daily-task-matrix-table tr{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    width:100%!important;
+    padding:12px!important;
+    border:1px solid var(--border)!important;
+    border-radius:16px!important;
+    background:var(--surface)!important;
+  }
+  #dailyPerformanceReportView .daily-task-matrix-table td{
+    display:block!important;
+    width:auto!important;
+    min-width:0!important;
+    padding:8px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #dailyPerformanceReportView .daily-task-matrix-table td:first-child{
+    grid-column:1/-1!important;
+    font-weight:800!important;
+  }
+
+  #customersView tbody tr{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    width:100%!important;
+  }
+  #customersView tbody td{grid-column:1!important;width:100%!important}
+  #customersView .row-actions{grid-template-columns:1fr!important}
+
+  .view-section:not(.hidden){
+    padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 34px)!important;
+  }
+}

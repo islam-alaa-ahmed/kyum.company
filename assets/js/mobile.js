@@ -1273,3 +1273,28 @@
     }).observe(app, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
   }
 })();
+
+
+/* Phase M7.2.1 — Daily operations mobile navigation hard fix */
+(() => {
+  "use strict";
+  const MEDIA = window.matchMedia("(max-width: 767px)");
+
+  function openDailyOperations(event) {
+    const item = event.target.closest?.('[data-view="dailyOperations"]');
+    if (!MEDIA.matches || !item || item.disabled || item.classList.contains("hidden")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    document.body.classList.remove("sidebar-menu-open");
+    document.getElementById("mainSidebar")?.classList.remove("is-open");
+    document.getElementById("sidebarBackdrop")?.classList.add("hidden");
+    const opened = window.KYUMNavigateTo?.("dailyOperations");
+    if (opened === false) {
+      window.dispatchEvent(new CustomEvent("kyum-navigation-blocked", {
+        detail: { requestedView: "dailyOperations", reason: "mobile_navigation_denied" }
+      }));
+    }
+  }
+
+  document.addEventListener("pointerup", openDailyOperations, true);
+})();

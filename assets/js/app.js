@@ -5699,6 +5699,9 @@ function initializeKyumThemeToggle() {
 
 initializeKyumThemeToggle();
 
+// Phase M7.2.1 — stable public navigation bridge for mobile controls.
+window.KYUMNavigateTo = (viewKey, options = {}) => switchView(viewKey, options);
+
 function setHeaderUserMenuOpen(isOpen) {
   const menu = document.getElementById("headerUserMenu");
   const button = document.getElementById("headerUserMenuButton");
