@@ -1960,100 +1960,110 @@ html.is-offline body::before {
   }
 }
 
-/* Phase M8.2.2 — Mobile Light Mode Menu Contrast Fix */
+
+/* Phase M8.2.3 — Daily Operations mobile light-mode readability and Gregorian dates */
 @media (max-width: 767px){
-  html[data-theme="light"] #mainSidebar.sidebar{
-    background:#f8fafc!important;
-    color:#0f172a!important;
-    border-left:1px solid #dbe3ef!important;
-    box-shadow:-24px 0 60px rgba(15,23,42,.18)!important;
+  html:not([data-theme="dark"]) #dailyOperationsView{
+    color:#111827!important;
   }
 
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host{
-    border-bottom-color:#d8e1ed!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher{
+  html:not([data-theme="dark"]) #dailyOperationsView .mobile-daily-toolbar,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-header,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-manager-note,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-kpis > article,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-panel,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-grid > article,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-checklist-panel,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-section-panel,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-panel,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-summary > article,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-table tr{
     background:#ffffff!important;
-    color:#0f172a!important;
-    border:1px solid #cfd9e7!important;
-    box-shadow:0 8px 22px rgba(15,23,42,.08)!important;
+    background-image:none!important;
+    color:#111827!important;
+    border-color:#d7dee8!important;
+    box-shadow:0 8px 22px rgba(15,23,42,.07)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
   }
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher .brand-mark.small{
-    color:#ffffff!important;
-    background:linear-gradient(145deg,#0f766e,#2563eb)!important;
-    border-color:rgba(37,99,235,.26)!important;
-    opacity:1!important;
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-header::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-manager-note::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-kpis > article::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-panel::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-grid > article::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-checklist-panel::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-section-panel::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-panel::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-summary > article::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-card::after,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-task-item::after{
+    display:none!important;
   }
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text,
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text strong{
-    color:#0f172a!important;
-    opacity:1!important;
+  html:not([data-theme="dark"]) #dailyOperationsView h1,
+  html:not([data-theme="dark"]) #dailyOperationsView h2,
+  html:not([data-theme="dark"]) #dailyOperationsView h3,
+  html:not([data-theme="dark"]) #dailyOperationsView h4,
+  html:not([data-theme="dark"]) #dailyOperationsView strong,
+  html:not([data-theme="dark"]) #dailyOperationsView b,
+  html:not([data-theme="dark"]) #dailyOperationsView td,
+  html:not([data-theme="dark"]) #dailyOperationsView .mobile-daily-progress-copy strong,
+  html:not([data-theme="dark"]) #dailyOperationsView .mobile-daily-progress-ring strong{
+    color:#111827!important;
   }
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text small{
-    color:#64748b!important;
-    opacity:1!important;
+  html:not([data-theme="dark"]) #dailyOperationsView p,
+  html:not([data-theme="dark"]) #dailyOperationsView span,
+  html:not([data-theme="dark"]) #dailyOperationsView small,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-table td::before,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card span,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card small,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-manager-note span,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-manager-note p{
+    color:#374151!important;
   }
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle{
+  html:not([data-theme="dark"]) #dailyOperationsView .mobile-daily-toolbar-actions button,
+  html:not([data-theme="dark"]) #dailyOperationsView .mobile-daily-jump-nav button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-operations-header button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-current-session-card button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-manager-note button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-targets-panel button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-checklist-panel button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-section-panel button,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alerts-panel button{
     background:#ffffff!important;
-    color:#172033!important;
-    border-color:#d5deea!important;
-    box-shadow:0 4px 14px rgba(15,23,42,.045)!important;
-    opacity:1!important;
+    background-image:none!important;
+    color:#111827!important;
+    border:1px solid #d7dee8!important;
+    box-shadow:0 5px 15px rgba(15,23,42,.06)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
   }
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle > span,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle .nav-chevron,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle svg,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle path{
-    color:#172033!important;
-    stroke:currentColor!important;
-    opacity:1!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"]{
-    background:#eef2ff!important;
-    color:#1e3a8a!important;
-    border-color:#bfcdfc!important;
-    box-shadow:0 5px 16px rgba(37,99,235,.09)!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] > span,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] .nav-chevron{
-    color:#1e3a8a!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item{
-    color:#334155!important;
-    background:#ffffff!important;
-    border-color:#e2e8f0!important;
-    opacity:1!important;
-    text-shadow:none!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item::before{
-    background:#64748b!important;
-    opacity:.72!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item:hover,
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active{
-    color:#1d4ed8!important;
-    background:#eaf1ff!important;
-    border-color:#bfd0fa!important;
-  }
-
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active::before{
+  html:not([data-theme="dark"]) #dailyOperationsView .primary-btn,
+  html:not([data-theme="dark"]) #dailyOperationsView [data-mobile-daily-refresh]{
     background:#2563eb!important;
-    opacity:1!important;
-    box-shadow:0 0 0 4px rgba(37,99,235,.12)!important;
+    color:#ffffff!important;
+    border-color:#2563eb!important;
   }
 
-  html[data-theme="light"] .sidebar-backdrop{
-    background:rgba(15,23,42,.42)!important;
+  html:not([data-theme="dark"]) #dailyOperationsView select,
+  html:not([data-theme="dark"]) #dailyOperationsView input,
+  html:not([data-theme="dark"]) #dailyOperationsView textarea{
+    background:#ffffff!important;
+    color:#111827!important;
+    border-color:#cfd8e3!important;
+  }
+
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-overdue-badge,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-severity,
+  html:not([data-theme="dark"]) #dailyOperationsView .daily-alert-status{
+    color:#111827!important;
   }
 }

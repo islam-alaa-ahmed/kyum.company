@@ -4502,10 +4502,16 @@ function dailyLocalDate(value = new Date()) {
     .toISOString().slice(0, 10);
 }
 
+function kyumDisplayDateLocale() {
+  return window.matchMedia?.("(max-width: 767px)")?.matches
+    ? "ar-EG-u-ca-gregory"
+    : "ar-SA";
+}
+
 function dailyDateTime(value) {
   if (!value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString("ar-SA", {
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString(kyumDisplayDateLocale(), {
     hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric"
   });
 }
@@ -5028,7 +5034,7 @@ function renderDailyOperations() {
   const profile = window.CustomerAuth?.getState?.().profile;
 
   document.getElementById("dailyOperationsDate").textContent =
-    new Date(`${today}T00:00:00`).toLocaleDateString("ar-SA", {
+    new Date(`${today}T00:00:00`).toLocaleDateString(kyumDisplayDateLocale(), {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -5497,7 +5503,7 @@ async function deleteQuotation(id) {
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(`${value}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("ar-SA").format(date);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(kyumDisplayDateLocale()).format(date);
 }
 
 function escapeHtml(value) {
@@ -5716,7 +5722,7 @@ function formatAboutDate(value) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(kyumDisplayDateLocale(), { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
 function setAboutActionStatus(message, isError = false) {
