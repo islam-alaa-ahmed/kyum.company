@@ -1232,3 +1232,44 @@
   initialize();
   MEDIA.addEventListener?.("change", initialize);
 })();
+
+/* Phase M12.1 — Keep mobile views anchored to the viewport */
+(() => {
+  "use strict";
+
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+
+  function resetHorizontalViewport() {
+    if (!MOBILE_MEDIA.matches) return;
+    const root = document.scrollingElement || document.documentElement;
+    if (root) root.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+    window.scrollTo({ left: 0, top: window.scrollY, behavior: "instant" });
+  }
+
+  function scheduleReset() {
+    resetHorizontalViewport();
+    requestAnimationFrame(resetHorizontalViewport);
+    window.setTimeout(resetHorizontalViewport, 80);
+  }
+
+  document.addEventListener("click", event => {
+    if (event.target.closest("[data-mobile-view], .nav-item, .nav-group-content button")) {
+      window.setTimeout(scheduleReset, 0);
+    }
+  });
+
+  window.addEventListener("orientationchange", scheduleReset);
+  window.addEventListener("resize", scheduleReset, { passive: true });
+  window.addEventListener("pageshow", scheduleReset);
+  document.addEventListener("DOMContentLoaded", scheduleReset, { once: true });
+
+  const app = document.getElementById("appView");
+  if (app && "MutationObserver" in window) {
+    new MutationObserver(mutations => {
+      if (mutations.some(mutation => mutation.type === "attributes" || mutation.type === "childList")) {
+        scheduleReset();
+      }
+    }).observe(app, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
+  }
+})();
