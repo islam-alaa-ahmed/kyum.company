@@ -1104,3 +1104,131 @@
   initialize();
   MOBILE_MEDIA.addEventListener?.("change", initialize);
 })();
+
+/* Phase M9 — Mobile Administration */
+(() => {
+  "use strict";
+  const MEDIA = window.matchMedia("(max-width: 767px)");
+  const ADMIN_VIEWS = [
+    ["users", "المستخدمون"],
+    ["permissions", "الصلاحيات"],
+    ["representatives", "المندوبون"],
+    ["settings", "البيانات المرجعية"],
+    ["backups", "النسخ الاحتياطي"],
+    ["systemSettings", "الإعدادات"]
+  ];
+
+  const configs = {
+    usersView: { title: "إدارة المستخدمين", note: "الحسابات والأدوار وحالة الدخول", filters: ".users-filters", labels: ["المستخدم","البريد","الدور","المندوب المرتبط","الحالة","آخر دخول","الإجراءات"] },
+    representativesView: { title: "مندوبي المبيعات", note: "الإدارة والربط وحالة النشاط", filters: ".representatives-list-toolbar", labels: ["كود المندوب","اسم المندوب","الجوال","البريد الإلكتروني","العملاء المرتبطون","الحالة","الإجراءات"] },
+    permissionsView: { title: "إدارة الصلاحيات", note: "صلاحيات الأدوار على مستوى الشاشات" },
+    settingsView: { title: "البيانات المرجعية", note: "الاهتمامات والأسباب والعملاء", filters: ".reference-data-toolbar" },
+    backupsView: { title: "النسخ الاحتياطي", note: "التصدير والفحص والاستعادة الآمنة", labels: ["التاريخ","النوع","الحالة","المستخدم","الملف","التفاصيل"] },
+    systemSettingsView: { title: "إعدادات النظام", note: "بيانات الشركة والإعدادات العامة" }
+  };
+
+  function clickOriginalView(view) {
+    document.querySelector(`.nav-item[data-view="${view}"]`)?.click();
+  }
+
+  function closeFilters(section) {
+    section?.classList.remove("mobile-admin-filters-open");
+    document.body.classList.remove("mobile-overlay-open");
+  }
+
+  function makeToolbar(section, cfg) {
+    let toolbar = section.querySelector(":scope > .mobile-admin-toolbar");
+    if (toolbar) return toolbar;
+    toolbar = document.createElement("div");
+    toolbar.className = "mobile-admin-toolbar";
+    toolbar.innerHTML = `
+      <div class="mobile-admin-title"><span>الإدارة</span><strong>${cfg.title}</strong><small>${cfg.note}</small></div>
+      <div class="mobile-admin-toolbar-actions">
+        ${cfg.filters ? '<button type="button" data-mobile-admin-filter>الفلاتر</button>' : ''}
+        <button type="button" data-mobile-admin-refresh>تحديث</button>
+      </div>
+      <nav class="mobile-admin-nav" aria-label="أقسام الإدارة">
+        ${ADMIN_VIEWS.map(([view,label]) => `<button type="button" data-mobile-admin-view="${view}">${label}</button>`).join("")}
+      </nav>`;
+    section.prepend(toolbar);
+    toolbar.querySelectorAll("[data-mobile-admin-view]").forEach(btn => btn.addEventListener("click", () => clickOriginalView(btn.dataset.mobileAdminView)));
+    toolbar.querySelector("[data-mobile-admin-filter]")?.addEventListener("click", () => {
+      section.classList.add("mobile-admin-filters-open");
+      document.body.classList.add("mobile-overlay-open");
+    });
+    toolbar.querySelector("[data-mobile-admin-refresh]")?.addEventListener("click", () => {
+      const preferred = section.querySelector("#refreshHealthBtn,#createBackupBtn,#savePermissionsBtn,#saveSystemSettingsBtn");
+      if (preferred && !preferred.disabled) preferred.click();
+      else window.dispatchEvent(new Event("resize"));
+      toolbar.classList.add("is-refreshing");
+      setTimeout(() => toolbar.classList.remove("is-refreshing"), 700);
+    });
+    return toolbar;
+  }
+
+  function prepareFilterSheet(section, cfg) {
+    if (!cfg.filters) return;
+    const filters = section.querySelector(cfg.filters);
+    if (!filters || filters.classList.contains("mobile-admin-filter-sheet")) return;
+    filters.classList.add("mobile-admin-filter-sheet");
+    const head = document.createElement("div");
+    head.className = "mobile-admin-filter-head";
+    head.innerHTML = `<div><strong>الفلاتر</strong><small>حدد معايير العرض</small></div><button type="button" aria-label="إغلاق">×</button>`;
+    filters.prepend(head);
+    head.querySelector("button").addEventListener("click", () => closeFilters(section));
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "mobile-admin-filter-backdrop";
+    backdrop.setAttribute("aria-label", "إغلاق الفلاتر");
+    backdrop.addEventListener("click", () => closeFilters(section));
+    section.append(backdrop);
+  }
+
+  function labelTableRows(section, cfg) {
+    if (!cfg.labels) return;
+    section.querySelectorAll("tbody tr").forEach(row => {
+      [...row.children].forEach((cell, i) => cell.dataset.mobileLabel = cfg.labels[i] || "");
+    });
+  }
+
+  function enhancePermissions(section) {
+    section.querySelectorAll(".permission-row[data-screen-key]").forEach(row => {
+      row.querySelectorAll('input[type="checkbox"]').forEach((input, index) => {
+        input.setAttribute("aria-label", ["عرض","إضافة","تعديل","حذف","تصدير"][index] || "صلاحية");
+      });
+    });
+  }
+
+  function syncActiveNav() {
+    const visible = ADMIN_VIEWS.find(([view]) => !document.getElementById(`${view}View`)?.classList.contains("hidden"));
+    document.querySelectorAll("[data-mobile-admin-view]").forEach(btn => btn.classList.toggle("active", visible?.[0] === btn.dataset.mobileAdminView));
+  }
+
+  const observer = new MutationObserver(() => {
+    if (!MEDIA.matches) return;
+    Object.entries(configs).forEach(([id,cfg]) => {
+      const section = document.getElementById(id);
+      if (!section) return;
+      labelTableRows(section,cfg);
+      if (id === "permissionsView") enhancePermissions(section);
+    });
+    syncActiveNav();
+  });
+
+  function initialize() {
+    Object.entries(configs).forEach(([id,cfg]) => {
+      const section = document.getElementById(id);
+      if (!section) return;
+      makeToolbar(section,cfg);
+      prepareFilterSheet(section,cfg);
+      labelTableRows(section,cfg);
+      if (id === "permissionsView") enhancePermissions(section);
+    });
+    syncActiveNav();
+    observer.disconnect();
+    observer.observe(document.querySelector("main") || document.body, { subtree:true, childList:true, attributes:true, attributeFilter:["class"] });
+  }
+
+  initialize();
+  MEDIA.addEventListener?.("change", initialize);
+})();

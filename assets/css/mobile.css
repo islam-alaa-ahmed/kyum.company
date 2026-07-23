@@ -1208,3 +1208,94 @@
 }
 
 @keyframes mobileReportsShimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* Phase M9 — Mobile Administration */
+@media (max-width: 767px){
+  #usersView,#permissionsView,#representativesView,#settingsView,#backupsView,#systemSettingsView{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  #usersView>.actions-row,#permissionsView>.actions-row,#representativesView>.actions-row,#backupsView>.actions-row,#systemSettingsView>.actions-row{align-items:flex-start;gap:10px;margin-bottom:12px}
+  #usersView>.actions-row>div,#permissionsView>.actions-row>div,#representativesView>.actions-row>div,#backupsView>.actions-row>div,#systemSettingsView>.actions-row>div{min-width:0}
+  #usersView>.actions-row .section-title,#permissionsView>.actions-row .section-title,#representativesView>.actions-row .section-title,#backupsView>.actions-row .section-title,#systemSettingsView>.actions-row .section-title{font-size:17px}
+  #usersView>.actions-row .section-note,#permissionsView>.actions-row .section-note,#representativesView>.actions-row .section-note,#backupsView>.actions-row .section-note,#systemSettingsView>.actions-row .section-note{font-size:10px;line-height:1.5}
+  #usersView>.actions-row>button,#permissionsView>.actions-row>button,#representativesView>.actions-row>button,#backupsView>.actions-row>button,#systemSettingsView>.actions-row>button{min-height:42px;padding:8px 12px;font-size:11px;white-space:nowrap}
+
+  .mobile-admin-toolbar{display:grid;gap:11px;margin:0 0 12px;padding:14px;border:1px solid var(--border-color,rgba(148,163,184,.24));border-radius:20px;background:var(--surface,#fff);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+  .mobile-admin-title>span{display:block;color:var(--primary,#6366f1);font-size:10px;font-weight:900}
+  .mobile-admin-title>strong{display:block;margin-top:2px;font-size:20px;line-height:1.35}
+  .mobile-admin-title>small{display:block;margin-top:3px;color:var(--muted-text,#64748b);font-size:10px;line-height:1.5}
+  .mobile-admin-toolbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .mobile-admin-toolbar-actions button{min-height:42px;border:1px solid var(--border-color,rgba(148,163,184,.28));border-radius:13px;background:color-mix(in srgb,var(--surface,#fff) 88%,var(--primary,#6366f1) 12%);color:inherit;font:inherit;font-size:11px;font-weight:800}
+  .mobile-admin-toolbar-actions button:only-child{grid-column:1/-1}
+  .mobile-admin-toolbar.is-refreshing{opacity:.65;pointer-events:none}
+  .mobile-admin-nav{display:flex;gap:7px;margin-inline:-2px;padding:2px;overflow-x:auto;scrollbar-width:none}
+  .mobile-admin-nav::-webkit-scrollbar{display:none}
+  .mobile-admin-nav button{flex:0 0 auto;min-height:35px;padding:7px 11px;border:1px solid var(--border-color,rgba(148,163,184,.25));border-radius:999px;background:transparent;color:var(--muted-text,#64748b);font:inherit;font-size:10px;font-weight:800}
+  .mobile-admin-nav button.active{border-color:var(--primary,#6366f1);background:color-mix(in srgb,var(--primary,#6366f1) 14%,transparent);color:var(--primary,#6366f1)}
+
+  .mobile-admin-filter-sheet{position:fixed!important;inset-inline:0!important;bottom:0!important;z-index:1151!important;display:grid!important;grid-template-columns:1fr!important;gap:10px!important;max-height:min(76dvh,600px);margin:0!important;padding:16px 16px calc(18px + env(safe-area-inset-bottom))!important;overflow-y:auto;border:0!important;border-radius:24px 24px 0 0!important;background:var(--surface,#fff)!important;box-shadow:0 -20px 50px rgba(15,23,42,.25)!important;transform:translateY(110%);transition:transform .24s ease}
+  .mobile-admin-filters-open .mobile-admin-filter-sheet{transform:translateY(0)}
+  .mobile-admin-filter-sheet label{display:grid!important;gap:6px!important;width:100%!important;font-size:11px!important;font-weight:800}
+  .mobile-admin-filter-sheet input,.mobile-admin-filter-sheet select,.mobile-admin-filter-sheet button{width:100%;min-height:45px}
+  .mobile-admin-filter-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mobile-admin-filter-head strong,.mobile-admin-filter-head small{display:block}
+  .mobile-admin-filter-head small{margin-top:2px;color:var(--muted-text,#64748b);font-size:10px}
+  .mobile-admin-filter-head button{width:42px!important;height:42px;min-height:42px!important;border:0;border-radius:13px;background:rgba(148,163,184,.16);color:inherit;font-size:24px}
+  .mobile-admin-filter-backdrop{position:fixed;inset:0;z-index:1150;display:none;border:0;background:rgba(2,6,23,.56)}
+  .mobile-admin-filters-open .mobile-admin-filter-backdrop{display:block}
+
+  #usersView .table-wrap,#representativesView .table-wrap,#backupsView .table-wrap{overflow:visible}
+  #usersView table,#usersView tbody,#usersView tr,#usersView td,
+  #representativesView table,#representativesView tbody,#representativesView tr,#representativesView td,
+  #backupsView table,#backupsView tbody,#backupsView tr,#backupsView td{display:block;width:100%}
+  #usersView thead,#representativesView thead,#backupsView thead{display:none}
+  #usersTableBody,#representativesTableBody,#backupHistoryBody{display:grid;gap:10px}
+  #usersTableBody tr,#representativesTableBody tr,#backupHistoryBody tr{padding:14px;border:1px solid var(--border-color,rgba(148,163,184,.24));border-radius:17px;background:color-mix(in srgb,var(--surface,#fff) 95%,var(--primary,#6366f1) 5%);box-shadow:0 7px 18px rgba(15,23,42,.04)}
+  #usersTableBody td,#representativesTableBody td,#backupHistoryBody td{display:grid;grid-template-columns:minmax(98px,38%) 1fr;gap:8px;padding:6px 0;border:0;text-align:start;overflow-wrap:anywhere}
+  #usersTableBody td::before,#representativesTableBody td::before,#backupHistoryBody td::before{content:attr(data-mobile-label);color:var(--muted-text,#64748b);font-size:10px;font-weight:800}
+  #usersTableBody td:first-child,#representativesTableBody td:nth-child(2){font-size:15px;font-weight:850}
+  #usersTableBody .row-actions,#representativesTableBody .row-actions,#backupHistoryBody .row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  #usersTableBody .row-actions button,#representativesTableBody .row-actions button,#backupHistoryBody .row-actions button{min-height:39px;width:100%;font-size:10px}
+  #usersTableBody td.empty-state,#representativesTableBody td.empty-state,#backupHistoryBody td.empty-state{display:block;text-align:center}
+  #usersTableBody td.empty-state::before,#representativesTableBody td.empty-state::before,#backupHistoryBody td.empty-state::before{display:none}
+
+  #permissionsView .permissions-role-bar{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+  #permissionsView .permissions-role-bar label,#permissionsView .permissions-role-bar select{width:100%}
+  #permissionsView .permission-group{margin-bottom:12px;padding:13px;border:1px solid var(--border-color,rgba(148,163,184,.24));border-radius:18px;background:var(--surface,#fff)}
+  #permissionsView .permission-group h4{margin:0 0 10px;font-size:15px}
+  #permissionsView .permission-header{display:none}
+  #permissionsView .permission-row[data-screen-key]{display:grid;grid-template-columns:1fr repeat(5,38px);align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--border-color,rgba(148,163,184,.16))}
+  #permissionsView .permission-row[data-screen-key]:last-child{border-bottom:0}
+  #permissionsView .permission-row strong{min-width:0;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+  #permissionsView .permission-row input{width:25px;height:25px;margin:auto;accent-color:var(--primary,#6366f1)}
+
+  #representativesView .representatives-list-toolbar{margin:0}
+  #settingsView .reference-data-toolbar{margin:0}
+  #settingsView .reference-data-fullwidth{display:grid;grid-template-columns:1fr;gap:12px}
+  #settingsView .reference-data-panel{padding:14px;border-radius:18px}
+  #settingsView .reference-data-panel .panel-header{align-items:flex-start;gap:10px}
+  #settingsView .reference-list{display:grid;gap:8px}
+  #settingsView .reference-list>*{min-width:0}
+  #settingsView .reference-customers-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}
+  #settingsView .reference-customers-actions button{width:100%;min-height:40px;font-size:10px}
+  #settingsView .reference-customers-filters{grid-template-columns:1fr}
+  #settingsView .reference-customers-table-card{overflow-x:auto}
+
+  #backupsView .backup-overview-grid,#backupsView .backup-counts-grid{grid-template-columns:1fr;gap:10px}
+  #backupsView .backup-action-card{padding:14px;border-radius:18px}
+  #backupsView .backup-action-card button{width:100%;min-height:44px}
+  #backupsView .backup-inspection{padding:14px;border-radius:18px}
+
+  #systemSettingsView .settings-form-grid{grid-template-columns:1fr;gap:12px}
+  #systemSettingsView .settings-form-grid>.panel{padding:14px;border-radius:18px}
+  #systemSettingsView .form-grid{grid-template-columns:1fr}
+  #systemSettingsView .form-grid .full-width{grid-column:auto}
+  #systemSettingsView input,#systemSettingsView select,#systemSettingsView textarea{min-height:45px}
+
+  #userDialog,#representativeDialog,#referenceItemDialog{width:min(100% - 14px,560px);max-height:calc(100dvh - 18px);border-radius:22px}
+  #userDialog form,#representativeDialog form,#referenceItemDialog form{max-height:calc(100dvh - 18px);overflow-y:auto}
+  #userDialog .form-grid,#representativeDialog .form-grid,#referenceItemDialog .form-grid{grid-template-columns:1fr}
+}
+
+@media (max-width: 350px){
+  #permissionsView .permission-row[data-screen-key]{grid-template-columns:1fr repeat(5,32px);gap:3px}
+  #settingsView .reference-customers-actions{grid-template-columns:1fr}
+}
