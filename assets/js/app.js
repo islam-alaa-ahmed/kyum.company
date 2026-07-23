@@ -5705,7 +5705,15 @@ function initializeKyumThemeToggle() {
 initializeKyumThemeToggle();
 
 // Phase M7.2.1 — stable public navigation bridge for mobile controls.
-window.KYUMNavigateTo = (viewKey, options = {}) => switchView(viewKey, { ...options, trustedNavigation: viewKey === "dailyOperations" });
+window.KYUMNavigateTo = (viewKey, options = {}) => {
+  const normalizedView = String(viewKey || "").trim();
+  const button = document.querySelector(`.nav-item[data-view="${CSS.escape(normalizedView)}"]`);
+  if (button && options.fromSidebar === true) return openSidebarView(button);
+  return switchView(normalizedView, {
+    ...options,
+    trustedNavigation: normalizedView === "dailyOperations"
+  });
+};
 
 function setHeaderUserMenuOpen(isOpen) {
   const menu = document.getElementById("headerUserMenu");
@@ -5765,19 +5773,44 @@ window.addEventListener("hashchange", () => {
   switchView(requested, { silent: true, fromHistory: true, replaceHistory: true });
 });
 
-document.addEventListener("click", event => {
-  const button = event.target.closest?.(".nav-item[data-view]");
-  if (!button || button.disabled || button.classList.contains("hidden")) return;
-  event.preventDefault();
-  event.stopPropagation();
-  const viewKey = button.dataset.view;
+function openSidebarView(button) {
+  if (!button || button.disabled || button.classList.contains("hidden")) return false;
+
+  const viewKey = String(button.dataset.view || "").trim();
+  if (!viewKey || !views[viewKey]) return false;
+
+  // Phase M7.3.1: perform the view transition synchronously before closing the
+  // mobile sidebar. Closing the drawer first previously changed focus/layout
+  // state and could cancel the deferred dailyOperations transition.
+  const opened = switchView(viewKey, {
+    trustedNavigation: viewKey === "dailyOperations"
+  });
+
+  if (!opened) return false;
+
   setSidebarOpen(false);
+  document.getElementById("mobileBottomMenu")?.classList.remove("is-active");
+
+  // Keep the active navigation state deterministic after the drawer animation.
   requestAnimationFrame(() => {
-    switchView(viewKey, {
-      trustedNavigation: viewKey === "dailyOperations"
+    document.querySelectorAll(".nav-item[data-view]").forEach(item => {
+      item.classList.toggle("active", item.dataset.view === viewKey);
     });
   });
-}, true);
+
+  return true;
+}
+
+// A single bubbling handler owns sidebar navigation. Capture/deferred handlers
+// are intentionally avoided because they conflicted with the drawer close flow.
+document.addEventListener("click", event => {
+  const button = event.target.closest?.(".nav-item[data-view]");
+  if (!button) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  openSidebarView(button);
+});
 
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
 
