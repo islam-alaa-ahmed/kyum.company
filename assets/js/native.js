@@ -16,9 +16,9 @@
   async function configureStatusBar() {
     if (!StatusBar) return;
     try {
-      await StatusBar.setOverlaysWebView({ overlay: false });
+      await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setBackgroundColor({ color: "#071b26" });
-      await StatusBar.setStyle({ style: "DARK" });
+      await StatusBar.setStyle({ style: "LIGHT" });
     } catch (error) {
       console.warn("KYUM native status bar configuration failed", error);
     }

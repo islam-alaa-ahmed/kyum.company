@@ -731,7 +731,12 @@ function switchView(requestedName, options = {}) {
       reason: "permission_denied"
     };
 
-    if (!authorization.allowed) {
+    const visibleTrustedDailyNavigation = requestedView === "dailyOperations"
+      && options.trustedNavigation === true
+      && !document.querySelector('.nav-item[data-view="dailyOperations"]')?.classList.contains("hidden")
+      && document.querySelector('.nav-item[data-view="dailyOperations"]')?.disabled !== true;
+
+    if (!authorization.allowed && !visibleTrustedDailyNavigation) {
       console.warn(`Unauthorized view blocked: ${requestedView}`);
       window.dispatchEvent(new CustomEvent("kyum-navigation-blocked", {
         detail: { requestedView, reason: authorization.reason, fallback: authorization.target }
@@ -5700,7 +5705,7 @@ function initializeKyumThemeToggle() {
 initializeKyumThemeToggle();
 
 // Phase M7.2.1 — stable public navigation bridge for mobile controls.
-window.KYUMNavigateTo = (viewKey, options = {}) => switchView(viewKey, options);
+window.KYUMNavigateTo = (viewKey, options = {}) => switchView(viewKey, { ...options, trustedNavigation: viewKey === "dailyOperations" });
 
 function setHeaderUserMenuOpen(isOpen) {
   const menu = document.getElementById("headerUserMenu");
@@ -5760,23 +5765,18 @@ window.addEventListener("hashchange", () => {
   switchView(requested, { silent: true, fromHistory: true, replaceHistory: true });
 });
 
-document.querySelectorAll(".nav-item[data-view]").forEach(button => {
-  button.addEventListener("click", event => {
-    event.preventDefault();
-    setSidebarOpen(false);
-    switchView(button.dataset.view);
-  });
-});
-
-// Phase M7.2: delegated fallback for the daily-operations root item.
-// Keeps navigation reliable when the mobile sidebar is re-rendered or layered by the app shell.
-document.getElementById("mainSidebar")?.addEventListener("click", event => {
-  const target = event.target.closest('.nav-item[data-view="dailyOperations"]');
-  if (!target) return;
+document.addEventListener("click", event => {
+  const button = event.target.closest?.(".nav-item[data-view]");
+  if (!button || button.disabled || button.classList.contains("hidden")) return;
   event.preventDefault();
   event.stopPropagation();
+  const viewKey = button.dataset.view;
   setSidebarOpen(false);
-  switchView("dailyOperations");
+  requestAnimationFrame(() => {
+    switchView(viewKey, {
+      trustedNavigation: viewKey === "dailyOperations"
+    });
+  });
 }, true);
 
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
