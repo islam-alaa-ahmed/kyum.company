@@ -735,3 +735,155 @@
   initialize();
   MOBILE_MEDIA.addEventListener?.("change", initialize);
 })();
+
+
+/* Phase M7 — Mobile Quotations */
+(() => {
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const view = document.getElementById("quotationsView");
+  const body = document.getElementById("quotationsTableBody");
+  const filters = view?.querySelector(".quotation-filters");
+  if (!view || !body || !filters) return;
+
+  let observer;
+  const labels = ["رقم العرض", "العميل", "رقم العميل", "المندوب", "تاريخ العرض", "القيمة", "الحالة", "تاريخ الانتهاء", "سبب الرفض", "الإجراءات"];
+
+  function normalizePhone(value) {
+    const raw = String(value || "").trim();
+    if (!raw || raw === "—") return "";
+    return raw.replace(/[^\d+]/g, "");
+  }
+
+  function getRowData(row) {
+    const cells = [...row.cells];
+    return {
+      code: cells[0]?.textContent.trim() || "—",
+      customer: cells[1]?.textContent.trim() || "—",
+      phone: cells[2]?.textContent.trim() || "",
+      representative: cells[3]?.textContent.trim() || "—",
+      date: cells[4]?.textContent.trim() || "—",
+      amount: cells[5]?.textContent.trim() || "—",
+      status: cells[6]?.textContent.trim() || "—",
+      expiry: cells[7]?.textContent.trim() || "—",
+      rejection: cells[8]?.textContent.trim() || "—"
+    };
+  }
+
+  function quotationText(data) {
+    return `عرض سعر ${data.code}\nالعميل: ${data.customer}\nالمندوب: ${data.representative}\nالتاريخ: ${data.date}\nالقيمة: ${data.amount}\nالحالة: ${data.status}\nتاريخ الانتهاء: ${data.expiry}`;
+  }
+
+  async function shareQuotation(data) {
+    const text = quotationText(data);
+    if (navigator.share) {
+      try { await navigator.share({ title: `عرض سعر ${data.code}`, text }); return; } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      window.alert("تم نسخ بيانات عرض السعر.");
+    } catch {
+      window.prompt("انسخ بيانات عرض السعر:", text);
+    }
+  }
+
+  function printQuotation(data) {
+    const popup = window.open("", "_blank", "width=720,height=900");
+    if (!popup) return;
+    const escape = value => String(value ?? "").replace(/[&<>\"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+    popup.document.write(`<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>عرض سعر ${escape(data.code)}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#172033}h1{font-size:24px;margin:0 0 24px}.card{border:1px solid #d8dee9;border-radius:16px;padding:20px}.row{display:grid;grid-template-columns:160px 1fr;gap:16px;padding:11px 0;border-bottom:1px solid #edf0f5}.row:last-child{border:0}.label{color:#667085;font-weight:700}@media print{body{padding:0}.card{border-color:#aaa}}</style></head><body><h1>عرض سعر ${escape(data.code)}</h1><div class="card"><div class="row"><span class="label">العميل</span><strong>${escape(data.customer)}</strong></div><div class="row"><span class="label">رقم العميل</span><strong>${escape(data.phone || "—")}</strong></div><div class="row"><span class="label">المندوب</span><strong>${escape(data.representative)}</strong></div><div class="row"><span class="label">تاريخ العرض</span><strong>${escape(data.date)}</strong></div><div class="row"><span class="label">القيمة</span><strong>${escape(data.amount)}</strong></div><div class="row"><span class="label">الحالة</span><strong>${escape(data.status)}</strong></div><div class="row"><span class="label">تاريخ الانتهاء</span><strong>${escape(data.expiry)}</strong></div><div class="row"><span class="label">سبب الرفض</span><strong>${escape(data.rejection)}</strong></div></div><script>window.onload=()=>window.print()<\/script></body></html>`);
+    popup.document.close();
+  }
+
+  function enhanceRows() {
+    if (!MOBILE_MEDIA.matches) return;
+    [...body.rows].forEach(row => {
+      if (row.querySelector(".empty-state")) return;
+      [...row.cells].forEach((cell, index) => cell.dataset.mobileLabel = labels[index] || "");
+      if (row.dataset.mobileQuotationReady === "true") return;
+      row.dataset.mobileQuotationReady = "true";
+      const data = getRowData(row);
+      const actions = row.cells[9]?.querySelector(".row-actions") || row.cells[9];
+      if (!actions) return;
+
+      const phone = normalizePhone(data.phone);
+      if (phone) {
+        const call = document.createElement("a");
+        call.className = "mobile-quotation-call";
+        call.href = `tel:${phone}`;
+        call.textContent = "اتصال";
+        actions.prepend(call);
+
+        const whatsapp = document.createElement("a");
+        whatsapp.className = "mobile-quotation-whatsapp";
+        whatsapp.href = `https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(quotationText(data))}`;
+        whatsapp.target = "_blank";
+        whatsapp.rel = "noopener";
+        whatsapp.textContent = "WhatsApp";
+        actions.append(whatsapp);
+      }
+
+      const share = document.createElement("button");
+      share.type = "button";
+      share.className = "mobile-quotation-share";
+      share.textContent = "مشاركة";
+      share.addEventListener("click", () => shareQuotation(getRowData(row)));
+      actions.append(share);
+
+      const print = document.createElement("button");
+      print.type = "button";
+      print.className = "mobile-quotation-print";
+      print.textContent = "PDF / طباعة";
+      print.addEventListener("click", () => printQuotation(getRowData(row)));
+      actions.append(print);
+    });
+  }
+
+  function closeFilters() {
+    view.classList.remove("mobile-quotations-filters-open");
+    view.querySelector("[data-mobile-quotations-filter]")?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-quotations-sheet-open");
+  }
+
+  function ensureToolbar() {
+    if (view.querySelector(".mobile-quotations-toolbar")) return;
+    const toolbar = document.createElement("div");
+    toolbar.className = "mobile-quotations-toolbar";
+    toolbar.innerHTML = `<div><strong>عروض الأسعار</strong><small>ابحث وراجع وشارك العروض بسهولة</small></div><button type="button" data-mobile-quotations-filter aria-expanded="false">الفلاتر</button>`;
+    view.querySelector(".actions-row")?.after(toolbar);
+
+    filters.classList.add("mobile-quotations-filter-sheet");
+    const sheetHeader = document.createElement("div");
+    sheetHeader.className = "mobile-quotations-sheet-header";
+    sheetHeader.innerHTML = `<div><strong>فلترة عروض الأسعار</strong><small>البحث والحالة والمندوب</small></div><button type="button" aria-label="إغلاق">×</button>`;
+    filters.prepend(sheetHeader);
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "mobile-quotations-filter-backdrop";
+    backdrop.setAttribute("aria-label", "إغلاق الفلاتر");
+    view.append(backdrop);
+
+    toolbar.querySelector("button")?.addEventListener("click", () => {
+      const open = !view.classList.contains("mobile-quotations-filters-open");
+      view.classList.toggle("mobile-quotations-filters-open", open);
+      toolbar.querySelector("button")?.setAttribute("aria-expanded", String(open));
+      document.body.classList.toggle("mobile-quotations-sheet-open", open);
+    });
+    sheetHeader.querySelector("button")?.addEventListener("click", closeFilters);
+    backdrop.addEventListener("click", closeFilters);
+    filters.querySelectorAll("input, select").forEach(control => control.addEventListener("change", () => window.setTimeout(enhanceRows, 0)));
+  }
+
+  function initialize() {
+    ensureToolbar();
+    enhanceRows();
+    observer?.disconnect();
+    observer = new MutationObserver(enhanceRows);
+    observer.observe(body, { childList: true, subtree: true });
+  }
+
+  initialize();
+  MOBILE_MEDIA.addEventListener?.("change", initialize);
+})();

@@ -716,3 +716,199 @@
   #dailyOperationsView .daily-operations-kpis { grid-template-columns: 1fr; }
   #dailyOperationsView .daily-operations-kpis > article { grid-column: auto !important; }
 }
+
+
+/* Phase M7 — Mobile Quotations */
+@media (max-width: 767px) {
+  body.mobile-quotations-sheet-open { overflow: hidden; }
+
+  #quotationsView .actions-row {
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  #quotationsView .actions-row > div { min-width: 0; }
+  #quotationsView .actions-row #addQuotationBtn {
+    position: fixed;
+    inset-inline-end: 18px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    z-index: 55;
+    width: 54px;
+    height: 54px;
+    min-height: 54px;
+    padding: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    color: transparent;
+    box-shadow: 0 14px 30px rgba(37,99,235,.3);
+  }
+
+  #quotationsView .actions-row #addQuotationBtn::before {
+    content: "+";
+    color: #fff;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+    font-weight: 500;
+  }
+
+  #quotationsView .mobile-quotations-toolbar {
+    position: sticky;
+    top: calc(62px + env(safe-area-inset-top));
+    z-index: 24;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, rgba(148,163,184,.25));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--surface, #fff) 92%, transparent);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 24px rgba(15,23,42,.08);
+  }
+
+  #quotationsView .mobile-quotations-toolbar strong,
+  #quotationsView .mobile-quotations-toolbar small { display: block; }
+  #quotationsView .mobile-quotations-toolbar small { margin-top: 3px; color: var(--muted-text, #64748b); font-size: 11px; }
+  #quotationsView .mobile-quotations-toolbar button {
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid var(--border-color, rgba(148,163,184,.3));
+    border-radius: 12px;
+    background: var(--surface, #fff);
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+  }
+
+  #quotationsView #quotationStats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  #quotationsView #quotationStats .followup-stat { min-height: 94px; padding: 13px; border-radius: 16px; }
+  #quotationsView #quotationStats .followup-stat strong { font-size: 20px; overflow-wrap: anywhere; }
+
+  #quotationsView .mobile-quotations-filter-sheet {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 101;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 0;
+    padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 22px 22px 0 0;
+    background: var(--surface, #fff);
+    box-shadow: 0 -18px 45px rgba(15,23,42,.18);
+    transform: translateY(110%);
+    transition: transform .24s ease;
+  }
+  #quotationsView.mobile-quotations-filters-open .mobile-quotations-filter-sheet { transform: translateY(0); }
+  #quotationsView .mobile-quotations-filter-sheet input,
+  #quotationsView .mobile-quotations-filter-sheet select { width: 100%; min-height: 46px; }
+  #quotationsView .mobile-quotations-sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+  #quotationsView .mobile-quotations-sheet-header strong,
+  #quotationsView .mobile-quotations-sheet-header small { display: block; }
+  #quotationsView .mobile-quotations-sheet-header small { color: var(--muted-text, #64748b); margin-top: 2px; font-size: 11px; }
+  #quotationsView .mobile-quotations-sheet-header button { width: 40px; height: 40px; border: 0; border-radius: 12px; background: rgba(148,163,184,.15); color: inherit; font-size: 24px; }
+  #quotationsView .mobile-quotations-filter-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    border: 0;
+    background: rgba(15,23,42,.48);
+  }
+  #quotationsView.mobile-quotations-filters-open .mobile-quotations-filter-backdrop { display: block; }
+
+  #quotationsView .table-card { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+  #quotationsView table,
+  #quotationsView tbody,
+  #quotationsView tr,
+  #quotationsView td { display: block; width: 100%; }
+  #quotationsView thead { display: none; }
+  #quotationsView tbody { display: grid; gap: 12px; }
+  #quotationsView tbody tr {
+    padding: 15px;
+    border: 1px solid var(--border-color, rgba(148,163,184,.24));
+    border-radius: 18px;
+    background: var(--surface, #fff);
+    box-shadow: 0 8px 24px rgba(15,23,42,.06);
+  }
+  #quotationsView tbody td {
+    display: grid;
+    grid-template-columns: minmax(96px, 35%) 1fr;
+    align-items: start;
+    gap: 10px;
+    padding: 7px 0;
+    border: 0;
+    text-align: start;
+    overflow-wrap: anywhere;
+  }
+  #quotationsView tbody td::before {
+    content: attr(data-mobile-label);
+    color: var(--muted-text, #64748b);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  #quotationsView tbody td:first-child {
+    grid-template-columns: 1fr;
+    padding: 0 0 11px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-color, rgba(148,163,184,.18));
+    font-size: 17px;
+  }
+  #quotationsView tbody td:first-child::before { display: none; }
+  #quotationsView tbody td:nth-child(6) { font-size: 16px; font-weight: 800; }
+  #quotationsView tbody td:last-child { display: block; padding-top: 12px; }
+  #quotationsView tbody td:last-child::before { display: none; }
+  #quotationsView tbody td.empty-state { display: block; text-align: center; }
+  #quotationsView tbody td.empty-state::before { display: none; }
+
+  #quotationsView .row-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  #quotationsView .row-actions > * {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  #quotationsView .mobile-quotation-call,
+  #quotationsView .mobile-quotation-whatsapp,
+  #quotationsView .mobile-quotation-share,
+  #quotationsView .mobile-quotation-print {
+    border: 1px solid var(--border-color, rgba(148,163,184,.3));
+    background: var(--surface, #fff);
+    color: inherit;
+  }
+  #quotationsView .mobile-quotation-whatsapp { color: #15803d; }
+  #quotationsView .mobile-quotation-call { color: #1d4ed8; }
+
+  #quotationsView #quotationsPagination { align-items: center; gap: 10px; padding-bottom: 72px; }
+  #quotationsView #quotationsPagination > div { display: flex; align-items: center; gap: 8px; }
+
+  #quotationDialog { width: min(100% - 16px, 560px); max-height: calc(100dvh - 20px); border-radius: 20px; }
+  #quotationDialog .form-grid { grid-template-columns: 1fr; }
+  #quotationDialog .dialog-actions { position: sticky; bottom: 0; padding-top: 12px; background: var(--surface, #fff); }
+  #quotationDialog .dialog-actions button { min-height: 46px; }
+}
+
+@media (max-width: 390px) {
+  #quotationsView #quotationStats { grid-template-columns: 1fr; }
+  #quotationsView .row-actions { grid-template-columns: 1fr; }
+}
