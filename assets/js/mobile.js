@@ -1,3 +1,70 @@
+
+/* Phase M7.1 — Shared Saudi phone normalization */
+(() => {
+  "use strict";
+
+  function normalizeSaudiPhone(value) {
+    let digits = String(value ?? "").replace(/\D/g, "");
+    if (!digits) return "";
+
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    if (digits.startsWith("9660")) digits = `966${digits.slice(4)}`;
+    else if (digits.startsWith("0") && digits.length === 10) digits = `966${digits.slice(1)}`;
+    else if (digits.startsWith("5") && digits.length === 9) digits = `966${digits}`;
+
+    return /^9665\d{8}$/.test(digits) ? digits : "";
+  }
+
+  function whatsappUrl(value, text = "") {
+    const phone = normalizeSaudiPhone(value);
+    if (!phone) return "";
+    return `https://wa.me/${phone}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+  }
+
+  function telephoneUrl(value) {
+    const phone = normalizeSaudiPhone(value);
+    return phone ? `tel:+${phone}` : "";
+  }
+
+  window.KYUMMobilePhone = Object.freeze({ normalizeSaudiPhone, whatsappUrl, telephoneUrl });
+})();
+
+/* Phase M7.1 — Compact mobile application header */
+(() => {
+  "use strict";
+  const MEDIA = window.matchMedia("(max-width: 767px)");
+  const header = document.getElementById("appHeader");
+  const launcher = document.getElementById("sidebarMenuToggle");
+  const title = document.querySelector("#appHeader .topbar-title");
+  const originalLauncherMarkup = launcher?.innerHTML || "";
+  if (!header || !launcher) return;
+
+  function ensureHeader() {
+    let brand = header.querySelector(".mobile-app-brand");
+    if (!brand) {
+      brand = document.createElement("div");
+      brand.className = "mobile-app-brand";
+      brand.setAttribute("aria-label", "KYUM CRM");
+      brand.innerHTML = `<img src="assets/images/apple-touch-icon.png" alt=""><span><strong>KYUM</strong><small>CRM</small></span>`;
+      title?.insertAdjacentElement("beforebegin", brand);
+    }
+
+    launcher.setAttribute("aria-label", "فتح القائمة");
+    launcher.innerHTML = `<svg class="mobile-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`;
+  }
+
+  function sync() {
+    if (MEDIA.matches) {
+      ensureHeader();
+      return;
+    }
+    header.querySelector(".mobile-app-brand")?.remove();
+    if (launcher.querySelector(".mobile-menu-icon")) launcher.innerHTML = originalLauncherMarkup;
+  }
+
+  sync();
+  MEDIA.addEventListener?.("change", sync);
+})();
 (() => {
   "use strict";
 
@@ -240,7 +307,7 @@
       if (!actions.querySelector(".mobile-customer-call")) {
         const call = document.createElement("a");
         call.className = "mobile-customer-call";
-        call.href = `tel:${phone}`;
+        call.href = window.KYUMMobilePhone.telephoneUrl(phone) || `tel:${phone}`;
         call.textContent = "اتصال";
         call.setAttribute("aria-label", `اتصال بالعميل ${phone}`);
         actions.append(call);
@@ -248,7 +315,7 @@
       if (!actions.querySelector(".mobile-customer-whatsapp")) {
         const whatsapp = document.createElement("a");
         whatsapp.className = "mobile-customer-whatsapp";
-        whatsapp.href = `https://wa.me/${phone.replace(/^00/, "").replace(/^\+/, "")}`;
+        whatsapp.href = window.KYUMMobilePhone.whatsappUrl(phone);
         whatsapp.target = "_blank";
         whatsapp.rel = "noopener noreferrer";
         whatsapp.textContent = "WhatsApp";
@@ -342,7 +409,7 @@
     }
     actions.innerHTML = hasPhone ? `
       <a href="tel:${phoneCandidate}" data-kind="call" aria-label="اتصال بالعميل">اتصال بالعميل</a>
-      <a href="https://wa.me/${phoneCandidate.replace(/^00/, "").replace(/^\+/, "")}" target="_blank" rel="noopener noreferrer" data-kind="whatsapp" aria-label="فتح واتساب للعميل">WhatsApp</a>
+      <a href="${window.KYUMMobilePhone.whatsappUrl(phoneCandidate)}" target="_blank" rel="noopener noreferrer" data-kind="whatsapp" aria-label="فتح واتساب للعميل">WhatsApp</a>
     ` : "";
     actions.hidden = !hasPhone;
 
@@ -550,7 +617,7 @@
       if (phone && !actions.querySelector(".mobile-followup-call")) {
         const call = document.createElement("a");
         call.className = "mobile-followup-call";
-        call.href = `tel:${phone}`;
+        call.href = window.KYUMMobilePhone.telephoneUrl(phone) || `tel:${phone}`;
         call.textContent = "اتصال";
         call.setAttribute("aria-label", "اتصال بالعميل");
         actions.prepend(call);
@@ -559,7 +626,7 @@
       if (phone && !actions.querySelector(".mobile-followup-whatsapp")) {
         const whatsapp = document.createElement("a");
         whatsapp.className = "mobile-followup-whatsapp";
-        whatsapp.href = `https://wa.me/${phone.replace(/^\+/, "")}`;
+        whatsapp.href = window.KYUMMobilePhone.whatsappUrl(phone);
         whatsapp.target = "_blank";
         whatsapp.rel = "noopener noreferrer";
         whatsapp.textContent = "واتساب";
@@ -811,13 +878,13 @@
       if (phone) {
         const call = document.createElement("a");
         call.className = "mobile-quotation-call";
-        call.href = `tel:${phone}`;
+        call.href = window.KYUMMobilePhone.telephoneUrl(phone) || `tel:${phone}`;
         call.textContent = "اتصال";
         actions.prepend(call);
 
         const whatsapp = document.createElement("a");
         whatsapp.className = "mobile-quotation-whatsapp";
-        whatsapp.href = `https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(quotationText(data))}`;
+        whatsapp.href = window.KYUMMobilePhone.whatsappUrl(phone, quotationText(data));
         whatsapp.target = "_blank";
         whatsapp.rel = "noopener";
         whatsapp.textContent = "WhatsApp";

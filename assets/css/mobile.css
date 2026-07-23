@@ -912,3 +912,127 @@
   #quotationsView #quotationStats { grid-template-columns: 1fr; }
   #quotationsView .row-actions { grid-template-columns: 1fr; }
 }
+
+/* KYUM Company CRM Mobile Enterprise — Phase M7.1 Header & Layout Hotfix */
+@media (max-width: 767px){
+  :root{--mobile-header-height:58px}
+
+  .main-content{
+    padding-top:10px;
+    padding-inline:10px;
+    padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 20px);
+  }
+
+  #appHeader.topbar{
+    position:sticky;
+    z-index:1050;
+    top:0;
+    display:grid;
+    grid-template-columns:44px minmax(0,1fr) 44px;
+    grid-template-areas:"menu brand actions";
+    align-items:center;
+    min-height:calc(var(--mobile-header-height) + var(--mobile-safe-top));
+    margin:-10px -10px 12px;
+    padding:calc(7px + var(--mobile-safe-top)) 10px 7px;
+    border:0;
+    border-bottom:1px solid var(--header-border);
+    border-radius:0 0 18px 18px;
+    background:color-mix(in srgb,var(--surface) 92%,transparent);
+    box-shadow:0 8px 24px rgba(15,23,42,.10);
+    overflow:visible;
+  }
+
+  #appHeader.topbar.is-scrolled{
+    min-height:calc(54px + var(--mobile-safe-top));
+    padding:calc(5px + var(--mobile-safe-top)) 10px 5px;
+  }
+
+  #appHeader .sidebar-menu-launcher{
+    grid-area:menu;
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    min-width:42px;
+    padding:0;
+    border:1px solid var(--header-border);
+    border-radius:13px;
+    background:color-mix(in srgb,var(--surface) 88%,transparent);
+    color:var(--text);
+  }
+
+  #appHeader .mobile-menu-icon{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #appHeader .topbar-title{display:none!important}
+
+  #appHeader .mobile-app-brand{
+    grid-area:brand;
+    min-width:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    direction:ltr;
+    color:var(--text);
+    user-select:none;
+  }
+
+  #appHeader .mobile-app-brand img{
+    width:36px;
+    height:36px;
+    flex:0 0 36px;
+    border-radius:11px;
+    object-fit:cover;
+    box-shadow:0 5px 14px rgba(67,56,202,.22);
+  }
+
+  #appHeader .mobile-app-brand span{display:flex;align-items:baseline;gap:5px;min-width:0;line-height:1}
+  #appHeader .mobile-app-brand strong{font-size:16px;letter-spacing:.4px;white-space:nowrap}
+  #appHeader .mobile-app-brand small{font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--primary)}
+
+  #appHeader .topbar-user-actions{
+    grid-area:actions;
+    width:42px;
+    min-width:42px;
+    justify-content:flex-end;
+  }
+
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    border:1px solid var(--header-border);
+    border-radius:13px;
+    background:color-mix(in srgb,var(--surface) 88%,transparent);
+  }
+
+  #appHeader .topbar-brand,
+  #appHeader .topbar-watermark,
+  #appHeader .header-user-menu,
+  #appHeader .kyum-scroll-control{display:none!important}
+
+  .view-section:not(.hidden){scroll-margin-top:calc(var(--mobile-header-height) + var(--mobile-safe-top) + 12px)}
+  .view-section>.view-header:first-child,
+  .view-section>.actions-row:first-child{margin-top:0}
+
+  #dashboardView .dashboard-mobile-toolbar{margin-top:0}
+  #dashboardView .dashboard-stats{gap:10px}
+  #dashboardView .stat-card{min-height:126px}
+
+  .mobile-bottom-nav{z-index:1060}
+}
+
+@media (max-width: 340px){
+  #appHeader .mobile-app-brand img{width:32px;height:32px;flex-basis:32px}
+  #appHeader .mobile-app-brand strong{font-size:14px}
+  #appHeader .mobile-app-brand small{font-size:8px}
+  #dashboardView .dashboard-stats{grid-template-columns:1fr}
+}
+
+@media (orientation:landscape) and (max-height:520px) and (max-width:900px){
+  #appHeader.topbar{--mobile-header-height:50px;padding-top:calc(4px + var(--mobile-safe-top));padding-bottom:4px;border-radius:0 0 14px 14px}
+  #appHeader .mobile-app-brand img{width:32px;height:32px;flex-basis:32px}
+  #appHeader .sidebar-menu-launcher,
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{width:38px;height:38px;min-width:38px;flex-basis:38px}
+}
