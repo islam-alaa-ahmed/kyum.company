@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta id="browserThemeColor" name="theme-color" content="#f4f7fb" />
+  <meta id="browserThemeColor" name="theme-color" content="#0f172a" />
+  <meta name="application-name" content="KYUM CRM" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KYUM CRM" />
+  <meta name="msapplication-TileColor" content="#0f172a" />
   <script>
     (() => {
       const savedTheme = localStorage.getItem("kyum-color-theme");
@@ -17,6 +23,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="assets/images/pwa-splash-portrait.png" media="(orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="assets/images/pwa-splash-landscape.png" media="(orientation: landscape)">
   <link rel="manifest" href="site.webmanifest">
   <title>نظام إدارة ومتابعة العملاء</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2462,6 +2470,7 @@
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>
   <script src="assets/js/daily-activity-service.js?v=16.6"></script>
   <script src="assets/js/app.js?v=17.5.5"></script>
-  <script src="assets/js/mobile.js?v=M9.0.0"></script>
+  <script src="assets/js/mobile.js?v=M10.0.0"></script>
+  <script src="assets/js/pwa.js?v=M10.0.0"></script>
 </body>
 </html>
