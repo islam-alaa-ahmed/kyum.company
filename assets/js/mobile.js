@@ -383,3 +383,221 @@
   syncPermissionVisibility();
   syncActiveState();
 })();
+
+/* KYUM Mobile Enterprise — Phase M5: Follow-ups */
+(() => {
+  "use strict";
+
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const followupsView = document.getElementById("followupsView");
+  if (!followupsView) return;
+
+  let filtersOpen = false;
+  let rowObserver = null;
+
+  const labels = [
+    "العميل",
+    "رقم العميل",
+    "تاريخ التواصل",
+    "طريقة التواصل",
+    "المندوب",
+    "نتيجة التواصل",
+    "عرض السعر",
+    "المتابعة القادمة",
+    "الحالة",
+    "الإجراءات"
+  ];
+
+  const fields = [
+    "customer",
+    "phone",
+    "contact-date",
+    "method",
+    "representative",
+    "result",
+    "quotation",
+    "next-date",
+    "status",
+    "actions"
+  ];
+
+  function normalizePhone(value) {
+    return String(value || "").replace(/[^\d+]/g, "");
+  }
+
+  function closeFilters() {
+    filtersOpen = false;
+    followupsView.classList.remove("mobile-followups-filters-open");
+    followupsView.querySelector("[data-mobile-followups-filter]")?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("mobile-followups-sheet-open");
+  }
+
+  function toggleFilters() {
+    filtersOpen = !filtersOpen;
+    followupsView.classList.toggle("mobile-followups-filters-open", filtersOpen);
+    followupsView.querySelector("[data-mobile-followups-filter]")?.setAttribute("aria-expanded", String(filtersOpen));
+    document.body.classList.toggle("mobile-followups-sheet-open", filtersOpen);
+  }
+
+  function activeStatusLabel() {
+    const select = document.getElementById("followupStatusFilter");
+    return select?.selectedOptions?.[0]?.textContent?.trim() || "كل المتابعات";
+  }
+
+  function updateToolbarState() {
+    const active = followupsView.querySelector("[data-mobile-followups-active-filter]");
+    if (active) active.textContent = activeStatusLabel();
+
+    const selected = document.getElementById("followupStatusFilter")?.value || "";
+    followupsView.querySelectorAll("[data-mobile-followups-status]").forEach(button => {
+      button.classList.toggle("is-active", button.dataset.mobileFollowupsStatus === selected);
+    });
+  }
+
+  function applyQuickStatus(status) {
+    const select = document.getElementById("followupStatusFilter");
+    if (!select) return;
+    select.value = status;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    updateToolbarState();
+  }
+
+  function installShell() {
+    if (followupsView.querySelector(".mobile-followups-toolbar")) return;
+
+    const actions = followupsView.querySelector(":scope > .actions-row");
+    const stats = document.getElementById("followupStats");
+    const filters = followupsView.querySelector(".followup-filters");
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "mobile-followups-toolbar";
+    toolbar.innerHTML = `
+      <div class="mobile-followups-heading">
+        <span>إدارة التواصل</span>
+        <strong>المتابعات</strong>
+        <small data-mobile-followups-active-filter>كل المتابعات</small>
+      </div>
+      <button type="button" class="mobile-followups-filter-button" data-mobile-followups-filter aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        <span>الفلاتر</span>
+      </button>`;
+
+    actions?.insertAdjacentElement("afterend", toolbar);
+
+    const quickNav = document.createElement("div");
+    quickNav.className = "mobile-followups-quicknav";
+    quickNav.setAttribute("aria-label", "فلترة المتابعات حسب الحالة");
+    quickNav.innerHTML = `
+      <button type="button" data-mobile-followups-status="">الكل</button>
+      <button type="button" data-mobile-followups-status="today">اليوم</button>
+      <button type="button" data-mobile-followups-status="overdue">المتأخرة</button>
+      <button type="button" data-mobile-followups-status="upcoming">القادمة</button>
+      <button type="button" data-mobile-followups-status="completed">المكتملة</button>`;
+    stats?.insertAdjacentElement("afterend", quickNav);
+
+    if (filters) {
+      filters.classList.add("mobile-followups-filter-sheet");
+      const header = document.createElement("div");
+      header.className = "mobile-followups-sheet-header";
+      header.innerHTML = `
+        <div><span>خيارات العرض</span><strong>فلترة المتابعات</strong></div>
+        <button type="button" class="mobile-followups-filter-close" aria-label="إغلاق الفلاتر">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>`;
+      filters.prepend(header);
+      header.querySelector("button")?.addEventListener("click", closeFilters);
+    }
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "mobile-followups-filter-backdrop";
+    backdrop.setAttribute("aria-label", "إغلاق فلاتر المتابعات");
+    followupsView.append(backdrop);
+
+    toolbar.querySelector("[data-mobile-followups-filter]")?.addEventListener("click", toggleFilters);
+    backdrop.addEventListener("click", closeFilters);
+
+    quickNav.querySelectorAll("[data-mobile-followups-status]").forEach(button => {
+      button.addEventListener("click", () => applyQuickStatus(button.dataset.mobileFollowupsStatus || ""));
+    });
+
+    followupsView.querySelectorAll("#followupStatusFilter, #followupRepFilter").forEach(control => {
+      control.addEventListener("change", () => {
+        updateToolbarState();
+        window.setTimeout(closeFilters, 120);
+      });
+    });
+
+    updateToolbarState();
+  }
+
+  function decorateRows() {
+    followupsView.querySelectorAll("#followupsTableBody tr").forEach(row => {
+      const cells = [...row.children];
+      if (cells.length !== 10) return;
+
+      cells.forEach((cell, index) => {
+        cell.dataset.mobileLabel = labels[index];
+        cell.dataset.mobileField = fields[index];
+      });
+
+      const actionCell = cells[9];
+      const actions = actionCell?.querySelector(".row-actions");
+      const phone = normalizePhone(cells[1]?.textContent);
+      const editButton = actions?.querySelector("[data-edit-followup]");
+      if (!actions) return;
+
+      if (phone && !actions.querySelector(".mobile-followup-call")) {
+        const call = document.createElement("a");
+        call.className = "mobile-followup-call";
+        call.href = `tel:${phone}`;
+        call.textContent = "اتصال";
+        call.setAttribute("aria-label", "اتصال بالعميل");
+        actions.prepend(call);
+      }
+
+      if (phone && !actions.querySelector(".mobile-followup-whatsapp")) {
+        const whatsapp = document.createElement("a");
+        whatsapp.className = "mobile-followup-whatsapp";
+        whatsapp.href = `https://wa.me/${phone.replace(/^\+/, "")}`;
+        whatsapp.target = "_blank";
+        whatsapp.rel = "noopener noreferrer";
+        whatsapp.textContent = "واتساب";
+        whatsapp.setAttribute("aria-label", "فتح واتساب للعميل");
+        actions.insertBefore(whatsapp, editButton || actions.firstChild);
+      }
+
+      if (editButton && !actions.querySelector(".mobile-followup-update")) {
+        const update = document.createElement("button");
+        update.type = "button";
+        update.className = "mobile-followup-update";
+        update.dataset.editFollowup = editButton.dataset.editFollowup;
+        update.textContent = "تحديث الحالة";
+        actions.insertBefore(update, editButton);
+        editButton.textContent = "تعديل التفاصيل";
+      }
+    });
+  }
+
+  function observeRows() {
+    const body = document.getElementById("followupsTableBody");
+    if (!body || rowObserver) return;
+    rowObserver = new MutationObserver(decorateRows);
+    rowObserver.observe(body, { childList: true, subtree: true });
+    decorateRows();
+  }
+
+  function syncMobileState() {
+    if (!MOBILE_MEDIA.matches) closeFilters();
+    updateToolbarState();
+    decorateRows();
+  }
+
+  installShell();
+  observeRows();
+  syncMobileState();
+
+  window.addEventListener("customer-auth-ready", syncMobileState);
+  window.addEventListener("hashchange", syncMobileState);
+  MOBILE_MEDIA.addEventListener?.("change", syncMobileState);
+})();

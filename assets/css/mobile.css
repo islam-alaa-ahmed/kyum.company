@@ -351,3 +351,78 @@
   #customerDetailsDialog .customer360-status-card{grid-template-columns:1fr}
   #customerDetailsDialog .customer360-profile-grid{grid-template-columns:1fr}
 }
+
+/* KYUM Mobile Enterprise — Phase M5: Follow-ups */
+@media (max-width: 767px){
+  body.mobile-followups-sheet-open{overflow:hidden}
+  #followupsView{position:relative}
+  #followupsView>.actions-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px}
+  #followupsView>.actions-row>div{min-width:0}
+  #followupsView>.actions-row .section-title{font-size:17px;line-height:1.35}
+  #followupsView>.actions-row .section-note{font-size:10px;line-height:1.55}
+  #followupsView #addFollowupBtn{min-height:42px;padding:9px 13px;border-radius:13px;font-size:11px;white-space:nowrap}
+
+  .mobile-followups-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:13px 14px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 10%,var(--surface)),var(--surface));box-shadow:0 10px 28px rgba(15,23,42,.07)}
+  .mobile-followups-heading{display:grid;gap:2px;min-width:0}
+  .mobile-followups-heading>span{font-size:9px;font-weight:800;color:var(--muted)}
+  .mobile-followups-heading>strong{font-size:16px;color:var(--text)}
+  .mobile-followups-heading>small{max-width:170px;font-size:10px;font-weight:800;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-followups-filter-button{display:flex;align-items:center;justify-content:center;gap:6px;min-width:82px;min-height:42px;padding:8px 11px;border:1px solid var(--border);border-radius:13px;background:var(--surface);color:var(--text);font-size:10px;font-weight:900}
+  .mobile-followups-filter-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+  #followupsView .followup-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:10px}
+  #followupsView .followup-stat{min-width:0;padding:12px;border:1px solid var(--border);border-radius:15px;background:var(--surface);box-shadow:0 8px 22px rgba(15,23,42,.05)}
+  #followupsView .followup-stat span{display:block;font-size:9px;color:var(--muted);font-weight:800}
+  #followupsView .followup-stat strong{display:block;margin-top:4px;font-size:20px;color:var(--text)}
+
+  .mobile-followups-quicknav{display:flex;gap:7px;margin:0 -2px 12px;padding:2px;overflow-x:auto;scrollbar-width:none}
+  .mobile-followups-quicknav::-webkit-scrollbar{display:none}
+  .mobile-followups-quicknav button{flex:0 0 auto;min-height:36px;padding:7px 13px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:900}
+  .mobile-followups-quicknav button.is-active{border-color:color-mix(in srgb,var(--primary) 60%,var(--border));background:color-mix(in srgb,var(--primary) 14%,var(--surface));color:var(--primary)}
+
+  #followupsView .mobile-followups-filter-sheet{position:fixed;z-index:1092;right:0;bottom:0;left:0;display:grid;grid-template-columns:1fr;gap:12px;margin:0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));border:1px solid var(--border);border-bottom:0;border-radius:24px 24px 0 0;background:var(--surface);box-shadow:0 -20px 54px rgba(15,23,42,.22);transform:translateY(110%);transition:transform .24s ease}
+  #followupsView.mobile-followups-filters-open .mobile-followups-filter-sheet{transform:translateY(0)}
+  #followupsView .mobile-followups-filter-sheet input,#followupsView .mobile-followups-filter-sheet select{width:100%;min-height:46px;border-radius:13px}
+  .mobile-followups-sheet-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  .mobile-followups-sheet-header>div{display:grid;gap:2px}
+  .mobile-followups-sheet-header span{font-size:9px;color:var(--muted);font-weight:800}
+  .mobile-followups-sheet-header strong{font-size:15px}
+  .mobile-followups-filter-close{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);color:var(--text)}
+  .mobile-followups-filter-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+  .mobile-followups-filter-backdrop{position:fixed;z-index:1091;inset:0;display:block;border:0;background:rgba(2,6,23,.58);opacity:0;visibility:hidden;pointer-events:none;transition:.2s ease}
+  #followupsView.mobile-followups-filters-open .mobile-followups-filter-backdrop{opacity:1;visibility:visible;pointer-events:auto}
+
+  #followupsView .table-card{overflow:visible;border:0;background:transparent;box-shadow:none}
+  #followupsView table,#followupsView tbody{display:block;width:100%}
+  #followupsView thead{display:none}
+  #followupsView tbody{display:grid;gap:12px}
+  #followupsView tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 10px 28px rgba(15,23,42,.07)}
+  #followupsView tbody tr:has(.empty-state){display:block;text-align:center}
+  #followupsView tbody td{display:block;min-width:0;padding:0;border:0;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+  #followupsView tbody td::before{content:attr(data-mobile-label);display:block;margin-bottom:3px;color:var(--muted);font-size:9px;font-weight:800}
+  #followupsView tbody td[data-mobile-field="customer"],#followupsView tbody td[data-mobile-field="phone"],#followupsView tbody td[data-mobile-field="result"],#followupsView tbody td[data-mobile-field="status"],#followupsView tbody td[data-mobile-field="actions"]{grid-column:1/-1}
+  #followupsView tbody td[data-mobile-field="customer"]{padding-bottom:9px;border-bottom:1px solid var(--border)}
+  #followupsView tbody td[data-mobile-field="customer"] strong{font-size:16px;color:var(--text)}
+  #followupsView tbody td[data-mobile-field="phone"]{font-size:14px;font-weight:800;color:var(--primary)}
+  #followupsView tbody td[data-mobile-field="status"] .status-badge{display:inline-flex;min-height:30px;align-items:center;padding:5px 10px;border-radius:999px}
+  #followupsView tbody td[data-mobile-field="actions"]{padding-top:10px;border-top:1px solid var(--border)}
+  #followupsView .row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #followupsView .row-actions button,#followupsView .row-actions a{display:flex;align-items:center;justify-content:center;min-height:40px;padding:8px 9px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none}
+  #followupsView .mobile-followup-call{border:1px solid var(--border);background:var(--surface-soft);color:var(--text)}
+  #followupsView .mobile-followup-whatsapp{border:1px solid color-mix(in srgb,#22c55e 50%,var(--border));background:color-mix(in srgb,#22c55e 12%,var(--surface));color:#15803d}
+  [data-theme="dark"] #followupsView .mobile-followup-whatsapp{color:#86efac}
+  #followupsView .mobile-followup-update{border:1px solid color-mix(in srgb,var(--primary) 45%,var(--border));background:color-mix(in srgb,var(--primary) 12%,var(--surface));color:var(--primary)}
+  #followupsView .table-pagination{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+
+  #followupDialog{width:calc(100vw - 20px);max-width:none;max-height:calc(100dvh - 20px);margin:auto;border-radius:20px}
+  #followupDialog form{max-height:calc(100dvh - 20px);overflow:auto}
+  #followupDialog .dialog-header{position:sticky;top:0;z-index:3;padding-top:calc(12px + env(safe-area-inset-top));background:var(--surface)}
+  #followupDialog .form-grid{grid-template-columns:1fr}
+  #followupDialog .dialog-actions{position:sticky;bottom:0;z-index:3;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--surface)}
+}
+
+@media (max-width: 390px){
+  #followupsView>.actions-row{grid-template-columns:1fr}
+  #followupsView #addFollowupBtn{width:100%}
+  #followupsView .row-actions{grid-template-columns:1fr}
+}
