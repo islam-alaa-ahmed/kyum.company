@@ -109,3 +109,132 @@
 @media print{
   .mobile-bottom-nav{display:none!important}
 }
+
+/* KYUM Company CRM Mobile Enterprise — Phase M2: Mobile Dashboard */
+@media (max-width: 767px){
+  body.mobile-dashboard-sheet-open{overflow:hidden}
+
+  #dashboardView{position:relative}
+  #dashboardView::before{
+    content:"اسحب لأسفل للتحديث";
+    position:fixed;z-index:40;top:calc(70px + var(--mobile-safe-top));left:50%;
+    transform:translate(-50%,-24px);opacity:0;pointer-events:none;
+    padding:8px 13px;border:1px solid var(--border);border-radius:999px;
+    background:var(--surface);box-shadow:var(--shadow);color:var(--muted);font-size:11px;font-weight:800;
+    transition:.2s ease;
+  }
+  #dashboardView.mobile-pull-ready::before{transform:translate(-50%,0);opacity:1}
+
+  .mobile-dashboard-toolbar{
+    position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin:0 0 12px;padding:14px 15px;border:1px solid var(--border);border-radius:20px;
+    background:linear-gradient(135deg,var(--surface),var(--surface-soft));box-shadow:var(--shadow);
+  }
+  .mobile-dashboard-heading{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .mobile-dashboard-heading span{font-size:11px;color:var(--muted);font-weight:700}
+  .mobile-dashboard-heading strong{font-size:18px;line-height:1.25}
+  .mobile-dashboard-actions{display:flex;gap:7px}
+  .mobile-dashboard-action{
+    display:flex;align-items:center;justify-content:center;gap:5px;min-height:40px;padding:7px 10px;
+    border:1px solid var(--border);border-radius:13px;background:var(--surface);color:var(--text);
+    font-family:inherit;font-size:11px;font-weight:800;
+  }
+  .mobile-dashboard-action svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mobile-dashboard-action.is-refreshing svg{animation:mobile-dashboard-spin .8s linear infinite}
+  .mobile-dashboard-status{position:absolute;right:15px;bottom:-19px;color:var(--success,#16a34a);font-size:10px;font-weight:800}
+  @keyframes mobile-dashboard-spin{to{transform:rotate(360deg)}}
+
+  #dashboardView > .dashboard-filter-bar{
+    position:fixed;z-index:1082;right:10px;left:10px;bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 8px);
+    display:block;max-height:min(72dvh,620px);overflow:auto;margin:0;padding:20px 14px 16px;
+    border:1px solid var(--border);border-radius:24px;background:var(--surface);box-shadow:0 28px 80px rgba(2,6,23,.3);
+    transform:translateY(calc(100% + 110px));opacity:0;visibility:hidden;transition:.24s ease;
+  }
+  #dashboardView.mobile-filters-open > .dashboard-filter-bar{transform:translateY(0);opacity:1;visibility:visible}
+  #dashboardView > .dashboard-filter-bar > div:first-of-type{padding-left:42px}
+  #dashboardView > .dashboard-filter-bar .section-title{font-size:17px;margin-bottom:4px}
+  #dashboardView > .dashboard-filter-bar .section-note{font-size:11px}
+  #dashboardView .dashboard-filters{display:grid;grid-template-columns:1fr;gap:10px;margin-top:15px}
+  #dashboardView .dashboard-filters select,
+  #dashboardView .dashboard-filters input,
+  #dashboardView .dashboard-filters button{width:100%;min-height:46px;border-radius:14px}
+  .mobile-filter-close{
+    position:absolute;top:14px;left:14px;display:grid;place-items:center;width:38px;height:38px;padding:0;
+    border:1px solid var(--border);border-radius:12px;background:var(--surface-soft);color:var(--text)
+  }
+  .mobile-filter-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .mobile-dashboard-filter-backdrop{
+    position:fixed;z-index:1081;inset:0;display:block;border:0;background:rgba(2,6,23,.58);
+    opacity:0;visibility:hidden;pointer-events:none;transition:.2s ease;
+  }
+  #dashboardView.mobile-filters-open .mobile-dashboard-filter-backdrop{opacity:1;visibility:visible;pointer-events:auto}
+
+  #dashboardView .period-label{
+    margin:0 0 12px;padding:9px 12px;border:1px solid var(--border);border-radius:13px;
+    background:var(--surface-soft);font-size:11px;font-weight:800;text-align:center;
+  }
+
+  #dashboardView .stats-grid.dashboard-stats{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;
+  }
+  #dashboardView .dashboard-stats .stat-card{
+    position:relative;min-height:102px;padding:14px;border-radius:18px;overflow:hidden;box-shadow:none;
+  }
+  #dashboardView .dashboard-stats .stat-card::after{
+    content:"";position:absolute;width:54px;height:54px;left:-18px;bottom:-20px;border-radius:50%;
+    background:color-mix(in srgb,var(--primary) 12%,transparent);
+  }
+  #dashboardView .dashboard-stats .stat-card span{display:block;max-width:100%;font-size:11px;line-height:1.45}
+  #dashboardView .dashboard-stats .stat-card strong{font-size:22px;line-height:1.2;margin-top:9px;overflow-wrap:anywhere}
+
+  #dashboardView .analytics-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  #dashboardView .analytics-grid > .panel,
+  #dashboardView .analytics-grid > .full-span-panel{min-width:0;padding:14px;border-radius:18px;box-shadow:none}
+  #dashboardView .panel-header{align-items:flex-start}
+  #dashboardView .panel-header h3{font-size:15px;line-height:1.45;margin-bottom:4px}
+  #dashboardView .panel-header p{font-size:10px;line-height:1.5}
+  #dashboardView .panel-header .text-btn{white-space:nowrap;font-size:10px;padding:6px 8px}
+
+  #dashboardView .performance-card{padding:12px;border-radius:15px}
+  #dashboardView .performance-card-head{gap:8px;align-items:flex-start}
+  #dashboardView .performance-card-head strong{font-size:13px}
+  #dashboardView .performance-card-head span{font-size:10px}
+  #dashboardView .performance-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  #dashboardView .performance-metric{padding:9px;border-radius:11px}
+  #dashboardView .performance-metric span{font-size:10px}
+  #dashboardView .performance-metric strong{font-size:13px;overflow-wrap:anywhere}
+
+  #dashboardView .bar-chart{min-height:0;gap:10px}
+  #dashboardView .chart-row{grid-template-columns:minmax(74px,100px) minmax(0,1fr) 28px;gap:7px}
+  #dashboardView .chart-label,#dashboardView .chart-value{font-size:10px}
+  #dashboardView .chart-track{height:9px}
+
+  #dashboardView .trend-chart{margin:0 -4px;padding:2px 4px 8px;overflow-x:auto;scroll-snap-type:x proximity}
+  #dashboardView .trend-bars{min-width:620px}
+  #dashboardView .trend-day{scroll-snap-align:start}
+  #dashboardView .trend-day-label{font-size:9px}
+
+  #dashboardView .simple-item,
+  #dashboardView .attention-item{align-items:flex-start;padding:11px;border-radius:13px}
+  #dashboardView .simple-item > span,
+  #dashboardView .attention-item > span{flex:0 0 auto;max-width:42%;text-align:left;font-size:10px}
+  #dashboardView .simple-item strong,
+  #dashboardView .attention-item strong{font-size:12px}
+  #dashboardView .simple-item div span,
+  #dashboardView .attention-item div span{display:block;margin-top:3px;font-size:10px;line-height:1.45}
+
+  #dashboardView.mobile-dashboard-loading .dashboard-stats .stat-card,
+  #dashboardView.mobile-dashboard-loading .analytics-grid > .panel{position:relative;overflow:hidden}
+  #dashboardView.mobile-dashboard-loading .dashboard-stats .stat-card::before,
+  #dashboardView.mobile-dashboard-loading .analytics-grid > .panel::before{
+    content:"";position:absolute;z-index:5;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(148,163,184,.18) 45%,transparent 70%);
+    transform:translateX(100%);animation:mobile-dashboard-skeleton 1s infinite;
+  }
+  @keyframes mobile-dashboard-skeleton{to{transform:translateX(-100%)}}
+}
+
+@media (max-width: 380px){
+  .mobile-dashboard-action span{display:none}
+  .mobile-dashboard-action{width:40px;padding:7px}
+  #dashboardView .dashboard-stats .stat-card strong{font-size:19px}
+}
