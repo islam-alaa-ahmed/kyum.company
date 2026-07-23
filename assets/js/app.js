@@ -5801,11 +5801,50 @@ function openSidebarView(button) {
   return true;
 }
 
-// A single bubbling handler owns sidebar navigation. Capture/deferred handlers
-// are intentionally avoided because they conflicted with the drawer close flow.
+// Phase M7.3.2 — dedicated Daily Operations navigation binding.
+// The first root item is handled directly because the mobile drawer can consume
+// its synthesized click after a touch. Pointer-up performs the transition before
+// any drawer state mutation; the following click is suppressed as a duplicate.
+function initializeDailyOperationsNavigation() {
+  const button = document.getElementById("dailyOperationsNavButton")
+    || document.querySelector('.nav-item[data-view="dailyOperations"]');
+  if (!button || button.dataset.dailyNavigationBound === "true") return;
+
+  button.dataset.dailyNavigationBound = "true";
+  let lastPointerNavigationAt = 0;
+
+  const navigate = event => {
+    if (event.type === "click" && performance.now() - lastPointerNavigationAt < 700) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const opened = switchView("dailyOperations", { trustedNavigation: true });
+    if (!opened) return;
+
+    setSidebarOpen(false);
+    document.getElementById("mobileBottomMenu")?.classList.remove("is-active");
+  };
+
+  button.addEventListener("pointerup", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    lastPointerNavigationAt = performance.now();
+    navigate(event);
+  }, { capture: true });
+
+  button.addEventListener("click", navigate, { capture: true });
+}
+
+initializeDailyOperationsNavigation();
+
+// One bubbling handler owns all remaining sidebar destinations.
 document.addEventListener("click", event => {
   const button = event.target.closest?.(".nav-item[data-view]");
-  if (!button) return;
+  if (!button || button.dataset.view === "dailyOperations") return;
 
   event.preventDefault();
   event.stopPropagation();
