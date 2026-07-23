@@ -1505,3 +1505,83 @@ html.is-offline body::before {
     max-inline-size:100%;
   }
 }
+
+/* KYUM Company CRM Mobile Enterprise — Phase M7.2 Layout & Navigation Stabilization */
+@media (max-width: 767px){
+  html,body,#appView,.main-content{width:100%;max-width:100%;overflow-x:hidden}
+
+  /* Full-bleed application header, including iPhone safe area. */
+  #appHeader.topbar{
+    width:100vw;
+    max-width:none;
+    margin-top:-10px;
+    margin-right:calc(50% - 50vw);
+    margin-left:calc(50% - 50vw);
+    margin-bottom:14px;
+    padding-top:calc(10px + var(--mobile-safe-top));
+    padding-right:max(12px,env(safe-area-inset-right));
+    padding-bottom:10px;
+    padding-left:max(12px,env(safe-area-inset-left));
+    min-height:calc(70px + var(--mobile-safe-top));
+    border-radius:0 0 20px 20px;
+    box-sizing:border-box;
+  }
+  #appHeader.topbar.is-scrolled{
+    min-height:calc(62px + var(--mobile-safe-top));
+    padding-top:calc(7px + var(--mobile-safe-top));
+    padding-bottom:7px;
+  }
+  html:not([data-theme="dark"]) #appHeader.topbar{
+    background:color-mix(in srgb,#fff 97%,var(--primary) 3%);
+    box-shadow:0 8px 22px rgba(15,23,42,.12);
+  }
+
+  /* All views must clear the fixed mobile navigation. */
+  .view-section{min-width:0;max-width:100%;padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px)}
+  .panel,.table-card,.table-wrap{max-width:100%;min-width:0}
+  .table-wrap{overscroll-behavior-inline:contain}
+
+  /* Customers: compact mobile card instead of a tall desktop record. */
+  #customersView tbody tr{grid-template-columns:1fr 1fr;gap:9px;padding:13px}
+  #customersView tbody td{min-height:0}
+  #customersView tbody td[data-mobile-field="phone"],
+  #customersView tbody td[data-mobile-field="name"],
+  #customersView tbody td[data-mobile-field="interests"],
+  #customersView tbody td[data-mobile-field="actions"]{grid-column:1/-1}
+  #customersView .row-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #customersView .row-actions button,#customersView .row-actions a{min-height:38px;padding:7px 5px}
+
+  /* Permissions: prevent the title and permission matrix from exceeding viewport width. */
+  #permissionsView>.actions-row{display:grid;grid-template-columns:minmax(0,1fr) auto;width:100%}
+  #permissionsView>.actions-row>div{overflow:hidden}
+  #permissionsView .section-title,#permissionsView .section-note{overflow-wrap:anywhere}
+  #permissionsView .permission-group{overflow:hidden}
+  #permissionsView .permission-row[data-screen-key]{grid-template-columns:minmax(105px,1fr) repeat(5,minmax(28px,36px));width:100%}
+  #permissionsView .permission-row strong{font-size:10px}
+
+  /* Daily performance tables: always remain inside the app viewport. */
+  #dailyPerformanceReportView{overflow:hidden}
+  #dailyPerformanceReportView .panel{padding:14px}
+  #dailyPerformanceReportView .daily-task-matrix-panel .table-wrap,
+  #dailyPerformanceReportView .daily-performance-table-panel .table-wrap,
+  #dailyPerformanceReportView .daily-attendance-summary-panel .table-wrap{
+    width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch
+  }
+  #dailyPerformanceReportView .daily-task-matrix-table{min-width:720px;width:max-content;max-width:none}
+  #dailyPerformanceReportView .daily-task-matrix-table th,
+  #dailyPerformanceReportView .daily-task-matrix-table td{white-space:nowrap;padding:10px 12px;font-size:11px}
+  #dailyPerformanceReportView .daily-performance-report-selector{width:100%;padding:14px}
+  #dailyPerformanceReportView .daily-performance-report-selector label,
+  #dailyPerformanceReportView .daily-performance-report-selector select{width:100%;max-width:100%}
+
+  /* Daily operations itself uses the mobile shell and never inherits desktop widths. */
+  #dailyOperationsView{display:block;min-width:0;max-width:100%;overflow:hidden}
+  #dailyOperationsView.hidden{display:none}
+  #dailyOperationsView>*{max-width:100%;box-sizing:border-box}
+}
+
+@media (max-width: 380px){
+  #customersView .row-actions{grid-template-columns:1fr}
+  #permissionsView .permission-row[data-screen-key]{grid-template-columns:minmax(88px,1fr) repeat(5,28px);gap:2px}
+  #permissionsView .permission-row input{width:22px;height:22px}
+}

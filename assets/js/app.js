@@ -5765,6 +5765,17 @@ document.querySelectorAll(".nav-item[data-view]").forEach(button => {
   });
 });
 
+// Phase M7.2: delegated fallback for the daily-operations root item.
+// Keeps navigation reliable when the mobile sidebar is re-rendered or layered by the app shell.
+document.getElementById("mainSidebar")?.addEventListener("click", event => {
+  const target = event.target.closest('.nav-item[data-view="dailyOperations"]');
+  if (!target) return;
+  event.preventDefault();
+  event.stopPropagation();
+  setSidebarOpen(false);
+  switchView("dailyOperations");
+}, true);
+
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
 
 ["dashboardRepFilter", "dashboardTypeFilter", "dashboardInterestFilter", "dashboardDateFrom", "dashboardDateTo"].forEach(id => {
