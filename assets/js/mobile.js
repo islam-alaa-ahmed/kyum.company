@@ -1275,15 +1275,14 @@
 })();
 
 
-/* KYUM CRM Mobile — Enterprise Header & Glass Bottom Navigation Enhancement */
+/* Phase M8.3.4 — Stable Header & Direct Finger-Tracking Glass Navigation */
 (() => {
   "use strict";
 
   const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
   const nav = document.getElementById("mobileBottomNav");
   const header = document.getElementById("appHeader");
-  const logoButton = document.getElementById("kyumScrollControl");
-  if (!nav || !header) return;
+  if (!nav) return;
 
   let indicator = nav.querySelector(".mobile-nav-active-indicator");
   if (!indicator) {
@@ -1293,74 +1292,68 @@
     nav.prepend(indicator);
   }
 
-  const interactiveItems = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")];
+  let gesture = null;
+  let suppressClickUntil = 0;
   let lastScrollY = Math.max(0, window.scrollY);
   let compact = false;
-  let rafPending = false;
-  let press = null;
-  let suppressClickUntil = 0;
+  let scrollRaf = 0;
+
+  const visibleItems = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")]
+    .filter(item => !item.classList.contains("hidden") && item.getClientRects().length);
 
   function setLogoMobileState() {
-    if (!logoButton) return;
-    logoButton.classList.toggle("mobile-floating-logo", MOBILE_MEDIA.matches);
-    logoButton.setAttribute("aria-label", "ضغطة واحدة للانتقال إلى أعلى الصفحة، ضغطتان للانتقال إلى أسفل الصفحة");
+    const logo = document.getElementById("kyumScrollControl");
+    if (!logo) return;
+    logo.classList.toggle("mobile-floating-logo", MOBILE_MEDIA.matches);
   }
 
   function activeItem() {
-    return nav.querySelector(".mobile-nav-item.is-active:not([hidden])") || interactiveItems()[0] || null;
+    return nav.querySelector(".mobile-nav-item.is-active:not([hidden])")
+      || nav.querySelector('.mobile-nav-item[aria-current="page"]:not([hidden])')
+      || visibleItems()[0]
+      || null;
   }
 
-  function placeIndicator(target = activeItem(), immediate = false) {
-    if (!MOBILE_MEDIA.matches || !target || target.hidden) return;
+  function setBubbleToItem(item, immediate = false) {
+    if (!item || !MOBILE_MEDIA.matches) return;
     const navRect = nav.getBoundingClientRect();
-    const itemRect = target.getBoundingClientRect();
-    const x = itemRect.left - navRect.left;
+    const itemRect = item.getBoundingClientRect();
     indicator.classList.toggle("is-immediate", immediate);
-    indicator.style.setProperty("--indicator-x", `${x}px`);
+    indicator.style.setProperty("--indicator-x", `${itemRect.left - navRect.left}px`);
     indicator.style.setProperty("--indicator-w", `${itemRect.width}px`);
     if (immediate) requestAnimationFrame(() => indicator.classList.remove("is-immediate"));
   }
 
-  function setPreview(target, pointerX = null) {
-    interactiveItems().forEach(item => item.classList.toggle("is-press-preview", item === target));
-    if (Number.isFinite(pointerX)) {
-      placeIndicatorAtPointer(pointerX, target);
-    } else if (target) {
-      placeIndicator(target);
-    }
-  }
-
-  function placeIndicatorAtPointer(pointerX, target = null) {
-    if (!MOBILE_MEDIA.matches) return;
+  function setBubbleToFinger(clientX) {
     const navRect = nav.getBoundingClientRect();
-    const item = target || activeItem();
-    const itemWidth = item ? item.getBoundingClientRect().width : navRect.width / Math.max(interactiveItems().length, 1);
-    const indicatorWidth = Math.max(44, Math.min(itemWidth, navRect.width));
-    const rawX = pointerX - navRect.left - indicatorWidth / 2;
-    const x = Math.max(0, Math.min(rawX, navRect.width - indicatorWidth));
-    indicator.classList.add("is-immediate");
+    const items = visibleItems();
+    if (!items.length) return;
+    const itemWidth = items[0].getBoundingClientRect().width;
+    const bubbleWidth = Math.max(48, Math.min(itemWidth, navRect.width));
+    const x = Math.max(0, Math.min(clientX - navRect.left - bubbleWidth / 2, navRect.width - bubbleWidth));
     indicator.style.setProperty("--indicator-x", `${x}px`);
-    indicator.style.setProperty("--indicator-w", `${indicatorWidth}px`);
+    indicator.style.setProperty("--indicator-w", `${bubbleWidth}px`);
   }
 
-  function clearPreview() {
-    interactiveItems().forEach(item => item.classList.remove("is-press-preview"));
-    placeIndicator();
+  function nearestItem(clientX) {
+    const items = visibleItems();
+    if (!items.length) return null;
+    return items.reduce((best, item) => {
+      const rect = item.getBoundingClientRect();
+      const distance = Math.abs(clientX - (rect.left + rect.width / 2));
+      return !best || distance < best.distance ? { item, distance } : best;
+    }, null)?.item || null;
   }
 
-  function itemAtPoint(x, y) {
-    const navRect = nav.getBoundingClientRect();
-    const clampedX = Math.min(Math.max(x, navRect.left + 1), navRect.right - 1);
-    const clampedY = Math.min(Math.max(y, navRect.top + 1), navRect.bottom - 1);
-    const item = document.elementFromPoint(clampedX, clampedY)?.closest?.(".mobile-nav-item:not([hidden])") || null;
-    return item && nav.contains(item) ? item : null;
+  function preview(item) {
+    visibleItems().forEach(entry => entry.classList.toggle("is-press-preview", entry === item));
   }
 
-  function activateItem(item) {
+  function activate(item) {
     if (!item) return;
     const view = item.dataset.mobileView;
     if (view) {
-      const source = document.querySelector(`.nav-item[data-view="${view}"]`);
+      const source = document.querySelector(`.nav-item[data-view="${CSS.escape(view)}"]`);
       if (source && !source.hidden && !source.classList.contains("hidden")) source.click();
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -1370,233 +1363,51 @@
     }
   }
 
-  function onPointerDown(event) {
-    /* Touch is handled by the iOS continuous Touch Events fallback below. */
-    if (event.pointerType === "touch") return;
-    if (!MOBILE_MEDIA.matches || event.pointerType === "mouse" && event.button !== 0) return;
+  function beginGesture(event) {
+    if (!MOBILE_MEDIA.matches || (event.pointerType === "mouse" && event.button !== 0)) return;
     const item = event.target.closest(".mobile-nav-item:not([hidden])");
     if (!item || !nav.contains(item)) return;
+
     event.preventDefault();
-    press = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      current: item,
-      held: false,
-      timer: window.setTimeout(() => {
-        if (!press) return;
-        press.held = true;
-        nav.classList.add("is-hold-navigating");
-        setPreview(press.current, press.startX);
-        navigator.vibrate?.(8);
-      }, 180)
-    };
-    item.setPointerCapture?.(event.pointerId);
-  }
-
-  function onPointerMove(event) {
-    if (!press || event.pointerId !== press.pointerId) return;
-    const distance = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
-    if (!press.held && distance > 10) {
-      window.clearTimeout(press.timer);
-      press.held = true;
-      nav.classList.add("is-hold-navigating");
-    }
-    if (!press.held) return;
-    event.preventDefault();
-    const next = itemAtPoint(event.clientX, event.clientY) || press.current;
-    if (next) press.current = next;
-    setPreview(press.current, event.clientX);
-  }
-
-  function finishPointer(event, cancelled = false) {
-    if (!press || event.pointerId !== press.pointerId) return;
-    window.clearTimeout(press.timer);
-    const wasHeld = press.held;
-    const target = press.current;
-    press = null;
-    nav.classList.remove("is-hold-navigating");
-    clearPreview();
-    if (wasHeld) {
-      suppressClickUntil = performance.now() + 500;
-      event.preventDefault();
-      if (!cancelled) activateItem(target);
-    }
-  }
-
-  nav.addEventListener("pointerdown", onPointerDown, { passive: false });
-  nav.addEventListener("pointermove", onPointerMove, { passive: false });
-  nav.addEventListener("pointerup", event => finishPointer(event, false), { passive: false });
-  nav.addEventListener("pointercancel", event => finishPointer(event, true), { passive: false });
-  nav.addEventListener("contextmenu", event => event.preventDefault());
-  nav.addEventListener("selectstart", event => event.preventDefault());
-  nav.addEventListener("dragstart", event => event.preventDefault());
-  nav.addEventListener("click", event => {
-    if (performance.now() < suppressClickUntil) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  }, true);
-
-  function updateCompactNav() {
-    rafPending = false;
-    if (!MOBILE_MEDIA.matches || nav.classList.contains("is-hold-navigating")) return;
-    const currentY = Math.max(0, window.scrollY);
-    const delta = currentY - lastScrollY;
-    if (currentY < 24) compact = false;
-    else if (delta > 8) compact = true;
-    else if (delta < -8) compact = false;
-    nav.classList.toggle("is-compact", compact);
-    document.documentElement.classList.toggle("mobile-nav-is-compact", compact);
-    lastScrollY = currentY;
-  }
-
-  window.addEventListener("scroll", () => {
-    if (rafPending) return;
-    rafPending = true;
-    requestAnimationFrame(updateCompactNav);
-  }, { passive: true });
-
-  const observer = new MutationObserver(() => requestAnimationFrame(() => placeIndicator()));
-  observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["class", "hidden", "aria-current"] });
-
-  window.addEventListener("resize", () => placeIndicator(null, true), { passive: true });
-  window.addEventListener("orientationchange", () => window.setTimeout(() => placeIndicator(null, true), 120));
-  window.addEventListener("hashchange", () => requestAnimationFrame(() => placeIndicator()));
-  document.addEventListener("DOMContentLoaded", () => {
-    setLogoMobileState();
-    requestAnimationFrame(() => placeIndicator(null, true));
-  }, { once: true });
-  window.addEventListener("customer-auth-ready", () => requestAnimationFrame(() => placeIndicator(null, true)));
-  MOBILE_MEDIA.addEventListener?.("change", () => {
-    setLogoMobileState();
-    requestAnimationFrame(() => placeIndicator(null, true));
-  });
-
-  setLogoMobileState();
-  requestAnimationFrame(() => placeIndicator(null, true));
-})();
-
-
-/* Phase M8.3.3 — iOS live finger tracking fallback */
-(() => {
-  "use strict";
-
-  const media = window.matchMedia("(max-width: 767px)");
-  const nav = document.getElementById("mobileBottomNav");
-  if (!nav) return;
-
-  const indicator = () => nav.querySelector(".mobile-nav-active-indicator");
-  const items = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")];
-  let gesture = null;
-  let suppressClickUntil = 0;
-
-  function itemFromPoint(x, y) {
-    const rect = nav.getBoundingClientRect();
-    const cx = Math.min(Math.max(x, rect.left + 1), rect.right - 1);
-    const cy = Math.min(Math.max(y, rect.top + 1), rect.bottom - 1);
-    const hit = document.elementFromPoint(cx, cy)?.closest?.(".mobile-nav-item:not([hidden])");
-    return hit && nav.contains(hit) ? hit : null;
-  }
-
-  function moveBubble(clientX) {
-    const bubble = indicator();
-    if (!bubble) return;
-    const rect = nav.getBoundingClientRect();
-    const visible = items();
-    const width = visible[0]?.getBoundingClientRect().width || rect.width / Math.max(visible.length, 1);
-    const bubbleWidth = Math.max(44, Math.min(width, rect.width));
-    const x = Math.max(0, Math.min(clientX - rect.left - bubbleWidth / 2, rect.width - bubbleWidth));
-    bubble.classList.add("is-immediate");
-    bubble.style.setProperty("--indicator-x", `${x}px`);
-    bubble.style.setProperty("--indicator-w", `${bubbleWidth}px`);
-  }
-
-  function preview(target) {
-    items().forEach(item => item.classList.toggle("is-press-preview", item === target));
-  }
-
-  function begin(point, id) {
-    const target = itemFromPoint(point.clientX, point.clientY);
-    if (!target) return false;
-    gesture = { id, target, startX: point.clientX, startY: point.clientY, moved: false };
+    suppressClickUntil = performance.now() + 800;
+    gesture = { pointerId: event.pointerId, target: item };
     nav.classList.add("is-live-tracking", "is-hold-navigating");
+    indicator.classList.add("is-immediate");
+    preview(item);
+    setBubbleToFinger(event.clientX);
+    nav.setPointerCapture?.(event.pointerId);
+  }
+
+  function moveGesture(event) {
+    if (!gesture || event.pointerId !== gesture.pointerId) return;
+    event.preventDefault();
+    const target = nearestItem(event.clientX) || gesture.target;
+    gesture.target = target;
     preview(target);
-    moveBubble(point.clientX);
-    return true;
+    setBubbleToFinger(event.clientX);
   }
 
-  function update(point, id) {
-    if (!gesture || gesture.id !== id) return;
-    gesture.moved = gesture.moved || Math.abs(point.clientX - gesture.startX) > 3 || Math.abs(point.clientY - gesture.startY) > 3;
-    const target = itemFromPoint(point.clientX, point.clientY);
-    if (target) gesture.target = target;
-    preview(gesture.target);
-    moveBubble(point.clientX);
-  }
-
-  function activate(target) {
-    if (!target) return;
-    const view = target.dataset.mobileView;
-    if (view) {
-      document.querySelector(`.nav-item[data-view="${view}"]`)?.click();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else if (target.dataset.mobileAction === "menu") {
-      document.getElementById("sidebarMenuToggle")?.click();
-    }
-  }
-
-  function finish(id, cancelled) {
-    if (!gesture || gesture.id !== id) return;
+  function endGesture(event, cancelled = false) {
+    if (!gesture || event.pointerId !== gesture.pointerId) return;
+    event.preventDefault();
     const target = gesture.target;
-    const moved = gesture.moved;
     gesture = null;
     nav.classList.remove("is-live-tracking", "is-hold-navigating");
     preview(null);
-    suppressClickUntil = performance.now() + 550;
-    requestAnimationFrame(() => {
-      const active = nav.querySelector(".mobile-nav-item.is-active:not([hidden])");
-      if (active) {
-        const navRect = nav.getBoundingClientRect();
-        const itemRect = active.getBoundingClientRect();
-        const bubble = indicator();
-        bubble?.style.setProperty("--indicator-x", `${itemRect.left - navRect.left}px`);
-        bubble?.style.setProperty("--indicator-w", `${itemRect.width}px`);
-        bubble?.classList.remove("is-immediate");
-      }
-    });
-    if (!cancelled && moved) activate(target);
+    indicator.classList.remove("is-immediate");
+    suppressClickUntil = performance.now() + 650;
+
+    if (!cancelled) activate(target);
+    requestAnimationFrame(() => setBubbleToItem(activeItem()));
   }
 
-  /* iOS Safari has more reliable continuous tracking through Touch Events. */
-  nav.addEventListener("touchstart", event => {
-    if (!media.matches || event.touches.length !== 1) return;
-    const touch = event.touches[0];
-    if (begin(touch, touch.identifier)) event.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener("touchmove", event => {
-    if (!gesture) return;
-    const touch = [...event.touches].find(t => t.identifier === gesture.id);
-    if (!touch) return;
-    update(touch, touch.identifier);
-    event.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener("touchend", event => {
-    if (!gesture) return;
-    const ended = [...event.changedTouches].find(t => t.identifier === gesture.id);
-    if (!ended) return;
-    update(ended, ended.identifier);
-    finish(ended.identifier, false);
-    event.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener("touchcancel", event => {
-    if (!gesture) return;
-    const ended = [...event.changedTouches].find(t => t.identifier === gesture.id);
-    if (ended) finish(ended.identifier, true);
-  }, { passive: false });
+  nav.addEventListener("pointerdown", beginGesture, { passive: false });
+  nav.addEventListener("pointermove", moveGesture, { passive: false });
+  nav.addEventListener("pointerup", event => endGesture(event, false), { passive: false });
+  nav.addEventListener("pointercancel", event => endGesture(event, true), { passive: false });
+  nav.addEventListener("lostpointercapture", event => {
+    if (gesture && event.pointerId === gesture.pointerId) endGesture(event, true);
+  });
 
   nav.addEventListener("click", event => {
     if (performance.now() < suppressClickUntil) {
@@ -1604,4 +1415,44 @@
       event.stopImmediatePropagation();
     }
   }, true);
+  nav.addEventListener("contextmenu", event => event.preventDefault());
+  nav.addEventListener("selectstart", event => event.preventDefault());
+  nav.addEventListener("dragstart", event => event.preventDefault());
+
+  function updateCompactState() {
+    scrollRaf = 0;
+    if (!MOBILE_MEDIA.matches || gesture) return;
+    const currentY = Math.max(0, window.scrollY);
+    const delta = currentY - lastScrollY;
+    if (currentY < 28) compact = false;
+    else if (delta > 10) compact = true;
+    else if (delta < -10) compact = false;
+    nav.classList.toggle("is-compact", compact);
+    document.documentElement.classList.toggle("mobile-nav-is-compact", compact);
+    lastScrollY = currentY;
+    requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+  }
+
+  window.addEventListener("scroll", () => {
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(updateCompactState);
+  }, { passive: true });
+
+  const observer = new MutationObserver(() => {
+    if (!gesture) requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+  });
+  observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["class", "hidden", "aria-current"] });
+
+  const sync = () => {
+    setLogoMobileState();
+    header?.classList.toggle("mobile-header-stable", MOBILE_MEDIA.matches);
+    requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+  };
+
+  window.addEventListener("resize", sync, { passive: true });
+  window.addEventListener("orientationchange", () => setTimeout(sync, 120));
+  window.addEventListener("hashchange", sync);
+  window.addEventListener("customer-auth-ready", sync);
+  MOBILE_MEDIA.addEventListener?.("change", sync);
+  document.addEventListener("DOMContentLoaded", sync, { once: true });
+  sync();
 })();

@@ -2551,3 +2551,137 @@ html.is-offline body::before {
     transition:none!important;
   }
 }
+
+/* Phase M8.3.4 — Stable Header & Direct Finger-Tracking Glass Navigation */
+@media (max-width: 767px){
+  :root{
+    --kyum-stable-header-height:96px;
+  }
+
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled,
+  #appHeader.topbar.mobile-header-stable{
+    position:fixed!important;
+    inset:0 0 auto 0!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top))!important;
+    height:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top))!important;
+    margin:0!important;
+    padding:env(safe-area-inset-top) 14px 0!important;
+    overflow:hidden!important;
+    transform:translateZ(0)!important;
+    z-index:1200!important;
+    contain:paint!important;
+  }
+
+  .main-content{
+    padding-top:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 14px)!important;
+  }
+
+  #appHeader #sidebarMenuToggle,
+  #appHeader #kyumScrollControl.mobile-floating-logo,
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    border-radius:16px!important;
+  }
+
+  #appHeader #sidebarMenuToggle{
+    left:max(14px,env(safe-area-inset-left))!important;
+    right:auto!important;
+  }
+
+  #appHeader #kyumScrollControl.mobile-floating-logo{
+    left:calc(max(14px,env(safe-area-inset-left)) + 58px)!important;
+    right:auto!important;
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+
+  #appHeader #kyumScrollControl.mobile-floating-logo img{
+    width:36px!important;
+    height:36px!important;
+  }
+
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    right:max(14px,env(safe-area-inset-right))!important;
+    left:auto!important;
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+
+  #appHeader .mobile-app-brand{
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    left:50%!important;
+    right:auto!important;
+    height:48px!important;
+    transform:translateX(-50%)!important;
+    max-width:34vw!important;
+  }
+
+  .mobile-bottom-nav{
+    isolation:isolate!important;
+    overflow:hidden!important;
+    background:rgba(255,255,255,.56)!important;
+    border:1px solid rgba(255,255,255,.66)!important;
+    box-shadow:0 18px 44px rgba(15,23,42,.18),inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(148,163,184,.18)!important;
+    backdrop-filter:blur(30px) saturate(190%)!important;
+    -webkit-backdrop-filter:blur(30px) saturate(190%)!important;
+    touch-action:none!important;
+    overscroll-behavior:none!important;
+  }
+
+  .mobile-bottom-nav::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:linear-gradient(145deg,rgba(255,255,255,.70),rgba(255,255,255,.14) 48%,rgba(148,163,184,.06));
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav{
+    background:rgba(10,23,43,.44)!important;
+    border-color:rgba(255,255,255,.16)!important;
+    box-shadow:0 20px 48px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.15)!important;
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav::before{
+    background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.025) 52%,rgba(37,99,235,.05));
+  }
+
+  .mobile-nav-active-indicator{
+    z-index:1!important;
+    pointer-events:none!important;
+    transform:translate3d(var(--indicator-x,0),0,0)!important;
+    border:1px solid rgba(96,165,250,.42)!important;
+    background:linear-gradient(145deg,rgba(99,102,241,.24),rgba(37,99,235,.13))!important;
+    box-shadow:0 8px 24px rgba(37,99,235,.18),inset 0 1px 0 rgba(255,255,255,.52)!important;
+  }
+
+  .mobile-bottom-nav.is-live-tracking .mobile-nav-active-indicator,
+  .mobile-bottom-nav.is-hold-navigating .mobile-nav-active-indicator{
+    transition:none!important;
+    will-change:transform,width!important;
+  }
+
+  .mobile-nav-item{
+    position:relative!important;
+    z-index:2!important;
+    touch-action:none!important;
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+  }
+
+  .mobile-nav-item.is-press-preview{
+    transform:translateY(-1px) scale(1.03)!important;
+  }
+}
