@@ -2165,3 +2165,187 @@ html.is-offline body::before {
     background:rgba(15,23,42,.42)!important;
   }
 }
+
+/* KYUM CRM Mobile — Enterprise Header & Glass Bottom Navigation Enhancement */
+@media (max-width: 767px){
+  :root{
+    --mobile-nav-height:76px;
+    --mobile-nav-compact-height:58px;
+  }
+
+  #appHeader.topbar{
+    position:sticky;
+    top:0;
+    isolation:isolate;
+    display:block;
+    min-height:calc(66px + var(--mobile-safe-top));
+    margin-top:-14px;
+    padding-top:calc(7px + var(--mobile-safe-top));
+    padding-bottom:7px;
+    overflow:visible;
+  }
+
+  #appHeader .sidebar-menu-launcher,
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible,
+  #appHeader .kyum-scroll-control.mobile-floating-logo{
+    position:absolute;
+    top:calc(var(--mobile-safe-top) + 8px);
+    z-index:3;
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border:1px solid color-mix(in srgb,var(--header-border) 72%,transparent);
+    border-radius:15px;
+    background:color-mix(in srgb,var(--surface) 68%,transparent);
+    box-shadow:0 10px 24px rgba(15,23,42,.14),inset 0 1px 0 rgba(255,255,255,.5);
+    backdrop-filter:blur(18px) saturate(165%);
+    -webkit-backdrop-filter:blur(18px) saturate(165%);
+  }
+
+  #appHeader .sidebar-menu-launcher{left:max(12px,env(safe-area-inset-left));right:auto}
+  #appHeader .kyum-scroll-control.mobile-floating-logo{
+    display:grid!important;
+    place-items:center;
+    left:calc(max(12px,env(safe-area-inset-left)) + 52px);
+    right:auto;
+    padding:5px;
+    color:inherit;
+  }
+  #appHeader .kyum-scroll-control.mobile-floating-logo img{
+    width:32px;
+    height:32px;
+    border-radius:10px;
+    object-fit:cover;
+    box-shadow:0 6px 14px rgba(37,99,235,.22);
+  }
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{right:max(12px,env(safe-area-inset-right));left:auto}
+
+  #appHeader .mobile-app-brand{
+    position:absolute;
+    z-index:2;
+    top:calc(var(--mobile-safe-top) + 8px);
+    left:50%;
+    width:max-content;
+    max-width:38vw;
+    height:44px;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  #appHeader .mobile-app-brand img{display:none!important}
+  #appHeader .mobile-app-brand span{justify-content:center}
+  #appHeader .mobile-app-brand strong{font-size:17px;letter-spacing:.7px}
+  #appHeader .mobile-app-brand small{font-size:9px;letter-spacing:1.35px}
+
+  html[data-theme="dark"] #appHeader .sidebar-menu-launcher,
+  html[data-theme="dark"] #appHeader .theme-toggle-button,
+  html[data-theme="dark"] #appHeader .theme-toggle-button.is-visible,
+  html[data-theme="dark"] #appHeader .kyum-scroll-control.mobile-floating-logo{
+    background:rgba(15,23,42,.52);
+    border-color:rgba(148,163,184,.24);
+    box-shadow:0 12px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08);
+  }
+
+  .mobile-bottom-nav{
+    right:max(10px,env(safe-area-inset-right));
+    left:max(10px,env(safe-area-inset-left));
+    bottom:max(8px,env(safe-area-inset-bottom));
+    min-height:var(--mobile-nav-height);
+    padding:8px 8px;
+    border:1px solid color-mix(in srgb,var(--header-border) 74%,transparent);
+    border-radius:26px;
+    background:color-mix(in srgb,var(--header-glass) 78%,transparent);
+    box-shadow:0 18px 42px rgba(15,23,42,.2),inset 0 1px 0 rgba(255,255,255,.58);
+    backdrop-filter:blur(26px) saturate(180%);
+    -webkit-backdrop-filter:blur(26px) saturate(180%);
+    overflow:hidden;
+    transition:min-height .28s cubic-bezier(.22,1,.36,1),padding .28s cubic-bezier(.22,1,.36,1),border-radius .28s ease,transform .28s ease,background-color .28s ease;
+    contain:layout paint;
+  }
+
+  .mobile-bottom-nav::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+    background:linear-gradient(135deg,rgba(255,255,255,.32),rgba(255,255,255,.05) 42%,transparent 70%);
+  }
+
+  .mobile-nav-active-indicator{
+    position:absolute;
+    z-index:-1;
+    top:7px;
+    bottom:7px;
+    left:0;
+    width:var(--indicator-w,20%);
+    transform:translate3d(var(--indicator-x,0),0,0) scaleX(.86);
+    border:1px solid color-mix(in srgb,var(--primary) 32%,transparent);
+    border-radius:19px;
+    background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 19%,transparent),color-mix(in srgb,var(--primary) 8%,transparent));
+    box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 18%,transparent),inset 0 1px 0 rgba(255,255,255,.42);
+    transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),top .28s ease,bottom .28s ease,border-radius .28s ease;
+    will-change:transform,width;
+  }
+  .mobile-nav-active-indicator.is-immediate{transition:none!important}
+
+  .mobile-nav-item{
+    z-index:1;
+    min-height:58px;
+    padding:6px 2px;
+    border-radius:18px;
+    background:transparent!important;
+    transition:color .22s ease,transform .22s ease,gap .28s ease,min-height .28s ease,padding .28s ease;
+    touch-action:pan-y;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mobile-nav-item::before{display:none}
+  .mobile-nav-item svg{transition:width .28s ease,height .28s ease,transform .22s ease}
+  .mobile-nav-item.is-active,
+  .mobile-nav-item.is-press-preview{color:var(--primary)}
+  .mobile-nav-item.is-press-preview{transform:scale(1.04)}
+
+  .mobile-bottom-nav.is-compact{
+    min-height:var(--mobile-nav-compact-height);
+    padding:4px 7px;
+    border-radius:22px;
+    transform:translateY(2px);
+  }
+  .mobile-bottom-nav.is-compact .mobile-nav-active-indicator{top:4px;bottom:4px;border-radius:16px}
+  .mobile-bottom-nav.is-compact .mobile-nav-item{min-height:48px;padding:3px 2px;gap:1px;font-size:9px}
+  .mobile-bottom-nav.is-compact .mobile-nav-item svg{width:19px;height:19px}
+
+  .mobile-bottom-nav.is-hold-navigating .mobile-nav-active-indicator{
+    transition:transform .12s linear,width .12s linear;
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav{
+    background:rgba(8,19,39,.7);
+    border-color:rgba(148,163,184,.22);
+    box-shadow:0 18px 44px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.09);
+  }
+
+  .main-content{
+    padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px);
+  }
+  html.mobile-nav-is-compact .main-content{
+    padding-bottom:calc(var(--mobile-nav-compact-height) + var(--mobile-safe-bottom) + 22px);
+  }
+}
+
+@media (max-width: 360px){
+  #appHeader .mobile-app-brand{max-width:34vw}
+  #appHeader .mobile-app-brand strong{font-size:15px}
+  #appHeader .sidebar-menu-launcher,
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible,
+  #appHeader .kyum-scroll-control.mobile-floating-logo{width:40px;height:40px;min-width:40px}
+  #appHeader .kyum-scroll-control.mobile-floating-logo{left:calc(max(10px,env(safe-area-inset-left)) + 46px)}
+  #appHeader .sidebar-menu-launcher{left:max(10px,env(safe-area-inset-left))}
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{right:max(10px,env(safe-area-inset-right))}
+}

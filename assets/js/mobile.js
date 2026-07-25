@@ -45,7 +45,7 @@
       brand = document.createElement("div");
       brand.className = "mobile-app-brand";
       brand.setAttribute("aria-label", "KYUM CRM");
-      brand.innerHTML = `<img src="assets/images/apple-touch-icon.png" alt=""><span><strong>KYUM</strong><small>CRM</small></span>`;
+      brand.innerHTML = `<span><strong>KYUM</strong><small>CRM</small></span>`;
       title?.insertAdjacentElement("beforebegin", brand);
     }
 
@@ -1272,4 +1272,182 @@
       }
     }).observe(app, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
   }
+})();
+
+
+/* KYUM CRM Mobile — Enterprise Header & Glass Bottom Navigation Enhancement */
+(() => {
+  "use strict";
+
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const nav = document.getElementById("mobileBottomNav");
+  const header = document.getElementById("appHeader");
+  const logoButton = document.getElementById("kyumScrollControl");
+  if (!nav || !header) return;
+
+  let indicator = nav.querySelector(".mobile-nav-active-indicator");
+  if (!indicator) {
+    indicator = document.createElement("span");
+    indicator.className = "mobile-nav-active-indicator";
+    indicator.setAttribute("aria-hidden", "true");
+    nav.prepend(indicator);
+  }
+
+  const interactiveItems = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")];
+  let lastScrollY = Math.max(0, window.scrollY);
+  let compact = false;
+  let rafPending = false;
+  let press = null;
+  let suppressClickUntil = 0;
+
+  function setLogoMobileState() {
+    if (!logoButton) return;
+    logoButton.classList.toggle("mobile-floating-logo", MOBILE_MEDIA.matches);
+    logoButton.setAttribute("aria-label", "ضغطة واحدة للانتقال إلى أعلى الصفحة، ضغطتان للانتقال إلى أسفل الصفحة");
+  }
+
+  function activeItem() {
+    return nav.querySelector(".mobile-nav-item.is-active:not([hidden])") || interactiveItems()[0] || null;
+  }
+
+  function placeIndicator(target = activeItem(), immediate = false) {
+    if (!MOBILE_MEDIA.matches || !target || target.hidden) return;
+    const navRect = nav.getBoundingClientRect();
+    const itemRect = target.getBoundingClientRect();
+    const x = itemRect.left - navRect.left;
+    indicator.classList.toggle("is-immediate", immediate);
+    indicator.style.setProperty("--indicator-x", `${x}px`);
+    indicator.style.setProperty("--indicator-w", `${itemRect.width}px`);
+    if (immediate) requestAnimationFrame(() => indicator.classList.remove("is-immediate"));
+  }
+
+  function setPreview(target) {
+    interactiveItems().forEach(item => item.classList.toggle("is-press-preview", item === target));
+    if (target) placeIndicator(target);
+  }
+
+  function clearPreview() {
+    interactiveItems().forEach(item => item.classList.remove("is-press-preview"));
+    placeIndicator();
+  }
+
+  function itemAtPoint(x, y) {
+    return document.elementFromPoint(x, y)?.closest?.(".mobile-nav-item:not([hidden])") || null;
+  }
+
+  function activateItem(item) {
+    if (!item) return;
+    const view = item.dataset.mobileView;
+    if (view) {
+      const source = document.querySelector(`.nav-item[data-view="${view}"]`);
+      if (source && !source.hidden && !source.classList.contains("hidden")) source.click();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (item.dataset.mobileAction === "menu") {
+      document.getElementById("sidebarMenuToggle")?.click();
+    }
+  }
+
+  function onPointerDown(event) {
+    if (!MOBILE_MEDIA.matches || event.pointerType === "mouse" && event.button !== 0) return;
+    const item = event.target.closest(".mobile-nav-item:not([hidden])");
+    if (!item) return;
+    press = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      current: item,
+      held: false,
+      timer: window.setTimeout(() => {
+        if (!press) return;
+        press.held = true;
+        nav.classList.add("is-hold-navigating");
+        setPreview(press.current);
+        navigator.vibrate?.(8);
+      }, 180)
+    };
+    item.setPointerCapture?.(event.pointerId);
+  }
+
+  function onPointerMove(event) {
+    if (!press || event.pointerId !== press.pointerId) return;
+    const distance = Math.hypot(event.clientX - press.startX, event.clientY - press.startY);
+    if (!press.held && distance > 10) {
+      window.clearTimeout(press.timer);
+      press.held = true;
+      nav.classList.add("is-hold-navigating");
+    }
+    if (!press.held) return;
+    event.preventDefault();
+    const next = itemAtPoint(event.clientX, event.clientY);
+    if (next && next !== press.current) {
+      press.current = next;
+      setPreview(next);
+    }
+  }
+
+  function finishPointer(event, cancelled = false) {
+    if (!press || event.pointerId !== press.pointerId) return;
+    window.clearTimeout(press.timer);
+    const wasHeld = press.held;
+    const target = press.current;
+    press = null;
+    nav.classList.remove("is-hold-navigating");
+    clearPreview();
+    if (wasHeld) {
+      suppressClickUntil = performance.now() + 500;
+      event.preventDefault();
+      if (!cancelled) activateItem(target);
+    }
+  }
+
+  nav.addEventListener("pointerdown", onPointerDown, { passive: true });
+  nav.addEventListener("pointermove", onPointerMove, { passive: false });
+  nav.addEventListener("pointerup", event => finishPointer(event, false), { passive: false });
+  nav.addEventListener("pointercancel", event => finishPointer(event, true), { passive: false });
+  nav.addEventListener("click", event => {
+    if (performance.now() < suppressClickUntil) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+
+  function updateCompactNav() {
+    rafPending = false;
+    if (!MOBILE_MEDIA.matches || nav.classList.contains("is-hold-navigating")) return;
+    const currentY = Math.max(0, window.scrollY);
+    const delta = currentY - lastScrollY;
+    if (currentY < 24) compact = false;
+    else if (delta > 8) compact = true;
+    else if (delta < -8) compact = false;
+    nav.classList.toggle("is-compact", compact);
+    document.documentElement.classList.toggle("mobile-nav-is-compact", compact);
+    lastScrollY = currentY;
+  }
+
+  window.addEventListener("scroll", () => {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(updateCompactNav);
+  }, { passive: true });
+
+  const observer = new MutationObserver(() => requestAnimationFrame(() => placeIndicator()));
+  observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["class", "hidden", "aria-current"] });
+
+  window.addEventListener("resize", () => placeIndicator(null, true), { passive: true });
+  window.addEventListener("orientationchange", () => window.setTimeout(() => placeIndicator(null, true), 120));
+  window.addEventListener("hashchange", () => requestAnimationFrame(() => placeIndicator()));
+  document.addEventListener("DOMContentLoaded", () => {
+    setLogoMobileState();
+    requestAnimationFrame(() => placeIndicator(null, true));
+  }, { once: true });
+  window.addEventListener("customer-auth-ready", () => requestAnimationFrame(() => placeIndicator(null, true)));
+  MOBILE_MEDIA.addEventListener?.("change", () => {
+    setLogoMobileState();
+    requestAnimationFrame(() => placeIndicator(null, true));
+  });
+
+  setLogoMobileState();
+  requestAnimationFrame(() => placeIndicator(null, true));
 })();
