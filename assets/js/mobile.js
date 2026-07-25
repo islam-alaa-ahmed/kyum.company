@@ -1238,44 +1238,33 @@
   "use strict";
 
   const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  let resetRaf = 0;
 
   function resetHorizontalViewport() {
+    resetRaf = 0;
     if (!MOBILE_MEDIA.matches) return;
     const root = document.scrollingElement || document.documentElement;
-    if (root) root.scrollLeft = 0;
-    document.body.scrollLeft = 0;
-    window.scrollTo({ left: 0, top: window.scrollY, behavior: "instant" });
+    if (root && root.scrollLeft !== 0) root.scrollLeft = 0;
+    if (document.body.scrollLeft !== 0) document.body.scrollLeft = 0;
   }
 
   function scheduleReset() {
-    resetHorizontalViewport();
-    requestAnimationFrame(resetHorizontalViewport);
-    window.setTimeout(resetHorizontalViewport, 80);
+    if (!resetRaf) resetRaf = requestAnimationFrame(resetHorizontalViewport);
   }
 
   document.addEventListener("click", event => {
     if (event.target.closest("[data-mobile-view], .nav-item, .nav-group-content button")) {
-      window.setTimeout(scheduleReset, 0);
+      scheduleReset();
     }
-  });
+  }, { passive: true });
 
-  window.addEventListener("orientationchange", scheduleReset);
+  window.addEventListener("orientationchange", scheduleReset, { passive: true });
   window.addEventListener("resize", scheduleReset, { passive: true });
-  window.addEventListener("pageshow", scheduleReset);
+  window.addEventListener("pageshow", scheduleReset, { passive: true });
   document.addEventListener("DOMContentLoaded", scheduleReset, { once: true });
-
-  const app = document.getElementById("appView");
-  if (app && "MutationObserver" in window) {
-    new MutationObserver(mutations => {
-      if (mutations.some(mutation => mutation.type === "attributes" || mutation.type === "childList")) {
-        scheduleReset();
-      }
-    }).observe(app, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });
-  }
 })();
 
-
-/* Phase M8.3.4 — Stable Header & Direct Finger-Tracking Glass Navigation */
+/* Phase M8.3.5 — Mobile Scroll & Navigation Performance Recovery */
 (() => {
   "use strict";
 
@@ -1293,18 +1282,19 @@
   }
 
   let gesture = null;
+  let moveRaf = 0;
+  let pendingClientX = 0;
   let suppressClickUntil = 0;
   let lastScrollY = Math.max(0, window.scrollY);
   let compact = false;
-  let scrollRaf = 0;
+  let scrollTimer = 0;
+  let syncRaf = 0;
 
   const visibleItems = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")]
     .filter(item => !item.classList.contains("hidden") && item.getClientRects().length);
 
   function setLogoMobileState() {
-    const logo = document.getElementById("kyumScrollControl");
-    if (!logo) return;
-    logo.classList.toggle("mobile-floating-logo", MOBILE_MEDIA.matches);
+    document.getElementById("kyumScrollControl")?.classList.toggle("mobile-floating-logo", MOBILE_MEDIA.matches);
   }
 
   function activeItem() {
@@ -1318,35 +1308,37 @@
     if (!item || !MOBILE_MEDIA.matches) return;
     const navRect = nav.getBoundingClientRect();
     const itemRect = item.getBoundingClientRect();
-    indicator.classList.toggle("is-immediate", immediate);
-    indicator.style.setProperty("--indicator-x", `${itemRect.left - navRect.left}px`);
-    indicator.style.setProperty("--indicator-w", `${itemRect.width}px`);
+    if (immediate) indicator.classList.add("is-immediate");
+    indicator.style.setProperty("--indicator-x", `${Math.round(itemRect.left - navRect.left)}px`);
+    indicator.style.setProperty("--indicator-w", `${Math.round(itemRect.width)}px`);
     if (immediate) requestAnimationFrame(() => indicator.classList.remove("is-immediate"));
   }
 
-  function setBubbleToFinger(clientX) {
+  function positionBubbleAt(clientX) {
     const navRect = nav.getBoundingClientRect();
     const items = visibleItems();
-    if (!items.length) return;
+    if (!items.length) return null;
     const itemWidth = items[0].getBoundingClientRect().width;
     const bubbleWidth = Math.max(48, Math.min(itemWidth, navRect.width));
     const x = Math.max(0, Math.min(clientX - navRect.left - bubbleWidth / 2, navRect.width - bubbleWidth));
-    indicator.style.setProperty("--indicator-x", `${x}px`);
-    indicator.style.setProperty("--indicator-w", `${bubbleWidth}px`);
-  }
+    indicator.style.setProperty("--indicator-x", `${Math.round(x)}px`);
+    indicator.style.setProperty("--indicator-w", `${Math.round(bubbleWidth)}px`);
 
-  function nearestItem(clientX) {
-    const items = visibleItems();
-    if (!items.length) return null;
-    return items.reduce((best, item) => {
+    let nearest = items[0];
+    let nearestDistance = Infinity;
+    for (const item of items) {
       const rect = item.getBoundingClientRect();
       const distance = Math.abs(clientX - (rect.left + rect.width / 2));
-      return !best || distance < best.distance ? { item, distance } : best;
-    }, null)?.item || null;
+      if (distance < nearestDistance) {
+        nearest = item;
+        nearestDistance = distance;
+      }
+    }
+    return nearest;
   }
 
   function preview(item) {
-    visibleItems().forEach(entry => entry.classList.toggle("is-press-preview", entry === item));
+    for (const entry of visibleItems()) entry.classList.toggle("is-press-preview", entry === item);
   }
 
   function activate(item) {
@@ -1356,10 +1348,18 @@
       const source = document.querySelector(`.nav-item[data-view="${CSS.escape(view)}"]`);
       if (source && !source.hidden && !source.classList.contains("hidden")) source.click();
       window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    if (item.dataset.mobileAction === "menu") {
+    } else if (item.dataset.mobileAction === "menu") {
       document.getElementById("sidebarMenuToggle")?.click();
+    }
+  }
+
+  function flushMove() {
+    moveRaf = 0;
+    if (!gesture) return;
+    const target = positionBubbleAt(pendingClientX) || gesture.target;
+    if (target !== gesture.target) {
+      gesture.target = target;
+      preview(target);
     }
   }
 
@@ -1370,35 +1370,39 @@
 
     event.preventDefault();
     suppressClickUntil = performance.now() + 800;
+    pendingClientX = event.clientX;
     gesture = { pointerId: event.pointerId, target: item };
     nav.classList.add("is-live-tracking", "is-hold-navigating");
     indicator.classList.add("is-immediate");
     preview(item);
-    setBubbleToFinger(event.clientX);
-    nav.setPointerCapture?.(event.pointerId);
+    positionBubbleAt(event.clientX);
+    try { nav.setPointerCapture?.(event.pointerId); } catch (_) {}
   }
 
   function moveGesture(event) {
     if (!gesture || event.pointerId !== gesture.pointerId) return;
     event.preventDefault();
-    const target = nearestItem(event.clientX) || gesture.target;
-    gesture.target = target;
-    preview(target);
-    setBubbleToFinger(event.clientX);
+    pendingClientX = event.clientX;
+    if (!moveRaf) moveRaf = requestAnimationFrame(flushMove);
   }
 
   function endGesture(event, cancelled = false) {
     if (!gesture || event.pointerId !== gesture.pointerId) return;
     event.preventDefault();
+    if (moveRaf) {
+      cancelAnimationFrame(moveRaf);
+      moveRaf = 0;
+      pendingClientX = event.clientX;
+      flushMove();
+    }
     const target = gesture.target;
     gesture = null;
     nav.classList.remove("is-live-tracking", "is-hold-navigating");
     preview(null);
     indicator.classList.remove("is-immediate");
     suppressClickUntil = performance.now() + 650;
-
     if (!cancelled) activate(target);
-    requestAnimationFrame(() => setBubbleToItem(activeItem()));
+    scheduleSync(true);
   }
 
   nav.addEventListener("pointerdown", beginGesture, { passive: false });
@@ -1413,45 +1417,62 @@
     if (performance.now() < suppressClickUntil) {
       event.preventDefault();
       event.stopImmediatePropagation();
+    } else {
+      scheduleSync(false);
     }
   }, true);
   nav.addEventListener("contextmenu", event => event.preventDefault());
   nav.addEventListener("selectstart", event => event.preventDefault());
   nav.addEventListener("dragstart", event => event.preventDefault());
 
-  function updateCompactState() {
-    scrollRaf = 0;
+  function applyCompactState() {
+    scrollTimer = 0;
     if (!MOBILE_MEDIA.matches || gesture) return;
     const currentY = Math.max(0, window.scrollY);
     const delta = currentY - lastScrollY;
-    if (currentY < 28) compact = false;
-    else if (delta > 10) compact = true;
-    else if (delta < -10) compact = false;
+    let nextCompact = compact;
+    if (currentY < 36) nextCompact = false;
+    else if (delta > 18) nextCompact = true;
+    else if (delta < -18) nextCompact = false;
+    lastScrollY = currentY;
+    if (nextCompact === compact) return;
+    compact = nextCompact;
     nav.classList.toggle("is-compact", compact);
     document.documentElement.classList.toggle("mobile-nav-is-compact", compact);
-    lastScrollY = currentY;
-    requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+    scheduleSync(true);
   }
 
   window.addEventListener("scroll", () => {
-    if (!scrollRaf) scrollRaf = requestAnimationFrame(updateCompactState);
+    if (gesture) return;
+    window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(applyCompactState, 90);
   }, { passive: true });
 
-  const observer = new MutationObserver(() => {
-    if (!gesture) requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+  function scheduleSync(immediate = true) {
+    if (syncRaf) return;
+    syncRaf = requestAnimationFrame(() => {
+      syncRaf = 0;
+      setBubbleToItem(activeItem(), immediate);
+    });
+  }
+
+  const observer = new MutationObserver(mutations => {
+    if (gesture) return;
+    const relevant = mutations.some(mutation => mutation.attributeName === "hidden" || mutation.attributeName === "aria-current");
+    if (relevant) scheduleSync(true);
   });
-  observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["class", "hidden", "aria-current"] });
+  observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["hidden", "aria-current"] });
 
   const sync = () => {
     setLogoMobileState();
     header?.classList.toggle("mobile-header-stable", MOBILE_MEDIA.matches);
-    requestAnimationFrame(() => setBubbleToItem(activeItem(), true));
+    scheduleSync(true);
   };
 
   window.addEventListener("resize", sync, { passive: true });
-  window.addEventListener("orientationchange", () => setTimeout(sync, 120));
-  window.addEventListener("hashchange", sync);
-  window.addEventListener("customer-auth-ready", sync);
+  window.addEventListener("orientationchange", () => setTimeout(sync, 120), { passive: true });
+  window.addEventListener("hashchange", sync, { passive: true });
+  window.addEventListener("customer-auth-ready", sync, { passive: true });
   MOBILE_MEDIA.addEventListener?.("change", sync);
   document.addEventListener("DOMContentLoaded", sync, { once: true });
   sync();

@@ -2685,3 +2685,54 @@ html.is-offline body::before {
     transform:translateY(-1px) scale(1.03)!important;
   }
 }
+
+/* Phase M8.3.5 — Mobile Scroll & Navigation Performance Recovery */
+@media (max-width: 767px){
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled,
+  #appHeader.topbar.mobile-header-stable{
+    contain:layout style!important;
+    backface-visibility:hidden!important;
+    -webkit-backface-visibility:hidden!important;
+    will-change:auto!important;
+  }
+
+  .mobile-bottom-nav{
+    background:rgba(255,255,255,.68)!important;
+    border-color:rgba(255,255,255,.72)!important;
+    box-shadow:0 10px 26px rgba(15,23,42,.16),inset 0 1px 0 rgba(255,255,255,.86)!important;
+    backdrop-filter:blur(14px) saturate(145%)!important;
+    -webkit-backdrop-filter:blur(14px) saturate(145%)!important;
+    contain:layout style paint!important;
+    transform:translate3d(0,0,0)!important;
+    backface-visibility:hidden!important;
+    -webkit-backface-visibility:hidden!important;
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav{
+    background:rgba(10,23,43,.62)!important;
+    border-color:rgba(255,255,255,.14)!important;
+    box-shadow:0 12px 28px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.12)!important;
+  }
+
+  .mobile-bottom-nav::before{
+    background:linear-gradient(145deg,rgba(255,255,255,.46),rgba(255,255,255,.08) 52%,transparent)!important;
+  }
+
+  .mobile-nav-active-indicator{
+    will-change:auto!important;
+    backface-visibility:hidden!important;
+    -webkit-backface-visibility:hidden!important;
+  }
+
+  .mobile-bottom-nav.is-live-tracking .mobile-nav-active-indicator,
+  .mobile-bottom-nav.is-hold-navigating .mobile-nav-active-indicator{
+    will-change:transform!important;
+  }
+
+  .mobile-nav-item,
+  .mobile-nav-item svg{
+    backface-visibility:hidden!important;
+    -webkit-backface-visibility:hidden!important;
+  }
+}
