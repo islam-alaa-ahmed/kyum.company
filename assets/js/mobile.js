@@ -1332,7 +1332,11 @@
   }
 
   function itemAtPoint(x, y) {
-    return document.elementFromPoint(x, y)?.closest?.(".mobile-nav-item:not([hidden])") || null;
+    const navRect = nav.getBoundingClientRect();
+    const clampedX = Math.min(Math.max(x, navRect.left + 1), navRect.right - 1);
+    const clampedY = Math.min(Math.max(y, navRect.top + 1), navRect.bottom - 1);
+    const item = document.elementFromPoint(clampedX, clampedY)?.closest?.(".mobile-nav-item:not([hidden])") || null;
+    return item && nav.contains(item) ? item : null;
   }
 
   function activateItem(item) {
@@ -1352,7 +1356,8 @@
   function onPointerDown(event) {
     if (!MOBILE_MEDIA.matches || event.pointerType === "mouse" && event.button !== 0) return;
     const item = event.target.closest(".mobile-nav-item:not([hidden])");
-    if (!item) return;
+    if (!item || !nav.contains(item)) return;
+    event.preventDefault();
     press = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -1402,10 +1407,13 @@
     }
   }
 
-  nav.addEventListener("pointerdown", onPointerDown, { passive: true });
+  nav.addEventListener("pointerdown", onPointerDown, { passive: false });
   nav.addEventListener("pointermove", onPointerMove, { passive: false });
   nav.addEventListener("pointerup", event => finishPointer(event, false), { passive: false });
   nav.addEventListener("pointercancel", event => finishPointer(event, true), { passive: false });
+  nav.addEventListener("contextmenu", event => event.preventDefault());
+  nav.addEventListener("selectstart", event => event.preventDefault());
+  nav.addEventListener("dragstart", event => event.preventDefault());
   nav.addEventListener("click", event => {
     if (performance.now() < suppressClickUntil) {
       event.preventDefault();

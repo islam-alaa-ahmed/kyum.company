@@ -2349,3 +2349,110 @@ html.is-offline body::before {
   #appHeader .theme-toggle-button,
   #appHeader .theme-toggle-button.is-visible{right:max(10px,env(safe-area-inset-right))}
 }
+
+/* Phase M8.3.1 — Header & Glass Navigation Regression Fix */
+@media (max-width: 767px){
+  /* Keep the header visible and keep every control inside its own bounds. */
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled{
+    position:sticky!important;
+    z-index:1050!important;
+    top:0!important;
+    width:calc(100% + 20px)!important;
+    min-height:calc(72px + var(--mobile-safe-top))!important;
+    margin:0 -10px 12px!important;
+    padding:calc(8px + var(--mobile-safe-top)) 10px 8px!important;
+    overflow:hidden!important;
+    transform:none!important;
+  }
+
+  #appHeader .sidebar-menu-launcher,
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible,
+  #appHeader .kyum-scroll-control.mobile-floating-logo{
+    top:calc(var(--mobile-safe-top) + 10px)!important;
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    margin:0!important;
+    transform:none!important;
+  }
+
+  #appHeader .sidebar-menu-launcher{
+    left:max(12px,env(safe-area-inset-left))!important;
+    right:auto!important;
+  }
+
+  #appHeader .kyum-scroll-control.mobile-floating-logo{
+    left:calc(max(12px,env(safe-area-inset-left)) + 52px)!important;
+    right:auto!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{
+    right:max(12px,env(safe-area-inset-right))!important;
+    left:auto!important;
+  }
+
+  #appHeader .mobile-app-brand{
+    top:calc(var(--mobile-safe-top) + 10px)!important;
+    left:50%!important;
+    right:auto!important;
+    height:44px!important;
+    transform:translateX(-50%)!important;
+  }
+
+  /* Genuine translucent glass surface; no solid navy fill. */
+  .mobile-bottom-nav{
+    isolation:isolate!important;
+    background:rgba(248,250,252,.70)!important;
+    border-color:rgba(148,163,184,.30)!important;
+    box-shadow:0 14px 38px rgba(15,23,42,.18),inset 0 1px 0 rgba(255,255,255,.78)!important;
+    backdrop-filter:blur(24px) saturate(175%)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(175%)!important;
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+    touch-action:none!important;
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav{
+    background:rgba(8,19,39,.56)!important;
+    border-color:rgba(148,163,184,.24)!important;
+    box-shadow:0 16px 42px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.10)!important;
+  }
+
+  .mobile-bottom-nav,
+  .mobile-bottom-nav *{
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+  }
+
+  .mobile-bottom-nav::after{
+    z-index:0!important;
+    background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(255,255,255,.10) 45%,transparent 72%)!important;
+  }
+
+  .mobile-nav-active-indicator{
+    z-index:1!important;
+    pointer-events:none!important;
+    transform:translate3d(var(--indicator-x,0),0,0) scaleX(.88)!important;
+    overflow:hidden!important;
+  }
+
+  .mobile-nav-item{
+    position:relative!important;
+    z-index:2!important;
+    -webkit-user-drag:none!important;
+    user-drag:none!important;
+    touch-action:none!important;
+  }
+
+  .mobile-nav-item svg,
+  .mobile-nav-item span{
+    pointer-events:none!important;
+  }
+}
