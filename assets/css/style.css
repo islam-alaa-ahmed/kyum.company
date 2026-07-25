@@ -9680,3 +9680,120 @@ html[data-theme="light"] .kyum-update-status { color: #08796d; }
   .daily-phone-lookup { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
   .daily-phone-lookup-result { grid-column: auto; }
 }
+
+/* Phase M9.2.1 — Daily phone lookup theme styling fix */
+#dailyOperationsView .daily-phone-lookup {
+  background: #ffffff;
+  border-color: #d7e0ec;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  color: #111827;
+}
+
+#dailyOperationsView .daily-phone-lookup-copy h3,
+#dailyOperationsView .daily-phone-lookup-form > label {
+  color: #111827;
+}
+
+#dailyOperationsView .daily-phone-lookup-copy p {
+  color: #4b5563;
+}
+
+#dailyOperationsView .daily-phone-lookup-controls input {
+  background: #ffffff;
+  color: #111827;
+  border-color: #cbd5e1;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+#dailyOperationsView .daily-phone-lookup-controls input::placeholder {
+  color: #6b7280;
+}
+
+#dailyOperationsView .daily-phone-lookup-controls .secondary-btn,
+#dailyOperationsView .daily-phone-result-actions .secondary-btn {
+  background: #f8fafc;
+  color: #111827;
+  border-color: #cbd5e1;
+}
+
+#dailyOperationsView .daily-phone-lookup-controls .secondary-btn:hover,
+#dailyOperationsView .daily-phone-result-actions .secondary-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+#dailyOperationsView .daily-phone-lookup-result.is-warning {
+  background: #fff8ed;
+  border-color: #f59e0b;
+  color: #7c2d12;
+}
+
+#dailyOperationsView .daily-phone-lookup-result.is-success {
+  background: #ecfdf5;
+  border-color: #34d399;
+  color: #166534;
+}
+
+#dailyOperationsView .daily-phone-lookup-result.is-error {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup {
+  background: #0d2038;
+  border-color: #294461;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-copy h3,
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-form > label {
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-copy p {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-controls input {
+  background: #172d49;
+  color: #ffffff;
+  border-color: #3a5776;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-controls input::placeholder {
+  color: #9fb0c4;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-controls .secondary-btn,
+html[data-theme="dark"] #dailyOperationsView .daily-phone-result-actions .secondary-btn {
+  background: #183250;
+  color: #f8fafc;
+  border-color: #3b5b7c;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-controls .secondary-btn:hover,
+html[data-theme="dark"] #dailyOperationsView .daily-phone-result-actions .secondary-btn:hover {
+  background: #214363;
+  border-color: #60a5fa;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-result.is-warning {
+  background: #382a2a;
+  border-color: #a86a00;
+  color: #fff4dc;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-result.is-success {
+  background: #12352b;
+  border-color: #2f855a;
+  color: #d1fae5;
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-result.is-error {
+  background: #3b1f26;
+  border-color: #b4535a;
+  color: #fee2e2;
+}
