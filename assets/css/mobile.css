@@ -2456,3 +2456,46 @@ html.is-offline body::before {
     pointer-events:none!important;
   }
 }
+
+/* Phase M8.3.2 — Mobile Header Controls & Finger-Tracking Indicator Fix */
+@media (max-width: 767px){
+  /* Keep the two requested header controls visible and positioned relative to the header itself. */
+  #appHeader .topbar-user-actions{
+    display:contents!important;
+    width:auto!important;
+    min-width:0!important;
+  }
+
+  #appHeader #kyumScrollControl.mobile-floating-logo,
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+
+  #appHeader #kyumScrollControl.mobile-floating-logo{
+    left:calc(max(12px,env(safe-area-inset-left)) + 52px)!important;
+    right:auto!important;
+  }
+
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    right:max(12px,env(safe-area-inset-right))!important;
+    left:auto!important;
+  }
+
+  /* During press-and-drag, the bubble must stay directly under the finger with zero lag. */
+  .mobile-bottom-nav.is-hold-navigating .mobile-nav-active-indicator{
+    transition:none!important;
+    will-change:transform,width!important;
+  }
+
+  .mobile-bottom-nav,
+  .mobile-bottom-nav *{
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+  }
+}

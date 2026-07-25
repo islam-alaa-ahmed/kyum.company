@@ -1321,9 +1321,26 @@
     if (immediate) requestAnimationFrame(() => indicator.classList.remove("is-immediate"));
   }
 
-  function setPreview(target) {
+  function setPreview(target, pointerX = null) {
     interactiveItems().forEach(item => item.classList.toggle("is-press-preview", item === target));
-    if (target) placeIndicator(target);
+    if (Number.isFinite(pointerX)) {
+      placeIndicatorAtPointer(pointerX, target);
+    } else if (target) {
+      placeIndicator(target);
+    }
+  }
+
+  function placeIndicatorAtPointer(pointerX, target = null) {
+    if (!MOBILE_MEDIA.matches) return;
+    const navRect = nav.getBoundingClientRect();
+    const item = target || activeItem();
+    const itemWidth = item ? item.getBoundingClientRect().width : navRect.width / Math.max(interactiveItems().length, 1);
+    const indicatorWidth = Math.max(44, Math.min(itemWidth, navRect.width));
+    const rawX = pointerX - navRect.left - indicatorWidth / 2;
+    const x = Math.max(0, Math.min(rawX, navRect.width - indicatorWidth));
+    indicator.classList.add("is-immediate");
+    indicator.style.setProperty("--indicator-x", `${x}px`);
+    indicator.style.setProperty("--indicator-w", `${indicatorWidth}px`);
   }
 
   function clearPreview() {
@@ -1368,7 +1385,7 @@
         if (!press) return;
         press.held = true;
         nav.classList.add("is-hold-navigating");
-        setPreview(press.current);
+        setPreview(press.current, press.startX);
         navigator.vibrate?.(8);
       }, 180)
     };
@@ -1385,11 +1402,9 @@
     }
     if (!press.held) return;
     event.preventDefault();
-    const next = itemAtPoint(event.clientX, event.clientY);
-    if (next && next !== press.current) {
-      press.current = next;
-      setPreview(next);
-    }
+    const next = itemAtPoint(event.clientX, event.clientY) || press.current;
+    if (next) press.current = next;
+    setPreview(press.current, event.clientX);
   }
 
   function finishPointer(event, cancelled = false) {
