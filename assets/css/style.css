@@ -9637,3 +9637,46 @@ html[data-theme="light"] .kyum-update-status { color: #08796d; }
     flex: 1 1 150px;
   }
 }
+
+/* Phase M9.2 — Daily phone ownership lookup */
+.daily-phone-lookup {
+  display: grid;
+  grid-template-columns: minmax(220px, .85fr) minmax(320px, 1.15fr);
+  gap: 18px 24px;
+  align-items: end;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.daily-phone-lookup-copy h3,
+.daily-phone-lookup-copy p { margin: 0; }
+.daily-phone-lookup-copy p { margin-top: 6px; color: var(--muted); line-height: 1.7; }
+.daily-phone-lookup-form { display: grid; gap: 8px; }
+.daily-phone-lookup-form > label { font-weight: 700; }
+.daily-phone-lookup-controls { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; }
+.daily-phone-lookup-controls input { min-width: 0; }
+.daily-phone-lookup-result {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  line-height: 1.8;
+}
+.daily-phone-lookup-result.is-warning { background: #fff7ed; border-color: #fdba74; color: #7c2d12; }
+.daily-phone-lookup-result.is-success { background: #ecfdf5; border-color: #86efac; color: #166534; }
+.daily-phone-lookup-result.is-error { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+.daily-phone-lookup-result strong { color: inherit; }
+.daily-phone-lookup-result .daily-phone-result-actions { margin-top: 10px; }
+
+@media (min-width: 768px) {
+  #dailyOperationsView .mobile-daily-toolbar-actions { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  .daily-phone-lookup { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
+  .daily-phone-lookup-result { grid-column: auto; }
+}

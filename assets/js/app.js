@@ -321,6 +321,31 @@ async function findCustomerByPhone(phone, excludeId = null) {
   return window.CustomersService.findByPhone(normalized, excludeId);
 }
 
+function customerPhoneOwnershipDetails(customer) {
+  if (!customer) return null;
+  const representativeName = customer.representative?.full_name
+    || customer.representative_name
+    || customer.representative
+    || "";
+  return {
+    id: customer.id || "",
+    name: customer.customer_name || customer.name || "عميل غير مسمى",
+    type: customer.customer_type || customer.type || "",
+    contactPersonName: customer.contact_person_name || customer.contactPersonName || "",
+    phone: normalizePhone(customer.phone || ""),
+    representativeName: String(representativeName || "").trim()
+  };
+}
+
+function duplicateCustomerWarningMessage(customer, phone) {
+  const details = customerPhoneOwnershipDetails(customer);
+  if (!details) return "رقم الجوال مسجل بالفعل لعميل آخر.";
+  const representativeText = details.representativeName
+    ? ` ويتبع المندوب «${details.representativeName}».`
+    : "، ولكن لم يتم تعيين مندوب له حتى الآن.";
+  return `لا يمكن إضافة العميل. رقم الجوال ${normalizePhone(phone)} مرتبط بالعميل «${details.name}»${representativeText}`;
+}
+
 function nextCustomerId() {
   const max = customers.reduce((highest, customer) => {
     const value = Number(String(customer.id).replace(/\D/g, "")) || 0;
@@ -3356,7 +3381,7 @@ async function handleCustomerSubmit(event) {
   try {
     const duplicateCustomer = await findCustomerByPhone(normalizedPhone, editingId);
     if (duplicateCustomer) {
-      alert(`لا يمكن حفظ العميل. رقم الجوال ${normalizedPhone} مسجل بالفعل باسم: ${duplicateCustomer.customer_name}`);
+      alert(duplicateCustomerWarningMessage(duplicateCustomer, normalizedPhone));
       document.getElementById("customerPhone").focus();
       return;
     }
@@ -6983,3 +7008,72 @@ setOptions();
   }
 })();
 
+
+// Phase M9.2 — Daily Operations phone ownership lookup.
+(function setupDailyPhoneLookup() {
+  const form = document.getElementById("dailyPhoneLookupForm");
+  const input = document.getElementById("dailyPhoneLookupInput");
+  const result = document.getElementById("dailyPhoneLookupResult");
+  const button = document.getElementById("dailyPhoneLookupButton");
+  if (!form || !input || !result || !button) return;
+
+  function showLookupResult(type, html) {
+    result.className = `daily-phone-lookup-result is-${type}`;
+    result.innerHTML = html;
+  }
+
+  async function openExistingCustomer(customerId) {
+    if (!customerId) return;
+    if (!customersLoaded) await loadCustomersFromSupabase(true);
+    const customer = customers.find(item => String(item.id) === String(customerId));
+    if (!customer) return;
+    switchView("customers");
+    window.setTimeout(() => showCustomerDetails(customer.id), 0);
+  }
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const normalizedPhone = normalizePhone(input.value);
+    result.className = "daily-phone-lookup-result hidden";
+    result.textContent = "";
+
+    if (!isValidSaudiMobile(normalizedPhone)) {
+      showLookupResult("error", "أدخل رقم جوال سعودي صحيحًا بصيغة <strong>05XXXXXXXX</strong>.");
+      input.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "جاري البحث...";
+    try {
+      const customer = await findCustomerByPhone(normalizedPhone);
+      if (!customer) {
+        showLookupResult("success", `الرقم <strong>${escapeHtml(normalizedPhone)}</strong> غير مرتبط بأي عميل مسجل.`);
+        return;
+      }
+
+      const details = customerPhoneOwnershipDetails(customer);
+      const repLine = details.representativeName
+        ? `العميل يتبع المندوب <strong>«${escapeHtml(details.representativeName)}»</strong>.`
+        : "لم يتم تعيين مندوب لهذا العميل حتى الآن.";
+      const companyLine = details.type === "شركة" && details.contactPersonName
+        ? `<br>المسؤول: <strong>«${escapeHtml(details.contactPersonName)}»</strong>.`
+        : "";
+      showLookupResult(
+        "warning",
+        `تنبيه: الرقم <strong>${escapeHtml(normalizedPhone)}</strong> مرتبط بالعميل <strong>«${escapeHtml(details.name)}»</strong>.<br>${repLine}${companyLine}`
+        + (details.id ? `<div class="daily-phone-result-actions"><button type="button" class="secondary-btn compact-btn" data-open-existing-customer="${escapeHtml(String(details.id))}">فتح العميل الحالي</button></div>` : "")
+      );
+    } catch (error) {
+      showLookupResult("error", escapeHtml(error instanceof Error ? error.message : "تعذر التحقق من رقم الجوال."));
+    } finally {
+      button.disabled = false;
+      button.textContent = "بحث";
+    }
+  });
+
+  result.addEventListener("click", event => {
+    const customerId = event.target.closest("[data-open-existing-customer]")?.dataset.openExistingCustomer;
+    if (customerId) openExistingCustomer(customerId);
+  });
+})();

@@ -104,7 +104,19 @@
   async function findByPhone(normalizedPhone, excludeId = null) {
     let query = client()
       .from("customers")
-      .select("id, customer_name, phone")
+      .select(`
+        id,
+        customer_name,
+        customer_type,
+        contact_person_name,
+        phone,
+        representative_id,
+        representative:sales_representatives (
+          id,
+          representative_code,
+          full_name
+        )
+      `)
       .eq("normalized_phone", normalizedPhone)
       .limit(1);
 

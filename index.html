@@ -222,6 +222,21 @@
 
       
       <section id="dailyOperationsView" class="view-section hidden">
+        <section class="daily-phone-lookup" aria-labelledby="dailyPhoneLookupTitle">
+          <div class="daily-phone-lookup-copy">
+            <h3 id="dailyPhoneLookupTitle">التحقق من رقم العميل</h3>
+            <p>اكتب رقم الجوال لمعرفة العميل والمندوب المرتبط به قبل التواصل أو الإضافة.</p>
+          </div>
+          <form id="dailyPhoneLookupForm" class="daily-phone-lookup-form" novalidate>
+            <label for="dailyPhoneLookupInput">رقم الجوال</label>
+            <div class="daily-phone-lookup-controls">
+              <input id="dailyPhoneLookupInput" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" maxlength="20">
+              <button id="dailyPhoneLookupButton" type="submit" class="primary-btn">بحث</button>
+            </div>
+          </form>
+          <div id="dailyPhoneLookupResult" class="daily-phone-lookup-result hidden" role="status" aria-live="polite"></div>
+        </section>
+
         <div class="daily-operations-header">
           <div>
             <h3>مركز التشغيل اليومي</h3>
@@ -660,7 +675,6 @@
         <div class="actions-row">
           <div>
             <h3 class="section-title">مندوبو المبيعات</h3>
-            <p class="section-note">البيانات محمّلة مباشرة من Supabase.</p>
           </div>
           <button id="addRepresentativeBtn" class="primary-btn reference-manage-action">إضافة مندوب</button>
         </div>
