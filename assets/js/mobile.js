@@ -159,7 +159,7 @@
   }
 
   function installDashboardShell() {
-    if (!dashboardView || dashboardView.querySelector(".mobile-dashboard-toolbar")) return;
+    if (!MOBILE_MEDIA.matches || !dashboardView || dashboardView.querySelector(".mobile-dashboard-toolbar")) return;
 
     const toolbar = document.createElement("div");
     toolbar.className = "mobile-dashboard-toolbar";
@@ -271,15 +271,24 @@
   window.addEventListener("customer-auth-ready", () => {
     syncPermissionVisibility();
     syncActiveState();
-    installDashboardShell();
-    refreshDashboard({ announce: false });
+    if (MOBILE_MEDIA.matches) {
+      installDashboardShell();
+      installCustomersShell();
+      refreshDashboard({ announce: false });
+    }
   });
 
-  MOBILE_MEDIA.addEventListener?.("change", () => {
-    if (!MOBILE_MEDIA.matches) {
-      menuButton?.classList.remove("is-active");
-      closeDashboardFilters();
+  MOBILE_MEDIA.addEventListener?.("change", event => {
+    if (event.matches) {
+      installDashboardShell();
+      installCustomersShell();
+      syncPermissionVisibility();
+      syncActiveState();
+      return;
     }
+    menuButton?.classList.remove("is-active");
+    closeDashboardFilters();
+    closeCustomersFilters();
   });
 
   const customersView = document.getElementById("customersView");
@@ -340,7 +349,7 @@
   }
 
   function installCustomersShell() {
-    if (!customersView || customersView.querySelector("[data-mobile-customers-filter]")) return;
+    if (!MOBILE_MEDIA.matches || !customersView || customersView.querySelector("[data-mobile-customers-filter]")) return;
     const actions = customersView.querySelector(".actions-row");
     const filters = customersView.querySelector(".filters-row");
     if (!actions || !filters) return;
@@ -443,9 +452,11 @@
     dialog.addEventListener("cancel", () => document.body.classList.remove("mobile-customer360-open"));
   }
 
-  installDashboardShell();
+  if (MOBILE_MEDIA.matches) {
+    installDashboardShell();
+    installCustomersShell();
+  }
   installPullToRefresh();
-  installCustomersShell();
   installCustomer360Shell();
   syncPermissionVisibility();
   syncActiveState();

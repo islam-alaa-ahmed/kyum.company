@@ -1,4 +1,12 @@
 /* KYUM Company CRM Mobile Enterprise — Phase M1 */
+/* Desktop/Tablet isolation guard — mobile-only controls must never affect wider layouts. */
+.mobile-dashboard-toolbar,
+.mobile-dashboard-filter-backdrop,
+.mobile-filter-close,
+.mobile-customers-filter-btn,
+.mobile-customers-filter-close,
+.mobile-customers-filter-backdrop{display:none!important}
+
 .mobile-bottom-nav{display:none}
 
 @media (max-width: 767px){
