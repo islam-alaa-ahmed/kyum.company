@@ -1371,6 +1371,8 @@
   }
 
   function onPointerDown(event) {
+    /* Touch is handled by the iOS continuous Touch Events fallback below. */
+    if (event.pointerType === "touch") return;
     if (!MOBILE_MEDIA.matches || event.pointerType === "mouse" && event.button !== 0) return;
     const item = event.target.closest(".mobile-nav-item:not([hidden])");
     if (!item || !nav.contains(item)) return;
@@ -1473,4 +1475,133 @@
 
   setLogoMobileState();
   requestAnimationFrame(() => placeIndicator(null, true));
+})();
+
+
+/* Phase M8.3.3 — iOS live finger tracking fallback */
+(() => {
+  "use strict";
+
+  const media = window.matchMedia("(max-width: 767px)");
+  const nav = document.getElementById("mobileBottomNav");
+  if (!nav) return;
+
+  const indicator = () => nav.querySelector(".mobile-nav-active-indicator");
+  const items = () => [...nav.querySelectorAll(".mobile-nav-item:not([hidden])")];
+  let gesture = null;
+  let suppressClickUntil = 0;
+
+  function itemFromPoint(x, y) {
+    const rect = nav.getBoundingClientRect();
+    const cx = Math.min(Math.max(x, rect.left + 1), rect.right - 1);
+    const cy = Math.min(Math.max(y, rect.top + 1), rect.bottom - 1);
+    const hit = document.elementFromPoint(cx, cy)?.closest?.(".mobile-nav-item:not([hidden])");
+    return hit && nav.contains(hit) ? hit : null;
+  }
+
+  function moveBubble(clientX) {
+    const bubble = indicator();
+    if (!bubble) return;
+    const rect = nav.getBoundingClientRect();
+    const visible = items();
+    const width = visible[0]?.getBoundingClientRect().width || rect.width / Math.max(visible.length, 1);
+    const bubbleWidth = Math.max(44, Math.min(width, rect.width));
+    const x = Math.max(0, Math.min(clientX - rect.left - bubbleWidth / 2, rect.width - bubbleWidth));
+    bubble.classList.add("is-immediate");
+    bubble.style.setProperty("--indicator-x", `${x}px`);
+    bubble.style.setProperty("--indicator-w", `${bubbleWidth}px`);
+  }
+
+  function preview(target) {
+    items().forEach(item => item.classList.toggle("is-press-preview", item === target));
+  }
+
+  function begin(point, id) {
+    const target = itemFromPoint(point.clientX, point.clientY);
+    if (!target) return false;
+    gesture = { id, target, startX: point.clientX, startY: point.clientY, moved: false };
+    nav.classList.add("is-live-tracking", "is-hold-navigating");
+    preview(target);
+    moveBubble(point.clientX);
+    return true;
+  }
+
+  function update(point, id) {
+    if (!gesture || gesture.id !== id) return;
+    gesture.moved = gesture.moved || Math.abs(point.clientX - gesture.startX) > 3 || Math.abs(point.clientY - gesture.startY) > 3;
+    const target = itemFromPoint(point.clientX, point.clientY);
+    if (target) gesture.target = target;
+    preview(gesture.target);
+    moveBubble(point.clientX);
+  }
+
+  function activate(target) {
+    if (!target) return;
+    const view = target.dataset.mobileView;
+    if (view) {
+      document.querySelector(`.nav-item[data-view="${view}"]`)?.click();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (target.dataset.mobileAction === "menu") {
+      document.getElementById("sidebarMenuToggle")?.click();
+    }
+  }
+
+  function finish(id, cancelled) {
+    if (!gesture || gesture.id !== id) return;
+    const target = gesture.target;
+    const moved = gesture.moved;
+    gesture = null;
+    nav.classList.remove("is-live-tracking", "is-hold-navigating");
+    preview(null);
+    suppressClickUntil = performance.now() + 550;
+    requestAnimationFrame(() => {
+      const active = nav.querySelector(".mobile-nav-item.is-active:not([hidden])");
+      if (active) {
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = active.getBoundingClientRect();
+        const bubble = indicator();
+        bubble?.style.setProperty("--indicator-x", `${itemRect.left - navRect.left}px`);
+        bubble?.style.setProperty("--indicator-w", `${itemRect.width}px`);
+        bubble?.classList.remove("is-immediate");
+      }
+    });
+    if (!cancelled && moved) activate(target);
+  }
+
+  /* iOS Safari has more reliable continuous tracking through Touch Events. */
+  nav.addEventListener("touchstart", event => {
+    if (!media.matches || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (begin(touch, touch.identifier)) event.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener("touchmove", event => {
+    if (!gesture) return;
+    const touch = [...event.touches].find(t => t.identifier === gesture.id);
+    if (!touch) return;
+    update(touch, touch.identifier);
+    event.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener("touchend", event => {
+    if (!gesture) return;
+    const ended = [...event.changedTouches].find(t => t.identifier === gesture.id);
+    if (!ended) return;
+    update(ended, ended.identifier);
+    finish(ended.identifier, false);
+    event.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener("touchcancel", event => {
+    if (!gesture) return;
+    const ended = [...event.changedTouches].find(t => t.identifier === gesture.id);
+    if (ended) finish(ended.identifier, true);
+  }, { passive: false });
+
+  nav.addEventListener("click", event => {
+    if (performance.now() < suppressClickUntil) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
 })();
