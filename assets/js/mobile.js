@@ -1226,7 +1226,33 @@
     syncActiveNav();
   });
 
+  function cleanupDesktopAdministration() {
+    Object.entries(configs).forEach(([id,cfg]) => {
+      const section = document.getElementById(id);
+      if (!section) return;
+
+      section.querySelectorAll(":scope > .mobile-admin-toolbar, :scope > .mobile-admin-filter-backdrop").forEach(node => node.remove());
+      section.classList.remove("mobile-admin-filters-open");
+
+      if (cfg.filters) {
+        const filters = section.querySelector(cfg.filters);
+        if (filters) {
+          filters.classList.remove("mobile-admin-filter-sheet");
+          filters.querySelector(":scope > .mobile-admin-filter-head")?.remove();
+        }
+      }
+    });
+    document.body.classList.remove("mobile-overlay-open");
+  }
+
   function initialize() {
+    observer.disconnect();
+
+    if (!MEDIA.matches) {
+      cleanupDesktopAdministration();
+      return;
+    }
+
     Object.entries(configs).forEach(([id,cfg]) => {
       const section = document.getElementById(id);
       if (!section) return;
@@ -1236,7 +1262,6 @@
       if (id === "permissionsView") enhancePermissions(section);
     });
     syncActiveNav();
-    observer.disconnect();
     observer.observe(document.querySelector("main") || document.body, { subtree:true, childList:true, attributes:true, attributeFilter:["class"] });
   }
 

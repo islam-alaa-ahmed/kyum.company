@@ -2744,3 +2744,33 @@ html.is-offline body::before {
     -webkit-backface-visibility:hidden!important;
   }
 }
+
+/* Phase M9.1 — Desktop/Tablet administration isolation guard */
+@media (min-width: 768px) {
+  .mobile-admin-toolbar,
+  .mobile-admin-filter-head,
+  .mobile-admin-filter-backdrop {
+    display: none !important;
+  }
+
+  #usersView.mobile-admin-filters-open,
+  #permissionsView.mobile-admin-filters-open,
+  #representativesView.mobile-admin-filters-open,
+  #settingsView.mobile-admin-filters-open,
+  #backupsView.mobile-admin-filters-open,
+  #systemSettingsView.mobile-admin-filters-open {
+    overflow: visible !important;
+  }
+
+  .users-filters.mobile-admin-filter-sheet,
+  .representatives-list-toolbar.mobile-admin-filter-sheet,
+  .reference-data-toolbar.mobile-admin-filter-sheet {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
