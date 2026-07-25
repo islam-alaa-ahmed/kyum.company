@@ -21,6 +21,7 @@ let editingReferenceItemId = null;
 let referenceCustomersPage = 1;
 let customerImportPreview = null;
 let customerImportFile = null;
+let customerImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
 
 const seedCustomers = [
@@ -6300,6 +6301,7 @@ function closeCustomerImportDialog() {
 function resetCustomerImportDialog() {
   customerImportPreview = null;
   customerImportFile = null;
+  customerImportFailedRows = [];
   const fileInput = document.getElementById("customerImportFileInput");
   if (fileInput) fileInput.value = "";
   const fileName = document.getElementById("customerImportFileName");
@@ -6312,6 +6314,11 @@ function resetCustomerImportDialog() {
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
   showDataStatus("customerImportStatus", "");
+  document.getElementById("customerImportProgress")?.classList.add("hidden");
+  const progressBar = document.getElementById("customerImportProgressBar");
+  if (progressBar) progressBar.style.width = "0%";
+  const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
+  if (failedExportBtn) failedExportBtn.classList.add("hidden");
 }
 
 function renderCustomerImportPreview(preview) {
@@ -6333,7 +6340,9 @@ function renderCustomerImportPreview(preview) {
 
   const body = document.getElementById("customerImportPreviewBody");
   if (body) {
-    body.innerHTML = preview.rows.map(row => {
+    const previewLimit = 200;
+    const visibleRows = preview.rows.slice(0, previewLimit);
+    body.innerHTML = visibleRows.map(row => {
       const statusLabel = row.status === "error"
         ? "خطأ"
         : row.status === "existing"
@@ -6355,12 +6364,14 @@ function renderCustomerImportPreview(preview) {
           <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
         </tr>
       `;
-    }).join("");
+    }).join("") + (preview.rows.length > previewLimit
+      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      : "");
   }
 
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) {
-    executeBtn.disabled = summary.valid === 0 || summary.errors > 0;
+    executeBtn.disabled = summary.valid === 0;
   }
 }
 
@@ -6383,9 +6394,9 @@ async function previewCustomerImportFile(file) {
     showDataStatus(
       "customerImportStatus",
       preview.summary.errors
-        ? "توجد أخطاء يجب تصحيحها في الملف قبل الاستيراد."
+        ? `تم التحقق: سيتم استيراد ${preview.summary.valid} صف صحيح وتجاهل ${preview.summary.errors} صف به أخطاء.`
         : "تم التحقق من الملف وهو جاهز للاستيراد.",
-      preview.summary.errors ? "error" : "success"
+      preview.summary.errors ? "info" : "success"
     );
   } catch (error) {
     customerImportPreview = null;
@@ -6397,11 +6408,14 @@ async function previewCustomerImportFile(file) {
   }
 }
 
-document.getElementById("referenceCustomersImportBtn")?.addEventListener("click", () => {
+function openCustomerImportDialog() {
   if (!requireScreenAction("customers", "add", "لا توجد صلاحية استيراد العملاء.")) return;
   resetCustomerImportDialog();
   document.getElementById("customerImportDialog")?.showModal();
-});
+}
+
+document.getElementById("customersImportBtn")?.addEventListener("click", openCustomerImportDialog);
+document.getElementById("referenceCustomersImportBtn")?.addEventListener("click", openCustomerImportDialog);
 
 document.getElementById("customerImportChooseFileBtn")?.addEventListener("click", () => {
   document.getElementById("customerImportFileInput")?.click();
@@ -6429,19 +6443,32 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
   if (executeBtn) executeBtn.disabled = true;
 
   try {
+    customerImportFailedRows = customerImportPreview.rows
+      .filter(row => row.errors.length)
+      .map(row => ({ sourceRow: row.sourceRow, name: row.name, phone: row.phone, message: row.errors.join(" — ") }));
+    document.getElementById("customerImportProgress")?.classList.remove("hidden");
     showDataStatus("customerImportStatus", `جاري استيراد 0 من ${validRows.length}...`, "info");
     const result = await window.CustomersService.importCustomers(
       validRows,
       mode,
       (current, total) => {
-        showDataStatus(
-          "customerImportStatus",
-          `جاري استيراد ${current} من ${total}...`,
-          "info"
-        );
-      }
+        const percent = total ? Math.round((current / total) * 100) : 0;
+        const progressBar = document.getElementById("customerImportProgressBar");
+        if (progressBar) progressBar.style.width = `${percent}%`;
+        const progressText = document.getElementById("customerImportProgressText");
+        if (progressText) progressText.textContent = `${percent}%`;
+        const progressRows = document.getElementById("customerImportProgressRows");
+        if (progressRows) progressRows.textContent = `${current} / ${total}`;
+        if (current === total || current % 25 === 0) {
+          showDataStatus("customerImportStatus", `جاري استيراد ${current} من ${total}...`, "info");
+        }
+      },
+      { chunkSize: 200, yieldDelay: 0 }
     );
 
+    customerImportFailedRows = [...customerImportFailedRows, ...(result.errors || [])];
+    const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
+    if (failedExportBtn) failedExportBtn.classList.toggle("hidden", !customerImportFailedRows.length);
     await loadCustomersFromSupabase(true);
     renderReferenceCustomers();
     showDataStatus(
@@ -6461,6 +6488,14 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     );
   } finally {
     if (executeBtn) executeBtn.disabled = false;
+  }
+});
+
+document.getElementById("customerImportFailedExportBtn")?.addEventListener("click", () => {
+  try {
+    window.CustomerExcelCenter.exportFailedRows(customerImportFailedRows);
+  } catch (error) {
+    showDataStatus("customerImportStatus", error instanceof Error ? error.message : "تعذر تصدير الصفوف الفاشلة.", "error");
   }
 });
 
@@ -6487,6 +6522,18 @@ document.getElementById("referenceCustomersExportBtn")?.addEventListener("click"
     );
   }
 });
+
+function downloadCustomerImportTemplate() {
+  if (!requireScreenAction("customers", "export", "لا توجد صلاحية تنزيل نموذج العملاء.")) return;
+  try {
+    window.CustomerExcelCenter.downloadTemplate();
+    showDataStatus("customersStatus", "تم تنزيل نموذج استيراد العملاء.", "success");
+  } catch (error) {
+    showDataStatus("customersStatus", error instanceof Error ? error.message : "تعذر تنزيل النموذج.", "error");
+  }
+}
+
+document.getElementById("customersTemplateBtn")?.addEventListener("click", downloadCustomerImportTemplate);
 
 document.getElementById("referenceCustomersTemplateBtn")?.addEventListener("click", () => {
   if (!requireScreenAction("customers", "export", "لا توجد صلاحية تنزيل نموذج العملاء.")) return;

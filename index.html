@@ -491,7 +491,11 @@
           <div class="search-box">
             <input id="customerSearch" type="search" placeholder="بحث برقم العميل أو الاسم أو المندوب...">
           </div>
-          <button id="addCustomerBtn" class="primary-btn customer-manage-action">إضافة عميل</button>
+          <div class="customer-main-actions">
+            <button id="customersImportBtn" class="secondary-btn customer-import-action" type="button">رفع عملاء Excel</button>
+            <button id="customersTemplateBtn" class="secondary-btn customer-export-action" type="button">تنزيل نموذج Excel</button>
+            <button id="addCustomerBtn" class="primary-btn customer-manage-action">إضافة عميل</button>
+          </div>
         </div>
         <div id="customersStatus" class="data-status hidden"></div>
 
@@ -2452,6 +2456,14 @@
 
       <div id="customerImportStatus" class="data-status hidden"></div>
 
+      <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
+        <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
+        <div class="customer-import-progress-meta">
+          <strong id="customerImportProgressText">0%</strong>
+          <span id="customerImportProgressRows">0 / 0</span>
+        </div>
+      </div>
+
       <div id="customerImportSummary" class="customer-import-summary hidden">
         <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
         <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
@@ -2490,6 +2502,7 @@
       </div>
 
       <div class="dialog-actions">
+        <button id="customerImportFailedExportBtn" class="secondary-btn hidden" type="button">تنزيل الصفوف الفاشلة</button>
         <button id="customerImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
         <button id="customerImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
       </div>

@@ -9584,3 +9584,56 @@ html[data-theme="light"] .kyum-update-status { color: #08796d; }
   .about-app-actions { display: grid; grid-template-columns: 1fr; }
   .about-app-actions button { width: 100%; }
 }
+
+/* Phase M9 — Enterprise Customers Excel Import */
+.customer-main-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.customer-import-progress {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+.customer-import-progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border-color) 70%, transparent);
+}
+
+.customer-import-progress-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2563eb, #38bdf8);
+  transition: width 160ms ease;
+}
+
+.customer-import-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.customer-import-progress-meta strong {
+  color: var(--text-color);
+}
+
+@media (max-width: 760px) {
+  .customer-main-actions {
+    width: 100%;
+  }
+  .customer-main-actions > button {
+    flex: 1 1 150px;
+  }
+}

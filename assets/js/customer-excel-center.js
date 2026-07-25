@@ -373,12 +373,31 @@
     };
   }
 
+
+  function exportFailedRows(failedRows) {
+    requireXlsx();
+    const rows = (failedRows || []).map(item => ({
+      "رقم الصف في الملف": item.sourceRow || "",
+      "اسم العميل": item.name || "",
+      "رقم الجوال": item.phone || "",
+      "سبب الفشل": item.message || item.errors?.join(" — ") || ""
+    }));
+    if (!rows.length) throw new Error("لا توجد صفوف فاشلة للتصدير.");
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    sheet["!cols"] = [{wch:18},{wch:30},{wch:18},{wch:60}];
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, "Failed Rows");
+    XLSX.writeFile(workbook, `KYUM_Customers_Failed_${new Date().toISOString().slice(0,19).replaceAll(":","-")}.xlsx`, { compression: true });
+    return rows.length;
+  }
+
   window.CustomerExcelCenter = Object.freeze({
     exportCustomers,
     downloadTemplate,
     parseImportFile,
     buildImportPreview,
     normalizePhone,
+    exportFailedRows,
     headers: [...EXPORT_HEADERS]
   });
 })();
