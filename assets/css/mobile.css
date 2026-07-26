@@ -3268,3 +3268,27 @@ html.is-offline body::before {
     font-variant-numeric: tabular-nums lining-nums !important;
   }
 }
+
+/* Phase M9.4.1 — Desktop drawer logo sizing only */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  #mainSidebar .sidebar-launcher-host {
+    min-height: 84px !important;
+    height: 84px !important;
+    padding: 8px 12px !important;
+    overflow: hidden !important;
+  }
+
+  #mainSidebar .mobile-drawer-brand-logo {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 210px !important;
+    max-height: 66px !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 10px !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
