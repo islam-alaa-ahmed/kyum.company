@@ -32,7 +32,7 @@
 /* Phase M7.1 — Compact mobile application header */
 (() => {
   "use strict";
-  const MEDIA = window.matchMedia("(max-width: 767px)");
+  const MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const header = document.getElementById("appHeader");
   const launcher = document.getElementById("sidebarMenuToggle");
   const title = document.querySelector("#appHeader .topbar-title");
@@ -68,7 +68,7 @@
 (() => {
   "use strict";
 
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const nav = document.getElementById("mobileBottomNav");
   if (!nav) return;
 
@@ -466,7 +466,7 @@
 (() => {
   "use strict";
 
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const followupsView = document.getElementById("followupsView");
   if (!followupsView) return;
 
@@ -684,7 +684,7 @@
 (() => {
   "use strict";
 
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const view = document.getElementById("dailyOperationsView");
   if (!view) return;
 
@@ -817,7 +817,7 @@
 
 /* Phase M7 — Mobile Quotations */
 (() => {
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const view = document.getElementById("quotationsView");
   const body = document.getElementById("quotationsTableBody");
   const filters = view?.querySelector(".quotation-filters");
@@ -968,7 +968,7 @@
 
 /* Phase M8 — Mobile Reports */
 (() => {
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const view = document.getElementById("reportsOverviewView");
   const filters = view?.querySelector(".reports-filter-bar");
   const performanceBody = document.getElementById("representativePerformanceBody");
@@ -1119,7 +1119,7 @@
 /* Phase M9 — Mobile Administration */
 (() => {
   "use strict";
-  const MEDIA = window.matchMedia("(max-width: 767px)");
+  const MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const ADMIN_VIEWS = [
     ["users", "المستخدمون"],
     ["permissions", "الصلاحيات"],
@@ -1273,7 +1273,7 @@
 (() => {
   "use strict";
 
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   let resetRaf = 0;
 
   function resetHorizontalViewport() {
@@ -1304,7 +1304,7 @@
 (() => {
   "use strict";
 
-  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px)");
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
   const nav = document.getElementById("mobileBottomNav");
   const header = document.getElementById("appHeader");
   if (!nav) return;

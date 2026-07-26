@@ -9,7 +9,7 @@
 
 .mobile-bottom-nav{display:none}
 
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{
     --mobile-nav-height:72px;
     --mobile-safe-bottom:env(safe-area-inset-bottom,0px);
@@ -119,7 +119,7 @@
 }
 
 /* KYUM Company CRM Mobile Enterprise — Phase M2: Mobile Dashboard */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   body.mobile-dashboard-sheet-open{overflow:hidden}
 
   #dashboardView{position:relative}
@@ -248,7 +248,7 @@
 }
 
 /* KYUM Company CRM Mobile Enterprise — Phase M3: Customers */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   #customersView{position:relative}
   #customersView .actions-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-bottom:12px}
   #customersView .search-box{min-width:0}
@@ -295,7 +295,7 @@
 }
 
 /* KYUM Mobile Enterprise — Phase M4: Customer 360 */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   body.mobile-customer360-open{overflow:hidden}
   #customerDetailsDialog.customer360-dialog{inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--surface)}
   #customerDetailsDialog::backdrop{background:rgba(15,23,42,.56);backdrop-filter:blur(5px)}
@@ -361,7 +361,7 @@
 }
 
 /* KYUM Mobile Enterprise — Phase M5: Follow-ups */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   body.mobile-followups-sheet-open{overflow:hidden}
   #followupsView{position:relative}
   #followupsView>.actions-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:10px}
@@ -436,7 +436,7 @@
 }
 
 /* KYUM Mobile Enterprise — Phase M6: Daily Operations */
-@media (max-width: 767px) {
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
   #dailyOperationsView {
     padding-bottom: calc(92px + env(safe-area-inset-bottom));
   }
@@ -727,7 +727,7 @@
 
 
 /* Phase M7 — Mobile Quotations */
-@media (max-width: 767px) {
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
   body.mobile-quotations-sheet-open { overflow: hidden; }
 
   #quotationsView .actions-row {
@@ -922,7 +922,7 @@
 }
 
 /* KYUM Company CRM Mobile Enterprise — Phase M7.1 Header & Layout Hotfix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{--mobile-header-height:58px}
 
   .main-content{
@@ -1046,7 +1046,7 @@
 }
 
 /* KYUM Company CRM Mobile Enterprise — Phase M8 Mobile Reports */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   body.mobile-reports-sheet-open{overflow:hidden}
 
   #reportsOverviewView{display:block;min-width:0}
@@ -1218,7 +1218,7 @@
 @keyframes mobileReportsShimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
 /* Phase M9 — Mobile Administration */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   #usersView,#permissionsView,#representativesView,#settingsView,#backupsView,#systemSettingsView{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   #usersView>.actions-row,#permissionsView>.actions-row,#representativesView>.actions-row,#backupsView>.actions-row,#systemSettingsView>.actions-row{align-items:flex-start;gap:10px;margin-bottom:12px}
   #usersView>.actions-row>div,#permissionsView>.actions-row>div,#representativesView>.actions-row>div,#backupsView>.actions-row>div,#systemSettingsView>.actions-row>div{min-width:0}
@@ -1366,7 +1366,7 @@ html.is-offline body::before {
 }
 
 /* Phase M12.1 — Mobile viewport containment and desktop-layout leakage hotfix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   html,
   body{
     width:100%;
@@ -1515,7 +1515,7 @@ html.is-offline body::before {
 }
 
 /* KYUM Company CRM Mobile Enterprise — Phase M7.2 Layout & Navigation Stabilization */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   html,body,#appView,.main-content{width:100%;max-width:100%;overflow-x:hidden}
 
   /* Full-bleed application header, including iPhone safe area. */
@@ -1596,7 +1596,7 @@ html.is-offline body::before {
 
 
 /* KYUM Company CRM Mobile Enterprise — Phase M7.2.1 Corrective Hotfix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   html,
   body,
   #appView.app-shell,
@@ -1724,7 +1724,7 @@ html.is-offline body::before {
 }
 
 /* Phase M7.3 — canonical mobile shell and affected-screen layout */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{--kyum-mobile-header-bg:#062238}
   html,body{margin:0!important;min-height:100%;overflow-x:hidden!important}
   html{background:var(--kyum-mobile-header-bg)!important}
@@ -1773,7 +1773,7 @@ html.is-offline body::before {
 
 
 /* Phase M7.3.4 — sidebar first-row hit-target isolation */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   #mainSidebar.sidebar{
     display:flex!important;
     flex-direction:column!important;
@@ -1821,7 +1821,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.2 — compact mobile main menu */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   #mainSidebar.sidebar{
     width:min(88vw,360px)!important;
     padding:calc(10px + var(--mobile-safe-top)) 12px calc(12px + var(--mobile-safe-bottom))!important;
@@ -1970,7 +1970,7 @@ html.is-offline body::before {
 
 
 /* Phase M8.2.3 — Daily Operations mobile light-mode readability and Gregorian dates */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   html:not([data-theme="dark"]) #dailyOperationsView{
     color:#111827!important;
   }
@@ -2077,7 +2077,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.2.2 — Mobile Light Mode Menu Contrast Fix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   html[data-theme="light"] #mainSidebar.sidebar{
     background:#f8fafc!important;
     color:#0f172a!important;
@@ -2175,7 +2175,7 @@ html.is-offline body::before {
 }
 
 /* KYUM CRM Mobile — Enterprise Header & Glass Bottom Navigation Enhancement */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{
     --mobile-nav-height:76px;
     --mobile-nav-compact-height:58px;
@@ -2359,7 +2359,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.3.1 — Header & Glass Navigation Regression Fix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   /* Keep the header visible and keep every control inside its own bounds. */
   #appHeader.topbar,
   #appHeader.topbar.is-scrolled{
@@ -2466,7 +2466,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.3.2 — Mobile Header Controls & Finger-Tracking Indicator Fix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   /* Keep the two requested header controls visible and positioned relative to the header itself. */
   #appHeader .topbar-user-actions{
     display:contents!important;
@@ -2510,7 +2510,7 @@ html.is-offline body::before {
 
 
 /* Phase M8.3.3 — Persistent Header & Live Finger Tracking Fix */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   /* Use a fixed mobile header so it cannot disappear inside a scrolling ancestor. */
   #appHeader.topbar,
   #appHeader.topbar.is-scrolled{
@@ -2561,7 +2561,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.3.4 — Stable Header & Direct Finger-Tracking Glass Navigation */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{
     --kyum-stable-header-height:96px;
   }
@@ -2695,7 +2695,7 @@ html.is-offline body::before {
 }
 
 /* Phase M8.3.5 — Mobile Scroll & Navigation Performance Recovery */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   #appHeader.topbar,
   #appHeader.topbar.is-scrolled,
   #appHeader.topbar.mobile-header-stable{
@@ -2776,7 +2776,7 @@ html.is-offline body::before {
 }
 
 /* Phase M9.3 — Mobile Header Position, Compact Bottom Bar & Logout Action */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{
     --kyum-stable-header-height:90px;
     --mobile-nav-height:68px;
@@ -2924,7 +2924,7 @@ html.is-offline body::before {
 }
 
 /* Phase M9.3.1 — Mobile Header Offset, Follow-ups Spacing & Zoom Lock */
-@media (max-width: 767px){
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
   :root{
     --kyum-stable-header-height:84px;
   }
@@ -2996,5 +2996,202 @@ html.is-offline body::before {
   #dashboardView .dashboard-attention-panel #attentionFollowups{
     clear:both!important;
     padding-top:2px!important;
+  }
+}
+
+/* Phase M9.3.2 — Mobile Quotes Layout, Menu Branding & Landscape Persistence */
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
+  /* Quotes: preserve clear separation between toolbar, KPI cards and content. */
+  #quotationsView .mobile-quotations-toolbar {
+    position: relative !important;
+    z-index: 2 !important;
+    margin: 0 0 16px !important;
+  }
+
+  #quotationsView #quotationStats {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 0 0 18px !important;
+    padding-top: 0 !important;
+  }
+
+  #quotationsView .table-card,
+  #quotationsView .table-pagination {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Quotes filter opens as a centered modal, safely above the bottom navigation. */
+  #quotationsView .mobile-quotations-filter-sheet {
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 50% !important;
+    width: min(calc(100vw - 28px), 520px) !important;
+    max-height: calc(100dvh - var(--kyum-stable-header-height, 84px) - var(--mobile-nav-height, 68px) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 42px) !important;
+    margin: 0 !important;
+    padding: 18px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    border: 1px solid var(--border-color, rgba(148,163,184,.28)) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 28px 80px rgba(2,6,23,.38) !important;
+    transform: translate3d(-50%, -46%, 0) scale(.97) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform .22s cubic-bezier(.22,1,.36,1), opacity .18s ease, visibility .18s ease !important;
+    z-index: 1211 !important;
+  }
+
+  #quotationsView.mobile-quotations-filters-open .mobile-quotations-filter-sheet {
+    transform: translate3d(-50%, -50%, 0) scale(1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  #quotationsView .mobile-quotations-filter-backdrop {
+    display: block !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: 1210 !important;
+    background: rgba(2,6,23,.58) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    transition: opacity .18s ease, visibility .18s ease !important;
+  }
+
+  #quotationsView.mobile-quotations-filters-open .mobile-quotations-filter-backdrop {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  /* Dashboard latest customers: keep action clear of the first customer card. */
+  #dashboardView .panel:has(#recentCustomers) .panel-header {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  #dashboardView .panel:has(#recentCustomers) .panel-header h3,
+  #dashboardView .panel:has(#recentCustomers) .panel-header .text-btn {
+    position: static !important;
+    margin: 0 !important;
+  }
+
+  #dashboardView #recentCustomers {
+    clear: both !important;
+    display: grid !important;
+    gap: 10px !important;
+    padding-top: 2px !important;
+  }
+
+  /* Mobile drawer branding: replace the unused launcher rectangle with the KYUM desktop logo. */
+  #mainSidebar .sidebar-launcher-host {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 112px !important;
+    height: 112px !important;
+    margin: 0 0 14px !important;
+    padding: 10px 14px !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    border: 1px solid rgba(148,163,184,.18) !important;
+    border-radius: 18px !important;
+    background: rgba(255,255,255,.045) !important;
+  }
+
+  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher {
+    display: none !important;
+  }
+
+  #mainSidebar .mobile-drawer-brand-logo {
+    display: block !important;
+    width: min(100%, 230px) !important;
+    max-height: 92px !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,.22)) !important;
+  }
+
+  html[data-theme="light"] #mainSidebar .sidebar-launcher-host {
+    background: #ffffff !important;
+    border-color: #dbe3ef !important;
+    box-shadow: 0 10px 28px rgba(15,23,42,.08) !important;
+  }
+
+  /* Keep the mobile shell stretched across the full landscape viewport. */
+  .app-shell,
+  .main-content,
+  .view-section {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-device-width: 1024px),
+       (orientation: landscape) and (hover: none) and (max-device-width: 1024px) {
+  :root {
+    --kyum-stable-header-height: 72px;
+    --mobile-nav-height: 56px;
+    --mobile-nav-compact-height: 44px;
+  }
+
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled,
+  #appHeader.topbar.mobile-header-stable {
+    min-height: calc(var(--kyum-stable-header-height) + env(safe-area-inset-top)) !important;
+    height: calc(var(--kyum-stable-header-height) + env(safe-area-inset-top)) !important;
+  }
+
+  .main-content {
+    padding-top: calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 8px) !important;
+    padding-inline: max(14px, env(safe-area-inset-left)) max(14px, env(safe-area-inset-right)) !important;
+  }
+
+  #mainSidebar.sidebar {
+    top: calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 4px) !important;
+    height: calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 4px) !important;
+    max-height: calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 4px) !important;
+  }
+
+  #mainSidebar .sidebar-launcher-host {
+    min-height: 82px !important;
+    height: 82px !important;
+    padding-block: 6px !important;
+  }
+
+  #mainSidebar .mobile-drawer-brand-logo {
+    max-height: 68px !important;
+  }
+
+  #quotationsView .mobile-quotations-filter-sheet {
+    width: min(calc(100vw - 48px), 620px) !important;
+    max-height: calc(100dvh - 28px) !important;
+  }
+}
+
+/* Phase M9.3.2 — restore mobile-only controls in touch landscape after desktop guards */
+@media (orientation: landscape) and (pointer: coarse) and (max-device-width: 1024px),
+       (orientation: landscape) and (hover: none) and (max-device-width: 1024px) {
+  #mainSidebar .mobile-sidebar-footer {
+    display: block !important;
+  }
+
+  .mobile-admin-toolbar {
+    display: flex !important;
+  }
+
+  .mobile-admin-filter-head {
+    display: flex !important;
+  }
+
+  .mobile-admin-filter-backdrop {
+    display: block !important;
   }
 }

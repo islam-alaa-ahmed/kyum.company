@@ -5586,11 +5586,9 @@ function setSidebarOpen(isOpen) {
   const title = header?.querySelector(".topbar-title");
   if (!sidebar || !launcher || !backdrop || !sidebarHost || !header) return;
 
-  if (isOpen) {
-    // Move the same KYUM Company button into the opened menu.
-    sidebarHost.appendChild(launcher);
-  } else {
-    // Restore the same button to its original header position.
+  // Keep the menu launcher inside the fixed header on mobile and desktop.
+  // The opened drawer uses a dedicated static KYUM brand area instead.
+  if (launcher.parentElement !== header) {
     if (title) header.insertBefore(launcher, title);
     else header.prepend(launcher);
   }
