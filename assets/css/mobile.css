@@ -2922,3 +2922,79 @@ html.is-offline body::before {
 @media (min-width: 768px){
   .mobile-sidebar-footer{display:none!important}
 }
+
+/* Phase M9.3.1 — Mobile Header Offset, Follow-ups Spacing & Zoom Lock */
+@media (max-width: 767px){
+  :root{
+    --kyum-stable-header-height:84px;
+  }
+
+  html,
+  body,
+  #appView{
+    touch-action:manipulation;
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+  }
+
+  input,
+  select,
+  textarea{
+    font-size:16px!important;
+  }
+
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled,
+  #appHeader.topbar.mobile-header-stable{
+    min-height:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top))!important;
+    height:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top))!important;
+  }
+
+  #appHeader #sidebarMenuToggle,
+  #appHeader #kyumScrollControl.mobile-floating-logo,
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible,
+  #appHeader .mobile-app-brand{
+    top:calc(env(safe-area-inset-top) + 12px)!important;
+  }
+
+  .main-content{
+    padding-top:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 10px)!important;
+  }
+
+  /* Keep the opened drawer completely below the fixed header. */
+  #mainSidebar.sidebar{
+    top:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 6px)!important;
+    height:calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 6px)!important;
+    max-height:calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 6px)!important;
+    border-radius:22px 0 0 0!important;
+  }
+
+  /* Separate the dashboard attention title from its action button. */
+  #dashboardView .dashboard-attention-panel .panel-header{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    column-gap:12px!important;
+    row-gap:8px!important;
+    margin-bottom:14px!important;
+  }
+
+  #dashboardView .dashboard-attention-panel .panel-header h3{
+    min-width:0!important;
+    margin:0!important;
+    line-height:1.45!important;
+  }
+
+  #dashboardView .dashboard-attention-panel .panel-header .text-btn{
+    position:static!important;
+    margin:0!important;
+    white-space:nowrap!important;
+    align-self:center!important;
+  }
+
+  #dashboardView .dashboard-attention-panel #attentionFollowups{
+    clear:both!important;
+    padding-top:2px!important;
+  }
+}
