@@ -3292,3 +3292,28 @@ html.is-offline body::before {
     transform: none !important;
   }
 }
+
+/* Phase M9.4.2 — Desktop drawer logo proportional fit refinement */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  #mainSidebar .sidebar-launcher-host {
+    min-height: 112px !important;
+    height: 112px !important;
+    padding: 10px 12px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  #mainSidebar .mobile-drawer-brand-logo {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 92px !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 12px !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
