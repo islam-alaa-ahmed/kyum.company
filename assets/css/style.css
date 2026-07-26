@@ -9904,3 +9904,54 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
     flex-wrap: wrap;
   }
 }
+
+/* Phase M10 — Enterprise user data scope */
+#userDialog .form-field-wide {
+  grid-column: 1 / -1;
+}
+
+#userAllowedRepresentatives {
+  min-height: 150px;
+  padding: 8px;
+}
+
+#userAllowedRepresentatives option {
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+#userAllowedRepresentatives option:checked {
+  background: color-mix(in srgb, var(--accent-color, #2563eb) 20%, var(--panel-bg));
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted-text);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.data-access-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 260px;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-color, #2563eb) 28%, var(--border-color));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-color, #2563eb) 9%, var(--panel-bg));
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  #userDialog .form-field-wide {
+    grid-column: auto;
+  }
+
+  .data-access-badge {
+    max-width: 190px;
+  }
+}

@@ -1166,6 +1166,20 @@ function roleLabel(role) {
   return window.CustomerPermissions?.roleLabels?.[role] || role;
 }
 
+function dataAccessLabel(user) {
+  const mode = user?.data_access_mode || "own";
+  if (mode === "all") return "جميع البيانات";
+  if (mode === "own") return "بياناته فقط";
+  const names = (user?.data_access_representatives || []).map(item => item.full_name).filter(Boolean);
+  return names.length ? `بياناته + ${names.join("، ")}` : "بياناته فقط";
+}
+
+function syncUserDataAccessFields() {
+  const mode = document.getElementById("userDataAccessMode")?.value || "own";
+  const label = document.getElementById("userAllowedRepresentativesLabel");
+  if (label) label.classList.toggle("hidden", mode !== "selected");
+}
+
 function populateSecurityOptions() {
   const roles = (window.CustomerPermissions?.roleOptions || []).map(role => ({ label: roleLabel(role), value: role }));
   replaceSelectOptions(document.getElementById("userRole"), roles);
@@ -1177,6 +1191,13 @@ function populateSecurityOptions() {
     "بدون ربط",
     document.getElementById("userRepresentative")?.value || ""
   );
+  const allowedSelect = document.getElementById("userAllowedRepresentatives");
+  if (allowedSelect) {
+    const selected = new Set([...allowedSelect.selectedOptions].map(option => option.value));
+    allowedSelect.innerHTML = representativeRecords.map(rep =>
+      `<option value="${rep.id}" ${selected.has(rep.id) ? "selected" : ""}>${escapeHtml(rep.full_name)}</option>`
+    ).join("");
+  }
 }
 
 async function loadUsersFromSupabase(force = false) {
@@ -1214,10 +1235,11 @@ function renderUsers() {
       <td>${escapeHtml(user.email || "—")}</td>
       <td><span class="badge">${escapeHtml(roleLabel(user.role))}</span></td>
       <td>${escapeHtml(user.representative?.full_name || "—")}</td>
+      <td><span class="data-access-badge" title="${escapeHtml(dataAccessLabel(user))}">${escapeHtml(dataAccessLabel(user))}</span></td>
       <td><span class="record-status ${user.is_active ? "active" : "inactive"}">${user.is_active ? "نشط" : "غير نشط"}</span></td>
       <td>${user.last_login_at ? new Date(user.last_login_at).toLocaleString("ar-SA") : "لم يسجل الدخول"}</td>
       <td><div class="row-actions"><button class="edit-btn" data-edit-user="${user.id}">تعديل</button><button class="secondary-btn compact-btn" data-reset-password="${user.id}">كلمة مرور مؤقتة</button></div></td>
-    </tr>`).join("") : `<tr><td colspan="7" class="empty-state">لا توجد نتائج.</td></tr>`;
+    </tr>`).join("") : `<tr><td colspan="8" class="empty-state">لا توجد نتائج.</td></tr>`;
 }
 
 function openUserDialog(user = null) {
@@ -1233,6 +1255,12 @@ function openUserDialog(user = null) {
   document.getElementById("userPasswordLabel").classList.toggle("hidden", Boolean(user));
   document.getElementById("userRole").value = user?.role || "viewer";
   document.getElementById("userRepresentative").value = user?.representative_id || "";
+  document.getElementById("userDataAccessMode").value = user?.data_access_mode || (user?.representative_id ? "own" : "selected");
+  const allowedIds = new Set((user?.data_access_representatives || []).map(item => item.id));
+  [...(document.getElementById("userAllowedRepresentatives")?.options || [])].forEach(option => {
+    option.selected = allowedIds.has(option.value);
+  });
+  syncUserDataAccessFields();
   document.getElementById("userActive").value = String(user?.is_active ?? true);
   document.getElementById("userMustChangePassword").value = String(user?.must_change_password ?? true);
   document.getElementById("userDialog").showModal();
@@ -1259,9 +1287,14 @@ async function saveUserForm(event) {
       password: document.getElementById("userPassword").value,
       role: document.getElementById("userRole").value,
       representativeId: document.getElementById("userRepresentative").value || null,
+      accessMode: document.getElementById("userDataAccessMode").value,
+      allowedRepresentativeIds: [...document.getElementById("userAllowedRepresentatives").selectedOptions].map(option => option.value),
       isActive: document.getElementById("userActive").value === "true",
       mustChangePassword: document.getElementById("userMustChangePassword").value === "true"
     };
+    if (payload.accessMode === "selected" && !payload.representativeId && payload.allowedRepresentativeIds.length === 0) {
+      throw new Error("اختر مندوبًا مرتبطًا أو مندوبًا واحدًا على الأقل ضمن نطاق البيانات.");
+    }
     if (editingUserId) await window.UsersService.updateUser(payload);
     else await window.UsersService.createUser(payload);
     closeUserDialog();
@@ -1337,8 +1370,14 @@ async function savePermissions() {
     canExport: row.querySelector('[data-permission="can_export"]').checked
   }));
   try {
-    await window.PermissionsService.saveRolePermissions(role, rows);
-    showDataStatus("permissionsStatus", "تم حفظ الصلاحيات بنجاح.", "success");
+    rolePermissionRows = await window.PermissionsService.saveRolePermissions(role, rows);
+    renderPermissionsMatrix(role);
+    if (window.CustomerPermissions?.currentRole?.() === role) {
+      await window.CustomerPermissions.loadCurrentPermissions();
+      window.CustomerPermissions.applyScreenVisibility();
+      window.CustomerPermissions.applyActionVisibility();
+    }
+    showDataStatus("permissionsStatus", "تم حفظ الصلاحيات والتحقق منها بنجاح.", "success");
   } catch (error) {
     showDataStatus("permissionsStatus", error.message || "تعذر حفظ الصلاحيات.", "error");
   }
@@ -7047,6 +7086,7 @@ document.getElementById("addUserBtn")?.addEventListener("click", () => openUserD
 document.getElementById("closeUserDialogBtn")?.addEventListener("click", closeUserDialog);
 document.getElementById("cancelUserDialogBtn")?.addEventListener("click", closeUserDialog);
 document.getElementById("userForm")?.addEventListener("submit", saveUserForm);
+document.getElementById("userDataAccessMode")?.addEventListener("change", syncUserDataAccessFields);
 
 document.getElementById("usersTableBody")?.addEventListener("click", event => {
   const editId = event.target.dataset.editUser;

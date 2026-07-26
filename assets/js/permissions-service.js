@@ -20,6 +20,17 @@
     return data || [];
   }
 
+  function canonicalize(rows) {
+    return rows.map(row => ({
+      screen_key: row.screen_key || row.screenKey,
+      can_view: Boolean(row.can_view ?? row.canView),
+      can_add: Boolean(row.can_add ?? row.canAdd),
+      can_edit: Boolean(row.can_edit ?? row.canEdit),
+      can_delete: Boolean(row.can_delete ?? row.canDelete),
+      can_export: Boolean(row.can_export ?? row.canExport)
+    })).sort((a, b) => a.screen_key.localeCompare(b.screen_key));
+  }
+
   async function saveRolePermissions(role, permissions) {
     const rows = permissions.map(item => ({
       role,
@@ -34,6 +45,14 @@
     const { error } = await client().from("role_screen_permissions")
       .upsert(rows, { onConflict: "role,screen_key" });
     if (error) throw new Error(`تعذر حفظ الصلاحيات: ${error.message}`);
+
+    const saved = await getRolePermissions(role);
+    const expectedCanonical = canonicalize(rows);
+    const savedCanonical = canonicalize(saved).filter(row => expectedCanonical.some(expected => expected.screen_key === row.screen_key));
+    if (JSON.stringify(savedCanonical) !== JSON.stringify(expectedCanonical)) {
+      throw new Error("تم إرسال الصلاحيات لكن تعذر التحقق من حفظ جميع التعديلات.");
+    }
+    return saved;
   }
 
   async function getCurrentUserPermissions() {
@@ -46,6 +65,9 @@
   }
 
   window.PermissionsService = Object.freeze({
-    listScreens, getRolePermissions, saveRolePermissions, getCurrentUserPermissions
+    listScreens,
+    getRolePermissions,
+    saveRolePermissions,
+    getCurrentUserPermissions
   });
 })();

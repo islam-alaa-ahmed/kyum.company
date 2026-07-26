@@ -1452,7 +1452,7 @@
         <div id="usersStatus" class="data-status hidden"></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>المندوب المرتبط</th><th>الحالة</th><th>آخر دخول</th><th>الإجراءات</th></tr></thead>
+            <thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>المندوب المرتبط</th><th>نطاق البيانات</th><th>الحالة</th><th>آخر دخول</th><th>الإجراءات</th></tr></thead>
             <tbody id="usersTableBody"></tbody>
           </table>
         </div>
@@ -2462,6 +2462,15 @@
         <label id="userPasswordLabel">كلمة المرور المؤقتة<input id="userPassword" type="password" minlength="8" autocomplete="new-password"></label>
         <label>الدور<select id="userRole" required></select></label>
         <label>مندوب المبيعات المرتبط<select id="userRepresentative"><option value="">بدون ربط</option></select></label>
+        <label>نطاق الوصول إلى البيانات<select id="userDataAccessMode">
+          <option value="own">بيانات المستخدم فقط</option>
+          <option value="selected">بيانات المستخدم ومندوبين محددين</option>
+          <option value="all">جميع البيانات</option>
+        </select></label>
+        <label id="userAllowedRepresentativesLabel" class="form-field-wide hidden">المندوبون المسموح بعرض بياناتهم
+          <select id="userAllowedRepresentatives" multiple size="6" aria-describedby="userAllowedRepresentativesHint"></select>
+          <small id="userAllowedRepresentativesHint" class="field-hint">يتم تضمين مندوب المستخدم المرتبط تلقائيًا، ويمكن اختيار مندوبين إضافيين.</small>
+        </label>
         <label>حالة الحساب<select id="userActive"><option value="true">نشط</option><option value="false">غير نشط</option></select></label>
         <label>تغيير كلمة المرور عند أول دخول<select id="userMustChangePassword"><option value="true">نعم</option><option value="false">لا</option></select></label>
       </div>
