@@ -1468,8 +1468,8 @@
     const delta = currentY - lastScrollY;
     let nextCompact = compact;
     if (currentY < 36) nextCompact = false;
-    else if (delta > 18) nextCompact = true;
-    else if (delta < -18) nextCompact = false;
+    else if (delta > 8) nextCompact = true;
+    else if (delta < -8) nextCompact = false;
     lastScrollY = currentY;
     if (nextCompact === compact) return;
     compact = nextCompact;
@@ -1481,7 +1481,7 @@
   window.addEventListener("scroll", () => {
     if (gesture) return;
     window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(applyCompactState, 90);
+    scrollTimer = window.setTimeout(applyCompactState, 45);
   }, { passive: true });
 
   function scheduleSync(immediate = true) {
@@ -1504,6 +1504,15 @@
     header?.classList.toggle("mobile-header-stable", MOBILE_MEDIA.matches);
     scheduleSync(true);
   };
+
+  const mobileLogoutButton = document.getElementById("mobileSidebarLogoutBtn");
+  if (mobileLogoutButton && !mobileLogoutButton.dataset.bound) {
+    mobileLogoutButton.dataset.bound = "true";
+    mobileLogoutButton.addEventListener("click", () => {
+      document.getElementById("logoutBtn")?.click();
+      document.getElementById("sidebarMenuToggle")?.classList.remove("is-active");
+    });
+  }
 
   window.addEventListener("resize", sync, { passive: true });
   window.addEventListener("orientationchange", () => setTimeout(sync, 120), { passive: true });
