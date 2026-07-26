@@ -298,9 +298,22 @@
               <button type="button" class="daily-suggested-type-tab" data-daily-suggested-type="فردي" role="tab" aria-selected="false">الأفراد</button>
             </div>
           </div>
-          <div class="daily-suggested-summary">
-            <span id="dailySuggestedCustomersSummary">10 عملاء مقترح التواصل معهم اليوم</span>
-            <small>يتم استبعاد العملاء الذين تم تسجيل تواصل معهم اليوم.</small>
+          <div class="daily-suggested-progress-grid" aria-live="polite">
+            <article>
+              <span>الشركات</span>
+              <strong id="dailySuggestedCompaniesProgress">0 / 10</strong>
+              <div class="daily-suggested-progress-track"><i id="dailySuggestedCompaniesProgressBar"></i></div>
+            </article>
+            <article>
+              <span>الأفراد</span>
+              <strong id="dailySuggestedIndividualsProgress">0 / 10</strong>
+              <div class="daily-suggested-progress-track"><i id="dailySuggestedIndividualsProgressBar"></i></div>
+            </article>
+            <article class="daily-suggested-progress-total">
+              <span>إجمالي التواصل اليوم</span>
+              <strong id="dailySuggestedOverallProgress">0 / 20</strong>
+              <small id="dailySuggestedCustomersSummary">جارٍ تحميل قائمة اليوم...</small>
+            </article>
           </div>
           <div class="table-wrap daily-suggested-table-wrap">
             <table class="daily-operations-table daily-suggested-customers-table">
@@ -2673,6 +2686,7 @@
   <script src="assets/js/system-settings-service.js"></script>
   <script src="assets/js/system-health-service.js"></script>
   <script src="assets/js/daily-operations-service.js?v=16.3"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=M10.6.2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="assets/js/reports-engine.js?v=15.2.6"></script>

@@ -171,6 +171,13 @@ let dailyOperationTargets = null;
 let dailyManagerNote = null;
 let dailyOperationsLoading = false;
 let dailySuggestedCustomerType = "شركة";
+let dailySuggestedSuggestionRows = [];
+let dailySuggestedSuggestionProgress = {
+  "شركة": { active: 0, completed: 0, total: 0 },
+  "فردي": { active: 0, completed: 0, total: 0 }
+};
+let dailySuggestedSuggestionsLoading = false;
+let dailySuggestedSuggestionsError = "";
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
@@ -5169,36 +5176,8 @@ function renderDailyManagerNote() {
     ?.classList.toggle("hidden", !canManage);
 }
 
-function dailyLatestQuotationForCustomer(customerId) {
-  return quotations
-    .filter(item => String(item.customerId) === String(customerId))
-    .sort((a, b) => {
-      const dateCompare = String(b.quotationDate || b.createdAt || "")
-        .localeCompare(String(a.quotationDate || a.createdAt || ""));
-      return dateCompare || String(b.id || "").localeCompare(String(a.id || ""));
-    })[0] || null;
-}
-
 function dailySuggestedCustomers(type = dailySuggestedCustomerType) {
-  const today = dailyLocalDate();
-  const contactedToday = new Set(
-    followups
-      .filter(item => dailyLocalDate(item.contactDate || item.createdAt) === today)
-      .map(item => String(item.customerId))
-  );
-
-  return customers
-    .filter(customer => customer.type === type)
-    .filter(customer => Boolean(normalizePhone(customer.phone)))
-    .filter(customer => !contactedToday.has(String(customer.id)))
-    .sort((a, b) => {
-      const aDate = String(a.contactDate || "0000-00-00");
-      const bDate = String(b.contactDate || "0000-00-00");
-      const dateCompare = aDate.localeCompare(bDate);
-      if (dateCompare) return dateCompare;
-      return String(a.id || "").localeCompare(String(b.id || ""));
-    })
-    .slice(0, 10);
+  return dailySuggestedSuggestionRows.filter(item => item.customer_type === type);
 }
 
 function dailyWhatsAppNumber(phone) {
@@ -5209,6 +5188,55 @@ function dailyWhatsAppNumber(phone) {
     : normalized.replace(/^\+/, "");
 }
 
+function dailySuggestedProgressPercent(completed, target = 10) {
+  return Math.max(0, Math.min(100, Math.round((Number(completed || 0) / target) * 100)));
+}
+
+function renderDailySuggestedProgress() {
+  const company = dailySuggestedSuggestionProgress["شركة"] || {};
+  const individual = dailySuggestedSuggestionProgress["فردي"] || {};
+  const companyCompleted = Number(company.completed || 0);
+  const individualCompleted = Number(individual.completed || 0);
+  const overallCompleted = companyCompleted + individualCompleted;
+
+  const companyText = document.getElementById("dailySuggestedCompaniesProgress");
+  const individualText = document.getElementById("dailySuggestedIndividualsProgress");
+  const overallText = document.getElementById("dailySuggestedOverallProgress");
+  const companyBar = document.getElementById("dailySuggestedCompaniesProgressBar");
+  const individualBar = document.getElementById("dailySuggestedIndividualsProgressBar");
+
+  if (companyText) companyText.textContent = `${companyCompleted} / 10`;
+  if (individualText) individualText.textContent = `${individualCompleted} / 10`;
+  if (overallText) overallText.textContent = `${overallCompleted} / 20`;
+  if (companyBar) companyBar.style.width = `${dailySuggestedProgressPercent(companyCompleted)}%`;
+  if (individualBar) individualBar.style.width = `${dailySuggestedProgressPercent(individualCompleted)}%`;
+}
+
+async function loadDailySuggestedCustomers(force = false) {
+  if (dailySuggestedSuggestionsLoading && !force) return;
+  const service = window.DailySuggestionsService;
+  if (!service?.load) {
+    dailySuggestedSuggestionsError = "تعذر تحميل خدمة العملاء المقترحين.";
+    renderDailySuggestedCustomers();
+    return;
+  }
+
+  dailySuggestedSuggestionsLoading = true;
+  dailySuggestedSuggestionsError = "";
+  renderDailySuggestedCustomers();
+  try {
+    const result = await service.load();
+    dailySuggestedSuggestionRows = result.rows || [];
+    dailySuggestedSuggestionProgress = result.progress || dailySuggestedSuggestionProgress;
+  } catch (error) {
+    dailySuggestedSuggestionsError = error?.message || "تعذر تحميل قائمة العملاء المقترحين.";
+    console.error("Daily suggestions load failed", error);
+  } finally {
+    dailySuggestedSuggestionsLoading = false;
+    renderDailySuggestedCustomers();
+  }
+}
+
 function renderDailySuggestedCustomers() {
   const body = document.getElementById("dailySuggestedCustomersBody");
   const summary = document.getElementById("dailySuggestedCustomersSummary");
@@ -5217,10 +5245,8 @@ function renderDailySuggestedCustomers() {
 
   const rows = dailySuggestedCustomers();
   const isCompany = dailySuggestedCustomerType === "شركة";
+  const progress = dailySuggestedSuggestionProgress[dailySuggestedCustomerType] || {};
   if (contactHeader) contactHeader.textContent = isCompany ? "المسؤول" : "رقم الجوال";
-  if (summary) {
-    summary.textContent = `${rows.length} من 10 ${isCompany ? "شركات" : "عملاء أفراد"} مقترح التواصل معهم اليوم`;
-  }
 
   document.querySelectorAll("[data-daily-suggested-type]").forEach(button => {
     const active = button.dataset.dailySuggestedType === dailySuggestedCustomerType;
@@ -5228,29 +5254,46 @@ function renderDailySuggestedCustomers() {
     button.setAttribute("aria-selected", String(active));
   });
 
+  renderDailySuggestedProgress();
+
+  if (dailySuggestedSuggestionsLoading) {
+    if (summary) summary.textContent = "جارٍ تحميل قائمة اليوم...";
+    body.innerHTML = dailyEmptyRow(7, "جارٍ تحميل العملاء المقترحين...");
+    return;
+  }
+
+  if (dailySuggestedSuggestionsError) {
+    if (summary) summary.textContent = "تعذر تحميل قائمة اليوم";
+    body.innerHTML = `<tr><td colspan="7"><div class="daily-suggested-state is-error"><strong>تعذر تحميل القائمة</strong><small>${escapeHtml(dailySuggestedSuggestionsError)}</small><button type="button" class="secondary-btn compact-btn" data-daily-suggested-retry>إعادة المحاولة</button></div></td></tr>`;
+    return;
+  }
+
+  if (summary) {
+    summary.textContent = `${Number(progress.completed || 0)} تم التواصل معهم، و${rows.length} متاحون الآن`;
+  }
+
   body.innerHTML = rows.length
-    ? rows.map((customer, index) => {
-      const latestQuotation = dailyLatestQuotationForCustomer(customer.id);
-      const whatsappNumber = dailyWhatsAppNumber(customer.phone);
+    ? rows.map((item, index) => {
+      const whatsappNumber = dailyWhatsAppNumber(item.phone);
       const canAddFollowup = canManageFollowups();
       return `
         <tr>
           <td>${index + 1}</td>
-          <td><strong>${escapeHtml(customer.name || "—")}</strong><br><small>${escapeHtml(customer.phone || "")}</small></td>
-          <td>${isCompany ? escapeHtml(customer.contactPersonName || "—") : escapeHtml(customer.phone || "—")}</td>
-          <td>${customer.contactDate ? `${formatDate(customer.contactDate)}<br><small>منذ ${dailyDaysOverdue(customer.contactDate)} يوم</small>` : "لم يتم التواصل"}</td>
-          <td>${latestQuotation ? `<strong>${escapeHtml(latestQuotation.code || "—")}</strong><br><small>${formatDate(latestQuotation.quotationDate || latestQuotation.createdAt)}</small>` : "—"}</td>
-          <td>${escapeHtml(customer.representative || "—")}</td>
+          <td><strong>${escapeHtml(item.customer_name || "—")}</strong><br><small>${escapeHtml(item.customer_number || item.phone || "")}</small></td>
+          <td>${isCompany ? escapeHtml(item.contact_person_name || "—") : escapeHtml(item.phone || "—")}</td>
+          <td>${item.last_contact_date ? `${formatDate(item.last_contact_date)}<br><small>منذ ${dailyDaysOverdue(item.last_contact_date)} يوم</small>` : "لم يتم التواصل"}</td>
+          <td>${item.latest_quotation_number ? `<strong>${escapeHtml(item.latest_quotation_number)}</strong><br><small>${item.latest_quotation_date ? formatDate(item.latest_quotation_date) : ""}</small>` : "—"}</td>
+          <td>${escapeHtml(item.representative_name || "—")}</td>
           <td>
             <div class="daily-suggested-actions">
-              ${canAddFollowup ? `<button type="button" class="secondary-btn compact-btn" data-daily-suggested-followup="${escapeHtml(String(customer.id))}">إضافة متابعة</button>` : ""}
-              ${canAddFollowup ? `<button type="button" class="primary-btn compact-btn" data-daily-suggested-contacted="${escapeHtml(String(customer.id))}">تم التواصل</button>` : ""}
+              ${canAddFollowup ? `<button type="button" class="secondary-btn compact-btn" data-daily-suggested-followup="${escapeHtml(String(item.customer_id))}">إضافة متابعة</button>` : ""}
+              ${canAddFollowup ? `<button type="button" class="primary-btn compact-btn" data-daily-suggested-contacted="${escapeHtml(String(item.customer_id))}" data-daily-suggestion-id="${escapeHtml(String(item.suggestion_id))}">تم التواصل</button>` : ""}
               ${whatsappNumber ? `<a class="daily-whatsapp-btn" href="https://wa.me/${escapeHtml(whatsappNumber)}" target="_blank" rel="noopener noreferrer">واتساب</a>` : ""}
             </div>
           </td>
         </tr>`;
     }).join("")
-    : dailyEmptyRow(7, `لا يوجد ${isCompany ? "شركات" : "عملاء أفراد"} مقترحون للتواصل اليوم.`);
+    : `<tr><td colspan="7"><div class="daily-suggested-state"><strong>لا يوجد عملاء مقترح التواصل معهم حاليًا</strong><small>ابدأ بإضافة عملاء جدد أو استيرادهم من Excel، وسيقوم النظام بإنشاء قائمة اليوم تلقائيًا.</small><div><button type="button" class="primary-btn compact-btn" data-daily-suggested-add-customer>إضافة عميل</button><button type="button" class="secondary-btn compact-btn" data-daily-suggested-import>استيراد Excel</button></div></div></td></tr>`;
 }
 
 function renderDailyOperations() {
@@ -5268,6 +5311,7 @@ function renderDailyOperations() {
   renderDailyChecklist(today, profile);
   renderDailyManagerNote();
   renderDailySuggestedCustomers();
+  loadDailySuggestedCustomers();
 
   const todayCustomers = dailyScopedRows(customers).filter(item =>
     dailyLocalDate(item.createdAt || item.contactDate) === today
@@ -7376,6 +7420,22 @@ setOptions();
 
 // Phase M10.6 — Daily suggested customer contact report.
 document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
+  const retryButton = event.target.closest("[data-daily-suggested-retry]");
+  if (retryButton) {
+    loadDailySuggestedCustomers(true);
+    return;
+  }
+
+  if (event.target.closest("[data-daily-suggested-add-customer]")) {
+    document.getElementById("addCustomerBtn")?.click();
+    return;
+  }
+
+  if (event.target.closest("[data-daily-suggested-import]")) {
+    document.getElementById("importCustomersBtn")?.click();
+    return;
+  }
+
   const typeButton = event.target.closest("[data-daily-suggested-type]");
   if (typeButton) {
     dailySuggestedCustomerType = typeButton.dataset.dailySuggestedType === "فردي" ? "فردي" : "شركة";
