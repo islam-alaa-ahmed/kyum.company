@@ -10294,3 +10294,20 @@ body.dark-mode .daily-suggested-progress-grid article {
   .daily-suggested-progress-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .daily-suggested-progress-total { grid-column: 1 / -1; }
 }
+
+
+/* Phase M10.6.4 — manager daily suggestions monitoring */
+.daily-suggested-team-panel { margin-top: 18px; }
+.daily-suggested-team-header { align-items: center; gap: 16px; }
+.daily-suggested-team-header > small { color: var(--text-muted, #64748b); font-weight: 700; }
+.daily-suggested-team-table-wrap { max-height: 430px; overflow: auto; }
+.daily-suggested-team-table { min-width: 980px; }
+.daily-suggested-team-table thead th { position: sticky; top: 0; z-index: 2; background: var(--surface, #fff); }
+.daily-team-progress { width: 120px; height: 8px; border-radius: 999px; overflow: hidden; background: rgba(148, 163, 184, .22); margin-bottom: 4px; }
+.daily-team-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0f766e, #22c55e); transition: width .25s ease; }
+html[data-theme="dark"] .daily-suggested-team-table thead th,
+body.dark-mode .daily-suggested-team-table thead th { background: var(--surface, #101827); }
+@media (max-width: 760px) {
+  .daily-suggested-team-header { align-items: flex-start; }
+  .daily-suggested-team-table-wrap { max-height: none; }
+}

@@ -179,6 +179,9 @@ let dailySuggestedSuggestionProgress = {
 let dailySuggestedSuggestionsLoading = false;
 let dailySuggestedSuggestionsError = "";
 let pendingDailySuggestionCompletion = null;
+let dailySuggestedTeamRows = [];
+let dailySuggestedTeamLoading = false;
+let dailySuggestedTeamError = "";
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
@@ -5326,6 +5329,82 @@ function renderDailySuggestedCustomers() {
     : `<tr><td colspan="7"><div class="daily-suggested-state"><strong>لا يوجد عملاء مقترح التواصل معهم حاليًا</strong><small>ابدأ بإضافة عملاء جدد أو استيرادهم من Excel، وسيقوم النظام بإنشاء قائمة اليوم تلقائيًا.</small><div><button type="button" class="primary-btn compact-btn" data-daily-suggested-add-customer>إضافة عميل</button><button type="button" class="secondary-btn compact-btn" data-daily-suggested-import>استيراد Excel</button></div></div></td></tr>`;
 }
 
+function canViewDailySuggestionsTeam() {
+  return ["super_admin", "sales_manager"].includes(currentRole());
+}
+
+async function loadDailySuggestedTeam(force = false) {
+  const panel = document.getElementById("dailySuggestedTeamPanel");
+  if (!panel) return;
+
+  const allowed = canViewDailySuggestionsTeam();
+  panel.classList.toggle("hidden", !allowed);
+  if (!allowed || (dailySuggestedTeamLoading && !force)) return;
+
+  const service = window.DailySuggestionsService;
+  if (!service?.loadTeamSummary) {
+    dailySuggestedTeamError = "تعذر تحميل خدمة متابعة الفريق.";
+    renderDailySuggestedTeam();
+    return;
+  }
+
+  dailySuggestedTeamLoading = true;
+  dailySuggestedTeamError = "";
+  renderDailySuggestedTeam();
+  try {
+    dailySuggestedTeamRows = await service.loadTeamSummary();
+  } catch (error) {
+    dailySuggestedTeamError = error?.message || "تعذر تحميل متابعة إنجاز الفريق.";
+    console.error("Daily suggestions team summary failed", error);
+  } finally {
+    dailySuggestedTeamLoading = false;
+    renderDailySuggestedTeam();
+  }
+}
+
+function renderDailySuggestedTeam() {
+  const panel = document.getElementById("dailySuggestedTeamPanel");
+  const body = document.getElementById("dailySuggestedTeamBody");
+  const summary = document.getElementById("dailySuggestedTeamSummary");
+  if (!panel || !body) return;
+
+  const allowed = canViewDailySuggestionsTeam();
+  panel.classList.toggle("hidden", !allowed);
+  if (!allowed) return;
+
+  if (dailySuggestedTeamLoading) {
+    if (summary) summary.textContent = "جارٍ تحميل أداء الفريق...";
+    body.innerHTML = dailyEmptyRow(8, "جارٍ تحميل أداء الفريق...");
+    return;
+  }
+
+  if (dailySuggestedTeamError) {
+    if (summary) summary.textContent = "تعذر تحميل أداء الفريق";
+    body.innerHTML = `<tr><td colspan="8"><div class="daily-suggested-state is-error"><strong>تعذر تحميل متابعة الفريق</strong><small>${escapeHtml(dailySuggestedTeamError)}</small><button type="button" class="secondary-btn compact-btn" data-daily-team-retry>إعادة المحاولة</button></div></td></tr>`;
+    return;
+  }
+
+  const completed = dailySuggestedTeamRows.reduce((sum, row) => sum + Number(row.total_completed || 0), 0);
+  const target = dailySuggestedTeamRows.length * 20;
+  if (summary) summary.textContent = `${dailySuggestedTeamRows.length} مستخدمين — ${completed} من ${target || 0} تواصل مكتمل`;
+
+  body.innerHTML = dailySuggestedTeamRows.length
+    ? dailySuggestedTeamRows.map(row => {
+      const percent = Math.max(0, Math.min(100, Number(row.completion_percent || 0)));
+      return `<tr>
+        <td><strong>${escapeHtml(row.user_name || row.user_email || "—")}</strong><br><small>${escapeHtml(row.representative_name || row.user_email || "")}</small></td>
+        <td>${escapeHtml(row.user_role || "—")}</td>
+        <td>${Number(row.company_completed || 0)} / 10</td>
+        <td>${Number(row.individual_completed || 0)} / 10</td>
+        <td>${Number(row.total_completed || 0)} / 20</td>
+        <td><div class="daily-team-progress"><span style="width:${percent}%"></span></div><small>${percent}%</small></td>
+        <td>${Number(row.total_active || 0)}</td>
+        <td>${row.last_completed_at ? formatDate(row.last_completed_at) : "—"}</td>
+      </tr>`;
+    }).join("")
+    : dailyEmptyRow(8, "لا توجد حسابات مبيعات نشطة لعرضها.");
+}
+
 function renderDailyOperations() {
   const today = dailyLocalDate();
   const profile = window.CustomerAuth?.getState?.().profile;
@@ -5342,6 +5421,7 @@ function renderDailyOperations() {
   renderDailyManagerNote();
   renderDailySuggestedCustomers();
   loadDailySuggestedCustomers();
+  loadDailySuggestedTeam();
 
   const todayCustomers = dailyScopedRows(customers).filter(item =>
     dailyLocalDate(item.createdAt || item.contactDate) === today
@@ -7450,6 +7530,12 @@ setOptions();
 
 // Phase M10.6 — Daily suggested customer contact report.
 document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
+  const teamRetryButton = event.target.closest("[data-daily-team-retry]");
+  if (teamRetryButton) {
+    loadDailySuggestedTeam(true);
+    return;
+  }
+
   const retryButton = event.target.closest("[data-daily-suggested-retry]");
   if (retryButton) {
     loadDailySuggestedCustomers(true);

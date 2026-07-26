@@ -57,6 +57,20 @@
     };
   }
 
+  async function loadTeamSummary(options = {}) {
+    const supabase = client();
+    const suggestionDate = options.date || riyadhDate();
+
+    if (!supabase) throw new Error("Supabase client is not available.");
+
+    const { data, error } = await supabase.rpc(
+      "get_daily_customer_suggestions_team_summary",
+      { p_suggestion_date: suggestionDate }
+    );
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }
+
   async function complete(options = {}) {
     const supabase = client();
     const suggestionId = options.suggestionId;
@@ -74,5 +88,5 @@
     return Number(data || 0);
   }
 
-  window.DailySuggestionsService = { load, complete, riyadhDate };
+  window.DailySuggestionsService = { load, loadTeamSummary, complete, riyadhDate };
 })();
