@@ -14,7 +14,7 @@
   async function listUsers() {
     const { data, error } = await client()
       .from("user_profiles")
-      .select("id,full_name,email,role,representative_id,is_active,must_change_password,last_login_at,created_at,representative:sales_representatives(id,full_name)")
+      .select("id,full_name,email,role,representative_id,is_active,must_change_password,last_login_at,created_at,representative:sales_representatives!user_profiles_representative_id_fkey(id,full_name)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(`تعذر تحميل المستخدمين: ${error.message}`);
 
