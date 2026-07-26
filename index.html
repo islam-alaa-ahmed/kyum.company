@@ -380,12 +380,15 @@
             </div>
             <div class="daily-alerts-actions">
               <button id="refreshDailyAlertsBtn" class="secondary-btn compact-btn" type="button">تحديث التنبيهات</button>
-              <select id="dailyAlertsStatusFilter">
+              <select id="dailyAlertsStatusFilter" aria-label="فلتر حالة التنبيه">
                 <option value="">كل الحالات</option>
                 <option value="open">مفتوح</option>
                 <option value="in_progress">قيد المعالجة</option>
                 <option value="escalated">مصعّد</option>
                 <option value="closed">مغلق</option>
+              </select>
+              <select id="dailyAlertsRepresentativeFilter" aria-label="فلتر مندوب التنبيه">
+                <option value="">كل المندوبين</option>
               </select>
             </div>
           </div>

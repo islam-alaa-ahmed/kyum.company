@@ -10084,3 +10084,36 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
     max-width: 190px;
   }
 }
+
+
+/* KYUM Phase M10.5 — Daily Alerts Filters Layout */
+#dailyOperationsView .daily-alerts-panel > .panel-header {
+  margin-bottom: 18px;
+}
+#dailyOperationsView .daily-alerts-actions {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 240px) minmax(180px, 240px);
+  align-items: end;
+  gap: 12px;
+}
+#dailyOperationsView .daily-alerts-actions select,
+#dailyOperationsView .daily-alerts-actions button {
+  min-height: 44px;
+}
+#dailyOperationsView .daily-alerts-summary {
+  margin-top: 0;
+}
+@media (max-width: 767px) {
+  #dailyOperationsView .daily-alerts-panel > .panel-header {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  #dailyOperationsView .daily-alerts-actions {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  #dailyOperationsView .daily-alerts-actions select,
+  #dailyOperationsView .daily-alerts-actions button {
+    width: 100%;
+  }
+}

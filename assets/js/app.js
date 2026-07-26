@@ -554,7 +554,8 @@ function refreshReferenceOptions() {
     followupRepFilter: document.getElementById("followupRepFilter")?.value || "",
     quotationRepFilter: document.getElementById("quotationRepFilter")?.value || "",
     dashboardRepFilter: document.getElementById("dashboardRepFilter")?.value || "",
-    dashboardInterestFilter: document.getElementById("dashboardInterestFilter")?.value || ""
+    dashboardInterestFilter: document.getElementById("dashboardInterestFilter")?.value || "",
+    dailyAlertsRepresentativeFilter: document.getElementById("dailyAlertsRepresentativeFilter")?.value || ""
   };
 
   replaceSelectOptions(
@@ -599,6 +600,13 @@ function refreshReferenceOptions() {
       current[id]
     );
   });
+
+  replaceSelectOptions(
+    document.getElementById("dailyAlertsRepresentativeFilter"),
+    representatives.map(rep => ({ label: rep.name, value: rep.uuid })),
+    "كل المندوبين",
+    current.dailyAlertsRepresentativeFilter
+  );
 
   const authProfile = window.CustomerAuth?.getState?.().profile;
   const customerRepresentativeOptions = authProfile?.role === "sales_representative"
@@ -4890,7 +4898,13 @@ function canManageDailyAlerts() {
 
 function filteredDailyAlerts() {
   const status = document.getElementById("dailyAlertsStatusFilter")?.value || "";
-  return status ? dailyAlerts.filter(item => item.status === status) : dailyAlerts;
+  const representativeId = document.getElementById("dailyAlertsRepresentativeFilter")?.value || "";
+
+  return dailyAlerts.filter(item => {
+    const matchesStatus = !status || item.status === status;
+    const matchesRepresentative = !representativeId || item.representative_id === representativeId;
+    return matchesStatus && matchesRepresentative;
+  });
 }
 
 function renderDailyAlerts() {
@@ -7002,10 +7016,9 @@ document.getElementById("refreshDailyAlertsBtn")?.addEventListener(
   "click",
   () => loadDailyAlerts(true)
 );
-document.getElementById("dailyAlertsStatusFilter")?.addEventListener(
-  "change",
-  renderDailyAlerts
-);
+["dailyAlertsStatusFilter", "dailyAlertsRepresentativeFilter"].forEach(id => {
+  document.getElementById(id)?.addEventListener("change", renderDailyAlerts);
+});
 document.getElementById("dailyAlertsList")?.addEventListener("click", event => {
   const alertId = event.target.dataset.alertId;
   const actionType = event.target.dataset.alertAction;
