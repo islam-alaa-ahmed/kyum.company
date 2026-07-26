@@ -10311,3 +10311,179 @@ body.dark-mode .daily-suggested-team-table thead th { background: var(--surface,
   .daily-suggested-team-header { align-items: flex-start; }
   .daily-suggested-team-table-wrap { max-height: none; }
 }
+
+/* Phase M10.6.5 — Daily Suggestions Enterprise Theme Polish (UI only) */
+#dailyOperationsView .daily-suggested-customers-panel,
+#dailyOperationsView .daily-suggested-team-panel {
+  --daily-panel-bg: color-mix(in srgb, var(--surface) 96%, var(--primary) 4%);
+  --daily-card-bg: color-mix(in srgb, var(--surface) 94%, var(--bg) 6%);
+  --daily-soft-bg: color-mix(in srgb, var(--surface-2) 88%, var(--primary) 12%);
+  --daily-line: color-mix(in srgb, var(--border) 82%, transparent);
+  --daily-heading: var(--text);
+  --daily-copy: var(--muted);
+  background: var(--daily-panel-bg);
+  color: var(--daily-heading);
+  border-color: var(--daily-line);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+}
+
+#dailyOperationsView .daily-suggested-customers-panel .panel-header h3,
+#dailyOperationsView .daily-suggested-team-panel .panel-header h3,
+#dailyOperationsView .daily-suggested-customers-panel strong,
+#dailyOperationsView .daily-suggested-team-panel strong {
+  color: var(--daily-heading);
+}
+
+#dailyOperationsView .daily-suggested-customers-header > div > p,
+#dailyOperationsView .daily-suggested-team-header > small,
+#dailyOperationsView .daily-suggested-progress-grid span,
+#dailyOperationsView .daily-suggested-progress-grid small,
+#dailyOperationsView .daily-suggested-state small {
+  color: var(--daily-copy);
+}
+
+#dailyOperationsView .daily-suggested-type-tabs {
+  background: var(--daily-soft-bg);
+  border-color: var(--daily-line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34);
+}
+
+#dailyOperationsView .daily-suggested-type-tab {
+  color: var(--daily-copy);
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+#dailyOperationsView .daily-suggested-type-tab:hover {
+  color: var(--daily-heading);
+  background: color-mix(in srgb, var(--surface) 72%, var(--primary) 10%);
+}
+#dailyOperationsView .daily-suggested-type-tab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 2px;
+}
+#dailyOperationsView .daily-suggested-type-tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+#dailyOperationsView .daily-suggested-progress-grid article {
+  min-height: 126px;
+  background: var(--daily-card-bg);
+  border-color: var(--daily-line);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, .07);
+}
+#dailyOperationsView .daily-suggested-progress-grid article:nth-child(1) { color: #2563eb; }
+#dailyOperationsView .daily-suggested-progress-grid article:nth-child(2) { color: #7c3aed; }
+#dailyOperationsView .daily-suggested-progress-grid article:nth-child(3) { color: #0f766e; }
+#dailyOperationsView .daily-suggested-progress-track {
+  background: color-mix(in srgb, currentColor 15%, var(--surface));
+  box-shadow: inset 0 1px 2px rgba(15,23,42,.10);
+}
+#dailyOperationsView .daily-suggested-progress-track i {
+  background: linear-gradient(90deg, currentColor, color-mix(in srgb, currentColor 68%, white));
+  box-shadow: 0 0 12px color-mix(in srgb, currentColor 28%, transparent);
+}
+
+#dailyOperationsView .daily-suggested-table-wrap,
+#dailyOperationsView .daily-suggested-team-table-wrap {
+  background: var(--daily-card-bg);
+  border-color: var(--daily-line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+#dailyOperationsView .daily-suggested-customers-table,
+#dailyOperationsView .daily-suggested-team-table {
+  color: var(--daily-heading);
+}
+#dailyOperationsView .daily-suggested-customers-table thead th,
+#dailyOperationsView .daily-suggested-team-table thead th {
+  background: color-mix(in srgb, var(--surface-2) 86%, var(--primary) 14%);
+  color: var(--daily-heading);
+  border-bottom-color: var(--daily-line);
+  font-weight: 800;
+  box-shadow: 0 1px 0 var(--daily-line);
+}
+#dailyOperationsView .daily-suggested-customers-table tbody td,
+#dailyOperationsView .daily-suggested-team-table tbody td {
+  color: var(--daily-heading);
+  border-bottom-color: var(--daily-line);
+  background: transparent;
+}
+#dailyOperationsView .daily-suggested-customers-table tbody tr:nth-child(even),
+#dailyOperationsView .daily-suggested-team-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+}
+#dailyOperationsView .daily-suggested-customers-table tbody tr:hover,
+#dailyOperationsView .daily-suggested-team-table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+#dailyOperationsView .daily-suggested-state {
+  min-height: 210px;
+  color: var(--daily-heading);
+  background: radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 58%);
+}
+#dailyOperationsView .daily-suggested-state strong { font-size: 1rem; }
+#dailyOperationsView .daily-suggested-state .primary-btn,
+#dailyOperationsView .daily-suggested-state .secondary-btn {
+  min-height: 40px;
+  border: 1px solid var(--daily-line);
+}
+
+#dailyOperationsView .daily-whatsapp-btn {
+  color: #15803d;
+  background: color-mix(in srgb, #22c55e 11%, var(--surface));
+}
+
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-customers-panel,
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-team-panel,
+body.dark-mode #dailyOperationsView .daily-suggested-customers-panel,
+body.dark-mode #dailyOperationsView .daily-suggested-team-panel {
+  --daily-panel-bg: #14243a;
+  --daily-card-bg: #0f1d31;
+  --daily-soft-bg: #1b2d46;
+  --daily-line: rgba(148, 163, 184, .28);
+  --daily-heading: #f8fafc;
+  --daily-copy: #cbd5e1;
+  box-shadow: 0 20px 46px rgba(2, 6, 23, .34);
+}
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-progress-grid article,
+body.dark-mode #dailyOperationsView .daily-suggested-progress-grid article {
+  background: #102039;
+  border-color: var(--daily-line);
+}
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-customers-table thead th,
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-team-table thead th,
+body.dark-mode #dailyOperationsView .daily-suggested-customers-table thead th,
+body.dark-mode #dailyOperationsView .daily-suggested-team-table thead th {
+  background: #1c304b;
+  color: #f8fafc;
+}
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-customers-table tbody tr:nth-child(even),
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-team-table tbody tr:nth-child(even),
+body.dark-mode #dailyOperationsView .daily-suggested-customers-table tbody tr:nth-child(even),
+body.dark-mode #dailyOperationsView .daily-suggested-team-table tbody tr:nth-child(even) {
+  background: rgba(148, 163, 184, .055);
+}
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-customers-table tbody tr:hover,
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-team-table tbody tr:hover,
+body.dark-mode #dailyOperationsView .daily-suggested-customers-table tbody tr:hover,
+body.dark-mode #dailyOperationsView .daily-suggested-team-table tbody tr:hover {
+  background: rgba(59, 130, 246, .12);
+}
+html[data-theme="dark"] #dailyOperationsView .daily-whatsapp-btn,
+body.dark-mode #dailyOperationsView .daily-whatsapp-btn {
+  color: #86efac;
+  border-color: rgba(74, 222, 128, .55);
+  background: rgba(34, 197, 94, .13);
+}
+html[data-theme="dark"] #dailyOperationsView .daily-suggested-state .secondary-btn,
+body.dark-mode #dailyOperationsView .daily-suggested-state .secondary-btn {
+  color: #e2e8f0;
+  background: #20324a;
+}
+
+@media (max-width: 767px) {
+  #dailyOperationsView .daily-suggested-customers-panel,
+  #dailyOperationsView .daily-suggested-team-panel { padding: 14px; border-radius: 16px; }
+  #dailyOperationsView .daily-suggested-progress-grid article { min-height: 112px; padding: 12px; }
+}
