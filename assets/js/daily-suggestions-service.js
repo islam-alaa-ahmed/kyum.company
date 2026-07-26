@@ -57,5 +57,22 @@
     };
   }
 
-  window.DailySuggestionsService = { load, riyadhDate };
+  async function complete(options = {}) {
+    const supabase = client();
+    const suggestionId = options.suggestionId;
+    const followupId = options.followupId;
+
+    if (!supabase) throw new Error("Supabase client is not available.");
+    if (!suggestionId) throw new Error("Suggestion id is required.");
+    if (!followupId) throw new Error("Follow-up id is required.");
+
+    const { data, error } = await supabase.rpc(
+      "complete_daily_customer_suggestion",
+      { p_suggestion_id: suggestionId, p_followup_id: followupId }
+    );
+    if (error) throw error;
+    return Number(data || 0);
+  }
+
+  window.DailySuggestionsService = { load, complete, riyadhDate };
 })();

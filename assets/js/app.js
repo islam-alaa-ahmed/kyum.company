@@ -178,6 +178,7 @@ let dailySuggestedSuggestionProgress = {
 };
 let dailySuggestedSuggestionsLoading = false;
 let dailySuggestedSuggestionsError = "";
+let pendingDailySuggestionCompletion = null;
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
@@ -3702,6 +3703,7 @@ function openFollowupDialog(customerId = null, followup = null) {
 }
 
 function closeFollowupDialog() {
+  pendingDailySuggestionCompletion = null;
   document.getElementById("followupDialog").close();
   document.getElementById("followupForm").reset();
   editingFollowupId = null;
@@ -3737,7 +3739,7 @@ async function handleFollowupSubmit(event) {
       submitButton.textContent = "جاري الحفظ...";
     }
 
-    await window.FollowupsService.saveFollowup({
+    const followupPayload = {
       id: editingFollowupId,
       customerId,
       contactDate: document.getElementById("followupContactDate").value,
@@ -3749,8 +3751,32 @@ async function handleFollowupSubmit(event) {
       nextFollowupDate: document.getElementById("nextFollowupDate").value,
       completed: document.getElementById("followupCompleted").value === "true",
       notes: document.getElementById("followupNotes").value
-    });
+    };
 
+    const savedFollowupId = await window.FollowupsService.saveFollowup(followupPayload);
+    let suggestionCompletionError = null;
+    const pendingSuggestion = pendingDailySuggestionCompletion;
+    const shouldCompleteSuggestion = Boolean(
+      pendingSuggestion
+      && String(pendingSuggestion.customerId) === String(customerId)
+      && followupPayload.completed
+      && followupPayload.result === "تم التواصل"
+      && savedFollowupId
+    );
+
+    if (shouldCompleteSuggestion) {
+      try {
+        await window.DailySuggestionsService?.complete?.({
+          suggestionId: pendingSuggestion.suggestionId,
+          followupId: savedFollowupId
+        });
+      } catch (error) {
+        suggestionCompletionError = error;
+        console.error("Daily suggestion completion failed", error);
+      }
+    }
+
+    pendingDailySuggestionCompletion = null;
     closeFollowupDialog();
     followupsLoaded = false;
     customersLoaded = false;
@@ -3759,7 +3785,11 @@ async function handleFollowupSubmit(event) {
       loadCustomersFromSupabase(true)
     ]);
     if (!document.getElementById("dailyOperationsView")?.classList.contains("hidden")) {
+      await loadDailySuggestedCustomers(true);
       renderDailyOperations();
+    }
+    if (suggestionCompletionError) {
+      alert(`تم حفظ المتابعة، ولكن تعذر تحديث قائمة العملاء المقترحين: ${suggestionCompletionError.message || "خطأ غير معروف"}`);
     }
   } catch (error) {
     alert(error instanceof Error ? error.message : "تعذر حفظ المتابعة.");
@@ -7445,12 +7475,18 @@ document.getElementById("dailyOperationsView")?.addEventListener("click", event 
 
   const followupCustomerId = event.target.closest("[data-daily-suggested-followup]")?.dataset.dailySuggestedFollowup;
   if (followupCustomerId) {
+    pendingDailySuggestionCompletion = null;
     openFollowupDialog(followupCustomerId);
     return;
   }
 
-  const contactedCustomerId = event.target.closest("[data-daily-suggested-contacted]")?.dataset.dailySuggestedContacted;
+  const contactedButton = event.target.closest("[data-daily-suggested-contacted]");
+  const contactedCustomerId = contactedButton?.dataset.dailySuggestedContacted;
   if (contactedCustomerId) {
+    pendingDailySuggestionCompletion = {
+      customerId: contactedCustomerId,
+      suggestionId: contactedButton.dataset.dailySuggestionId || null
+    };
     openFollowupDialog(contactedCustomerId);
     const completed = document.getElementById("followupCompleted");
     const result = document.getElementById("followupResult");
