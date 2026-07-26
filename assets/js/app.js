@@ -336,7 +336,8 @@ function customerPhoneOwnershipDetails(customer) {
     type: customer.customer_type || customer.type || "",
     contactPersonName: customer.contact_person_name || customer.contactPersonName || "",
     phone: normalizePhone(customer.phone || ""),
-    representativeName: String(representativeName || "").trim()
+    representativeName: String(representativeName || "").trim(),
+    canAccess: customer.can_access !== false && customer.outside_scope !== true
   };
 }
 
@@ -346,7 +347,10 @@ function duplicateCustomerWarningMessage(customer, phone) {
   const representativeText = details.representativeName
     ? ` ويتبع المندوب «${details.representativeName}».`
     : "، ولكن لم يتم تعيين مندوب له حتى الآن.";
-  return `لا يمكن إضافة العميل. رقم الجوال ${normalizePhone(phone)} مرتبط بالعميل «${details.name}»${representativeText}`;
+  const scopeText = details.canAccess
+    ? ""
+    : " هذا العميل خارج نطاق البيانات المسموح لك بالوصول إليه. تواصل مع الإدارة أو المندوب المسؤول.";
+  return `لا يمكن إضافة العميل. رقم الجوال ${normalizePhone(phone)} مرتبط بالعميل «${details.name}»${representativeText}${scopeText}`;
 }
 
 function nextCustomerId() {
@@ -7309,13 +7313,16 @@ setOptions();
       const repLine = details.representativeName
         ? `العميل يتبع المندوب <strong>«${escapeHtml(details.representativeName)}»</strong>.`
         : "لم يتم تعيين مندوب لهذا العميل حتى الآن.";
-      const companyLine = details.type === "شركة" && details.contactPersonName
+      const companyLine = details.canAccess && details.type === "شركة" && details.contactPersonName
         ? `<br>المسؤول: <strong>«${escapeHtml(details.contactPersonName)}»</strong>.`
         : "";
+      const scopeLine = details.canAccess
+        ? ""
+        : `<br><strong>هذا العميل خارج نطاق البيانات المسموح لك بالوصول إليه، لذلك لا يمكنك استعراض بياناته.</strong>`;
       showLookupResult(
         "warning",
-        `تنبيه: الرقم <strong>${escapeHtml(normalizedPhone)}</strong> مرتبط بالعميل <strong>«${escapeHtml(details.name)}»</strong>.<br>${repLine}${companyLine}`
-        + (details.id ? `<div class="daily-phone-result-actions"><button type="button" class="secondary-btn compact-btn" data-open-existing-customer="${escapeHtml(String(details.id))}">فتح العميل الحالي</button></div>` : "")
+        `تنبيه: الرقم <strong>${escapeHtml(normalizedPhone)}</strong> مرتبط بالعميل <strong>«${escapeHtml(details.name)}»</strong>.<br>${repLine}${companyLine}${scopeLine}`
+        + (details.canAccess && details.id ? `<div class="daily-phone-result-actions"><button type="button" class="secondary-btn compact-btn" data-open-existing-customer="${escapeHtml(String(details.id))}">فتح العميل الحالي</button></div>` : "")
       );
     } catch (error) {
       showLookupResult("error", escapeHtml(error instanceof Error ? error.message : "تعذر التحقق من رقم الجوال."));

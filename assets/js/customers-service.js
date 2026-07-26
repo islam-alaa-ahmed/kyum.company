@@ -106,28 +106,30 @@
   }
 
   async function findByPhone(normalizedPhone, excludeId = null) {
-    let query = client()
-      .from("customers")
-      .select(`
-        id,
-        customer_name,
-        customer_type,
-        contact_person_name,
-        phone,
-        representative_id,
-        representative:sales_representatives (
-          id,
-          representative_code,
-          full_name
-        )
-      `)
-      .eq("normalized_phone", normalizedPhone)
-      .limit(1);
+    const rows = await unwrap(
+      client().rpc("check_customer_phone_ownership", {
+        p_normalized_phone: normalizedPhone,
+        p_exclude_customer_id: excludeId || null
+      }),
+      "تعذر التحقق من رقم الجوال"
+    );
 
-    if (excludeId) query = query.neq("id", excludeId);
+    const row = rows?.[0];
+    if (!row?.phone_exists) return null;
 
-    const rows = await unwrap(query, "تعذر التحقق من رقم الجوال");
-    return rows?.[0] || null;
+    return {
+      id: row.can_access ? row.customer_id : null,
+      customer_name: row.customer_name || "",
+      customer_type: row.can_access ? (row.customer_type || "") : "",
+      contact_person_name: row.can_access ? (row.contact_person_name || "") : "",
+      phone: normalizedPhone,
+      representative_id: row.can_access ? (row.representative_id || null) : null,
+      representative: row.representative_name
+        ? { full_name: row.representative_name }
+        : null,
+      can_access: Boolean(row.can_access),
+      outside_scope: !row.can_access
+    };
   }
 
   async function replaceInterests(customerId, interestIds) {
