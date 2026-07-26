@@ -170,6 +170,7 @@ let dailyTaskDefinitions = [];
 let dailyOperationTargets = null;
 let dailyManagerNote = null;
 let dailyOperationsLoading = false;
+let dailySuggestedCustomerType = "شركة";
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
@@ -3750,6 +3751,9 @@ async function handleFollowupSubmit(event) {
       loadFollowupsFromSupabase(true),
       loadCustomersFromSupabase(true)
     ]);
+    if (!document.getElementById("dailyOperationsView")?.classList.contains("hidden")) {
+      renderDailyOperations();
+    }
   } catch (error) {
     alert(error instanceof Error ? error.message : "تعذر حفظ المتابعة.");
   } finally {
@@ -5165,6 +5169,90 @@ function renderDailyManagerNote() {
     ?.classList.toggle("hidden", !canManage);
 }
 
+function dailyLatestQuotationForCustomer(customerId) {
+  return quotations
+    .filter(item => String(item.customerId) === String(customerId))
+    .sort((a, b) => {
+      const dateCompare = String(b.quotationDate || b.createdAt || "")
+        .localeCompare(String(a.quotationDate || a.createdAt || ""));
+      return dateCompare || String(b.id || "").localeCompare(String(a.id || ""));
+    })[0] || null;
+}
+
+function dailySuggestedCustomers(type = dailySuggestedCustomerType) {
+  const today = dailyLocalDate();
+  const contactedToday = new Set(
+    followups
+      .filter(item => dailyLocalDate(item.contactDate || item.createdAt) === today)
+      .map(item => String(item.customerId))
+  );
+
+  return customers
+    .filter(customer => customer.type === type)
+    .filter(customer => Boolean(normalizePhone(customer.phone)))
+    .filter(customer => !contactedToday.has(String(customer.id)))
+    .sort((a, b) => {
+      const aDate = String(a.contactDate || "0000-00-00");
+      const bDate = String(b.contactDate || "0000-00-00");
+      const dateCompare = aDate.localeCompare(bDate);
+      if (dateCompare) return dateCompare;
+      return String(a.id || "").localeCompare(String(b.id || ""));
+    })
+    .slice(0, 10);
+}
+
+function dailyWhatsAppNumber(phone) {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return "";
+  return normalized.startsWith("0")
+    ? `966${normalized.slice(1)}`
+    : normalized.replace(/^\+/, "");
+}
+
+function renderDailySuggestedCustomers() {
+  const body = document.getElementById("dailySuggestedCustomersBody");
+  const summary = document.getElementById("dailySuggestedCustomersSummary");
+  const contactHeader = document.getElementById("dailySuggestedContactHeader");
+  if (!body) return;
+
+  const rows = dailySuggestedCustomers();
+  const isCompany = dailySuggestedCustomerType === "شركة";
+  if (contactHeader) contactHeader.textContent = isCompany ? "المسؤول" : "رقم الجوال";
+  if (summary) {
+    summary.textContent = `${rows.length} من 10 ${isCompany ? "شركات" : "عملاء أفراد"} مقترح التواصل معهم اليوم`;
+  }
+
+  document.querySelectorAll("[data-daily-suggested-type]").forEach(button => {
+    const active = button.dataset.dailySuggestedType === dailySuggestedCustomerType;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+
+  body.innerHTML = rows.length
+    ? rows.map((customer, index) => {
+      const latestQuotation = dailyLatestQuotationForCustomer(customer.id);
+      const whatsappNumber = dailyWhatsAppNumber(customer.phone);
+      const canAddFollowup = canManageFollowups();
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong>${escapeHtml(customer.name || "—")}</strong><br><small>${escapeHtml(customer.phone || "")}</small></td>
+          <td>${isCompany ? escapeHtml(customer.contactPersonName || "—") : escapeHtml(customer.phone || "—")}</td>
+          <td>${customer.contactDate ? `${formatDate(customer.contactDate)}<br><small>منذ ${dailyDaysOverdue(customer.contactDate)} يوم</small>` : "لم يتم التواصل"}</td>
+          <td>${latestQuotation ? `<strong>${escapeHtml(latestQuotation.code || "—")}</strong><br><small>${formatDate(latestQuotation.quotationDate || latestQuotation.createdAt)}</small>` : "—"}</td>
+          <td>${escapeHtml(customer.representative || "—")}</td>
+          <td>
+            <div class="daily-suggested-actions">
+              ${canAddFollowup ? `<button type="button" class="secondary-btn compact-btn" data-daily-suggested-followup="${escapeHtml(String(customer.id))}">إضافة متابعة</button>` : ""}
+              ${canAddFollowup ? `<button type="button" class="primary-btn compact-btn" data-daily-suggested-contacted="${escapeHtml(String(customer.id))}">تم التواصل</button>` : ""}
+              ${whatsappNumber ? `<a class="daily-whatsapp-btn" href="https://wa.me/${escapeHtml(whatsappNumber)}" target="_blank" rel="noopener noreferrer">واتساب</a>` : ""}
+            </div>
+          </td>
+        </tr>`;
+    }).join("")
+    : dailyEmptyRow(7, `لا يوجد ${isCompany ? "شركات" : "عملاء أفراد"} مقترحون للتواصل اليوم.`);
+}
+
 function renderDailyOperations() {
   const today = dailyLocalDate();
   const profile = window.CustomerAuth?.getState?.().profile;
@@ -5179,6 +5267,7 @@ function renderDailyOperations() {
 
   renderDailyChecklist(today, profile);
   renderDailyManagerNote();
+  renderDailySuggestedCustomers();
 
   const todayCustomers = dailyScopedRows(customers).filter(item =>
     dailyLocalDate(item.createdAt || item.contactDate) === today
@@ -5282,6 +5371,12 @@ async function loadDailyOperations(force = false) {
         window.DailyOperationsService.getManagerNote()
       ]);
     }
+
+    await Promise.all([
+      customersLoaded ? Promise.resolve() : loadCustomersFromSupabase(true),
+      followupsLoaded ? Promise.resolve() : loadFollowupsFromSupabase(true),
+      quotationsLoaded ? Promise.resolve() : loadQuotationsFromSupabase(true)
+    ]);
 
     renderDailyOperations();
     await loadDailyAlerts(force);
@@ -7278,6 +7373,31 @@ setOptions();
   }
 })();
 
+
+// Phase M10.6 — Daily suggested customer contact report.
+document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
+  const typeButton = event.target.closest("[data-daily-suggested-type]");
+  if (typeButton) {
+    dailySuggestedCustomerType = typeButton.dataset.dailySuggestedType === "فردي" ? "فردي" : "شركة";
+    renderDailySuggestedCustomers();
+    return;
+  }
+
+  const followupCustomerId = event.target.closest("[data-daily-suggested-followup]")?.dataset.dailySuggestedFollowup;
+  if (followupCustomerId) {
+    openFollowupDialog(followupCustomerId);
+    return;
+  }
+
+  const contactedCustomerId = event.target.closest("[data-daily-suggested-contacted]")?.dataset.dailySuggestedContacted;
+  if (contactedCustomerId) {
+    openFollowupDialog(contactedCustomerId);
+    const completed = document.getElementById("followupCompleted");
+    const result = document.getElementById("followupResult");
+    if (completed) completed.value = "true";
+    if (result) result.value = "تم التواصل";
+  }
+});
 
 // Phase M9.2 — Daily Operations phone ownership lookup.
 (function setupDailyPhoneLookup() {

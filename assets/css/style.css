@@ -10117,3 +10117,124 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
     width: 100%;
   }
 }
+
+/* Phase M10.6 — Daily suggested customer contact report */
+.daily-suggested-customers-panel {
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.daily-suggested-customers-header {
+  align-items: center;
+  gap: 18px;
+}
+
+.daily-suggested-type-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid var(--border-color, #dbe3ef);
+  border-radius: 14px;
+  background: var(--surface-muted, #f6f8fb);
+}
+
+.daily-suggested-type-tab {
+  min-width: 110px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.daily-suggested-type-tab.active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.daily-suggested-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 14px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--text-color, #0f172a);
+}
+
+.daily-suggested-summary span { font-weight: 800; }
+.daily-suggested-summary small { color: var(--text-muted, #64748b); }
+
+.daily-suggested-table-wrap {
+  max-height: 560px;
+  overflow: auto;
+  border: 1px solid var(--border-color, #dbe3ef);
+  border-radius: 14px;
+}
+
+.daily-suggested-customers-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface, #fff);
+}
+
+.daily-suggested-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.daily-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 13px;
+  border: 1px solid #22c55e;
+  border-radius: 10px;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.08);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.daily-whatsapp-btn:hover { background: rgba(34, 197, 94, 0.16); }
+
+html[data-theme="dark"] .daily-suggested-type-tabs,
+body.dark-mode .daily-suggested-type-tabs {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+html[data-theme="dark"] .daily-suggested-summary,
+body.dark-mode .daily-suggested-summary {
+  background: rgba(37, 99, 235, 0.14);
+}
+
+html[data-theme="dark"] .daily-suggested-customers-table thead th,
+body.dark-mode .daily-suggested-customers-table thead th {
+  background: #111c30;
+}
+
+@media (max-width: 767px) {
+  .daily-suggested-customers-header,
+  .daily-suggested-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .daily-suggested-type-tabs { width: 100%; }
+  .daily-suggested-type-tab { flex: 1; min-width: 0; }
+  .daily-suggested-table-wrap { max-height: none; }
+  .daily-suggested-customers-table { min-width: 900px; }
+}

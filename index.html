@@ -287,6 +287,39 @@
           <article class="attention"><span>المتابعات المتأخرة</span><strong id="dailyOverdueFollowupsCount">0</strong><small>تحتاج إجراءً فوريًا</small></article>
         </div>
 
+        <article class="panel daily-suggested-customers-panel" aria-labelledby="dailySuggestedCustomersTitle">
+          <div class="panel-header daily-suggested-customers-header">
+            <div>
+              <h3 id="dailySuggestedCustomersTitle">العملاء المقترح التواصل معهم</h3>
+              <p>قائمة يومية ثابتة حسب أقدم تواصل، ويتم استبدال العميل تلقائيًا بعد تسجيل التواصل.</p>
+            </div>
+            <div class="daily-suggested-type-tabs" role="tablist" aria-label="نوع العملاء المقترحين">
+              <button type="button" class="daily-suggested-type-tab active" data-daily-suggested-type="شركة" role="tab" aria-selected="true">الشركات</button>
+              <button type="button" class="daily-suggested-type-tab" data-daily-suggested-type="فردي" role="tab" aria-selected="false">الأفراد</button>
+            </div>
+          </div>
+          <div class="daily-suggested-summary">
+            <span id="dailySuggestedCustomersSummary">10 عملاء مقترح التواصل معهم اليوم</span>
+            <small>يتم استبعاد العملاء الذين تم تسجيل تواصل معهم اليوم.</small>
+          </div>
+          <div class="table-wrap daily-suggested-table-wrap">
+            <table class="daily-operations-table daily-suggested-customers-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم العميل</th>
+                  <th id="dailySuggestedContactHeader">المسؤول</th>
+                  <th>آخر تواصل</th>
+                  <th>آخر عرض سعر</th>
+                  <th>المندوب</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="dailySuggestedCustomersBody"></tbody>
+            </table>
+          </div>
+        </article>
+
         <article class="panel daily-targets-panel">
           <div class="panel-header">
             <div>
