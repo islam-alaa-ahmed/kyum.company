@@ -76,6 +76,7 @@
   const menuButton = nav.querySelector("[data-mobile-action='menu']");
   const dashboardView = document.getElementById("dashboardView");
   let dashboardFiltersOpen = false;
+  let dashboardAppliedSnapshot = null;
   let pullStartY = 0;
   let pullTracking = false;
   let pullTriggered = false;
@@ -142,8 +143,24 @@
     });
   }
 
-  function closeDashboardFilters() {
+  function dashboardFilterControls() {
+    return [...dashboardView.querySelectorAll(".dashboard-filters select, .dashboard-filters input")];
+  }
+
+  function captureDashboardFilters() {
+    return dashboardFilterControls().map(control => [control.id, control.value]);
+  }
+
+  function restoreDashboardFilters(snapshot) {
+    (snapshot || []).forEach(([id, value]) => {
+      const control = document.getElementById(id);
+      if (control) control.value = value;
+    });
+  }
+
+  function closeDashboardFilters({ restore = false } = {}) {
     if (!dashboardView) return;
+    if (restore) restoreDashboardFilters(dashboardAppliedSnapshot);
     dashboardFiltersOpen = false;
     dashboardView.classList.remove("mobile-filters-open");
     dashboardView.querySelector("[data-mobile-dashboard-filter]")?.setAttribute("aria-expanded", "false");
@@ -152,7 +169,10 @@
 
   function toggleDashboardFilters() {
     if (!dashboardView) return;
-    dashboardFiltersOpen = !dashboardFiltersOpen;
+    const opening = !dashboardFiltersOpen;
+    if (opening) dashboardAppliedSnapshot = captureDashboardFilters();
+    else restoreDashboardFilters(dashboardAppliedSnapshot);
+    dashboardFiltersOpen = opening;
     dashboardView.classList.toggle("mobile-filters-open", dashboardFiltersOpen);
     dashboardView.querySelector("[data-mobile-dashboard-filter]")?.setAttribute("aria-expanded", String(dashboardFiltersOpen));
     document.body.classList.toggle("mobile-dashboard-sheet-open", dashboardFiltersOpen);
@@ -190,7 +210,22 @@
       closeButton.setAttribute("aria-label", "إغلاق الفلاتر");
       closeButton.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
       filterBar.prepend(closeButton);
-      closeButton.addEventListener("click", closeDashboardFilters);
+      closeButton.addEventListener("click", () => closeDashboardFilters({ restore: true }));
+
+      const filtersGrid = filterBar.querySelector(".dashboard-filters");
+      if (filtersGrid && !filtersGrid.querySelector("[data-mobile-dashboard-apply]")) {
+        const applyButton = document.createElement("button");
+        applyButton.type = "button";
+        applyButton.className = "primary-btn mobile-filter-apply";
+        applyButton.dataset.mobileDashboardApply = "";
+        applyButton.textContent = "تنفيذ الفلترة";
+        filtersGrid.append(applyButton);
+        applyButton.addEventListener("click", () => {
+          dashboardAppliedSnapshot = captureDashboardFilters();
+          closeDashboardFilters();
+          document.dispatchEvent(new CustomEvent("kyum-apply-dashboard-filters"));
+        });
+      }
     }
 
     const backdrop = document.createElement("button");
@@ -201,17 +236,7 @@
 
     toolbar.querySelector("[data-mobile-dashboard-filter]")?.addEventListener("click", toggleDashboardFilters);
     toolbar.querySelector("[data-mobile-dashboard-refresh]")?.addEventListener("click", () => refreshDashboard());
-    backdrop.addEventListener("click", closeDashboardFilters);
-
-    dashboardView.querySelectorAll(".dashboard-filters select, .dashboard-filters input").forEach(control => {
-      control.addEventListener("change", () => {
-        window.setTimeout(closeDashboardFilters, 120);
-      });
-    });
-
-    dashboardView.querySelector("#resetDashboardFilters")?.addEventListener("click", () => {
-      window.setTimeout(closeDashboardFilters, 120);
-    });
+    backdrop.addEventListener("click", () => closeDashboardFilters({ restore: true }));
   }
 
   function installPullToRefresh() {
@@ -918,7 +943,25 @@
     });
   }
 
-  function closeFilters() {
+  let appliedFilterSnapshot = null;
+
+  function quoteFilterControls() {
+    return [...filters.querySelectorAll("input, select")];
+  }
+
+  function captureQuoteFilters() {
+    return quoteFilterControls().map(control => [control.id, control.value]);
+  }
+
+  function restoreQuoteFilters(snapshot) {
+    (snapshot || []).forEach(([id, value]) => {
+      const control = document.getElementById(id);
+      if (control) control.value = value;
+    });
+  }
+
+  function closeFilters({ restore = false } = {}) {
+    if (restore) restoreQuoteFilters(appliedFilterSnapshot);
     view.classList.remove("mobile-quotations-filters-open");
     view.querySelector("[data-mobile-quotations-filter]")?.setAttribute("aria-expanded", "false");
     document.body.classList.remove("mobile-quotations-sheet-open");
@@ -937,6 +980,21 @@
     sheetHeader.innerHTML = `<div><strong>فلترة عروض الأسعار</strong><small>البحث والحالة والمندوب</small></div><button type="button" aria-label="إغلاق">×</button>`;
     filters.prepend(sheetHeader);
 
+    if (!filters.querySelector("[data-mobile-quotations-apply]")) {
+      const applyButton = document.createElement("button");
+      applyButton.type = "button";
+      applyButton.className = "primary-btn mobile-filter-apply";
+      applyButton.dataset.mobileQuotationsApply = "";
+      applyButton.textContent = "تنفيذ الفلترة";
+      filters.append(applyButton);
+      applyButton.addEventListener("click", () => {
+        appliedFilterSnapshot = captureQuoteFilters();
+        closeFilters();
+        document.dispatchEvent(new CustomEvent("kyum-apply-quotation-filters"));
+        window.setTimeout(enhanceRows, 0);
+      });
+    }
+
     const backdrop = document.createElement("button");
     backdrop.type = "button";
     backdrop.className = "mobile-quotations-filter-backdrop";
@@ -945,13 +1003,14 @@
 
     toolbar.querySelector("button")?.addEventListener("click", () => {
       const open = !view.classList.contains("mobile-quotations-filters-open");
+      if (open) appliedFilterSnapshot = captureQuoteFilters();
+      else restoreQuoteFilters(appliedFilterSnapshot);
       view.classList.toggle("mobile-quotations-filters-open", open);
       toolbar.querySelector("button")?.setAttribute("aria-expanded", String(open));
       document.body.classList.toggle("mobile-quotations-sheet-open", open);
     });
-    sheetHeader.querySelector("button")?.addEventListener("click", closeFilters);
-    backdrop.addEventListener("click", closeFilters);
-    filters.querySelectorAll("input, select").forEach(control => control.addEventListener("change", () => window.setTimeout(enhanceRows, 0)));
+    sheetHeader.querySelector("button")?.addEventListener("click", () => closeFilters({ restore: true }));
+    backdrop.addEventListener("click", () => closeFilters({ restore: true }));
   }
 
   function initialize() {

@@ -256,9 +256,10 @@ function quotationStatusClass(status) {
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "SAR",
+    currencyDisplay: "code",
     maximumFractionDigits: 2
   }).format(Number(value || 0));
 }
@@ -1863,9 +1864,10 @@ function renderSystemHealth() {
 }
 
 function reportCurrency(value) {
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "SAR",
+    currencyDisplay: "code",
     maximumFractionDigits: 0
   }).format(Number(value || 0));
 }
@@ -6044,8 +6046,13 @@ document.addEventListener("click", event => {
 document.querySelector("[data-open-customers]").addEventListener("click", () => switchView("customers"));
 
 ["dashboardRepFilter", "dashboardTypeFilter", "dashboardInterestFilter", "dashboardDateFrom", "dashboardDateTo"].forEach(id => {
-  document.getElementById(id).addEventListener("change", renderDashboard);
+  document.getElementById(id).addEventListener("change", () => {
+    if (document.body.classList.contains("mobile-dashboard-sheet-open")) return;
+    renderDashboard();
+  });
 });
+
+document.addEventListener("kyum-apply-dashboard-filters", () => renderDashboard());
 
 document.getElementById("resetDashboardFilters").addEventListener("click", () => {
   document.getElementById("dashboardRepFilter").value = "";
@@ -6053,7 +6060,7 @@ document.getElementById("resetDashboardFilters").addEventListener("click", () =>
   document.getElementById("dashboardInterestFilter").value = "";
   document.getElementById("dashboardDateFrom").value = "";
   document.getElementById("dashboardDateTo").value = "";
-  renderDashboard();
+  if (!document.body.classList.contains("mobile-dashboard-sheet-open")) renderDashboard();
 });
 
 document.querySelector("[data-open-followups]").addEventListener("click", () => switchView("followups"));
@@ -6180,14 +6187,21 @@ document.getElementById("customerForm").addEventListener("submit", handleCustome
 
 ["quotationSearch", "quotationStatusFilter", "quotationRepFilter"].forEach(id => {
   document.getElementById(id).addEventListener("input", () => {
+    if (document.body.classList.contains("mobile-quotations-sheet-open")) return;
     quotationsPage = 1;
     renderQuotations();
   });
 
   document.getElementById(id).addEventListener("change", () => {
+    if (document.body.classList.contains("mobile-quotations-sheet-open")) return;
     quotationsPage = 1;
     renderQuotations();
   });
+});
+
+document.addEventListener("kyum-apply-quotation-filters", () => {
+  quotationsPage = 1;
+  renderQuotations();
 });
 
 document.getElementById("customersTableBody").addEventListener("click", event => {

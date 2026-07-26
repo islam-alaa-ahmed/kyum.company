@@ -3195,3 +3195,76 @@ html.is-offline body::before {
     display: block !important;
   }
 }
+
+/* Phase M9.3.3 — Filter execution, quote spacing, drawer logo fit */
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
+  #quotationsView .mobile-quotations-toolbar {
+    display: flex !important;
+    position: relative !important;
+    z-index: 3 !important;
+    width: 100% !important;
+    min-height: 96px !important;
+    margin: 0 0 18px !important;
+    transform: none !important;
+    clear: both !important;
+  }
+
+  #quotationsView #quotationStats {
+    display: grid !important;
+    position: relative !important;
+    z-index: 1 !important;
+    clear: both !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  #quotationsView .mobile-quotations-toolbar + #quotationsStatus,
+  #quotationsView .mobile-quotations-toolbar ~ #quotationStats {
+    transform: none !important;
+  }
+
+  #quotationsView .mobile-filter-apply,
+  #dashboardView .mobile-filter-apply {
+    width: 100% !important;
+    min-height: 50px !important;
+    margin-top: 4px !important;
+    border-radius: 15px !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+  }
+
+  #quotationsView .mobile-quotations-filter-sheet {
+    display: grid !important;
+    gap: 12px !important;
+  }
+
+  #dashboardView .dashboard-filters {
+    display: grid !important;
+    gap: 10px !important;
+  }
+
+  #mainSidebar .sidebar-launcher-host {
+    padding: 0 !important;
+    min-height: 126px !important;
+    height: 126px !important;
+  }
+
+  #mainSidebar .mobile-drawer-brand-logo {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: fill !important;
+    object-position: center !important;
+    border-radius: inherit !important;
+    filter: none !important;
+  }
+
+  #quotationsView .quotation-value,
+  #quotationsView #quotationStats strong,
+  #reportsOverviewView .quotation-value-kpis strong {
+    direction: ltr !important;
+    unicode-bidi: isolate !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+  }
+}
