@@ -3315,7 +3315,9 @@ function openCustomerDialog(customer = null) {
   document.getElementById("customerContactPerson").value = customer?.contactPersonName || "";
   syncCustomerContactPersonField();
   document.getElementById("customerPhone").value = customer?.phone || "";
+  document.getElementById("customerRegion").value = customer?.region || "";
   document.getElementById("customerCity").value = customer?.city || "";
+  document.getElementById("customerDistrict").value = customer?.district || "";
   document.getElementById("customerRepresentative").value = customer?.representativeId || representatives[0]?.uuid || "";
   document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
   document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
@@ -3402,7 +3404,9 @@ async function handleCustomerSubmit(event) {
       type: customerType,
       contactPersonName: customerType === "شركة" ? contactPersonName : "",
       phone: normalizedPhone,
+      region: document.getElementById("customerRegion").value,
       city: document.getElementById("customerCity").value,
+      district: document.getElementById("customerDistrict").value,
       interestIds: selectedInterestIds,
       representativeId: document.getElementById("customerRepresentative").value,
       contactDate: document.getElementById("contactDate").value,
@@ -3806,7 +3810,9 @@ function showCustomerDetails(customerId) {
     ["رقم الجوال", customer.phone || "—"],
     ["التصنيف", customer.type || "—"],
     ["اسم المسؤول", customer.type === "شركة" ? (customer.contactPersonName || "—") : "—"],
+    ["المنطقة", customer.region || "—"],
     ["المدينة", customer.city || "—"],
+    ["الحي", customer.district || "—"],
     ["المندوب", customer.representative || "—"],
     ["تاريخ التواصل", formatDate(customer.contactDate)],
     ["آخر عرض مسجل", customer.quotationNumber || "—"],

@@ -6,7 +6,9 @@
     "رقم الجوال",
     "التصنيف",
     "اسم المسؤول",
+    "المنطقة",
     "المدينة",
+    "الحي",
     "مجالات الاهتمام",
     "مندوب المبيعات",
     "تاريخ آخر تواصل",
@@ -32,7 +34,9 @@
       "رقم الجوال": safeText(customer.phone),
       "التصنيف": safeText(customer.type),
       "اسم المسؤول": safeText(customer.contactPersonName),
+      "المنطقة": safeText(customer.region),
       "المدينة": safeText(customer.city),
+      "الحي": safeText(customer.district),
       "مجالات الاهتمام": Array.isArray(customer.interests)
         ? customer.interests.join("، ")
         : safeText(customer.interests),
@@ -51,7 +55,9 @@
       { wch: 18 },
       { wch: 12 },
       { wch: 24 },
+      { wch: 20 },
       { wch: 18 },
+      { wch: 22 },
       { wch: 34 },
       { wch: 24 },
       { wch: 18 },
@@ -61,7 +67,7 @@
     ];
 
     sheet["!autofilter"] = {
-      ref: `A1:L${Math.max(1, rowCount + 1)}`
+      ref: `A1:N${Math.max(1, rowCount + 1)}`
     };
 
     for (let row = 2; row <= rowCount + 1; row += 1) {
@@ -122,7 +128,9 @@
       "رقم الجوال": "0500000000",
       "التصنيف": "شركة",
       "اسم المسؤول": "اسم المسؤول داخل الشركة",
+      "المنطقة": "منطقة الرياض",
       "المدينة": "الرياض",
+      "الحي": "حي العليا",
       "مجالات الاهتمام": "تبريد، أجهزة منزلية",
       "مندوب المبيعات": "اسم المندوب الموجود بالنظام",
       "تاريخ آخر تواصل": "2026-07-21",
@@ -172,7 +180,9 @@
     phone: ["رقم الجوال", "الجوال", "phone", "mobile"],
     type: ["التصنيف", "نوع العميل", "customer_type", "customer type"],
     contactPersonName: ["اسم المسؤول", "المسؤول", "contact_person_name", "contact person"],
+    region: ["المنطقة", "region", "province"],
     city: ["المدينة", "city"],
+    district: ["الحي", "district", "neighborhood", "neighbourhood"],
     interests: ["مجالات الاهتمام", "مجال الاهتمام", "interests", "interest"],
     representative: ["مندوب المبيعات", "المندوب", "representative", "sales representative"],
     contactDate: ["تاريخ آخر تواصل", "last_contact_date", "contact date"],
@@ -270,7 +280,9 @@
           phone: "",
           type: "",
           contactPersonName: "",
+          region: "",
           city: "",
+          district: "",
           interests: [],
           representative: "",
           contactDate: "",

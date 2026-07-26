@@ -50,7 +50,9 @@
       ["Phone", customer.phone || ""],
       ["Type", customer.type || ""],
       ["Contact Person", customer.type === "شركة" ? (customer.contactPersonName || "") : ""],
+      ["Region", customer.region || ""],
       ["City", customer.city || ""],
+      ["District", customer.district || ""],
       ["Representative", customer.representative || ""],
       ["Status", view.status.label],
       ["Health Score", `${view.risk.healthScore}%`],
@@ -221,7 +223,9 @@ footer{margin-top:20px;font-size:10px;color:#667085}
 <h2>البيانات الأساسية</h2>
 <p><b>التصنيف:</b> ${safe(customer.type || "—")}</p>
 <p><b>اسم المسؤول:</b> ${safe(customer.type === "شركة" ? (customer.contactPersonName || "—") : "—")}</p>
+<p><b>المنطقة:</b> ${safe(customer.region || "—")}</p>
 <p><b>المدينة:</b> ${safe(customer.city || "—")}</p>
+<p><b>الحي:</b> ${safe(customer.district || "—")}</p>
 <p><b>المندوب:</b> ${safe(customer.representative || "—")}</p>
 <p><b>الاهتمامات:</b> ${safe((customer.interests || []).join("، ") || "—")}</p>
 <p><b>سبب عدم البيع:</b> ${safe(customer.noSaleReason || "—")}</p>
