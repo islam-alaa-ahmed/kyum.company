@@ -9797,3 +9797,8 @@ html[data-theme="dark"] #dailyOperationsView .daily-phone-lookup-result.is-error
   border-color: #b4535a;
   color: #fee2e2;
 }
+
+/* Phase M9.4 — Sales Representatives Excel Import */
+.representatives-import-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.representative-import-dialog .dialog-shell{width:min(1120px,calc(100vw - 32px))}
+@media (max-width:767px){.representatives-import-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.representatives-import-actions #addRepresentativeBtn{grid-column:1/-1}}

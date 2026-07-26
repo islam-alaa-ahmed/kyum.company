@@ -687,7 +687,11 @@
           <div>
             <h3 class="section-title">مندوبو المبيعات</h3>
           </div>
-          <button id="addRepresentativeBtn" class="primary-btn reference-manage-action">إضافة مندوب</button>
+          <div class="representatives-import-actions reference-manage-action">
+            <button id="representativesTemplateBtn" class="secondary-btn" type="button">تنزيل نموذج Excel</button>
+            <button id="representativesImportBtn" class="secondary-btn" type="button">رفع مندوبي Excel</button>
+            <button id="addRepresentativeBtn" class="primary-btn" type="button">إضافة مندوب</button>
+          </div>
         </div>
         <div id="representativesStatus" class="data-status hidden"></div>
 
@@ -2463,6 +2467,56 @@
   <script src="assets/js/diagnostics-service.js"></script>
   <script src="assets/js/diagnostics-engine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-header">
+        <div>
+          <h3>استيراد مندوبي المبيعات من Excel</h3>
+          <p>يتم التحقق من جميع الصفوف قبل حفظ أي بيانات.</p>
+        </div>
+        <button id="representativeImportCloseBtn" class="icon-btn" type="button" aria-label="إغلاق">×</button>
+      </div>
+
+      <div class="customer-import-upload">
+        <input id="representativeImportFileInput" type="file" accept=".xlsx,.xls" hidden>
+        <button id="representativeImportChooseFileBtn" class="secondary-btn" type="button">اختيار ملف Excel</button>
+        <span id="representativeImportFileName">لم يتم اختيار ملف</span>
+      </div>
+
+      <div id="representativeImportStatus" class="data-status hidden"></div>
+
+      <div id="representativeImportProgress" class="customer-import-progress hidden" aria-live="polite">
+        <div class="customer-import-progress-track"><span id="representativeImportProgressBar"></span></div>
+        <div class="customer-import-progress-meta">
+          <strong id="representativeImportProgressText">0%</strong>
+          <span id="representativeImportProgressRows">0 / 0</span>
+        </div>
+      </div>
+
+      <div id="representativeImportSummary" class="customer-import-summary hidden">
+        <article><span>إجمالي الصفوف</span><strong id="representativeImportTotalCount">0</strong></article>
+        <article><span>صفوف صحيحة</span><strong id="representativeImportValidCount">0</strong></article>
+        <article><span>صفوف بها أخطاء</span><strong id="representativeImportErrorCount">0</strong></article>
+        <article><span>مندوبي مبيعات جدد</span><strong id="representativeImportNewCount">0</strong></article>
+        <article><span>مكرر داخل الملف</span><strong id="representativeImportDuplicateCount">0</strong></article>
+        <article><span>موجود بالنظام</span><strong id="representativeImportExistingCount">0</strong></article>
+      </div>
+
+      <div class="table-wrap customer-import-preview-wrap">
+        <table class="data-table customer-import-preview-table">
+          <thead><tr><th>#</th><th>كود المندوب</th><th>اسم المندوب</th><th>الجوال</th><th>البريد الإلكتروني</th><th>الحالة</th><th>الملاحظات</th></tr></thead>
+          <tbody id="representativeImportPreviewBody"><tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="representativeImportFailedExportBtn" class="secondary-btn hidden" type="button">تنزيل الصفوف الفاشلة</button>
+        <button id="representativeImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
+        <button id="representativeImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="customerImportDialog" class="glass-dialog customer-import-dialog">
     <form method="dialog" class="dialog-shell">
       <div class="dialog-header">
@@ -2556,6 +2610,7 @@
   <script src="assets/js/export-center.js?v=15.2.6"></script>
   <script src="assets/js/customer360-engine.js?v=15.3.1"></script>
   <script src="assets/js/customer360-export.js?v=15.3.4"></script>
+  <script src="assets/js/representative-excel-center.js?v=M9.4"></script>
   <script src="assets/js/customer-excel-center.js?v=17.4-C3"></script>
   <script src="assets/js/daily-performance-service.js?v=16.4"></script>
   <script src="assets/js/daily-alerts-service.js?v=16.5"></script>

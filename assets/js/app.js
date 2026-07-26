@@ -22,6 +22,8 @@ let referenceCustomersPage = 1;
 let customerImportPreview = null;
 let customerImportFile = null;
 let customerImportFailedRows = [];
+let representativeImportPreview = null;
+let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
 
 const seedCustomers = [
@@ -6329,6 +6331,146 @@ document.getElementById("referenceDataSectionFilter")?.addEventListener(
 document.getElementById("referenceAddCustomerBtn")?.addEventListener("click", () => {
   if (!requireScreenAction("customers", "add", "لا توجد صلاحية إضافة العملاء.")) return;
   openCustomerDialog();
+});
+
+
+function closeRepresentativeImportDialog() {
+  document.getElementById("representativeImportDialog")?.close();
+}
+
+function resetRepresentativeImportDialog() {
+  representativeImportPreview = null;
+  representativeImportFailedRows = [];
+  const fileInput = document.getElementById("representativeImportFileInput");
+  if (fileInput) fileInput.value = "";
+  const fileName = document.getElementById("representativeImportFileName");
+  if (fileName) fileName.textContent = "لم يتم اختيار ملف";
+  document.getElementById("representativeImportSummary")?.classList.add("hidden");
+  document.getElementById("representativeImportProgress")?.classList.add("hidden");
+  const progressBar = document.getElementById("representativeImportProgressBar");
+  if (progressBar) progressBar.style.width = "0%";
+  const body = document.getElementById("representativeImportPreviewBody");
+  if (body) body.innerHTML = '<tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
+  const executeBtn = document.getElementById("representativeImportExecuteBtn");
+  if (executeBtn) executeBtn.disabled = true;
+  document.getElementById("representativeImportFailedExportBtn")?.classList.add("hidden");
+  showDataStatus("representativeImportStatus", "");
+}
+
+function renderRepresentativeImportPreview(preview) {
+  representativeImportPreview = preview;
+  const summary = preview.summary;
+  const values = {
+    representativeImportTotalCount: summary.total,
+    representativeImportValidCount: summary.valid,
+    representativeImportErrorCount: summary.errors,
+    representativeImportNewCount: summary.newRepresentatives,
+    representativeImportDuplicateCount: summary.duplicates,
+    representativeImportExistingCount: summary.existing
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = String(value);
+  });
+  document.getElementById("representativeImportSummary")?.classList.remove("hidden");
+
+  const body = document.getElementById("representativeImportPreviewBody");
+  if (body) {
+    const previewLimit = 200;
+    const rows = preview.rows.slice(0, previewLimit);
+    body.innerHTML = rows.map(row => {
+      const statusClass = row.errors.length ? "danger" : "success";
+      const statusLabel = row.errors.length ? "خطأ" : "جديد";
+      return `<tr>
+        <td>${row.sourceRow}</td>
+        <td dir="ltr">${escapeHtml(row.representativeCode || "-")}</td>
+        <td>${escapeHtml(row.fullName || "-")}</td>
+        <td dir="ltr">${escapeHtml(row.phone || "-")}</td>
+        <td dir="ltr">${escapeHtml(row.email || "-")}</td>
+        <td><span class="status-badge ${statusClass}">${row.isActive ? "نشط" : "موقوف"} — ${statusLabel}</span></td>
+        <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
+      </tr>`;
+    }).join("") + (preview.rows.length > previewLimit
+      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      : "");
+  }
+  const executeBtn = document.getElementById("representativeImportExecuteBtn");
+  if (executeBtn) executeBtn.disabled = summary.valid === 0;
+}
+
+async function previewRepresentativeImportFile(file) {
+  if (!file) return;
+  const fileName = document.getElementById("representativeImportFileName");
+  if (fileName) fileName.textContent = file.name;
+  showDataStatus("representativeImportStatus", "جاري قراءة الملف والتحقق من البيانات...", "info");
+  try {
+    const rows = await window.RepresentativeExcelCenter.parseImportFile(file);
+    renderRepresentativeImportPreview(window.RepresentativeExcelCenter.buildImportPreview(rows, representativeRecords));
+    const errors = representativeImportPreview.summary.errors;
+    showDataStatus(
+      "representativeImportStatus",
+      errors ? `تم التحقق: سيتم استيراد ${representativeImportPreview.summary.valid} صف صحيح وتجاهل ${errors} صف به أخطاء.` : "تم التحقق من الملف وهو جاهز للاستيراد.",
+      errors ? "info" : "success"
+    );
+  } catch (error) {
+    representativeImportPreview = null;
+    showDataStatus("representativeImportStatus", error instanceof Error ? error.message : "تعذر قراءة ملف Excel.", "error");
+  }
+}
+
+function openRepresentativeImportDialog() {
+  if (!requireScreenAction("representatives", "add", "لا توجد صلاحية استيراد مندوبي المبيعات.")) return;
+  resetRepresentativeImportDialog();
+  document.getElementById("representativeImportDialog")?.showModal();
+}
+
+document.getElementById("representativesTemplateBtn")?.addEventListener("click", () => {
+  if (!requireScreenAction("representatives", "add", "لا توجد صلاحية تنزيل نموذج المندوبين.")) return;
+  try { window.RepresentativeExcelCenter.downloadTemplate(); }
+  catch (error) { alert(error instanceof Error ? error.message : "تعذر تنزيل النموذج."); }
+});
+document.getElementById("representativesImportBtn")?.addEventListener("click", openRepresentativeImportDialog);
+document.getElementById("representativeImportChooseFileBtn")?.addEventListener("click", () => document.getElementById("representativeImportFileInput")?.click());
+document.getElementById("representativeImportFileInput")?.addEventListener("change", event => previewRepresentativeImportFile(event.target.files?.[0] || null));
+document.getElementById("representativeImportCloseBtn")?.addEventListener("click", closeRepresentativeImportDialog);
+document.getElementById("representativeImportCancelBtn")?.addEventListener("click", closeRepresentativeImportDialog);
+document.getElementById("representativeImportFailedExportBtn")?.addEventListener("click", () => {
+  try { window.RepresentativeExcelCenter.exportFailedRows(representativeImportFailedRows); }
+  catch (error) { showDataStatus("representativeImportStatus", error instanceof Error ? error.message : "تعذر تصدير الصفوف الفاشلة.", "error"); }
+});
+
+document.getElementById("representativeImportExecuteBtn")?.addEventListener("click", async () => {
+  if (!representativeImportPreview) return;
+  if (!requireScreenAction("representatives", "add", "لا توجد صلاحية استيراد مندوبي المبيعات.")) return;
+  const validRows = representativeImportPreview.rows.filter(row => !row.errors.length);
+  const executeBtn = document.getElementById("representativeImportExecuteBtn");
+  if (executeBtn) executeBtn.disabled = true;
+  representativeImportFailedRows = representativeImportPreview.rows
+    .filter(row => row.errors.length)
+    .map(row => ({ sourceRow: row.sourceRow, representativeCode: row.representativeCode, fullName: row.fullName, phone: row.phone, email: row.email, message: row.errors.join(" — ") }));
+  document.getElementById("representativeImportProgress")?.classList.remove("hidden");
+  try {
+    const result = await window.RepresentativeExcelCenter.importRows(validRows, window.ReferenceDataService.saveRepresentative, (current, total) => {
+      const percent = total ? Math.round((current / total) * 100) : 0;
+      const bar = document.getElementById("representativeImportProgressBar");
+      if (bar) bar.style.width = `${percent}%`;
+      const text = document.getElementById("representativeImportProgressText");
+      if (text) text.textContent = `${percent}%`;
+      const rowText = document.getElementById("representativeImportProgressRows");
+      if (rowText) rowText.textContent = `${current} / ${total}`;
+      if (current === total || current % 25 === 0) showDataStatus("representativeImportStatus", `جاري استيراد ${current} من ${total}...`, "info");
+    }, { chunkSize: 200 });
+    representativeImportFailedRows.push(...result.errors);
+    document.getElementById("representativeImportFailedExportBtn")?.classList.toggle("hidden", !representativeImportFailedRows.length);
+    referenceDataLoaded = false;
+    await loadReferenceDataFromSupabase(true);
+    showDataStatus("representativeImportStatus", `اكتمل الاستيراد: ${result.inserted} مندوب جديد، ${result.failed} فشل.`, result.failed ? "error" : "success");
+    if (!result.failed) setTimeout(closeRepresentativeImportDialog, 900);
+  } catch (error) {
+    showDataStatus("representativeImportStatus", error instanceof Error ? error.message : "تعذر تنفيذ الاستيراد.", "error");
+  } finally {
+    if (executeBtn) executeBtn.disabled = false;
+  }
 });
 
 function closeCustomerImportDialog() {
