@@ -1205,8 +1205,7 @@ function renderAllowedRepresentativesChecklist(selectedIds = null) {
   list.innerHTML = representativeRecords.length
     ? representativeRecords.map(rep => `
       <label class="representative-check-item" data-representative-name="${escapeHtml(String(rep.full_name || '').toLowerCase())}">
-        <input type="checkbox" value="${escapeHtml(rep.id)}" ${currentIds.has(rep.id) ? "checked" : ""}>
-        <span class="representative-check-box" aria-hidden="true"></span>
+        <input class="representative-check-input" type="checkbox" value="${escapeHtml(rep.id)}" ${currentIds.has(rep.id) ? "checked" : ""}>
         <span class="representative-check-name">${escapeHtml(rep.full_name)}</span>
       </label>`).join("")
     : '<div class="representatives-checklist-empty">لا يوجد مندوبون متاحون.</div>';

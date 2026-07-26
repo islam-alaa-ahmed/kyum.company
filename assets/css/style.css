@@ -9965,17 +9965,22 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
 }
 
 .representative-check-item {
-  display: grid;
-  grid-template-columns: auto 24px minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 44px;
+  justify-content: flex-start;
+  direction: rtl;
+  gap: 12px;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-height: 46px;
   margin: 0;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border: 1px solid transparent;
   border-radius: 12px;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: background 160ms ease, border-color 160ms ease;
 }
 
 .representative-check-item:hover {
@@ -9983,52 +9988,40 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
   background: color-mix(in srgb, var(--accent-color, #2563eb) 7%, var(--panel-bg));
 }
 
-.representative-check-item:has(input:checked) {
+.representative-check-item:has(.representative-check-input:checked) {
   border-color: color-mix(in srgb, var(--accent-color, #2563eb) 45%, var(--border-color));
   background: color-mix(in srgb, var(--accent-color, #2563eb) 12%, var(--panel-bg));
 }
 
-.representative-check-item input {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  opacity: 0;
-  pointer-events: none;
+.representative-check-input {
+  position: static !important;
+  flex: 0 0 20px;
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  margin: 0;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  accent-color: var(--accent-color, #2563eb);
+  cursor: pointer;
 }
 
-.representative-check-box {
-  position: relative;
-  inline-size: 22px;
-  block-size: 22px;
-  border: 2px solid color-mix(in srgb, var(--text-color) 38%, transparent);
-  border-radius: 7px;
-  background: var(--panel-bg);
-}
-
-.representative-check-item input:focus-visible + .representative-check-box {
+.representative-check-input:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent-color, #2563eb) 28%, transparent);
-  outline-offset: 2px;
-}
-
-.representative-check-item input:checked + .representative-check-box {
-  border-color: var(--accent-color, #2563eb);
-  background: var(--accent-color, #2563eb);
-}
-
-.representative-check-item input:checked + .representative-check-box::after {
-  content: "";
-  position: absolute;
-  inset: 4px 7px 6px 5px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  outline-offset: 3px;
 }
 
 .representative-check-name {
-  min-width: 0;
+  display: block;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  inline-size: auto;
   color: var(--text-color);
   font-weight: 600;
-  overflow-wrap: anywhere;
+  line-height: 1.45;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .representatives-checklist-empty {
