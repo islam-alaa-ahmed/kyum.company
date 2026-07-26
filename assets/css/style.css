@@ -9910,18 +9910,131 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
   grid-column: 1 / -1;
 }
 
-#userAllowedRepresentatives {
-  min-height: 150px;
+.user-representatives-permission {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-color, #2563eb) 22%, var(--border-color));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--panel-bg) 94%, var(--accent-color, #2563eb) 6%);
+}
+
+.user-representatives-permission-header,
+.user-representatives-tools,
+.user-representatives-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-representatives-permission-header,
+.user-representatives-tools {
+  justify-content: space-between;
+}
+
+.user-representatives-tools input {
+  min-width: 220px;
+  flex: 1 1 280px;
+}
+
+.user-representatives-actions {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+}
+
+.selection-count {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-color, #2563eb) 14%, var(--panel-bg));
+  color: var(--text-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.user-representatives-checklist {
+  max-height: 260px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
   padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  scrollbar-gutter: stable;
 }
 
-#userAllowedRepresentatives option {
+.representative-check-item {
+  display: grid;
+  grid-template-columns: auto 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0;
   padding: 8px 10px;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-#userAllowedRepresentatives option:checked {
-  background: color-mix(in srgb, var(--accent-color, #2563eb) 20%, var(--panel-bg));
+.representative-check-item:hover {
+  border-color: color-mix(in srgb, var(--accent-color, #2563eb) 28%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-color, #2563eb) 7%, var(--panel-bg));
+}
+
+.representative-check-item:has(input:checked) {
+  border-color: color-mix(in srgb, var(--accent-color, #2563eb) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-color, #2563eb) 12%, var(--panel-bg));
+}
+
+.representative-check-item input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.representative-check-box {
+  position: relative;
+  inline-size: 22px;
+  block-size: 22px;
+  border: 2px solid color-mix(in srgb, var(--text-color) 38%, transparent);
+  border-radius: 7px;
+  background: var(--panel-bg);
+}
+
+.representative-check-item input:focus-visible + .representative-check-box {
+  outline: 3px solid color-mix(in srgb, var(--accent-color, #2563eb) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.representative-check-item input:checked + .representative-check-box {
+  border-color: var(--accent-color, #2563eb);
+  background: var(--accent-color, #2563eb);
+}
+
+.representative-check-item input:checked + .representative-check-box::after {
+  content: "";
+  position: absolute;
+  inset: 4px 7px 6px 5px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.representative-check-name {
+  min-width: 0;
+  color: var(--text-color);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.representatives-checklist-empty {
+  padding: 24px 12px;
+  color: var(--muted-text);
+  text-align: center;
 }
 
 .field-hint {
@@ -9949,6 +10062,29 @@ html[data-theme="dark"] .representative-import-dialog .dialog-actions {
 @media (max-width: 767px) {
   #userDialog .form-field-wide {
     grid-column: auto;
+  }
+
+  .user-representatives-permission-header,
+  .user-representatives-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .user-representatives-tools input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .user-representatives-actions {
+    width: 100%;
+  }
+
+  .user-representatives-actions .compact-btn {
+    flex: 1 1 120px;
+  }
+
+  .user-representatives-checklist {
+    max-height: 230px;
   }
 
   .data-access-badge {

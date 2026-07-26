@@ -1178,6 +1178,57 @@ function syncUserDataAccessFields() {
   const mode = document.getElementById("userDataAccessMode")?.value || "own";
   const label = document.getElementById("userAllowedRepresentativesLabel");
   if (label) label.classList.toggle("hidden", mode !== "selected");
+  if (mode === "selected") {
+    filterAllowedRepresentativesList();
+    updateAllowedRepresentativesCount();
+  }
+}
+
+function selectedAllowedRepresentativeIds() {
+  return [...document.querySelectorAll('#userAllowedRepresentativesList input[type="checkbox"]:checked')]
+    .map(input => input.value)
+    .filter(Boolean);
+}
+
+function updateAllowedRepresentativesCount() {
+  const count = selectedAllowedRepresentativeIds().length;
+  const element = document.getElementById("userAllowedRepresentativesCount");
+  if (element) element.textContent = `تم اختيار ${count}`;
+}
+
+function renderAllowedRepresentativesChecklist(selectedIds = null) {
+  const list = document.getElementById("userAllowedRepresentativesList");
+  if (!list) return;
+  const currentIds = selectedIds instanceof Set
+    ? selectedIds
+    : new Set(selectedAllowedRepresentativeIds());
+  list.innerHTML = representativeRecords.length
+    ? representativeRecords.map(rep => `
+      <label class="representative-check-item" data-representative-name="${escapeHtml(String(rep.full_name || '').toLowerCase())}">
+        <input type="checkbox" value="${escapeHtml(rep.id)}" ${currentIds.has(rep.id) ? "checked" : ""}>
+        <span class="representative-check-box" aria-hidden="true"></span>
+        <span class="representative-check-name">${escapeHtml(rep.full_name)}</span>
+      </label>`).join("")
+    : '<div class="representatives-checklist-empty">لا يوجد مندوبون متاحون.</div>';
+  filterAllowedRepresentativesList();
+  updateAllowedRepresentativesCount();
+}
+
+function filterAllowedRepresentativesList() {
+  const query = (document.getElementById("userAllowedRepresentativesSearch")?.value || "").trim().toLowerCase();
+  document.querySelectorAll("#userAllowedRepresentativesList .representative-check-item").forEach(item => {
+    item.classList.toggle("hidden", Boolean(query) && !String(item.dataset.representativeName || "").includes(query));
+  });
+}
+
+function setAllowedRepresentativesSelection(mode) {
+  const linkedRepresentativeId = document.getElementById("userRepresentative")?.value || "";
+  document.querySelectorAll('#userAllowedRepresentativesList input[type="checkbox"]').forEach(input => {
+    if (mode === "all") input.checked = true;
+    else if (mode === "none") input.checked = false;
+    else input.checked = Boolean(linkedRepresentativeId) && input.value === linkedRepresentativeId;
+  });
+  updateAllowedRepresentativesCount();
 }
 
 function populateSecurityOptions() {
@@ -1191,13 +1242,7 @@ function populateSecurityOptions() {
     "بدون ربط",
     document.getElementById("userRepresentative")?.value || ""
   );
-  const allowedSelect = document.getElementById("userAllowedRepresentatives");
-  if (allowedSelect) {
-    const selected = new Set([...allowedSelect.selectedOptions].map(option => option.value));
-    allowedSelect.innerHTML = representativeRecords.map(rep =>
-      `<option value="${rep.id}" ${selected.has(rep.id) ? "selected" : ""}>${escapeHtml(rep.full_name)}</option>`
-    ).join("");
-  }
+  renderAllowedRepresentativesChecklist();
 }
 
 async function loadUsersFromSupabase(force = false) {
@@ -1257,9 +1302,8 @@ function openUserDialog(user = null) {
   document.getElementById("userRepresentative").value = user?.representative_id || "";
   document.getElementById("userDataAccessMode").value = user?.data_access_mode || (user?.representative_id ? "own" : "selected");
   const allowedIds = new Set((user?.data_access_representatives || []).map(item => item.id));
-  [...(document.getElementById("userAllowedRepresentatives")?.options || [])].forEach(option => {
-    option.selected = allowedIds.has(option.value);
-  });
+  document.getElementById("userAllowedRepresentativesSearch").value = "";
+  renderAllowedRepresentativesChecklist(allowedIds);
   syncUserDataAccessFields();
   document.getElementById("userActive").value = String(user?.is_active ?? true);
   document.getElementById("userMustChangePassword").value = String(user?.must_change_password ?? true);
@@ -1288,7 +1332,7 @@ async function saveUserForm(event) {
       role: document.getElementById("userRole").value,
       representativeId: document.getElementById("userRepresentative").value || null,
       accessMode: document.getElementById("userDataAccessMode").value,
-      allowedRepresentativeIds: [...document.getElementById("userAllowedRepresentatives").selectedOptions].map(option => option.value),
+      allowedRepresentativeIds: selectedAllowedRepresentativeIds(),
       isActive: document.getElementById("userActive").value === "true",
       mustChangePassword: document.getElementById("userMustChangePassword").value === "true"
     };
@@ -7087,6 +7131,16 @@ document.getElementById("closeUserDialogBtn")?.addEventListener("click", closeUs
 document.getElementById("cancelUserDialogBtn")?.addEventListener("click", closeUserDialog);
 document.getElementById("userForm")?.addEventListener("submit", saveUserForm);
 document.getElementById("userDataAccessMode")?.addEventListener("change", syncUserDataAccessFields);
+document.getElementById("userAllowedRepresentativesSearch")?.addEventListener("input", filterAllowedRepresentativesList);
+document.getElementById("userAllowedRepresentativesList")?.addEventListener("change", event => {
+  if (event.target.matches('input[type="checkbox"]')) updateAllowedRepresentativesCount();
+});
+document.getElementById("selectAllAllowedRepresentativesBtn")?.addEventListener("click", () => setAllowedRepresentativesSelection("all"));
+document.getElementById("clearAllowedRepresentativesBtn")?.addEventListener("click", () => setAllowedRepresentativesSelection("none"));
+document.getElementById("selectOwnRepresentativeBtn")?.addEventListener("click", () => setAllowedRepresentativesSelection("own"));
+document.getElementById("userRepresentative")?.addEventListener("change", () => {
+  if ((document.getElementById("userDataAccessMode")?.value || "") === "selected") updateAllowedRepresentativesCount();
+});
 
 document.getElementById("usersTableBody")?.addEventListener("click", event => {
   const editId = event.target.dataset.editUser;

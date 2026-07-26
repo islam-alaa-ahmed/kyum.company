@@ -2467,10 +2467,24 @@
           <option value="selected">بيانات المستخدم ومندوبين محددين</option>
           <option value="all">جميع البيانات</option>
         </select></label>
-        <label id="userAllowedRepresentativesLabel" class="form-field-wide hidden">المندوبون المسموح بعرض بياناتهم
-          <select id="userAllowedRepresentatives" multiple size="6" aria-describedby="userAllowedRepresentativesHint"></select>
-          <small id="userAllowedRepresentativesHint" class="field-hint">يتم تضمين مندوب المستخدم المرتبط تلقائيًا، ويمكن اختيار مندوبين إضافيين.</small>
-        </label>
+        <div id="userAllowedRepresentativesLabel" class="form-field-wide user-representatives-permission hidden">
+          <div class="user-representatives-permission-header">
+            <div>
+              <strong>المندوبون المسموح بعرض بياناتهم</strong>
+              <small id="userAllowedRepresentativesHint" class="field-hint">يتم تضمين مندوب المستخدم المرتبط تلقائيًا، ويمكن اختيار مندوبين إضافيين.</small>
+            </div>
+            <span id="userAllowedRepresentativesCount" class="selection-count" aria-live="polite">تم اختيار 0</span>
+          </div>
+          <div class="user-representatives-tools">
+            <input id="userAllowedRepresentativesSearch" type="search" placeholder="ابحث باسم المندوب..." aria-label="البحث في المندوبين">
+            <div class="user-representatives-actions" aria-label="إجراءات تحديد المندوبين">
+              <button id="selectAllAllowedRepresentativesBtn" class="secondary-btn compact-btn" type="button">تحديد الكل</button>
+              <button id="clearAllowedRepresentativesBtn" class="secondary-btn compact-btn" type="button">إلغاء الكل</button>
+              <button id="selectOwnRepresentativeBtn" class="secondary-btn compact-btn" type="button">مندوبه فقط</button>
+            </div>
+          </div>
+          <div id="userAllowedRepresentativesList" class="user-representatives-checklist" role="group" aria-describedby="userAllowedRepresentativesHint"></div>
+        </div>
         <label>حالة الحساب<select id="userActive"><option value="true">نشط</option><option value="false">غير نشط</option></select></label>
         <label>تغيير كلمة المرور عند أول دخول<select id="userMustChangePassword"><option value="true">نعم</option><option value="false">لا</option></select></label>
       </div>
