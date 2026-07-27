@@ -109,10 +109,45 @@
     e.logout?.addEventListener("click", event => { event.preventDefault(); signOut(); });
     initialize();
     window.customerSupabase?.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT") showLogin();
-      else if (["SIGNED_IN","TOKEN_REFRESHED","USER_UPDATED"].includes(event) && session) {
-        try { await activate(session); }
-        catch (error) { await window.customerSupabase.auth.signOut(); showLogin(error instanceof Error ? error.message : "تعذر تفعيل الجلسة."); }
+      if (event === "SIGNED_OUT") {
+        state.session = null;
+        state.user = null;
+        state.profile = null;
+        showLogin();
+        return;
+      }
+
+      // Phase M10.7.1 — A background Supabase token refresh must not reactivate
+      // the whole application. activate() dispatches customer-auth-ready, whose
+      // listeners reload customers, follow-ups, quotations and Daily Operations.
+      // That full render was the visible periodic refresh inside the open page.
+      if (event === "TOKEN_REFRESHED" && session) {
+        state.session = session;
+        state.user = session.user || state.user;
+        return;
+      }
+
+      if (["SIGNED_IN", "USER_UPDATED"].includes(event) && session) {
+        // signIn() and initialize() may already have activated this exact session.
+        // Avoid a duplicate full boot/render when the auth callback reports it.
+        const sameUserAlreadyActive = Boolean(
+          state.profile
+          && state.user?.id
+          && state.user.id === session.user?.id
+          && event === "SIGNED_IN"
+        );
+        if (sameUserAlreadyActive) {
+          state.session = session;
+          state.user = session.user;
+          return;
+        }
+
+        try {
+          await activate(session);
+        } catch (error) {
+          await window.customerSupabase.auth.signOut();
+          showLogin(error instanceof Error ? error.message : "تعذر تفعيل الجلسة.");
+        }
       }
     });
   });
