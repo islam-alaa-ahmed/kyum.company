@@ -10646,3 +10646,107 @@ html[data-theme="light"] #dailyOperationsView .daily-whatsapp-btn {
 html[data-theme="light"] #dailyOperationsView .daily-whatsapp-btn:hover {
   background: #dcfce7 !important;
 }
+
+/* Phase M10.6.7 — Customer Import Modal Fixed Footer */
+.customer-import-dialog:not(.representative-import-dialog) .dialog-shell {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
+  width: min(1120px, calc(100vw - 32px));
+  height: min(86vh, 900px);
+  max-height: min(86vh, 900px);
+  overflow: hidden;
+  padding: 0;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .dialog-header,
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-upload,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportStatus,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportProgress,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportSummary,
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-options {
+  margin-inline: 20px;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .dialog-header {
+  margin-top: 18px;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-wrap {
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin: 12px 20px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--panel-bg);
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-table {
+  min-width: 1040px;
+  margin: 0;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel-soft);
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .dialog-actions {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 76px;
+  margin: 0;
+  padding: 14px 20px 16px;
+  border-top: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--panel-bg) 97%, transparent);
+  box-shadow: 0 -10px 24px color-mix(in srgb, #000 10%, transparent);
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .dialog-actions button {
+  position: static;
+  inset: auto;
+  flex: 0 0 auto;
+}
+
+html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-wrap {
+  background: #0f1d31;
+}
+
+html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-table thead {
+  background: #16253a;
+}
+
+html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialog) .dialog-actions {
+  background: rgba(10, 24, 42, 0.98);
+  box-shadow: 0 -10px 26px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 767px) {
+  .customer-import-dialog:not(.representative-import-dialog) .dialog-shell {
+    width: calc(100vw - 20px);
+    height: min(90dvh, 900px);
+    max-height: min(90dvh, 900px);
+  }
+
+  .customer-import-dialog:not(.representative-import-dialog) .dialog-header,
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-upload,
+  .customer-import-dialog:not(.representative-import-dialog) #customerImportStatus,
+  .customer-import-dialog:not(.representative-import-dialog) #customerImportProgress,
+  .customer-import-dialog:not(.representative-import-dialog) #customerImportSummary,
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-options,
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-wrap {
+    margin-inline: 12px;
+  }
+
+  .customer-import-dialog:not(.representative-import-dialog) .dialog-actions {
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+}
