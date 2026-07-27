@@ -10750,3 +10750,77 @@ html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialo
     flex-wrap: wrap;
   }
 }
+
+/* Phase M10.6.10 — Customer Import Preview Filter & Controls Visibility */
+.customer-import-dialog:not(.representative-import-dialog) .dialog-shell {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-controls {
+  min-height: 0;
+  max-height: 42vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 0 20px 4px;
+  scrollbar-gutter: stable;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-controls > * {
+  margin-inline: 0 !important;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-toolbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 12px;
+  padding: 10px 0 6px;
+  background: color-mix(in srgb, var(--panel-bg) 96%, transparent);
+  box-shadow: 0 -8px 18px color-mix(in srgb, #000 7%, transparent);
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-filter,
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-options {
+  display: grid;
+  grid-template-columns: minmax(170px, .8fr) minmax(220px, 1.2fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-filter select,
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-options select {
+  width: 100%;
+  min-width: 0;
+  position: relative;
+  z-index: 5;
+}
+
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-wrap {
+  margin-top: 10px;
+}
+
+html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialog) .customer-import-toolbar {
+  background: rgba(10, 24, 42, .98);
+  box-shadow: 0 -8px 18px rgba(0, 0, 0, .22);
+}
+
+@media (max-width: 900px) {
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-controls {
+    max-height: 46vh;
+    padding-inline: 12px;
+  }
+
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-filter,
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-options {
+    grid-template-columns: 1fr;
+  }
+}

@@ -22,6 +22,7 @@ let referenceCustomersPage = 1;
 let customerImportPreview = null;
 let customerImportFile = null;
 let customerImportFailedRows = [];
+let customerImportPreviewFilter = "all";
 let representativeImportPreview = null;
 let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
@@ -6853,6 +6854,21 @@ function resetCustomerImportDialog() {
   if (progressBar) progressBar.style.width = "0%";
   const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
   if (failedExportBtn) failedExportBtn.classList.add("hidden");
+  customerImportPreviewFilter = "all";
+  const previewFilter = document.getElementById("customerImportPreviewFilter");
+  if (previewFilter) previewFilter.value = "all";
+}
+
+function customerImportRowMatchesFilter(row, filterValue = customerImportPreviewFilter) {
+  if (filterValue === "errors") return row.errors.length > 0;
+  if (filterValue === "valid") return row.errors.length === 0;
+  if (filterValue === "new") return row.status === "new";
+  if (filterValue === "existing") return row.status === "existing";
+  if (filterValue === "request") return row.status === "request";
+  if (filterValue === "duplicates") {
+    return row.errors.some(error => error.includes("مكرر") || error.includes("مكررة") || error.includes("مكرران"));
+  }
+  return true;
 }
 
 function renderCustomerImportPreview(preview) {
@@ -6875,8 +6891,9 @@ function renderCustomerImportPreview(preview) {
   const body = document.getElementById("customerImportPreviewBody");
   if (body) {
     const previewLimit = 200;
-    const visibleRows = preview.rows.slice(0, previewLimit);
-    body.innerHTML = visibleRows.map(row => {
+    const filteredRows = preview.rows.filter(row => customerImportRowMatchesFilter(row));
+    const visibleRows = filteredRows.slice(0, previewLimit);
+    body.innerHTML = visibleRows.length ? visibleRows.map(row => {
       const statusLabel = row.status === "error"
         ? "خطأ"
         : row.status === "request"
@@ -6902,9 +6919,10 @@ function renderCustomerImportPreview(preview) {
           <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
         </tr>
       `;
-    }).join("") + (preview.rows.length > previewLimit
-      ? `<tr><td colspan="9" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
-      : "");
+    }).join("") : `<tr><td colspan="9" class="empty-cell">لا توجد صفوف مطابقة للفلتر المحدد.</td></tr>`;
+    if (filteredRows.length > previewLimit) {
+      body.innerHTML += `<tr><td colspan="9" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${filteredRows.length} صف مطابق للفلتر. سيظل الاستيراد معتمدًا على جميع الصفوف الصحيحة في الملف.</td></tr>`;
+    }
   }
 
   const executeBtn = document.getElementById("customerImportExecuteBtn");
@@ -6961,6 +6979,11 @@ document.getElementById("customerImportChooseFileBtn")?.addEventListener("click"
 
 document.getElementById("customerImportFileInput")?.addEventListener("change", event => {
   previewCustomerImportFile(event.target.files?.[0] || null);
+});
+
+document.getElementById("customerImportPreviewFilter")?.addEventListener("change", event => {
+  customerImportPreviewFilter = event.target.value || "all";
+  if (customerImportPreview) renderCustomerImportPreview(customerImportPreview);
 });
 
 document.getElementById("customerImportCloseBtn")?.addEventListener("click", closeCustomerImportDialog);
