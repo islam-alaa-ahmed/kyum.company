@@ -291,7 +291,6 @@
           <div class="panel-header daily-suggested-customers-header">
             <div>
               <h3 id="dailySuggestedCustomersTitle">العملاء المقترح التواصل معهم</h3>
-              <p>قائمة يومية ثابتة حسب أقدم تواصل، ويتم استبدال العميل تلقائيًا بعد تسجيل التواصل.</p>
             </div>
             <div class="daily-suggested-type-tabs" role="tablist" aria-label="نوع العملاء المقترحين">
               <button type="button" class="daily-suggested-type-tab active" data-daily-suggested-type="شركة" role="tab" aria-selected="true">الشركات</button>
@@ -337,7 +336,6 @@
           <div class="panel-header daily-suggested-team-header">
             <div>
               <h3 id="dailySuggestedTeamTitle">متابعة إنجاز فريق المبيعات</h3>
-              <p>عرض لحظي لإنجاز قوائم التواصل اليومية لكل مستخدم مخوّل بالمبيعات.</p>
             </div>
             <small id="dailySuggestedTeamSummary">جارٍ تحميل أداء الفريق...</small>
           </div>
@@ -2614,7 +2612,7 @@
       <div class="table-wrap customer-import-preview-wrap">
         <table class="data-table customer-import-preview-table">
           <thead><tr><th>#</th><th>كود المندوب</th><th>اسم المندوب</th><th>الجوال</th><th>البريد الإلكتروني</th><th>الحالة</th><th>الملاحظات</th></tr></thead>
-          <tbody id="representativeImportPreviewBody"><tr><td colspan="8" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr></tbody>
+          <tbody id="representativeImportPreviewBody"><tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr></tbody>
         </table>
       </div>
 
@@ -2636,55 +2634,38 @@
         <button id="customerImportCloseBtn" class="icon-btn" type="button" aria-label="إغلاق">×</button>
       </div>
 
-      <div class="customer-import-controls">
-        <div class="customer-import-upload">
-          <input id="customerImportFileInput" type="file" accept=".xlsx,.xls" hidden>
-          <button id="customerImportChooseFileBtn" class="secondary-btn" type="button">اختيار ملف Excel</button>
-          <span id="customerImportFileName">لم يتم اختيار ملف</span>
+      <div class="customer-import-upload">
+        <input id="customerImportFileInput" type="file" accept=".xlsx,.xls" hidden>
+        <button id="customerImportChooseFileBtn" class="secondary-btn" type="button">اختيار ملف Excel</button>
+        <span id="customerImportFileName">لم يتم اختيار ملف</span>
+      </div>
+
+      <div id="customerImportStatus" class="data-status hidden"></div>
+
+      <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
+        <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
+        <div class="customer-import-progress-meta">
+          <strong id="customerImportProgressText">0%</strong>
+          <span id="customerImportProgressRows">0 / 0</span>
         </div>
+      </div>
 
-        <div id="customerImportStatus" class="data-status hidden"></div>
+      <div id="customerImportSummary" class="customer-import-summary hidden">
+        <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
+        <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
+        <article><span>صفوف بها أخطاء</span><strong id="customerImportErrorCount">0</strong></article>
+        <article><span>عملاء جدد</span><strong id="customerImportNewCount">0</strong></article>
+        <article><span>عملاء موجودون</span><strong id="customerImportExistingCount">0</strong></article>
+        <article><span>مكرر داخل الملف</span><strong id="customerImportDuplicateCount">0</strong></article>
+      </div>
 
-        <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
-          <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
-          <div class="customer-import-progress-meta">
-            <strong id="customerImportProgressText">0%</strong>
-            <span id="customerImportProgressRows">0 / 0</span>
-          </div>
-        </div>
-
-        <div id="customerImportSummary" class="customer-import-summary hidden">
-          <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
-          <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
-          <article><span>صفوف بها أخطاء</span><strong id="customerImportErrorCount">0</strong></article>
-          <article><span>عملاء جدد</span><strong id="customerImportNewCount">0</strong></article>
-          <article><span>عملاء موجودون</span><strong id="customerImportExistingCount">0</strong></article>
-          <article><span>مكرر داخل الملف</span><strong id="customerImportDuplicateCount">0</strong></article>
-        </div>
-
-        <div class="customer-import-toolbar">
-          <div class="customer-import-options">
-            <label for="customerImportMode">طريقة التعامل مع العملاء الموجودين</label>
-            <select id="customerImportMode">
-              <option value="new_only">إضافة الجدد فقط</option>
-              <option value="upsert">تحديث الموجود وإضافة الجدد</option>
-              <option value="skip_existing">تجاهل الموجود</option>
-            </select>
-          </div>
-
-          <div class="customer-import-filter">
-            <label for="customerImportPreviewFilter">تصفية صفوف المعاينة</label>
-            <select id="customerImportPreviewFilter">
-              <option value="all">كل الصفوف</option>
-              <option value="errors">الصفوف التي بها أخطاء فقط</option>
-              <option value="valid">الصفوف الصحيحة فقط</option>
-              <option value="new">العملاء الجدد</option>
-              <option value="existing">العملاء الموجودون</option>
-              <option value="request">الطلبات أو عروض الأسعار الإضافية</option>
-              <option value="duplicates">المكرر داخل الملف فقط</option>
-            </select>
-          </div>
-        </div>
+      <div class="customer-import-options">
+        <label for="customerImportMode">طريقة التعامل مع العملاء الموجودين</label>
+        <select id="customerImportMode">
+          <option value="new_only">إضافة الجدد فقط</option>
+          <option value="upsert">تحديث الموجود وإضافة الجدد</option>
+          <option value="skip_existing">تجاهل الموجود</option>
+        </select>
       </div>
 
       <div class="table-wrap customer-import-preview-wrap">
@@ -2694,8 +2675,6 @@
               <th>#</th>
               <th>اسم العميل</th>
               <th>رقم الجوال</th>
-              <th>رقم الطلب</th>
-              <th>رقم عرض السعر</th>
               <th>التصنيف</th>
               <th>المندوب</th>
               <th>الحالة</th>
@@ -2703,7 +2682,7 @@
             </tr>
           </thead>
           <tbody id="customerImportPreviewBody">
-            <tr><td colspan="9" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>
+            <tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>
           </tbody>
         </table>
       </div>
