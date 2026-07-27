@@ -155,10 +155,11 @@
 
     const instructions = [
       ["تعليمات نموذج استيراد العملاء"],
-      ["اسم العميل ورقم الجوال حقول إلزامية."],
+      ["اسم العميل حقل إلزامي، ويمكن كتابة لا يوجد في رقم الجوال."],
       ["رقم الجوال يجب أن يظل نصًا للحفاظ على الصفر الأول."],
-      ["يمكن تكرار نفس العميل في أكثر من صف بشرط اختلاف رقم الطلب."],
-      ["نفس العميل مع نفس رقم الطلب يُعامل كتكرار، أما رقم طلب مختلف فيُحفظ كطلب إضافي للعميل نفسه."],
+      ["يمكن تكرار نفس العميل إذا اختلف رقم الطلب أو رقم عرض السعر."],
+      ["نفس العميل مع نفس رقم الطلب ونفس رقم عرض السعر يُعامل كتكرار."],
+      ["القيم لا يوجد، بدون، N/A، NA، - أو الخلية الفارغة تُقبل كعميل بدون رقم جوال."],
       ["التصنيف يقبل فقط: شركة أو فردي."],
       ["اسم المسؤول مطلوب عند اختيار التصنيف شركة."],
       ["يمكن فصل مجالات الاهتمام بالفاصلة العربية أو الإنجليزية."],
@@ -212,7 +213,13 @@
     )?.[0] || null;
   }
 
+  function isMissingPhoneValue(value) {
+    const normalized = normalizeHeader(value).replace(/[._\s-]+/g, "");
+    return !normalized || ["لايوجد", "بدون", "غيرمتوفر", "na", "n/a", "none", "null"].includes(normalized);
+  }
+
   function normalizePhone(value) {
+    if (isMissingPhoneValue(value)) return "";
     let phone = safeText(value).trim().replace(/[^\d+]/g, "");
     if (phone.startsWith("+966")) phone = `0${phone.slice(4)}`;
     if (phone.startsWith("966")) phone = `0${phone.slice(3)}`;
@@ -276,8 +283,8 @@
     }
 
     const headers = matrix[0].map(resolveField);
-    if (!headers.includes("name") || !headers.includes("phone")) {
-      throw new Error("يجب أن يحتوي الملف على عمودي اسم العميل ورقم الجوال.");
+    if (!headers.includes("name")) {
+      throw new Error("يجب أن يحتوي الملف على عمود اسم العميل.");
     }
 
     return matrix.slice(1)
@@ -330,13 +337,20 @@
       (context.reasons || []).map(item => [normalizeHeader(item.name), item])
     );
     const existingMap = new Map(
-      (context.customers || []).map(item => [normalizePhone(item.phone), item])
+      (context.customers || [])
+        .map(item => [normalizePhone(item.phone), item])
+        .filter(([phone]) => Boolean(phone))
     );
 
     const requestKey = row => {
       const phone = normalizePhone(row.phone);
+      if (!phone) return `no-phone::${row.sourceRow}`;
       const requestNumber = normalizeHeader(row.requestNumber);
-      return requestNumber ? `${phone}::${requestNumber}` : phone;
+      const quotationNumber = normalizeHeader(row.quotationNumber);
+      if (requestNumber || quotationNumber) {
+        return `${phone}::${requestNumber || "-"}::${quotationNumber || "-"}`;
+      }
+      return phone;
     };
 
     const requestCounts = rows.reduce((map, row) => {
@@ -348,16 +362,16 @@
     const previewRows = rows.map(row => {
       const errors = [];
       if (!row.name) errors.push("اسم العميل مطلوب");
-      if (!/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
+      if (row.phone && !/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
       if (!["شركة", "فردي"].includes(row.type)) errors.push("التصنيف يجب أن يكون شركة أو فردي");
       if (row.type === "شركة" && !row.contactPersonName) {
         errors.push("اسم المسؤول مطلوب للشركة");
       }
       const compositeRequestKey = requestKey(row);
       if (compositeRequestKey && requestCounts.get(compositeRequestKey) > 1) {
-        errors.push(row.requestNumber
-          ? "نفس العميل ورقم الطلب مكرران داخل الملف"
-          : "رقم الجوال مكرر داخل الملف بدون رقم طلب مختلف");
+        errors.push((row.requestNumber || row.quotationNumber)
+          ? "نفس العميل ورقم الطلب ورقم عرض السعر مكررة داخل الملف"
+          : "رقم الجوال مكرر داخل الملف بدون رقم طلب أو عرض سعر مختلف");
       }
 
       const representative = row.representative
@@ -377,7 +391,7 @@
         : null;
       if (row.noSaleReason && !reason) errors.push("سبب عدم البيع غير مسجل");
 
-      const existing = existingMap.get(row.phone) || null;
+      const existing = row.phone ? (existingMap.get(row.phone) || null) : null;
 
       return {
         ...row,
@@ -388,7 +402,7 @@
         existingCustomer: existing,
         status: errors.length
           ? "error"
-          : (existing ? (row.requestNumber ? "request" : "existing") : "new"),
+          : (existing ? ((row.requestNumber || row.quotationNumber) ? "request" : "existing") : "new"),
         errors
       };
     });
@@ -416,11 +430,12 @@
       "اسم العميل": item.name || "",
       "رقم الجوال": item.phone || "",
       "رقم الطلب": item.requestNumber || "",
+      "رقم عرض السعر": item.quotationNumber || "",
       "سبب الفشل": item.message || item.errors?.join(" — ") || ""
     }));
     if (!rows.length) throw new Error("لا توجد صفوف فاشلة للتصدير.");
     const sheet = XLSX.utils.json_to_sheet(rows);
-    sheet["!cols"] = [{wch:18},{wch:30},{wch:18},{wch:18},{wch:60}];
+    sheet["!cols"] = [{wch:18},{wch:30},{wch:18},{wch:18},{wch:18},{wch:60}];
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "Failed Rows");
     XLSX.writeFile(workbook, `KYUM_Customers_Failed_${new Date().toISOString().slice(0,19).replaceAll(":","-")}.xlsx`, { compression: true });
@@ -434,6 +449,7 @@
     buildImportPreview,
     normalizePhone,
     exportFailedRows,
+    isMissingPhoneValue,
     headers: [...EXPORT_HEADERS]
   });
 })();

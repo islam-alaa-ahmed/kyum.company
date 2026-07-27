@@ -255,14 +255,14 @@
 
 
   async function saveImportedRequest(customerId, row) {
-    if (!row.requestNumber) return { inserted: false, skipped: true };
+    if (!row.requestNumber && !row.quotationNumber) return { inserted: false, skipped: true };
 
     const { data: userData, error: userError } = await client().auth.getUser();
     if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
 
     const payload = {
       customer_id: customerId,
-      request_number: row.requestNumber.trim(),
+      request_number: row.requestNumber?.trim() || null,
       representative_id: row.representativeId || null,
       request_date: row.contactDate || new Date().toISOString().slice(0, 10),
       quotation_number: row.quotationNumber?.trim() || null,
@@ -305,7 +305,8 @@
       const chunk = rows.slice(offset, offset + chunkSize);
       for (const row of chunk) {
         try {
-          let customerId = customerIdByPhone.get(row.phone)
+          const phoneKey = row.phone || `no-phone:${row.sourceRow}`;
+          let customerId = customerIdByPhone.get(phoneKey)
             || row.existingCustomer?.id
             || null;
 
@@ -326,9 +327,9 @@
               notes: row.notes,
               interestIds: row.interestIds
             });
-            customerIdByPhone.set(row.phone, customerId);
+            customerIdByPhone.set(phoneKey, customerId);
             results.inserted += 1;
-          } else if (row.existingCustomer && mode === "upsert" && !customerIdByPhone.has(row.phone)) {
+          } else if (row.existingCustomer && mode === "upsert" && !customerIdByPhone.has(phoneKey)) {
             await saveCustomer({
               id: customerId,
               name: row.name,
@@ -345,15 +346,15 @@
               notes: row.notes,
               interestIds: row.interestIds
             });
-            customerIdByPhone.set(row.phone, customerId);
+            customerIdByPhone.set(phoneKey, customerId);
             results.updated += 1;
-          } else if (!row.requestNumber) {
+          } else if (!row.requestNumber && !row.quotationNumber) {
             results.skipped += 1;
           } else {
-            customerIdByPhone.set(row.phone, customerId);
+            customerIdByPhone.set(phoneKey, customerId);
           }
 
-          if (row.requestNumber) {
+          if (row.requestNumber || row.quotationNumber) {
             const requestResult = await saveImportedRequest(customerId, row);
             if (requestResult.inserted) results.requestsInserted += 1;
             else results.requestsSkipped += 1;
@@ -365,6 +366,7 @@
             name: row.name,
             phone: row.phone,
             requestNumber: row.requestNumber || "",
+            quotationNumber: row.quotationNumber || "",
             message: error instanceof Error ? error.message : String(error)
           });
         }

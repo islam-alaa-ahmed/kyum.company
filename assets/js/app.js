@@ -6705,7 +6705,7 @@ function resetRepresentativeImportDialog() {
   const progressBar = document.getElementById("representativeImportProgressBar");
   if (progressBar) progressBar.style.width = "0%";
   const body = document.getElementById("representativeImportPreviewBody");
-  if (body) body.innerHTML = '<tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
+  if (body) body.innerHTML = '<tr><td colspan="9" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
   const executeBtn = document.getElementById("representativeImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
   document.getElementById("representativeImportFailedExportBtn")?.classList.add("hidden");
@@ -6843,7 +6843,7 @@ function resetCustomerImportDialog() {
   document.getElementById("customerImportSummary")?.classList.add("hidden");
   const body = document.getElementById("customerImportPreviewBody");
   if (body) {
-    body.innerHTML = '<tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
   }
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
@@ -6895,6 +6895,7 @@ function renderCustomerImportPreview(preview) {
           <td>${escapeHtml(row.name || "-")}</td>
           <td dir="ltr">${escapeHtml(row.phone || "-")}</td>
           <td dir="ltr">${escapeHtml(row.requestNumber || "-")}</td>
+          <td dir="ltr">${escapeHtml(row.quotationNumber || "-")}</td>
           <td>${escapeHtml(row.type || "-")}</td>
           <td>${escapeHtml(row.representative || "-")}</td>
           <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
@@ -6902,7 +6903,7 @@ function renderCustomerImportPreview(preview) {
         </tr>
       `;
     }).join("") + (preview.rows.length > previewLimit
-      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      ? `<tr><td colspan="9" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
       : "");
   }
 
@@ -6982,7 +6983,7 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
   try {
     customerImportFailedRows = customerImportPreview.rows
       .filter(row => row.errors.length)
-      .map(row => ({ sourceRow: row.sourceRow, name: row.name, phone: row.phone, message: row.errors.join(" — ") }));
+      .map(row => ({ sourceRow: row.sourceRow, name: row.name, phone: row.phone, requestNumber: row.requestNumber, quotationNumber: row.quotationNumber, message: row.errors.join(" — ") }));
     document.getElementById("customerImportProgress")?.classList.remove("hidden");
     showDataStatus("customerImportStatus", `جاري استيراد 0 من ${validRows.length}...`, "info");
     const result = await window.CustomersService.importCustomers(
