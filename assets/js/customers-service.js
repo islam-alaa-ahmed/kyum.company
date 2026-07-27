@@ -253,24 +253,65 @@
     }
   }
 
+
+  async function saveImportedRequest(customerId, row) {
+    if (!row.requestNumber) return { inserted: false, skipped: true };
+
+    const { data: userData, error: userError } = await client().auth.getUser();
+    if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+
+    const payload = {
+      customer_id: customerId,
+      request_number: row.requestNumber.trim(),
+      representative_id: row.representativeId || null,
+      request_date: row.contactDate || new Date().toISOString().slice(0, 10),
+      quotation_number: row.quotationNumber?.trim() || null,
+      notes: row.notes?.trim() || null,
+      source_row: row.sourceRow || null,
+      created_by: userData.user?.id || null
+    };
+
+    const { error } = await client()
+      .from("customer_requests")
+      .insert(payload);
+
+    if (error?.code === "23505") {
+      return { inserted: false, skipped: true };
+    }
+    if (error) throw new Error(`تعذر حفظ طلب العميل: ${error.message}`);
+
+    return { inserted: true, skipped: false };
+  }
+
   async function importCustomers(rows, mode = "new_only", onProgress = null, options = {}) {
     requirePermission("customers", "add");
     if (mode === "upsert") requirePermission("customers", "edit");
 
     const chunkSize = Math.max(25, Math.min(Number(options.chunkSize) || 200, 500));
     const yieldDelay = Math.max(0, Number(options.yieldDelay) || 0);
-    const results = { inserted: 0, updated: 0, skipped: 0, failed: 0, errors: [] };
+    const results = {
+      inserted: 0,
+      updated: 0,
+      skipped: 0,
+      requestsInserted: 0,
+      requestsSkipped: 0,
+      failed: 0,
+      errors: []
+    };
+    const customerIdByPhone = new Map();
     let processed = 0;
 
     for (let offset = 0; offset < rows.length; offset += chunkSize) {
       const chunk = rows.slice(offset, offset + chunkSize);
       for (const row of chunk) {
         try {
-          if (row.existingCustomer && mode !== "upsert") {
-            results.skipped += 1;
-          } else {
-            await saveCustomer({
-              id: row.existingCustomer?.id || null,
+          let customerId = customerIdByPhone.get(row.phone)
+            || row.existingCustomer?.id
+            || null;
+
+          if (!customerId) {
+            customerId = await saveCustomer({
+              id: null,
               name: row.name,
               type: row.type,
               contactPersonName: row.contactPersonName,
@@ -285,8 +326,37 @@
               notes: row.notes,
               interestIds: row.interestIds
             });
-            if (row.existingCustomer) results.updated += 1;
-            else results.inserted += 1;
+            customerIdByPhone.set(row.phone, customerId);
+            results.inserted += 1;
+          } else if (row.existingCustomer && mode === "upsert" && !customerIdByPhone.has(row.phone)) {
+            await saveCustomer({
+              id: customerId,
+              name: row.name,
+              type: row.type,
+              contactPersonName: row.contactPersonName,
+              phone: row.phone,
+              region: row.region,
+              city: row.city,
+              district: row.district,
+              representativeId: row.representativeId,
+              contactDate: row.contactDate,
+              quotationNumber: row.quotationNumber,
+              noSaleReasonId: row.noSaleReasonId,
+              notes: row.notes,
+              interestIds: row.interestIds
+            });
+            customerIdByPhone.set(row.phone, customerId);
+            results.updated += 1;
+          } else if (!row.requestNumber) {
+            results.skipped += 1;
+          } else {
+            customerIdByPhone.set(row.phone, customerId);
+          }
+
+          if (row.requestNumber) {
+            const requestResult = await saveImportedRequest(customerId, row);
+            if (requestResult.inserted) results.requestsInserted += 1;
+            else results.requestsSkipped += 1;
           }
         } catch (error) {
           results.failed += 1;
@@ -294,6 +364,7 @@
             sourceRow: row.sourceRow,
             name: row.name,
             phone: row.phone,
+            requestNumber: row.requestNumber || "",
             message: error instanceof Error ? error.message : String(error)
           });
         }

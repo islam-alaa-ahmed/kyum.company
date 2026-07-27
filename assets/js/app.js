@@ -6746,7 +6746,7 @@ function renderRepresentativeImportPreview(preview) {
         <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
       </tr>`;
     }).join("") + (preview.rows.length > previewLimit
-      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      ? `<tr><td colspan="8" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
       : "");
   }
   const executeBtn = document.getElementById("representativeImportExecuteBtn");
@@ -6879,9 +6879,11 @@ function renderCustomerImportPreview(preview) {
     body.innerHTML = visibleRows.map(row => {
       const statusLabel = row.status === "error"
         ? "خطأ"
-        : row.status === "existing"
-          ? "موجود"
-          : "جديد";
+        : row.status === "request"
+          ? "طلب إضافي"
+          : row.status === "existing"
+            ? "موجود"
+            : "جديد";
       const statusClass = row.status === "error"
         ? "danger"
         : row.status === "existing"
@@ -6892,6 +6894,7 @@ function renderCustomerImportPreview(preview) {
           <td>${row.sourceRow}</td>
           <td>${escapeHtml(row.name || "-")}</td>
           <td dir="ltr">${escapeHtml(row.phone || "-")}</td>
+          <td dir="ltr">${escapeHtml(row.requestNumber || "-")}</td>
           <td>${escapeHtml(row.type || "-")}</td>
           <td>${escapeHtml(row.representative || "-")}</td>
           <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
@@ -7007,7 +7010,7 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     renderReferenceCustomers();
     showDataStatus(
       "customerImportStatus",
-      `اكتمل الاستيراد: ${result.inserted} جديد، ${result.updated} تحديث، ${result.skipped} متجاهل، ${result.failed} فشل.`,
+      `اكتمل الاستيراد: ${result.inserted} عميل جديد، ${result.updated} تحديث، ${result.requestsInserted || 0} طلب جديد، ${result.skipped + (result.requestsSkipped || 0)} متجاهل، ${result.failed} فشل.`,
       result.failed ? "error" : "success"
     );
 
