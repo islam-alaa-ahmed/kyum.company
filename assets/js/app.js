@@ -7042,7 +7042,7 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
           showDataStatus("customerImportStatus", `جاري استيراد ${current} من ${total}...`, "info");
         }
       },
-      { chunkSize: 200, yieldDelay: 0 }
+      { concurrency: 10 }
     );
 
     customerImportFailedRows = [...customerImportFailedRows, ...(result.errors || [])];

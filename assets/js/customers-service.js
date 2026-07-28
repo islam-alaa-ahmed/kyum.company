@@ -60,49 +60,63 @@
     return data;
   }
 
-  async function listCustomers() {
-    const data = await unwrap(
-      client()
-        .from("customers")
-        .select(`
-          id,
-          customer_number,
-          customer_name,
-          customer_type,
-          contact_person_name,
-          phone,
-          region,
-          city,
-          district,
-          representative_id,
-          last_contact_date,
-          quotation_number,
-          no_sale_reason_id,
-          notes,
-          created_at,
-          updated_at,
-          representative:sales_representatives (
-            id,
-            representative_code,
-            full_name
-          ),
-          no_sale_reason:no_sale_reasons (
-            id,
-            name
-          ),
-          customer_interests (
-            interest_category_id,
-            interest:interest_categories (
-              id,
-              name
-            )
-          )
-        `)
-        .order("created_at", { ascending: false }),
-      "تعذر تحميل العملاء"
-    );
+  const CUSTOMER_PAGE_SIZE = 1000;
 
-    return (data || []).map(normalizeCustomer);
+  function customersSelectQuery() {
+    return `
+      id,
+      customer_number,
+      customer_name,
+      customer_type,
+      contact_person_name,
+      phone,
+      region,
+      city,
+      district,
+      representative_id,
+      last_contact_date,
+      quotation_number,
+      no_sale_reason_id,
+      notes,
+      created_at,
+      updated_at,
+      representative:sales_representatives (
+        id,
+        representative_code,
+        full_name
+      ),
+      no_sale_reason:no_sale_reasons (
+        id,
+        name
+      ),
+      customer_interests (
+        interest_category_id,
+        interest:interest_categories (
+          id,
+          name
+        )
+      )
+    `;
+  }
+
+  async function listCustomers() {
+    const allRows = [];
+
+    for (let pageStart = 0; ; pageStart += CUSTOMER_PAGE_SIZE) {
+      const page = await unwrap(
+        client()
+          .from("customers")
+          .select(customersSelectQuery())
+          .order("created_at", { ascending: false })
+          .range(pageStart, pageStart + CUSTOMER_PAGE_SIZE - 1),
+        "تعذر تحميل العملاء"
+      );
+
+      allRows.push(...(page || []));
+      if (!page || page.length < CUSTOMER_PAGE_SIZE) break;
+    }
+
+    return allRows.map(normalizeCustomer);
   }
 
   async function findByPhone(normalizedPhone, excludeId = null) {
@@ -154,10 +168,14 @@
     );
   }
 
-  async function saveCustomer(record) {
+  async function saveCustomer(record, context = {}) {
     requirePermission("customers", record?.id ? "edit" : "add");
-    const { data: userData, error: userError } = await client().auth.getUser();
-    if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+    let userId = context.userId || null;
+    if (!userId) {
+      const { data: userData, error: userError } = await client().auth.getUser();
+      if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+      userId = userData.user?.id || null;
+    }
 
     const payload = {
       customer_name: record.name.trim(),
@@ -193,7 +211,7 @@
           .from("customers")
           .insert({
             ...payload,
-            created_by: userData.user?.id || null
+            created_by: userId
           })
           .select("id")
           .single(),
@@ -217,7 +235,7 @@
       contact_person_name: payload.contact_person_name,
       representative_id: payload.representative_id,
       interest_ids: record.interestIds
-    });
+    }, userId);
 
     return saved.id;
   }
@@ -234,11 +252,15 @@
     });
   }
 
-  async function audit(action, entityId, newData) {
+  async function audit(action, entityId, newData, userId = null) {
     try {
-      const { data } = await client().auth.getUser();
+      let resolvedUserId = userId;
+      if (!resolvedUserId) {
+        const { data } = await client().auth.getUser();
+        resolvedUserId = data.user?.id || null;
+      }
       await client().from("audit_logs").insert({
-        user_id: data.user?.id || null,
+        user_id: resolvedUserId,
         action,
         entity_type: "customers",
         entity_id: String(entityId || ""),
@@ -286,11 +308,15 @@
   }
 
 
-  async function saveImportedRequest(customerId, row) {
+  async function saveImportedRequest(customerId, row, userId = null) {
     if (!row.requestNumber && !row.quotationNumber) return { inserted: false, skipped: true };
 
-    const { data: userData, error: userError } = await client().auth.getUser();
-    if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+    let resolvedUserId = userId;
+    if (!resolvedUserId) {
+      const { data: userData, error: userError } = await client().auth.getUser();
+      if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+      resolvedUserId = userData.user?.id || null;
+    }
 
     const payload = {
       customer_id: customerId,
@@ -300,7 +326,7 @@
       quotation_number: row.quotationNumber?.trim() || null,
       notes: row.notes?.trim() || null,
       source_row: row.sourceRow || null,
-      created_by: userData.user?.id || null
+      created_by: resolvedUserId
     };
 
     const { error } = await client()
@@ -315,12 +341,26 @@
     return { inserted: true, skipped: false };
   }
 
+  async function runConcurrent(items, concurrency, worker) {
+    let nextIndex = 0;
+    const workerCount = Math.min(Math.max(1, concurrency), items.length || 1);
+
+    async function runWorker() {
+      while (true) {
+        const index = nextIndex++;
+        if (index >= items.length) return;
+        await worker(items[index], index);
+      }
+    }
+
+    await Promise.all(Array.from({ length: workerCount }, runWorker));
+  }
+
   async function importCustomers(rows, mode = "new_only", onProgress = null, options = {}) {
     requirePermission("customers", "add");
     if (mode === "upsert") requirePermission("customers", "edit");
 
-    const chunkSize = Math.max(25, Math.min(Number(options.chunkSize) || 200, 500));
-    const yieldDelay = Math.max(0, Number(options.yieldDelay) || 0);
+    const concurrency = Math.max(2, Math.min(Number(options.concurrency) || 10, 16));
     const results = {
       inserted: 0,
       updated: 0,
@@ -330,87 +370,116 @@
       failed: 0,
       errors: []
     };
-    const customerIdByPhone = new Map();
-    let processed = 0;
 
-    for (let offset = 0; offset < rows.length; offset += chunkSize) {
-      const chunk = rows.slice(offset, offset + chunkSize);
-      for (const row of chunk) {
-        try {
-          const phoneKey = row.phone || `no-phone:${row.sourceRow}`;
-          let customerId = customerIdByPhone.get(phoneKey)
-            || row.existingCustomer?.id
-            || null;
+    const { data: userData, error: userError } = await client().auth.getUser();
+    if (userError) throw new Error(`تعذر تحديد المستخدم الحالي: ${userError.message}`);
+    const userId = userData.user?.id || null;
 
-          if (!customerId) {
-            customerId = await saveCustomer({
-              id: null,
-              name: row.name,
-              type: row.type,
-              contactPersonName: row.contactPersonName,
-              phone: row.phone,
-              region: row.region,
-              city: row.city,
-              district: row.district,
-              representativeId: row.representativeId,
-              contactDate: row.contactDate,
-              quotationNumber: row.quotationNumber,
-              noSaleReasonId: row.noSaleReasonId,
-              notes: row.notes,
-              interestIds: row.interestIds
-            });
-            customerIdByPhone.set(phoneKey, customerId);
-            results.inserted += 1;
-          } else if (row.existingCustomer && mode === "upsert" && !customerIdByPhone.has(phoneKey)) {
-            await saveCustomer({
-              id: customerId,
-              name: row.name,
-              type: row.type,
-              contactPersonName: row.contactPersonName,
-              phone: row.phone,
-              region: row.region,
-              city: row.city,
-              district: row.district,
-              representativeId: row.representativeId,
-              contactDate: row.contactDate,
-              quotationNumber: row.quotationNumber,
-              noSaleReasonId: row.noSaleReasonId,
-              notes: row.notes,
-              interestIds: row.interestIds
-            });
-            customerIdByPhone.set(phoneKey, customerId);
-            results.updated += 1;
-          } else if (!row.requestNumber && !row.quotationNumber) {
-            results.skipped += 1;
-          } else {
-            customerIdByPhone.set(phoneKey, customerId);
-          }
+    const customerIdByKey = new Map();
+    const groupedRows = new Map();
 
-          if (row.requestNumber || row.quotationNumber) {
-            const requestResult = await saveImportedRequest(customerId, row);
-            if (requestResult.inserted) results.requestsInserted += 1;
-            else results.requestsSkipped += 1;
-          }
-        } catch (error) {
+    rows.forEach(row => {
+      const key = row.phone || `no-phone:${row.sourceRow}`;
+      if (!groupedRows.has(key)) groupedRows.set(key, []);
+      groupedRows.get(key).push(row);
+      if (row.existingCustomer?.id) customerIdByKey.set(key, row.existingCustomer.id);
+    });
+
+    const customerGroups = [...groupedRows.entries()];
+    let processedRows = 0;
+
+    await runConcurrent(customerGroups, concurrency, async ([key, groupRows]) => {
+      const row = groupRows[0];
+      try {
+        let customerId = customerIdByKey.get(key) || null;
+        if (!customerId) {
+          customerId = await saveCustomer({
+            id: null,
+            name: row.name,
+            type: row.type,
+            contactPersonName: row.contactPersonName,
+            phone: row.phone,
+            region: row.region,
+            city: row.city,
+            district: row.district,
+            representativeId: row.representativeId,
+            contactDate: row.contactDate,
+            quotationNumber: row.quotationNumber,
+            noSaleReasonId: row.noSaleReasonId,
+            notes: row.notes,
+            interestIds: row.interestIds
+          }, { userId });
+          customerIdByKey.set(key, customerId);
+          results.inserted += 1;
+        } else if (row.existingCustomer && mode === "upsert") {
+          await saveCustomer({
+            id: customerId,
+            name: row.name,
+            type: row.type,
+            contactPersonName: row.contactPersonName,
+            phone: row.phone,
+            region: row.region,
+            city: row.city,
+            district: row.district,
+            representativeId: row.representativeId,
+            contactDate: row.contactDate,
+            quotationNumber: row.quotationNumber,
+            noSaleReasonId: row.noSaleReasonId,
+            notes: row.notes,
+            interestIds: row.interestIds
+          }, { userId });
+          results.updated += 1;
+        }
+      } catch (error) {
+        groupRows.forEach(groupRow => {
           results.failed += 1;
           results.errors.push({
-            sourceRow: row.sourceRow,
-            name: row.name,
-            phone: row.phone,
-            requestNumber: row.requestNumber || "",
-            quotationNumber: row.quotationNumber || "",
+            sourceRow: groupRow.sourceRow,
+            name: groupRow.name,
+            phone: groupRow.phone,
+            requestNumber: groupRow.requestNumber || "",
+            quotationNumber: groupRow.quotationNumber || "",
             message: error instanceof Error ? error.message : String(error)
           });
+        });
+        groupedRows.delete(key);
+      }
+    });
+
+    onProgress?.(0, rows.length, null, results);
+
+    await runConcurrent(rows, concurrency, async row => {
+      const key = row.phone || `no-phone:${row.sourceRow}`;
+      try {
+        const customerId = customerIdByKey.get(key);
+        if (!customerId) return;
+
+        if (row.requestNumber || row.quotationNumber) {
+          const requestResult = await saveImportedRequest(customerId, row, userId);
+          if (requestResult.inserted) results.requestsInserted += 1;
+          else results.requestsSkipped += 1;
+        } else if (groupedRows.get(key)?.[0] !== row) {
+          results.skipped += 1;
         }
-        processed += 1;
-        onProgress?.(processed, rows.length, row, results);
+      } catch (error) {
+        results.failed += 1;
+        results.errors.push({
+          sourceRow: row.sourceRow,
+          name: row.name,
+          phone: row.phone,
+          requestNumber: row.requestNumber || "",
+          quotationNumber: row.quotationNumber || "",
+          message: error instanceof Error ? error.message : String(error)
+        });
+      } finally {
+        processedRows += 1;
+        onProgress?.(processedRows, rows.length, row, results);
       }
-      if (offset + chunkSize < rows.length) {
-        await new Promise(resolve => setTimeout(resolve, yieldDelay));
-      }
-    }
+    });
+
     return results;
   }
+
 
 
   window.CustomersService = Object.freeze({
