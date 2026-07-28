@@ -60,7 +60,7 @@
     return data;
   }
 
-  const CUSTOMER_PAGE_SIZE = 1000;
+  const CUSTOMER_PAGE_SIZE = 250;
 
   function customersSelectQuery() {
     return `
@@ -101,17 +101,27 @@
 
   async function listCustomers() {
     const allRows = [];
+    const authState = window.CustomerAuth?.getState?.() || {};
+    const profile = authState.profile || null;
+    const isSalesRepresentative = profile?.role === "sales_representative";
+    const linkedRepresentativeId = profile?.representative_id || null;
+
+    // Frontend defense-in-depth: a sales representative must never request
+    // another representative's customers, even if a stale database policy exists.
+    if (isSalesRepresentative && !linkedRepresentativeId) return [];
 
     for (let pageStart = 0; ; pageStart += CUSTOMER_PAGE_SIZE) {
-      const page = await unwrap(
-        client()
-          .from("customers")
-          .select(customersSelectQuery())
-          .order("created_at", { ascending: false })
-          .range(pageStart, pageStart + CUSTOMER_PAGE_SIZE - 1),
-        "تعذر تحميل العملاء"
-      );
+      let request = client()
+        .from("customers")
+        .select(customersSelectQuery())
+        .order("created_at", { ascending: false })
+        .range(pageStart, pageStart + CUSTOMER_PAGE_SIZE - 1);
 
+      if (isSalesRepresentative) {
+        request = request.eq("representative_id", linkedRepresentativeId);
+      }
+
+      const page = await unwrap(request, "تعذر تحميل العملاء");
       allRows.push(...(page || []));
       if (!page || page.length < CUSTOMER_PAGE_SIZE) break;
     }
