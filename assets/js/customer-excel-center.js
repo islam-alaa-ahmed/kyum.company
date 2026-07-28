@@ -2,7 +2,6 @@
 (function () {
   const EXPORT_HEADERS = [
     "رقم العميل",
-    "رقم الطلب",
     "اسم العميل",
     "رقم الجوال",
     "التصنيف",
@@ -31,7 +30,6 @@
   function customerToRow(customer) {
     return {
       "رقم العميل": safeText(customer.customerNumber),
-      "رقم الطلب": safeText(customer.requestNumber),
       "اسم العميل": safeText(customer.name),
       "رقم الجوال": safeText(customer.phone),
       "التصنيف": safeText(customer.type),
@@ -53,7 +51,6 @@
   function applySheetLayout(sheet, rowCount) {
     sheet["!cols"] = [
       { wch: 16 },
-      { wch: 18 },
       { wch: 28 },
       { wch: 18 },
       { wch: 12 },
@@ -70,23 +67,20 @@
     ];
 
     sheet["!autofilter"] = {
-      ref: `A1:O${Math.max(1, rowCount + 1)}`
+      ref: `A1:N${Math.max(1, rowCount + 1)}`
     };
 
     for (let row = 2; row <= rowCount + 1; row += 1) {
-      const phoneCell = sheet[`D${row}`];
+      const phoneCell = sheet[`C${row}`];
       if (phoneCell) {
         phoneCell.t = "s";
         phoneCell.z = "@";
         phoneCell.v = safeText(phoneCell.v);
       }
-      for (const column of ["A", "B"]) {
-        const identifierCell = sheet[`${column}${row}`];
-        if (identifierCell) {
-          identifierCell.t = "s";
-          identifierCell.z = "@";
-          identifierCell.v = safeText(identifierCell.v);
-        }
+      const customerNumberCell = sheet[`A${row}`];
+      if (customerNumberCell) {
+        customerNumberCell.t = "s";
+        customerNumberCell.z = "@";
       }
     }
   }
@@ -130,7 +124,6 @@
 
     const sampleRow = {
       "رقم العميل": "",
-      "رقم الطلب": "REQ-2026-001",
       "اسم العميل": "مثال: شركة كيوم للتجارة",
       "رقم الجوال": "0500000000",
       "التصنيف": "شركة",
@@ -155,11 +148,8 @@
 
     const instructions = [
       ["تعليمات نموذج استيراد العملاء"],
-      ["اسم العميل حقل إلزامي، ويمكن كتابة لا يوجد في رقم الجوال."],
+      ["اسم العميل ورقم الجوال حقول إلزامية."],
       ["رقم الجوال يجب أن يظل نصًا للحفاظ على الصفر الأول."],
-      ["يمكن تكرار نفس العميل إذا اختلف رقم الطلب أو رقم عرض السعر."],
-      ["نفس العميل مع نفس رقم الطلب ونفس رقم عرض السعر يُعامل كتكرار."],
-      ["القيم لا يوجد، بدون، N/A، NA، - أو الخلية الفارغة تُقبل كعميل بدون رقم جوال."],
       ["التصنيف يقبل فقط: شركة أو فردي."],
       ["اسم المسؤول مطلوب عند اختيار التصنيف شركة."],
       ["يمكن فصل مجالات الاهتمام بالفاصلة العربية أو الإنجليزية."],
@@ -186,7 +176,6 @@
 
   const HEADER_ALIASES = Object.freeze({
     customerNumber: ["رقم العميل", "customer_number", "customer number"],
-    requestNumber: ["رقم الطلب", "request_number", "request number", "order_number", "order number"],
     name: ["اسم العميل", "customer_name", "customer name"],
     phone: ["رقم الجوال", "الجوال", "phone", "mobile"],
     type: ["التصنيف", "نوع العميل", "customer_type", "customer type"],
@@ -213,13 +202,7 @@
     )?.[0] || null;
   }
 
-  function isMissingPhoneValue(value) {
-    const normalized = normalizeHeader(value).replace(/[._\s-]+/g, "");
-    return !normalized || ["لايوجد", "بدون", "غيرمتوفر", "na", "n/a", "none", "null"].includes(normalized);
-  }
-
   function normalizePhone(value) {
-    if (isMissingPhoneValue(value)) return "";
     let phone = safeText(value).trim().replace(/[^\d+]/g, "");
     if (phone.startsWith("+966")) phone = `0${phone.slice(4)}`;
     if (phone.startsWith("966")) phone = `0${phone.slice(3)}`;
@@ -283,8 +266,8 @@
     }
 
     const headers = matrix[0].map(resolveField);
-    if (!headers.includes("name")) {
-      throw new Error("يجب أن يحتوي الملف على عمود اسم العميل.");
+    if (!headers.includes("name") || !headers.includes("phone")) {
+      throw new Error("يجب أن يحتوي الملف على عمودي اسم العميل ورقم الجوال.");
     }
 
     return matrix.slice(1)
@@ -293,7 +276,6 @@
         const record = {
           sourceRow: index + 2,
           customerNumber: "",
-          requestNumber: "",
           name: "",
           phone: "",
           type: "",
@@ -336,43 +318,25 @@
     const reasonMap = new Map(
       (context.reasons || []).map(item => [normalizeHeader(item.name), item])
     );
-    const existingRequestKeys = context.existingRequestKeys || new Set();
     const existingMap = new Map(
-      (context.customers || [])
-        .map(item => [normalizePhone(item.phone), item])
-        .filter(([phone]) => Boolean(phone))
+      (context.customers || []).map(item => [normalizePhone(item.phone), item])
     );
 
-    const requestKey = row => {
-      const phone = normalizePhone(row.phone);
-      if (!phone) return `no-phone::${row.sourceRow}`;
-      const requestNumber = normalizeHeader(row.requestNumber);
-      const quotationNumber = normalizeHeader(row.quotationNumber);
-      if (requestNumber || quotationNumber) {
-        return `${phone}::${requestNumber || "-"}::${quotationNumber || "-"}`;
-      }
-      return phone;
-    };
-
-    const requestCounts = rows.reduce((map, row) => {
-      const key = requestKey(row);
-      if (key) map.set(key, (map.get(key) || 0) + 1);
+    const phoneCounts = rows.reduce((map, row) => {
+      if (row.phone) map.set(row.phone, (map.get(row.phone) || 0) + 1);
       return map;
     }, new Map());
 
     const previewRows = rows.map(row => {
       const errors = [];
       if (!row.name) errors.push("اسم العميل مطلوب");
-      if (row.phone && !/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
+      if (!/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
       if (!["شركة", "فردي"].includes(row.type)) errors.push("التصنيف يجب أن يكون شركة أو فردي");
       if (row.type === "شركة" && !row.contactPersonName) {
         errors.push("اسم المسؤول مطلوب للشركة");
       }
-      const compositeRequestKey = requestKey(row);
-      if (compositeRequestKey && requestCounts.get(compositeRequestKey) > 1) {
-        errors.push((row.requestNumber || row.quotationNumber)
-          ? "نفس العميل ورقم الطلب ورقم عرض السعر مكررة داخل الملف"
-          : "رقم الجوال مكرر داخل الملف بدون رقم طلب أو عرض سعر مختلف");
+      if (row.phone && phoneCounts.get(row.phone) > 1) {
+        errors.push("رقم الجوال مكرر داخل الملف");
       }
 
       const representative = row.representative
@@ -392,16 +356,7 @@
         : null;
       if (row.noSaleReason && !reason) errors.push("سبب عدم البيع غير مسجل");
 
-      const existing = row.phone ? (existingMap.get(row.phone) || null) : null;
-      const storedRequestKey = existing && (row.requestNumber || row.quotationNumber)
-        ? `${String(existing.id)}::${normalizeHeader(row.requestNumber) || "-"}::${normalizeHeader(row.quotationNumber) || "-"}`
-        : "";
-      const uploadedPreviously = Boolean(
-        existing && (
-          (!row.requestNumber && !row.quotationNumber)
-          || (storedRequestKey && existingRequestKeys.has(storedRequestKey))
-        )
-      );
+      const existing = existingMap.get(row.phone) || null;
 
       return {
         ...row,
@@ -410,12 +365,7 @@
         interestIds,
         noSaleReasonId: reason?.id || null,
         existingCustomer: existing,
-        uploadedPreviously,
-        status: errors.length
-          ? "error"
-          : uploadedPreviously
-            ? "uploaded"
-            : (existing ? ((row.requestNumber || row.quotationNumber) ? "request" : "existing") : "new"),
+        status: errors.length ? "error" : (existing ? "existing" : "new"),
         errors
       };
     });
@@ -428,9 +378,8 @@
         errors: previewRows.filter(row => row.errors.length).length,
         newCustomers: previewRows.filter(row => row.status === "new").length,
         existingCustomers: previewRows.filter(row => row.status === "existing").length,
-        uploadedPreviously: previewRows.filter(row => row.status === "uploaded").length,
         duplicates: previewRows.filter(row =>
-          row.errors.some(error => error.includes("مكرر") || error.includes("مكرران"))
+          row.errors.includes("رقم الجوال مكرر داخل الملف")
         ).length
       }
     };
@@ -441,15 +390,28 @@
     requireXlsx();
     const rows = (failedRows || []).map(item => ({
       "رقم الصف في الملف": item.sourceRow || "",
+      "رقم العميل": item.customerNumber || "",
       "اسم العميل": item.name || "",
       "رقم الجوال": item.phone || "",
-      "رقم الطلب": item.requestNumber || "",
+      "التصنيف": item.type || "",
+      "اسم المسؤول": item.contactPersonName || "",
+      "المنطقة": item.region || "",
+      "المدينة": item.city || "",
+      "الحي": item.district || "",
+      "مجالات الاهتمام": Array.isArray(item.interests) ? item.interests.join("، ") : (item.interests || ""),
+      "مندوب المبيعات": item.representative || "",
+      "تاريخ آخر تواصل": item.contactDate || "",
       "رقم عرض السعر": item.quotationNumber || "",
-      "سبب الفشل": item.message || item.errors?.join(" — ") || ""
+      "سبب عدم البيع": item.noSaleReason || "",
+      "الملاحظات": item.notes || "",
+      "سبب الخطأ": item.message || item.errors?.join(" — ") || ""
     }));
     if (!rows.length) throw new Error("لا توجد صفوف فاشلة للتصدير.");
     const sheet = XLSX.utils.json_to_sheet(rows);
-    sheet["!cols"] = [{wch:18},{wch:30},{wch:18},{wch:18},{wch:18},{wch:60}];
+    sheet["!cols"] = [
+      {wch:18},{wch:16},{wch:30},{wch:18},{wch:12},{wch:24},{wch:18},{wch:18},
+      {wch:20},{wch:32},{wch:24},{wch:18},{wch:18},{wch:24},{wch:36},{wch:60}
+    ];
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "Failed Rows");
     XLSX.writeFile(workbook, `KYUM_Customers_Failed_${new Date().toISOString().slice(0,19).replaceAll(":","-")}.xlsx`, { compression: true });
@@ -463,7 +425,6 @@
     buildImportPreview,
     normalizePhone,
     exportFailedRows,
-    isMissingPhoneValue,
     headers: [...EXPORT_HEADERS]
   });
 })();

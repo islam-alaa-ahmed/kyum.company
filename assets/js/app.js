@@ -22,7 +22,6 @@ let referenceCustomersPage = 1;
 let customerImportPreview = null;
 let customerImportFile = null;
 let customerImportFailedRows = [];
-let customerImportPreviewFilter = "all";
 let representativeImportPreview = null;
 let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
@@ -6706,7 +6705,7 @@ function resetRepresentativeImportDialog() {
   const progressBar = document.getElementById("representativeImportProgressBar");
   if (progressBar) progressBar.style.width = "0%";
   const body = document.getElementById("representativeImportPreviewBody");
-  if (body) body.innerHTML = '<tr><td colspan="9" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
+  if (body) body.innerHTML = '<tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
   const executeBtn = document.getElementById("representativeImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
   document.getElementById("representativeImportFailedExportBtn")?.classList.add("hidden");
@@ -6747,7 +6746,7 @@ function renderRepresentativeImportPreview(preview) {
         <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
       </tr>`;
     }).join("") + (preview.rows.length > previewLimit
-      ? `<tr><td colspan="8" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
       : "");
   }
   const executeBtn = document.getElementById("representativeImportExecuteBtn");
@@ -6844,7 +6843,7 @@ function resetCustomerImportDialog() {
   document.getElementById("customerImportSummary")?.classList.add("hidden");
   const body = document.getElementById("customerImportPreviewBody");
   if (body) {
-    body.innerHTML = '<tr><td colspan="9" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="empty-cell">اختر ملف Excel لعرض المعاينة.</td></tr>';
   }
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
@@ -6854,27 +6853,6 @@ function resetCustomerImportDialog() {
   if (progressBar) progressBar.style.width = "0%";
   const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
   if (failedExportBtn) failedExportBtn.classList.add("hidden");
-  const decisionNotice = document.getElementById("customerImportDecisionNotice");
-  if (decisionNotice) {
-    decisionNotice.textContent = "";
-    decisionNotice.classList.add("hidden");
-  }
-  customerImportPreviewFilter = "all";
-  const previewFilter = document.getElementById("customerImportPreviewFilter");
-  if (previewFilter) previewFilter.value = "all";
-}
-
-function customerImportRowMatchesFilter(row, filterValue = customerImportPreviewFilter) {
-  if (filterValue === "errors") return row.errors.length > 0;
-  if (filterValue === "valid") return row.errors.length === 0;
-  if (filterValue === "new") return row.status === "new";
-  if (filterValue === "existing") return row.status === "existing";
-  if (filterValue === "uploaded") return row.status === "uploaded";
-  if (filterValue === "request") return row.status === "request";
-  if (filterValue === "duplicates") {
-    return row.errors.some(error => error.includes("مكرر") || error.includes("مكررة") || error.includes("مكرران"));
-  }
-  return true;
 }
 
 function renderCustomerImportPreview(preview) {
@@ -6886,7 +6864,6 @@ function renderCustomerImportPreview(preview) {
     customerImportErrorCount: summary.errors,
     customerImportNewCount: summary.newCustomers,
     customerImportExistingCount: summary.existingCustomers,
-    customerImportUploadedCount: summary.uploadedPreviously || 0,
     customerImportDuplicateCount: summary.duplicates
   };
   Object.entries(values).forEach(([id, value]) => {
@@ -6895,24 +6872,47 @@ function renderCustomerImportPreview(preview) {
   });
   document.getElementById("customerImportSummary")?.classList.remove("hidden");
 
+  customerImportFailedRows = preview.rows
+    .filter(row => row.errors.length)
+    .map(row => ({
+      sourceRow: row.sourceRow,
+      customerNumber: row.customerNumber,
+      name: row.name,
+      phone: row.phone,
+      type: row.type,
+      contactPersonName: row.contactPersonName,
+      region: row.region,
+      city: row.city,
+      district: row.district,
+      interests: row.interests,
+      representative: row.representative,
+      contactDate: row.contactDate,
+      quotationNumber: row.quotationNumber,
+      noSaleReason: row.noSaleReason,
+      notes: row.notes,
+      message: row.errors.join(" — ")
+    }));
+  const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
+  if (failedExportBtn) {
+    failedExportBtn.classList.toggle("hidden", !customerImportFailedRows.length);
+    failedExportBtn.textContent = customerImportFailedRows.length
+      ? `تنزيل ملف الصفوف التي بها أخطاء (${customerImportFailedRows.length})`
+      : "تنزيل ملف الصفوف التي بها أخطاء";
+  }
+
   const body = document.getElementById("customerImportPreviewBody");
   if (body) {
     const previewLimit = 200;
-    const filteredRows = preview.rows.filter(row => customerImportRowMatchesFilter(row));
-    const visibleRows = filteredRows.slice(0, previewLimit);
-    body.innerHTML = visibleRows.length ? visibleRows.map(row => {
+    const visibleRows = preview.rows.slice(0, previewLimit);
+    body.innerHTML = visibleRows.map(row => {
       const statusLabel = row.status === "error"
         ? "خطأ"
-        : row.status === "uploaded"
-          ? "مرفوع مسبقًا"
-          : row.status === "request"
-            ? "طلب إضافي"
-            : row.status === "existing"
-              ? "موجود"
-              : "جديد";
+        : row.status === "existing"
+          ? "موجود"
+          : "جديد";
       const statusClass = row.status === "error"
         ? "danger"
-        : (row.status === "existing" || row.status === "uploaded")
+        : row.status === "existing"
           ? "warning"
           : "success";
       return `
@@ -6920,34 +6920,20 @@ function renderCustomerImportPreview(preview) {
           <td>${row.sourceRow}</td>
           <td>${escapeHtml(row.name || "-")}</td>
           <td dir="ltr">${escapeHtml(row.phone || "-")}</td>
-          <td dir="ltr">${escapeHtml(row.requestNumber || "-")}</td>
-          <td dir="ltr">${escapeHtml(row.quotationNumber || "-")}</td>
           <td>${escapeHtml(row.type || "-")}</td>
           <td>${escapeHtml(row.representative || "-")}</td>
           <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
           <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
         </tr>
       `;
-    }).join("") : `<tr><td colspan="9" class="empty-cell">لا توجد صفوف مطابقة للفلتر المحدد.</td></tr>`;
-    if (filteredRows.length > previewLimit) {
-      body.innerHTML += `<tr><td colspan="9" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${filteredRows.length} صف مطابق للفلتر. سيظل الاستيراد معتمدًا على جميع الصفوف الصحيحة في الملف.</td></tr>`;
-    }
+    }).join("") + (preview.rows.length > previewLimit
+      ? `<tr><td colspan="7" class="empty-cell">يتم عرض أول ${previewLimit} صف فقط من أصل ${preview.rows.length} صف للحفاظ على سرعة الواجهة. سيتم استيراد جميع الصفوف الصحيحة.</td></tr>`
+      : "");
   }
 
   const executeBtn = document.getElementById("customerImportExecuteBtn");
-  const importableCount = preview.rows.filter(row => !row.errors.length && row.status !== "uploaded").length;
-  const decisionNotice = document.getElementById("customerImportDecisionNotice");
-  if (decisionNotice) {
-    const messages = [];
-    if (summary.errors) messages.push(`سيتم تجاهل ${summary.errors} صف به أخطاء ولن يتم حفظه.`);
-    if (summary.uploadedPreviously) messages.push(`تم العثور على ${summary.uploadedPreviously} صف مرفوع مسبقًا وسيتم استبعاده من الاستيراد.`);
-    messages.push(`سيتم اعتماد ${importableCount} صف فقط.`);
-    decisionNotice.textContent = messages.join(" ");
-    decisionNotice.classList.remove("hidden");
-  }
   if (executeBtn) {
-    executeBtn.disabled = importableCount === 0;
-    executeBtn.textContent = importableCount ? `اعتماد الاستيراد (${importableCount})` : "لا توجد صفوف قابلة للاستيراد";
+    executeBtn.disabled = summary.valid === 0;
   }
 }
 
@@ -6960,22 +6946,19 @@ async function previewCustomerImportFile(file) {
 
   try {
     const rows = await window.CustomerExcelCenter.parseImportFile(file);
-    const customerIds = customers.filter(customer => customer?.id).map(customer => customer.id);
-    const existingRequestKeys = await window.CustomersService.listExistingImportedRequestKeys(customerIds);
     const preview = window.CustomerExcelCenter.buildImportPreview(rows, {
       customers,
       representatives: representativeRecords,
       interests: interestRecords,
-      reasons: reasonRecords,
-      existingRequestKeys
+      reasons: reasonRecords
     });
     renderCustomerImportPreview(preview);
     showDataStatus(
       "customerImportStatus",
-      (preview.summary.errors || preview.summary.uploadedPreviously)
-        ? `تم التحقق: الأخطاء ${preview.summary.errors}، والمرفوع مسبقًا ${preview.summary.uploadedPreviously || 0}. راجع ملخص الاعتماد قبل الاستيراد.`
+      preview.summary.errors
+        ? `تم التحقق: سيتم استيراد ${preview.summary.valid} صف صحيح وتجاهل ${preview.summary.errors} صف به أخطاء.`
         : "تم التحقق من الملف وهو جاهز للاستيراد.",
-      (preview.summary.errors || preview.summary.uploadedPreviously) ? "info" : "success"
+      preview.summary.errors ? "info" : "success"
     );
   } catch (error) {
     customerImportPreview = null;
@@ -7004,11 +6987,6 @@ document.getElementById("customerImportFileInput")?.addEventListener("change", e
   previewCustomerImportFile(event.target.files?.[0] || null);
 });
 
-document.getElementById("customerImportPreviewFilter")?.addEventListener("change", event => {
-  customerImportPreviewFilter = event.target.value || "all";
-  if (customerImportPreview) renderCustomerImportPreview(customerImportPreview);
-});
-
 document.getElementById("customerImportCloseBtn")?.addEventListener("click", closeCustomerImportDialog);
 document.getElementById("customerImportCancelBtn")?.addEventListener("click", closeCustomerImportDialog);
 
@@ -7022,21 +7000,31 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     return;
   }
 
-  const validRows = customerImportPreview.rows.filter(row => !row.errors.length && row.status !== "uploaded");
-  const ignoredErrors = customerImportPreview.summary.errors || 0;
-  const uploadedPreviously = customerImportPreview.summary.uploadedPreviously || 0;
-  const confirmed = window.confirm(
-    `سيتم استيراد ${validRows.length} صف فقط. سيتم تجاهل ${ignoredErrors} صف به أخطاء و${uploadedPreviously} صف مرفوع مسبقًا. هل تريد المتابعة؟`
-  );
-  if (!confirmed) return;
-
+  const validRows = customerImportPreview.rows.filter(row => !row.errors.length);
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
 
   try {
     customerImportFailedRows = customerImportPreview.rows
       .filter(row => row.errors.length)
-      .map(row => ({ sourceRow: row.sourceRow, name: row.name, phone: row.phone, requestNumber: row.requestNumber, quotationNumber: row.quotationNumber, message: row.errors.join(" — ") }));
+      .map(row => ({
+        sourceRow: row.sourceRow,
+        customerNumber: row.customerNumber,
+        name: row.name,
+        phone: row.phone,
+        type: row.type,
+        contactPersonName: row.contactPersonName,
+        region: row.region,
+        city: row.city,
+        district: row.district,
+        interests: row.interests,
+        representative: row.representative,
+        contactDate: row.contactDate,
+        quotationNumber: row.quotationNumber,
+        noSaleReason: row.noSaleReason,
+        notes: row.notes,
+        message: row.errors.join(" — ")
+      }));
     document.getElementById("customerImportProgress")?.classList.remove("hidden");
     showDataStatus("customerImportStatus", `جاري استيراد 0 من ${validRows.length}...`, "info");
     const result = await window.CustomersService.importCustomers(
@@ -7059,12 +7047,17 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
 
     customerImportFailedRows = [...customerImportFailedRows, ...(result.errors || [])];
     const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
-    if (failedExportBtn) failedExportBtn.classList.toggle("hidden", !customerImportFailedRows.length);
+    if (failedExportBtn) {
+      failedExportBtn.classList.toggle("hidden", !customerImportFailedRows.length);
+      failedExportBtn.textContent = customerImportFailedRows.length
+        ? `تنزيل ملف الصفوف التي بها أخطاء (${customerImportFailedRows.length})`
+        : "تنزيل ملف الصفوف التي بها أخطاء";
+    }
     await loadCustomersFromSupabase(true);
     renderReferenceCustomers();
     showDataStatus(
       "customerImportStatus",
-      `اكتمل الاستيراد: ${result.inserted} عميل جديد، ${result.updated} تحديث، ${result.requestsInserted || 0} طلب جديد، ${result.skipped + (result.requestsSkipped || 0)} متجاهل، ${result.failed} فشل.`,
+      `اكتمل الاستيراد: ${result.inserted} جديد، ${result.updated} تحديث، ${result.skipped} متجاهل، ${result.failed} فشل.`,
       result.failed ? "error" : "success"
     );
 
