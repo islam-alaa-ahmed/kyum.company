@@ -2648,10 +2648,16 @@
         <div id="customerImportStatus" class="data-status hidden"></div>
 
         <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
+          <div class="customer-import-progress-heading">
+            <strong>تقدم الاستيراد</strong>
+            <span id="customerImportProgressText">0%</span>
+          </div>
           <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
           <div class="customer-import-progress-meta">
-            <strong id="customerImportProgressText">0%</strong>
             <span id="customerImportProgressRows">0 / 0</span>
+            <span>نجح: <strong id="customerImportProgressSuccess">0</strong></span>
+            <span>فشل: <strong id="customerImportProgressFailed">0</strong></span>
+            <span>متبقي: <strong id="customerImportProgressRemaining">0</strong></span>
           </div>
         </div>
 

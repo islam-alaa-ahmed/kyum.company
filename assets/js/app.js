@@ -6859,6 +6859,18 @@ function resetCustomerImportDialog() {
   document.getElementById("customerImportProgress")?.classList.add("hidden");
   const progressBar = document.getElementById("customerImportProgressBar");
   if (progressBar) progressBar.style.width = "0%";
+  const progressText = document.getElementById("customerImportProgressText");
+  if (progressText) progressText.textContent = "0%";
+  const progressRows = document.getElementById("customerImportProgressRows");
+  if (progressRows) progressRows.textContent = "0 / 0";
+  const progressSuccess = document.getElementById("customerImportProgressSuccess");
+  if (progressSuccess) progressSuccess.textContent = "0";
+  const progressFailed = document.getElementById("customerImportProgressFailed");
+  if (progressFailed) progressFailed.textContent = "0";
+  const progressRemaining = document.getElementById("customerImportProgressRemaining");
+  if (progressRemaining) progressRemaining.textContent = "0";
+  const controls = document.querySelector("#customerImportDialog .customer-import-controls");
+  if (controls) controls.scrollTop = 0;
   const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
   if (failedExportBtn) failedExportBtn.classList.add("hidden");
 }
@@ -7206,12 +7218,21 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
         notes: row.notes,
         message: row.errors.join(" — ")
       }));
-    document.getElementById("customerImportProgress")?.classList.remove("hidden");
+    const progressPanel = document.getElementById("customerImportProgress");
+    progressPanel?.classList.remove("hidden");
+    const controlsPanel = document.querySelector("#customerImportDialog .customer-import-controls");
+    if (controlsPanel) controlsPanel.scrollTo({ top: 0, behavior: "smooth" });
+    const initialRemaining = document.getElementById("customerImportProgressRemaining");
+    if (initialRemaining) initialRemaining.textContent = String(importRows.length);
+    const initialSuccess = document.getElementById("customerImportProgressSuccess");
+    if (initialSuccess) initialSuccess.textContent = "0";
+    const initialFailed = document.getElementById("customerImportProgressFailed");
+    if (initialFailed) initialFailed.textContent = "0";
     showDataStatus("customerImportStatus", `جاري استيراد 0 من ${importRows.length}...`, "info");
     const result = await window.CustomersService.importCustomers(
       importRows,
       mode,
-      (current, total) => {
+      (current, total, _row, progressResults = {}) => {
         const percent = total ? Math.round((current / total) * 100) : 0;
         const progressBar = document.getElementById("customerImportProgressBar");
         if (progressBar) progressBar.style.width = `${percent}%`;
@@ -7219,6 +7240,16 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
         if (progressText) progressText.textContent = `${percent}%`;
         const progressRows = document.getElementById("customerImportProgressRows");
         if (progressRows) progressRows.textContent = `${current} / ${total}`;
+        const successCount = Number(progressResults.inserted || 0)
+          + Number(progressResults.updated || 0)
+          + Number(progressResults.requestsInserted || 0);
+        const failedCount = Number(progressResults.failed || 0);
+        const progressSuccess = document.getElementById("customerImportProgressSuccess");
+        if (progressSuccess) progressSuccess.textContent = String(successCount);
+        const progressFailed = document.getElementById("customerImportProgressFailed");
+        if (progressFailed) progressFailed.textContent = String(failedCount);
+        const progressRemaining = document.getElementById("customerImportProgressRemaining");
+        if (progressRemaining) progressRemaining.textContent = String(Math.max(0, total - current));
         if (current === total || current % 25 === 0) {
           showDataStatus("customerImportStatus", `جاري استيراد ${current} من ${total}...`, "info");
         }
@@ -7252,11 +7283,21 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
       }
     }
 
+    const completedProgressBar = document.getElementById("customerImportProgressBar");
+    if (completedProgressBar) completedProgressBar.style.width = "100%";
+    const completedProgressText = document.getElementById("customerImportProgressText");
+    if (completedProgressText) completedProgressText.textContent = "100%";
+    const completedProgressRows = document.getElementById("customerImportProgressRows");
+    if (completedProgressRows) completedProgressRows.textContent = `${importRows.length} / ${importRows.length}`;
+    const completedRemaining = document.getElementById("customerImportProgressRemaining");
+    if (completedRemaining) completedRemaining.textContent = "0";
+
     renderCustomerImportResult(result, {
       override,
       overrideRowsCount: overrideRows.length,
       auditFinalized
     });
+    document.getElementById("customerImportResult")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     showDataStatus(
       "customerImportStatus",
       `اكتمل الاستيراد وتم تنفيذ الحفظ في Supabase: ${result.inserted} جديد، ${result.updated} تحديث، ${result.requestsInserted} طلب أو عرض سعر، ${result.skipped + result.requestsSkipped} مكرر أو متجاهل، ${result.failed} فشل${override ? `، ${overrideRows.length} صف باعتماد استثنائي` : ""}.`,
