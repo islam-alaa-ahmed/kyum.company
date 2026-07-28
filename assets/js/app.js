@@ -6926,7 +6926,7 @@ function renderCustomerImportPreview(preview) {
           <td>${escapeHtml(row.type || "-")}</td>
           <td>${escapeHtml(row.representative || "-")}</td>
           <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-          <td>${row.errors.length ? escapeHtml(row.errors.join(" — ")) : "جاهز"}</td>
+          <td>${escapeHtml(row.statusNote || (row.errors.length ? row.errors.join(" — ") : "جاهز"))}</td>
         </tr>
       `;
     }).join("") + (preview.rows.length > previewLimit
@@ -6959,8 +6959,10 @@ async function previewCustomerImportFile(file) {
 
   try {
     const rows = await window.CustomerExcelCenter.parseImportFile(file);
+    const importedRequests = await window.CustomersService.listImportedRequestIdentities();
     const preview = window.CustomerExcelCenter.buildImportPreview(rows, {
       customers,
+      importedRequests,
       representatives: representativeRecords,
       interests: interestRecords,
       reasons: reasonRecords
@@ -7130,7 +7132,7 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
     return;
   }
 
-  const normalRows = customerImportPreview.rows.filter(row => !row.errors.length);
+  const normalRows = customerImportPreview.rows.filter(row => !row.errors.length && !row.previouslyUploaded);
   const overrideRows = override
     ? customerImportOverrideRows(customerImportPreview.rows).map(customerImportSanitizeOverrideRow)
     : [];

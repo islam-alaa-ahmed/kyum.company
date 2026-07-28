@@ -308,6 +308,24 @@
   }
 
 
+
+  async function listImportedRequestIdentities() {
+    const rows = [];
+    const pageSize = 1000;
+    for (let pageStart = 0; ; pageStart += pageSize) {
+      const page = await unwrap(
+        client()
+          .from("customer_requests")
+          .select("customer_id,request_number,quotation_number,source_row")
+          .range(pageStart, pageStart + pageSize - 1),
+        "تعذر تحميل بصمات بيانات الاستيراد السابقة"
+      );
+      rows.push(...(page || []));
+      if (!page || page.length < pageSize) break;
+    }
+    return rows;
+  }
+
   async function saveImportedRequest(customerId, row, userId = null) {
     if (!row.requestNumber && !row.quotationNumber) return { inserted: false, skipped: true };
 
@@ -489,6 +507,7 @@
     deleteCustomer,
     importCustomers,
     listExistingImportedRequestKeys,
+    listImportedRequestIdentities,
     importedRequestKey
   });
 })();

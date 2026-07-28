@@ -319,8 +319,26 @@
       (context.reasons || []).map(item => [normalizeHeader(item.name), item])
     );
     const existingMap = new Map(
-      (context.customers || []).map(item => [normalizePhone(item.phone), item])
+      (context.customers || [])
+        .filter(item => normalizePhone(item.phone))
+        .map(item => [normalizePhone(item.phone), item])
     );
+
+    const normalizeIdentityPart = value => safeText(value).trim().toLowerCase();
+    const requestIdentity = (requestNumber, quotationNumber) => {
+      const request = normalizeIdentityPart(requestNumber);
+      const quotation = normalizeIdentityPart(quotationNumber);
+      return request || quotation ? `${request || "-"}::${quotation || "-"}` : "";
+    };
+
+    const importedByCustomer = new Set();
+    const importedGlobally = new Set();
+    (context.importedRequests || []).forEach(item => {
+      const identity = requestIdentity(item.request_number, item.quotation_number);
+      if (!identity) return;
+      importedGlobally.add(identity);
+      if (item.customer_id) importedByCustomer.add(`${item.customer_id}::${identity}`);
+    });
 
     const phoneCounts = rows.reduce((map, row) => {
       if (row.phone) map.set(row.phone, (map.get(row.phone) || 0) + 1);
@@ -328,6 +346,32 @@
     }, new Map());
 
     const previewRows = rows.map(row => {
+      const existing = row.phone ? (existingMap.get(row.phone) || null) : null;
+      const identity = requestIdentity(row.requestNumber, row.quotationNumber);
+      const previouslyUploaded = Boolean(
+        (identity && existing?.id && importedByCustomer.has(`${existing.id}::${identity}`))
+        || (identity && importedGlobally.has(identity))
+        || (existing && !identity)
+      );
+
+      // Existing-data detection intentionally runs before validation. A row that
+      // was saved previously (including through an admin override) must not be
+      // reported as an error when the same file is previewed again.
+      if (previouslyUploaded) {
+        return {
+          ...row,
+          normalizedPhone: row.phone,
+          representativeId: existing?.representativeId || existing?.representative_id || null,
+          interestIds: existing?.interestIds || [],
+          noSaleReasonId: existing?.noSaleReasonId || existing?.no_sale_reason_id || null,
+          existingCustomer: existing,
+          previouslyUploaded: true,
+          status: "existing",
+          errors: [],
+          statusNote: "تم رفع هذا السجل مسبقًا"
+        };
+      }
+
       const errors = [];
       if (!row.name) errors.push("اسم العميل مطلوب");
       if (!/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
@@ -356,8 +400,6 @@
         : null;
       if (row.noSaleReason && !reason) errors.push("سبب عدم البيع غير مسجل");
 
-      const existing = existingMap.get(row.phone) || null;
-
       return {
         ...row,
         normalizedPhone: row.phone,
@@ -365,8 +407,10 @@
         interestIds,
         noSaleReasonId: reason?.id || null,
         existingCustomer: existing,
+        previouslyUploaded: false,
         status: errors.length ? "error" : (existing ? "existing" : "new"),
-        errors
+        errors,
+        statusNote: errors.length ? errors.join(" — ") : (existing ? "عميل موجود" : "جاهز")
       };
     });
 
@@ -374,12 +418,12 @@
       rows: previewRows,
       summary: {
         total: previewRows.length,
-        valid: previewRows.filter(row => !row.errors.length).length,
+        valid: previewRows.filter(row => !row.errors.length && !row.previouslyUploaded).length,
         errors: previewRows.filter(row => row.errors.length).length,
         newCustomers: previewRows.filter(row => row.status === "new").length,
-        existingCustomers: previewRows.filter(row => row.status === "existing").length,
+        existingCustomers: previewRows.filter(row => row.previouslyUploaded).length,
         duplicates: previewRows.filter(row =>
-          row.errors.includes("رقم الجوال مكرر داخل الملف")
+          !row.previouslyUploaded && row.errors.includes("رقم الجوال مكرر داخل الملف")
         ).length
       }
     };
