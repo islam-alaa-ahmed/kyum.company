@@ -99,16 +99,62 @@
     `;
   }
 
-  async function listCustomers() {
-    const allRows = [];
-    const authState = window.CustomerAuth?.getState?.() || {};
-    const profile = authState.profile || null;
-    const isSalesRepresentative = profile?.role === "sales_representative";
-    const linkedRepresentativeId = profile?.representative_id || null;
+  async function resolveCustomerRepresentativeScope() {
+    const profile = window.CustomerAuth?.getState?.().profile || null;
+    if (!profile) return { mode: "none", representativeIds: [] };
 
-    // Frontend defense-in-depth: a sales representative must never request
-    // another representative's customers, even if a stale database policy exists.
-    if (isSalesRepresentative && !linkedRepresentativeId) return [];
+    if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
+      return { mode: "all", representativeIds: [] };
+    }
+
+    if (profile.role !== "sales_representative") {
+      return { mode: "none", representativeIds: [] };
+    }
+
+    const ownRepresentativeId = profile.representative_id || null;
+    if (!ownRepresentativeId) return { mode: "none", representativeIds: [] };
+
+    const { data: accessProfile, error: accessProfileError } = await client()
+      .from("user_data_access_profiles")
+      .select("access_mode")
+      .eq("user_id", profile.id)
+      .maybeSingle();
+    if (accessProfileError) {
+      throw new Error(`تعذر تحميل نطاق بيانات المستخدم: ${accessProfileError.message}`);
+    }
+
+    const accessMode = accessProfile?.access_mode || "own";
+    if (accessMode === "own") {
+      return { mode: "selected", representativeIds: [ownRepresentativeId] };
+    }
+
+    if (accessMode === "selected") {
+      const { data: allowedRows, error: allowedError } = await client()
+        .from("user_data_access_representatives")
+        .select("representative_id")
+        .eq("user_id", profile.id);
+      if (allowedError) {
+        throw new Error(`تعذر تحميل المندوبين المسموحين: ${allowedError.message}`);
+      }
+
+      const representativeIds = Array.from(new Set([
+        ownRepresentativeId,
+        ...(allowedRows || []).map(row => row.representative_id).filter(Boolean)
+      ]));
+      return { mode: "selected", representativeIds };
+    }
+
+    // A sales representative must never receive an unfiltered customer query.
+    // Even if an old profile contains access_mode=all, keep the account scoped
+    // to its directly linked representative.
+    return { mode: "selected", representativeIds: [ownRepresentativeId] };
+  }
+
+  async function listCustomers() {
+    const scope = await resolveCustomerRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    const allRows = [];
 
     for (let pageStart = 0; ; pageStart += CUSTOMER_PAGE_SIZE) {
       let request = client()
@@ -117,11 +163,13 @@
         .order("created_at", { ascending: false })
         .range(pageStart, pageStart + CUSTOMER_PAGE_SIZE - 1);
 
-      if (isSalesRepresentative) {
-        request = request.eq("representative_id", linkedRepresentativeId);
+      if (scope.mode === "selected") {
+        if (!scope.representativeIds.length) return [];
+        request = request.in("representative_id", scope.representativeIds);
       }
 
       const page = await unwrap(request, "تعذر تحميل العملاء");
+
       allRows.push(...(page || []));
       if (!page || page.length < CUSTOMER_PAGE_SIZE) break;
     }
