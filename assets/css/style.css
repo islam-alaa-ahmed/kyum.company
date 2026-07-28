@@ -10941,3 +10941,94 @@ html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialo
   }
   .customer-import-footer-primary button { flex: 1 1 100%; }
 }
+
+/* Phase M10.8.7 — Import Dialog Recovery & Action Guard */
+.customer-import-dialog:not(.representative-import-dialog) .dialog-shell {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-controls {
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  max-height: 44vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 6px;
+  scrollbar-gutter: stable;
+}
+.customer-import-dialog:not(.representative-import-dialog) #customerImportStatus {
+  position: relative;
+  z-index: 1;
+  min-height: 46px;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  line-height: 1.55;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.customer-import-dialog:not(.representative-import-dialog) #customerImportStatus.hidden {
+  display: none;
+  min-height: 0;
+}
+.customer-import-dialog:not(.representative-import-dialog) #customerImportProgress,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportSummary,
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-toolbar,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportDecisionNotice,
+.customer-import-dialog:not(.representative-import-dialog) #customerImportResult {
+  margin: 0 !important;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-progress {
+  position: relative;
+  z-index: 0;
+  padding-top: 2px;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-summary {
+  position: relative;
+  z-index: 0;
+  padding-top: 4px;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-toolbar {
+  position: static;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+  grid-template-columns: 1fr;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-preview-wrap {
+  min-height: 220px;
+  margin-top: 0;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-footer {
+  position: relative;
+  z-index: 10;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-footer-primary {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.customer-import-dialog:not(.representative-import-dialog) .primary-btn:disabled,
+.customer-import-dialog:not(.representative-import-dialog) .warning-btn:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+  filter: grayscale(.18);
+  box-shadow: none;
+}
+.customer-import-dialog:not(.representative-import-dialog) #customerImportExecuteBtn:disabled {
+  background: var(--panel-soft, #e9eef5);
+  border-color: var(--border-color, #d5dde8);
+  color: var(--text-secondary, #64748b);
+}
+.customer-import-dialog:not(.representative-import-dialog) #customerImportOverrideBtn:not(.hidden) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.customer-import-decision-notice.hidden { display: none; }
+@media (max-width: 900px) {
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-controls {
+    max-height: 48vh;
+    padding-inline: 14px;
+  }
+}

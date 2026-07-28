@@ -2611,7 +2611,7 @@
         <article><span>موجود بالنظام</span><strong id="representativeImportExistingCount">0</strong></article>
       </div>
 
-      <div id="customerImportResult" class="customer-import-result hidden" aria-live="polite"></div>
+      <div id="representativeImportResult" class="customer-import-result hidden" aria-live="polite"></div>
 
       <div class="table-wrap customer-import-preview-wrap">
         <table class="data-table customer-import-preview-table">
@@ -2644,35 +2644,40 @@
         <span id="customerImportFileName">لم يتم اختيار ملف</span>
       </div>
 
-      <div id="customerImportStatus" class="data-status hidden"></div>
+      <div class="customer-import-controls">
+        <div id="customerImportStatus" class="data-status hidden"></div>
 
-      <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
-        <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
-        <div class="customer-import-progress-meta">
-          <strong id="customerImportProgressText">0%</strong>
-          <span id="customerImportProgressRows">0 / 0</span>
+        <div id="customerImportProgress" class="customer-import-progress hidden" aria-live="polite">
+          <div class="customer-import-progress-track"><span id="customerImportProgressBar"></span></div>
+          <div class="customer-import-progress-meta">
+            <strong id="customerImportProgressText">0%</strong>
+            <span id="customerImportProgressRows">0 / 0</span>
+          </div>
         </div>
-      </div>
 
-      <div id="customerImportSummary" class="customer-import-summary hidden">
-        <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
-        <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
-        <article><span>صفوف بها أخطاء</span><strong id="customerImportErrorCount">0</strong></article>
-        <article><span>عملاء جدد</span><strong id="customerImportNewCount">0</strong></article>
-        <article><span>عملاء موجودون</span><strong id="customerImportExistingCount">0</strong></article>
-        <article><span>مكرر داخل الملف</span><strong id="customerImportDuplicateCount">0</strong></article>
-      </div>
+        <div id="customerImportSummary" class="customer-import-summary hidden">
+          <article><span>إجمالي الصفوف</span><strong id="customerImportTotalCount">0</strong></article>
+          <article><span>صفوف صحيحة</span><strong id="customerImportValidCount">0</strong></article>
+          <article><span>صفوف بها أخطاء</span><strong id="customerImportErrorCount">0</strong></article>
+          <article><span>عملاء جدد</span><strong id="customerImportNewCount">0</strong></article>
+          <article><span>عملاء موجودون</span><strong id="customerImportExistingCount">0</strong></article>
+          <article><span>مكرر داخل الملف</span><strong id="customerImportDuplicateCount">0</strong></article>
+        </div>
 
-      <div class="customer-import-options">
-        <label for="customerImportMode">طريقة التعامل مع العملاء الموجودين</label>
-        <select id="customerImportMode">
-          <option value="new_only">إضافة الجدد فقط</option>
-          <option value="upsert">تحديث الموجود وإضافة الجدد</option>
-          <option value="skip_existing">تجاهل الموجود</option>
-        </select>
-      </div>
+        <div class="customer-import-toolbar">
+          <div class="customer-import-options">
+            <label for="customerImportMode">طريقة التعامل مع العملاء الموجودين</label>
+            <select id="customerImportMode">
+              <option value="new_only">إضافة الجدد فقط</option>
+              <option value="upsert">تحديث الموجود وإضافة الجدد</option>
+              <option value="skip_existing">تجاهل الموجود</option>
+            </select>
+          </div>
+        </div>
 
-      <div id="customerImportResult" class="customer-import-result hidden" aria-live="polite"></div>
+        <div id="customerImportDecisionNotice" class="customer-import-decision-notice hidden" aria-live="polite"></div>
+        <div id="customerImportResult" class="customer-import-result hidden" aria-live="polite"></div>
+      </div>
 
       <div class="table-wrap customer-import-preview-wrap">
         <table class="data-table customer-import-preview-table">

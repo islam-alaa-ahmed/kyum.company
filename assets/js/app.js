@@ -6839,6 +6839,11 @@ function resetCustomerImportDialog() {
   customerImportFailedRows = [];
   customerImportOverrideAuditId = null;
   document.getElementById("customerImportResult")?.classList.add("hidden");
+  const decisionNotice = document.getElementById("customerImportDecisionNotice");
+  if (decisionNotice) {
+    decisionNotice.classList.add("hidden");
+    decisionNotice.textContent = "";
+  }
   const fileInput = document.getElementById("customerImportFileInput");
   if (fileInput) fileInput.value = "";
   const fileName = document.getElementById("customerImportFileName");
@@ -6934,19 +6939,43 @@ function renderCustomerImportPreview(preview) {
       : "");
   }
 
+  const normalImportCount = preview.rows.filter(row => !row.errors.length && !row.previouslyUploaded && !customerImportIsDuplicate(row)).length;
+  const eligibleCount = customerImportOverrideRows(preview.rows).length;
+  const duplicateOrExistingCount = preview.rows.filter(customerImportIsDuplicate).length;
+  const hardErrorCount = preview.rows.filter(row => customerImportOverrideClassification(row).hardErrors.length > 0).length;
+
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) {
-    executeBtn.disabled = summary.valid === 0;
+    executeBtn.disabled = normalImportCount === 0;
+    executeBtn.textContent = normalImportCount > 0
+      ? `اعتماد الاستيراد (${normalImportCount})`
+      : "لا توجد صفوف جديدة للاستيراد";
+    executeBtn.title = normalImportCount > 0 ? "" : "جميع الصفوف مرفوعة مسبقًا أو تحتوي على أخطاء أو مكررة.";
   }
 
   const overrideBtn = document.getElementById("customerImportOverrideBtn");
   if (overrideBtn) {
-    const eligibleCount = customerImportOverrideRows(preview.rows).length;
-    const canOverride = currentRole() === "super_admin" && eligibleCount > 0;
-    overrideBtn.classList.toggle("hidden", !canOverride);
-    overrideBtn.textContent = canOverride
+    const isSuperAdmin = currentRole() === "super_admin";
+    overrideBtn.classList.toggle("hidden", !isSuperAdmin);
+    overrideBtn.disabled = !isSuperAdmin || eligibleCount === 0;
+    overrideBtn.textContent = eligibleCount > 0
       ? `اعتماد استثنائي بالباسورد (${eligibleCount})`
-      : "اعتماد استثنائي بالباسورد";
+      : "لا توجد أخطاء قابلة للاستثناء";
+    overrideBtn.title = eligibleCount > 0
+      ? "يتطلب كلمة مرور مدير النظام"
+      : "الأخطاء الحالية مكررة أو مرفوعة مسبقًا أو غير قابلة للتجاوز.";
+  }
+
+  const decisionNotice = document.getElementById("customerImportDecisionNotice");
+  if (decisionNotice) {
+    decisionNotice.classList.remove("hidden");
+    if (normalImportCount > 0) {
+      decisionNotice.textContent = `سيتم اعتماد ${normalImportCount} صف جديد فقط. سيتم استبعاد ${duplicateOrExistingCount} صف مكرر أو مرفوع مسبقًا و${hardErrorCount} صف بأخطاء غير قابلة للتجاوز.`;
+    } else if (eligibleCount > 0 && currentRole() === "super_admin") {
+      decisionNotice.textContent = `لا توجد صفوف صحيحة جديدة. يمكن لمدير النظام اعتماد ${eligibleCount} صف بأخطاء قابلة للتجاوز بعد التحقق بكلمة المرور.`;
+    } else {
+      decisionNotice.textContent = "لا توجد صفوف جديدة قابلة للاستيراد. جميع الصفوف إما مرفوعة مسبقًا أو مكررة أو تحتوي على أخطاء غير قابلة للتجاوز.";
+    }
   }
 }
 
@@ -7137,6 +7166,21 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
     ? customerImportOverrideRows(customerImportPreview.rows).map(customerImportSanitizeOverrideRow)
     : [];
   const importRows = [...normalRows, ...overrideRows].filter(row => !customerImportIsDuplicate(row));
+  if (!importRows.length) {
+    showDataStatus(
+      "customerImportStatus",
+      override
+        ? "لا توجد صفوف بأخطاء قابلة للاستثناء. الصفوف الحالية مكررة أو مرفوعة مسبقًا أو غير قابلة للتجاوز."
+        : "لا توجد صفوف جديدة قابلة للاستيراد. جميع الصفوف الحالية مرفوعة مسبقًا أو مكررة أو تحتوي على أخطاء.",
+      "info"
+    );
+    const notice = document.getElementById("customerImportDecisionNotice");
+    if (notice) {
+      notice.classList.remove("hidden");
+      notice.textContent = "لم يتم إرسال أي بيانات إلى Supabase لعدم وجود صفوف جديدة قابلة للحفظ.";
+    }
+    return;
+  }
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   const overrideBtn = document.getElementById("customerImportOverrideBtn");
   if (executeBtn) executeBtn.disabled = true;
@@ -7238,7 +7282,10 @@ async function executeCustomerImport({ override = false, auditId = null } = {}) 
   }
 }
 
-document.getElementById("customerImportExecuteBtn")?.addEventListener("click", () => executeCustomerImport());
+document.getElementById("customerImportExecuteBtn")?.addEventListener("click", event => {
+  event.preventDefault();
+  void executeCustomerImport();
+});
 document.getElementById("customerImportOverrideBtn")?.addEventListener("click", openCustomerImportOverrideDialog);
 document.getElementById("customerImportOverrideCloseBtn")?.addEventListener("click", closeCustomerImportOverrideDialog);
 document.getElementById("customerImportOverrideCancelBtn")?.addEventListener("click", closeCustomerImportOverrideDialog);
