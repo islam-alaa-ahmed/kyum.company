@@ -8,6 +8,23 @@
     return window.CustomerAuth?.getState?.().user?.id || null;
   }
 
+  async function resolveAuthenticatedUserId(explicitUserId = null) {
+    if (explicitUserId) return explicitUserId;
+    const cached = currentUserId();
+    if (cached) return cached;
+
+    const supabase = client();
+    if (!supabase) return null;
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData?.session?.user?.id) return sessionData.session.user.id;
+
+    // Authentication and page rendering can complete in different ticks.
+    await new Promise(resolve => setTimeout(resolve, 150));
+    const { data: retryData } = await supabase.auth.getSession();
+    return retryData?.session?.user?.id || currentUserId();
+  }
+
   function riyadhDate() {
     return new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Riyadh",
@@ -19,10 +36,10 @@
 
   async function load(options = {}) {
     const supabase = client();
-    const userId = options.userId || currentUserId();
     const suggestionDate = options.date || riyadhDate();
 
     if (!supabase) throw new Error("Supabase client is not available.");
+    const userId = await resolveAuthenticatedUserId(options.userId || null);
     if (!userId) throw new Error("Authenticated user is required.");
 
     const { data: activeRows, error: activeError } = await supabase.rpc(

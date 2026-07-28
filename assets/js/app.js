@@ -4694,7 +4694,12 @@ function dailyDateTime(value) {
 function dailyScopedRows(rows) {
   const profile = window.CustomerAuth?.getState?.().profile;
   if (profile?.role !== "sales_representative") return rows;
-  return rows.filter(item => item.representativeId === profile.representative_id);
+
+  // customers, followups and quotations are now server-scoped and explicitly
+  // filtered by their services. Keep this final UI guard to prevent stale
+  // cross-account data from surviving a user switch or partial refresh.
+  const allowedIds = new Set([profile.representative_id].filter(Boolean));
+  return (rows || []).filter(item => allowedIds.has(item.representativeId));
 }
 
 function dailyEmptyRow(columns, text) {

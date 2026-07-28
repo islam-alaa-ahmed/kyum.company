@@ -53,11 +53,52 @@
     };
   }
 
+  async function resolveRepresentativeScope() {
+    const profile = window.CustomerAuth?.getState?.().profile || null;
+    if (!profile) return { mode: "none", representativeIds: [] };
+
+    if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
+      return { mode: "all", representativeIds: [] };
+    }
+
+    if (profile.role !== "sales_representative" || !profile.representative_id) {
+      return { mode: "none", representativeIds: [] };
+    }
+
+    const ownId = profile.representative_id;
+    const { data: accessProfile, error: profileError } = await client()
+      .from("user_data_access_profiles")
+      .select("access_mode")
+      .eq("user_id", profile.id)
+      .maybeSingle();
+    if (profileError) throw new Error(`تعذر تحميل نطاق البيانات: ${profileError.message}`);
+
+    if ((accessProfile?.access_mode || "own") !== "selected") {
+      return { mode: "selected", representativeIds: [ownId] };
+    }
+
+    const { data: allowed, error: allowedError } = await client()
+      .from("user_data_access_representatives")
+      .select("representative_id")
+      .eq("user_id", profile.id);
+    if (allowedError) throw new Error(`تعذر تحميل المندوبين المسموحين: ${allowedError.message}`);
+
+    return {
+      mode: "selected",
+      representativeIds: Array.from(new Set([
+        ownId,
+        ...(allowed || []).map(row => row.representative_id).filter(Boolean)
+      ]))
+    };
+  }
+
   async function listQuotations() {
-    const rows = await unwrap(
-      client()
-        .from("quotations")
-        .select(`
+    const scope = await resolveRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    let request = client()
+      .from("quotations")
+      .select(`
           id,
           quotation_number,
           customer_id,
@@ -85,11 +126,15 @@
             name
           )
         `)
-        .order("quotation_date", { ascending: false })
-        .order("created_at", { ascending: false }),
-      "تعذر تحميل عروض الأسعار"
-    );
+      .order("quotation_date", { ascending: false })
+      .order("created_at", { ascending: false });
 
+    if (scope.mode === "selected") {
+      if (!scope.representativeIds.length) return [];
+      request = request.in("representative_id", scope.representativeIds);
+    }
+
+    const rows = await unwrap(request, "تعذر تحميل عروض الأسعار");
     return (rows || []).map(normalizeQuotation);
   }
 
