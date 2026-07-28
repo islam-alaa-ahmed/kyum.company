@@ -340,8 +340,14 @@
       if (item.customer_id) importedByCustomer.add(`${item.customer_id}::${identity}`);
     });
 
-    const phoneCounts = rows.reduce((map, row) => {
-      if (row.phone) map.set(row.phone, (map.get(row.phone) || 0) + 1);
+    // Duplicate detection is operation-aware. Repeating a customer phone is valid
+    // when the request number or quotation number differs, because that represents
+    // another sales operation for the same customer.
+    const operationCounts = rows.reduce((map, row) => {
+      if (!row.phone) return map;
+      const identity = requestIdentity(row.requestNumber, row.quotationNumber);
+      const operationKey = `${row.phone}::${identity || "no-operation"}`;
+      map.set(operationKey, (map.get(operationKey) || 0) + 1);
       return map;
     }, new Map());
 
@@ -379,8 +385,13 @@
       if (row.type === "شركة" && !row.contactPersonName) {
         errors.push("اسم المسؤول مطلوب للشركة");
       }
-      if (row.phone && phoneCounts.get(row.phone) > 1) {
-        errors.push("رقم الجوال مكرر داخل الملف");
+      if (row.phone) {
+        const operationKey = `${row.phone}::${identity || "no-operation"}`;
+        if ((operationCounts.get(operationKey) || 0) > 1) {
+          errors.push(identity
+            ? "نفس العميل ونفس رقم الطلب أو عرض السعر مكرر داخل الملف"
+            : "رقم الجوال مكرر داخل الملف بدون رقم طلب أو عرض سعر مختلف");
+        }
       }
 
       const representative = row.representative
@@ -395,10 +406,11 @@
         else interestIds.push(interest.id);
       }
 
+      // No-sale reason is optional import metadata. An unknown or missing value
+      // must never block saving the customer or the related sales operation.
       const reason = row.noSaleReason
         ? reasonMap.get(normalizeHeader(row.noSaleReason))
         : null;
-      if (row.noSaleReason && !reason) errors.push("سبب عدم البيع غير مسجل");
 
       return {
         ...row,
