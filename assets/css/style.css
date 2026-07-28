@@ -10840,3 +10840,32 @@ html[data-theme="dark"] .customer-import-decision-notice {
   background: color-mix(in srgb, #f59e0b 13%, var(--surface, #13233b));
   color: var(--text-primary, #f8fafc);
 }
+
+/* Phase M10.8.4 — Password-protected Super Admin import override */
+.customer-import-dialog .warning-btn,
+.customer-import-override-dialog .warning-btn {
+  border: 1px solid #d97706;
+  background: #d97706;
+  color: #fff;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.customer-import-dialog .warning-btn:hover,
+.customer-import-override-dialog .warning-btn:hover { filter: brightness(.96); }
+.customer-import-dialog .warning-btn:disabled,
+.customer-import-override-dialog .warning-btn:disabled { opacity: .55; cursor: wait; }
+.customer-import-override-dialog { width: min(560px, calc(100vw - 28px)); }
+.customer-import-override-dialog .dialog-shell { gap: 16px; }
+.customer-import-override-summary {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, #d97706 35%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, #f59e0b 9%, var(--surface, #fff));
+}
+.customer-import-override-summary strong { font-size: 1rem; }
+.customer-import-override-summary span { color: var(--text-secondary, #5f6b7c); }
+.customer-import-override-dialog .text-input { width: 100%; }

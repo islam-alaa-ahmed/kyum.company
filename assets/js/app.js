@@ -6935,6 +6935,16 @@ function renderCustomerImportPreview(preview) {
   if (executeBtn) {
     executeBtn.disabled = summary.valid === 0;
   }
+
+  const overrideBtn = document.getElementById("customerImportOverrideBtn");
+  if (overrideBtn) {
+    const eligibleCount = customerImportOverrideRows(preview.rows).length;
+    const canOverride = currentRole() === "super_admin" && eligibleCount > 0;
+    overrideBtn.classList.toggle("hidden", !canOverride);
+    overrideBtn.textContent = canOverride
+      ? `اعتماد استثنائي بالباسورد (${eligibleCount})`
+      : "اعتماد استثنائي بالباسورد";
+  }
 }
 
 async function previewCustomerImportFile(file) {
@@ -6990,7 +7000,84 @@ document.getElementById("customerImportFileInput")?.addEventListener("change", e
 document.getElementById("customerImportCloseBtn")?.addEventListener("click", closeCustomerImportDialog);
 document.getElementById("customerImportCancelBtn")?.addEventListener("click", closeCustomerImportDialog);
 
-document.getElementById("customerImportExecuteBtn")?.addEventListener("click", async () => {
+function customerImportIsDuplicate(row) {
+  const messages = Array.isArray(row?.errors) ? row.errors : [];
+  return messages.some(message => /مكرر|مرفوع مسبقًا|مسجل بالفعل/.test(String(message || "")));
+}
+
+function customerImportOverrideClassification(row) {
+  const errors = Array.isArray(row?.errors) ? row.errors : [];
+  if (!errors.length || customerImportIsDuplicate(row)) {
+    return { eligible: false, duplicate: customerImportIsDuplicate(row), hardErrors: [], softErrors: [] };
+  }
+
+  const hardPatterns = [
+    /اسم العميل مطلوب/,
+    /التصنيف يجب/,
+    /المندوب غير مسجل/,
+    /مجال اهتمام غير مسجل/,
+    /سبب عدم البيع غير مسجل/
+  ];
+  const hardErrors = errors.filter(message => hardPatterns.some(pattern => pattern.test(String(message || ""))));
+  const softErrors = errors.filter(message => !hardErrors.includes(message));
+  return {
+    eligible: softErrors.length > 0 && hardErrors.length === 0,
+    duplicate: false,
+    hardErrors,
+    softErrors
+  };
+}
+
+function customerImportOverrideRows(rows = []) {
+  return rows.filter(row => customerImportOverrideClassification(row).eligible);
+}
+
+function customerImportSanitizeOverrideRow(row) {
+  const classification = customerImportOverrideClassification(row);
+  const invalidPhone = classification.softErrors.some(message => /رقم الجوال غير صالح/.test(String(message || "")));
+  return {
+    ...row,
+    phone: invalidPhone ? null : row.phone,
+    contactPersonName: row.contactPersonName || "",
+    errors: [],
+    adminOverride: true,
+    adminOverrideWarnings: [...classification.softErrors]
+  };
+}
+
+function closeCustomerImportOverrideDialog() {
+  const dialog = document.getElementById("customerImportOverrideDialog");
+  if (dialog?.open) dialog.close();
+  const password = document.getElementById("customerImportOverridePassword");
+  if (password) password.value = "";
+  showDataStatus("customerImportOverrideStatus", "");
+}
+
+function openCustomerImportOverrideDialog() {
+  if (currentRole() !== "super_admin" || !customerImportPreview) return;
+  const eligible = customerImportOverrideRows(customerImportPreview.rows);
+  if (!eligible.length) return;
+  const duplicateCount = customerImportPreview.rows.filter(customerImportIsDuplicate).length;
+  const hardCount = customerImportPreview.rows.filter(row => {
+    const c = customerImportOverrideClassification(row);
+    return c.hardErrors.length > 0;
+  }).length;
+  const validCount = customerImportPreview.rows.filter(row => !row.errors.length).length;
+  const summary = document.getElementById("customerImportOverrideSummary");
+  if (summary) {
+    summary.innerHTML = `
+      <strong>ملخص الاستيراد الاستثنائي</strong>
+      <span>صفوف صحيحة: ${validCount}</span>
+      <span>صفوف سيتم تجاوز تحذيراتها: ${eligible.length}</span>
+      <span>صفوف مكررة أو مرفوعة مسبقًا لن تُرفع: ${duplicateCount}</span>
+      <span>صفوف بأخطاء غير قابلة للتجاوز لن تُرفع: ${hardCount}</span>
+    `;
+  }
+  document.getElementById("customerImportOverrideDialog")?.showModal();
+  setTimeout(() => document.getElementById("customerImportOverridePassword")?.focus(), 50);
+}
+
+async function executeCustomerImport({ override = false } = {}) {
   if (!customerImportPreview) return;
   const mode = document.getElementById("customerImportMode")?.value || "new_only";
 
@@ -7000,13 +7087,19 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     return;
   }
 
-  const validRows = customerImportPreview.rows.filter(row => !row.errors.length);
+  const normalRows = customerImportPreview.rows.filter(row => !row.errors.length);
+  const overrideRows = override
+    ? customerImportOverrideRows(customerImportPreview.rows).map(customerImportSanitizeOverrideRow)
+    : [];
+  const importRows = [...normalRows, ...overrideRows].filter(row => !customerImportIsDuplicate(row));
   const executeBtn = document.getElementById("customerImportExecuteBtn");
+  const overrideBtn = document.getElementById("customerImportOverrideBtn");
   if (executeBtn) executeBtn.disabled = true;
+  if (overrideBtn) overrideBtn.disabled = true;
 
   try {
     customerImportFailedRows = customerImportPreview.rows
-      .filter(row => row.errors.length)
+      .filter(row => row.errors.length && !overrideRows.some(item => item.sourceRow === row.sourceRow))
       .map(row => ({
         sourceRow: row.sourceRow,
         customerNumber: row.customerNumber,
@@ -7026,9 +7119,9 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
         message: row.errors.join(" — ")
       }));
     document.getElementById("customerImportProgress")?.classList.remove("hidden");
-    showDataStatus("customerImportStatus", `جاري استيراد 0 من ${validRows.length}...`, "info");
+    showDataStatus("customerImportStatus", `جاري استيراد 0 من ${importRows.length}...`, "info");
     const result = await window.CustomersService.importCustomers(
-      validRows,
+      importRows,
       mode,
       (current, total) => {
         const percent = total ? Math.round((current / total) * 100) : 0;
@@ -7042,7 +7135,7 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
           showDataStatus("customerImportStatus", `جاري استيراد ${current} من ${total}...`, "info");
         }
       },
-      { concurrency: 10 }
+      { concurrency: 10, adminOverride: override }
     );
 
     customerImportFailedRows = [...customerImportFailedRows, ...(result.errors || [])];
@@ -7057,13 +7150,11 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     renderReferenceCustomers();
     showDataStatus(
       "customerImportStatus",
-      `اكتمل الاستيراد: ${result.inserted} جديد، ${result.updated} تحديث، ${result.skipped} متجاهل، ${result.failed} فشل.`,
+      `اكتمل الاستيراد: ${result.inserted} جديد، ${result.updated} تحديث، ${result.skipped + result.requestsSkipped} مكرر أو متجاهل، ${result.failed} فشل${override ? `، ${overrideRows.length} صف باعتماد استثنائي` : ""}.`,
       result.failed ? "error" : "success"
     );
 
-    if (!result.failed) {
-      setTimeout(closeCustomerImportDialog, 900);
-    }
+    if (!result.failed) setTimeout(closeCustomerImportDialog, 1200);
   } catch (error) {
     showDataStatus(
       "customerImportStatus",
@@ -7072,6 +7163,49 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     );
   } finally {
     if (executeBtn) executeBtn.disabled = false;
+    if (overrideBtn) overrideBtn.disabled = false;
+  }
+}
+
+document.getElementById("customerImportExecuteBtn")?.addEventListener("click", () => executeCustomerImport());
+document.getElementById("customerImportOverrideBtn")?.addEventListener("click", openCustomerImportOverrideDialog);
+document.getElementById("customerImportOverrideCloseBtn")?.addEventListener("click", closeCustomerImportOverrideDialog);
+document.getElementById("customerImportOverrideCancelBtn")?.addEventListener("click", closeCustomerImportOverrideDialog);
+
+document.getElementById("customerImportOverrideForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (currentRole() !== "super_admin") {
+    showDataStatus("customerImportOverrideStatus", "هذا الإجراء متاح لمدير النظام فقط.", "error");
+    return;
+  }
+  const password = document.getElementById("customerImportOverridePassword")?.value || "";
+  if (!password) {
+    showDataStatus("customerImportOverrideStatus", "أدخل كلمة مرور مدير النظام.", "error");
+    return;
+  }
+  const confirmBtn = document.getElementById("customerImportOverrideConfirmBtn");
+  if (confirmBtn) confirmBtn.disabled = true;
+  showDataStatus("customerImportOverrideStatus", "جاري التحقق من الهوية والصلاحية...", "info");
+  try {
+    const eligible = customerImportOverrideRows(customerImportPreview?.rows || []);
+    const duplicates = (customerImportPreview?.rows || []).filter(customerImportIsDuplicate).length;
+    const { data, error } = await window.customerSupabase.functions.invoke("verify-admin-import-override", {
+      body: {
+        password,
+        fileName: customerImportFile?.name || "",
+        totalRows: customerImportPreview?.summary?.total || 0,
+        overrideRows: eligible.length,
+        duplicateRows: duplicates
+      }
+    });
+    if (error) throw new Error(error.message || "تعذر التحقق من كلمة المرور.");
+    if (!data?.verified) throw new Error(data?.error || "فشل التحقق من مدير النظام.");
+    closeCustomerImportOverrideDialog();
+    await executeCustomerImport({ override: true });
+  } catch (error) {
+    showDataStatus("customerImportOverrideStatus", error instanceof Error ? error.message : "تعذر التحقق.", "error");
+  } finally {
+    if (confirmBtn) confirmBtn.disabled = false;
   }
 });
 

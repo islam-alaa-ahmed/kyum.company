@@ -2692,11 +2692,31 @@
       <div class="dialog-actions">
         <button id="customerImportFailedExportBtn" class="secondary-btn hidden" type="button">تنزيل ملف الصفوف التي بها أخطاء</button>
         <button id="customerImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
+        <button id="customerImportOverrideBtn" class="warning-btn hidden" type="button">اعتماد استثنائي بالباسورد</button>
         <button id="customerImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
       </div>
     </form>
   </dialog>
 
+  <dialog id="customerImportOverrideDialog" class="glass-dialog customer-import-override-dialog">
+    <form id="customerImportOverrideForm" class="dialog-shell" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <h3>اعتماد استيراد استثنائي</h3>
+          <p>متاح لمدير النظام فقط، ولن يتم رفع أي صف مكرر أو مرفوع مسبقًا.</p>
+        </div>
+        <button id="customerImportOverrideCloseBtn" class="icon-btn" type="button" aria-label="إغلاق">×</button>
+      </div>
+      <div id="customerImportOverrideSummary" class="customer-import-override-summary"></div>
+      <label class="field-label" for="customerImportOverridePassword">كلمة مرور مدير النظام الحالية</label>
+      <input id="customerImportOverridePassword" class="text-input" type="password" autocomplete="current-password" required>
+      <div id="customerImportOverrideStatus" class="data-status hidden"></div>
+      <div class="dialog-actions">
+        <button id="customerImportOverrideCancelBtn" class="secondary-btn" type="button">إلغاء</button>
+        <button id="customerImportOverrideConfirmBtn" class="warning-btn" type="submit">تحقق واعتمد الاستيراد</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
