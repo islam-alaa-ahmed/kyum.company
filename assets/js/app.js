@@ -22,6 +22,7 @@ let referenceCustomersPage = 1;
 let customerImportPreview = null;
 let customerImportFile = null;
 let customerImportFailedRows = [];
+let customerImportOverrideAuditId = null;
 let representativeImportPreview = null;
 let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
@@ -6836,6 +6837,8 @@ function resetCustomerImportDialog() {
   customerImportPreview = null;
   customerImportFile = null;
   customerImportFailedRows = [];
+  customerImportOverrideAuditId = null;
+  document.getElementById("customerImportResult")?.classList.add("hidden");
   const fileInput = document.getElementById("customerImportFileInput");
   if (fileInput) fileInput.value = "";
   const fileName = document.getElementById("customerImportFileName");
@@ -7077,9 +7080,49 @@ function openCustomerImportOverrideDialog() {
   setTimeout(() => document.getElementById("customerImportOverridePassword")?.focus(), 50);
 }
 
-async function executeCustomerImport({ override = false } = {}) {
+async function finalizeCustomerImportOverrideAudit(auditId, result, overrideRowsCount, status = "completed") {
+  if (!auditId) return;
+  const { data, error } = await window.customerSupabase.functions.invoke("verify-admin-import-override", {
+    body: {
+      action: "finalize",
+      auditId,
+      status,
+      insertedRows: Number(result?.inserted || 0),
+      updatedRows: Number(result?.updated || 0),
+      requestRows: Number(result?.requestsInserted || 0),
+      skippedRows: Number((result?.skipped || 0) + (result?.requestsSkipped || 0)),
+      failedRows: Number(result?.failed || 0),
+      overrideRows: Number(overrideRowsCount || 0)
+    }
+  });
+  if (error || !data?.finalized) {
+    throw new Error(data?.error || error?.message || "تعذر إغلاق سجل الاعتماد الاستثنائي.");
+  }
+}
+
+function renderCustomerImportResult(result, { override = false, overrideRowsCount = 0, auditFinalized = false } = {}) {
+  const panel = document.getElementById("customerImportResult");
+  if (!panel) return;
+  const savedCustomers = Number(result?.inserted || 0) + Number(result?.updated || 0);
+  const savedRequests = Number(result?.requestsInserted || 0);
+  const failed = Number(result?.failed || 0);
+  const skipped = Number(result?.skipped || 0) + Number(result?.requestsSkipped || 0);
+  panel.classList.remove("hidden");
+  panel.innerHTML = `
+    <strong>${failed ? "اكتمل الاستيراد مع ملاحظات" : "تم حفظ البيانات في Supabase بنجاح"}</strong>
+    <span>العملاء المحفوظون أو المحدثون: ${savedCustomers}</span>
+    <span>الطلبات وعروض الأسعار المحفوظة: ${savedRequests}</span>
+    ${override ? `<span>الصفوف المعتمدة استثنائيًا: ${overrideRowsCount}</span>` : ""}
+    <span>المكرر أو المتجاهل: ${skipped}</span>
+    <span>فشل الحفظ: ${failed}</span>
+    ${override ? `<span>سجل الاعتماد: ${auditFinalized ? "تم إغلاقه وتأكيده" : "تعذر تأكيد إغلاقه"}</span>` : ""}
+  `;
+}
+
+async function executeCustomerImport({ override = false, auditId = null } = {}) {
   if (!customerImportPreview) return;
   const mode = document.getElementById("customerImportMode")?.value || "new_only";
+  document.getElementById("customerImportResult")?.classList.add("hidden");
 
   if (!requireScreenAction("customers", "add", "لا توجد صلاحية استيراد العملاء.")) return;
   if (mode === "upsert" &&
@@ -7148,14 +7191,40 @@ async function executeCustomerImport({ override = false } = {}) {
     }
     await loadCustomersFromSupabase(true);
     renderReferenceCustomers();
+
+    let auditFinalized = false;
+    if (override && auditId) {
+      try {
+        await finalizeCustomerImportOverrideAudit(
+          auditId,
+          result,
+          overrideRows.length,
+          result.failed ? "completed_with_errors" : "completed"
+        );
+        auditFinalized = true;
+      } catch (auditError) {
+        console.error("Import override audit finalization failed:", auditError);
+      }
+    }
+
+    renderCustomerImportResult(result, {
+      override,
+      overrideRowsCount: overrideRows.length,
+      auditFinalized
+    });
     showDataStatus(
       "customerImportStatus",
-      `اكتمل الاستيراد: ${result.inserted} جديد، ${result.updated} تحديث، ${result.skipped + result.requestsSkipped} مكرر أو متجاهل، ${result.failed} فشل${override ? `، ${overrideRows.length} صف باعتماد استثنائي` : ""}.`,
+      `اكتمل الاستيراد وتم تنفيذ الحفظ في Supabase: ${result.inserted} جديد، ${result.updated} تحديث، ${result.requestsInserted} طلب أو عرض سعر، ${result.skipped + result.requestsSkipped} مكرر أو متجاهل، ${result.failed} فشل${override ? `، ${overrideRows.length} صف باعتماد استثنائي` : ""}.`,
       result.failed ? "error" : "success"
     );
-
-    if (!result.failed) setTimeout(closeCustomerImportDialog, 1200);
   } catch (error) {
+    if (override && auditId) {
+      try {
+        await finalizeCustomerImportOverrideAudit(auditId, { failed: importRows.length }, overrideRows.length, "failed");
+      } catch (auditError) {
+        console.error("Failed import audit finalization skipped:", auditError);
+      }
+    }
     showDataStatus(
       "customerImportStatus",
       error instanceof Error ? error.message : "تعذر تنفيذ الاستيراد.",
@@ -7191,6 +7260,7 @@ document.getElementById("customerImportOverrideForm")?.addEventListener("submit"
     const duplicates = (customerImportPreview?.rows || []).filter(customerImportIsDuplicate).length;
     const { data, error } = await window.customerSupabase.functions.invoke("verify-admin-import-override", {
       body: {
+        action: "verify",
         password,
         fileName: customerImportFile?.name || "",
         totalRows: customerImportPreview?.summary?.total || 0,
@@ -7200,8 +7270,9 @@ document.getElementById("customerImportOverrideForm")?.addEventListener("submit"
     });
     if (error) throw new Error(error.message || "تعذر التحقق من كلمة المرور.");
     if (!data?.verified) throw new Error(data?.error || "فشل التحقق من مدير النظام.");
+    customerImportOverrideAuditId = data.auditId || null;
     closeCustomerImportOverrideDialog();
-    await executeCustomerImport({ override: true });
+    await executeCustomerImport({ override: true, auditId: customerImportOverrideAuditId });
   } catch (error) {
     showDataStatus("customerImportOverrideStatus", error instanceof Error ? error.message : "تعذر التحقق.", "error");
   } finally {

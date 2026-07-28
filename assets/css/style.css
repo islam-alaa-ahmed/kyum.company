@@ -10869,3 +10869,75 @@ html[data-theme="dark"] .customer-import-decision-notice {
 .customer-import-override-summary strong { font-size: 1rem; }
 .customer-import-override-summary span { color: var(--text-secondary, #5f6b7c); }
 .customer-import-override-dialog .text-input { width: 100%; }
+
+/* Phase M10.8.5 — Import Override Finalization & Footer Stabilization */
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-result {
+  margin: 10px 20px 0;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 16px;
+  border: 1px solid color-mix(in srgb, #16a34a 34%, var(--border-color));
+  border-radius: 14px;
+  background: color-mix(in srgb, #16a34a 8%, var(--panel-bg));
+  color: var(--text-primary);
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-result.hidden { display: none; }
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-result strong {
+  grid-column: 1 / -1;
+  font-size: 1rem;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-result span {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+.customer-import-dialog:not(.representative-import-dialog) .customer-import-footer {
+  justify-content: space-between;
+  gap: 14px;
+}
+.customer-import-footer-secondary,
+.customer-import-footer-primary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.customer-import-footer-secondary { flex: 1 1 auto; }
+.customer-import-footer-primary { flex: 0 0 auto; }
+.customer-import-footer-secondary #customerImportFailedExportBtn {
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customer-import-footer-primary button {
+  min-height: 46px;
+  white-space: nowrap;
+}
+.customer-import-footer-primary #customerImportOverrideBtn { order: 2; }
+.customer-import-footer-primary #customerImportExecuteBtn { order: 3; }
+.customer-import-footer-primary #customerImportCancelBtn { order: 1; }
+html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialog) .customer-import-result {
+  background: color-mix(in srgb, #22c55e 10%, #0f1d31);
+  border-color: rgba(74, 222, 128, .32);
+}
+@media (max-width: 900px) {
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-result {
+    grid-template-columns: 1fr 1fr;
+  }
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .customer-import-footer-secondary,
+  .customer-import-footer-primary { width: 100%; }
+  .customer-import-footer-secondary #customerImportFailedExportBtn { max-width: none; width: 100%; }
+  .customer-import-footer-primary { justify-content: flex-end; flex-wrap: wrap; }
+}
+@media (max-width: 620px) {
+  .customer-import-dialog:not(.representative-import-dialog) .customer-import-result {
+    margin-inline: 12px;
+    grid-template-columns: 1fr;
+  }
+  .customer-import-footer-primary button { flex: 1 1 100%; }
+}

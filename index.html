@@ -2611,6 +2611,8 @@
         <article><span>موجود بالنظام</span><strong id="representativeImportExistingCount">0</strong></article>
       </div>
 
+      <div id="customerImportResult" class="customer-import-result hidden" aria-live="polite"></div>
+
       <div class="table-wrap customer-import-preview-wrap">
         <table class="data-table customer-import-preview-table">
           <thead><tr><th>#</th><th>كود المندوب</th><th>اسم المندوب</th><th>الجوال</th><th>البريد الإلكتروني</th><th>الحالة</th><th>الملاحظات</th></tr></thead>
@@ -2670,6 +2672,8 @@
         </select>
       </div>
 
+      <div id="customerImportResult" class="customer-import-result hidden" aria-live="polite"></div>
+
       <div class="table-wrap customer-import-preview-wrap">
         <table class="data-table customer-import-preview-table">
           <thead>
@@ -2689,11 +2693,15 @@
         </table>
       </div>
 
-      <div class="dialog-actions">
-        <button id="customerImportFailedExportBtn" class="secondary-btn hidden" type="button">تنزيل ملف الصفوف التي بها أخطاء</button>
-        <button id="customerImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
-        <button id="customerImportOverrideBtn" class="warning-btn hidden" type="button">اعتماد استثنائي بالباسورد</button>
-        <button id="customerImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
+      <div class="dialog-actions customer-import-footer">
+        <div class="customer-import-footer-secondary">
+          <button id="customerImportFailedExportBtn" class="secondary-btn hidden" type="button">تنزيل ملف الصفوف التي بها أخطاء</button>
+        </div>
+        <div class="customer-import-footer-primary">
+          <button id="customerImportCancelBtn" class="secondary-btn" type="button">إلغاء</button>
+          <button id="customerImportOverrideBtn" class="warning-btn hidden" type="button">اعتماد استثنائي بالباسورد</button>
+          <button id="customerImportExecuteBtn" class="primary-btn" type="button" disabled>اعتماد الاستيراد</button>
+        </div>
       </div>
     </form>
   </dialog>

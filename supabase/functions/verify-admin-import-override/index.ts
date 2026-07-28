@@ -40,6 +40,44 @@ Deno.serve(async (request) => {
     }
 
     const body = await request.json().catch(() => ({}));
+    const action = String(body.action || "verify");
+
+    if (action === "finalize") {
+      const auditId = String(body.auditId || "");
+      if (!auditId) return response({ finalized: false, error: "Audit ID is required." }, 400);
+
+      const status = ["completed", "completed_with_errors", "failed"].includes(String(body.status))
+        ? String(body.status)
+        : "completed";
+
+      const { data: updated, error: updateError } = await admin
+        .from("admin_import_overrides")
+        .update({
+          status,
+          inserted_rows: Number(body.insertedRows || 0),
+          updated_rows: Number(body.updatedRows || 0),
+          request_rows: Number(body.requestRows || 0),
+          skipped_rows: Number(body.skippedRows || 0),
+          failed_rows: Number(body.failedRows || 0),
+          override_rows: Number(body.overrideRows || 0),
+          completed_at: new Date().toISOString(),
+          metadata: {
+            source: "kyum-crm-web",
+            finalized_by_edge_function: true,
+            user_agent: request.headers.get("user-agent") || "",
+          },
+        })
+        .eq("id", auditId)
+        .eq("user_id", callerData.user.id)
+        .select("id, status, completed_at")
+        .single();
+
+      if (updateError || !updated) {
+        return response({ finalized: false, error: updateError?.message || "تعذر تحديث سجل الاعتماد." }, 500);
+      }
+      return response({ finalized: true, audit: updated });
+    }
+
     const password = String(body.password || "");
     if (!password) return response({ verified: false, error: "كلمة المرور مطلوبة." }, 400);
 
@@ -56,6 +94,7 @@ Deno.serve(async (request) => {
       total_rows: Number(body.totalRows || 0),
       override_rows: Number(body.overrideRows || 0),
       duplicate_rows: Number(body.duplicateRows || 0),
+      status: "authorized",
       metadata: {
         source: "kyum-crm-web",
         user_agent: request.headers.get("user-agent") || "",
