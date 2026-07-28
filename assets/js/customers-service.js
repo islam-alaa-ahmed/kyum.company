@@ -410,25 +410,65 @@
       const row = groupRows[0];
       try {
         let customerId = customerIdByKey.get(key) || null;
+
+        // Re-check the phone against Supabase immediately before INSERT. The
+        // preview can become stale, and another import/user may create the same
+        // customer after preview generation. This guard prevents avoidable 409
+        // conflicts and never re-inserts a customer that already exists.
+        if (!customerId && row.phone) {
+          const serverExisting = await findByPhone(row.phone);
+          if (serverExisting) {
+            if (serverExisting.id) {
+              customerId = serverExisting.id;
+              customerIdByKey.set(key, customerId);
+            } else {
+              // The phone exists outside the current user's permitted scope.
+              // Do not expose or update it and do not attempt a conflicting INSERT.
+              results.skipped += groupRows.length;
+              groupedRows.delete(key);
+              return;
+            }
+          }
+        }
+
         if (!customerId) {
-          customerId = await saveCustomer({
-            id: null,
-            name: row.name,
-            type: row.type,
-            contactPersonName: row.contactPersonName,
-            phone: row.phone,
-            region: row.region,
-            city: row.city,
-            district: row.district,
-            representativeId: row.representativeId,
-            contactDate: row.contactDate,
-            quotationNumber: row.quotationNumber,
-            noSaleReasonId: row.noSaleReasonId,
-            notes: row.notes,
-            interestIds: row.interestIds
-          }, { userId });
-          customerIdByKey.set(key, customerId);
-          results.inserted += 1;
+          try {
+            customerId = await saveCustomer({
+              id: null,
+              name: row.name,
+              type: row.type,
+              contactPersonName: row.contactPersonName,
+              phone: row.phone,
+              region: row.region,
+              city: row.city,
+              district: row.district,
+              representativeId: row.representativeId,
+              contactDate: row.contactDate,
+              quotationNumber: row.quotationNumber,
+              noSaleReasonId: row.noSaleReasonId,
+              notes: row.notes,
+              interestIds: row.interestIds
+            }, { userId });
+            customerIdByKey.set(key, customerId);
+            results.inserted += 1;
+          } catch (insertError) {
+            // A unique conflict can still happen in the small race window
+            // between the pre-check and INSERT. Resolve the existing record and
+            // continue safely instead of reporting a false failed import.
+            const conflict = /مسجل بالفعل|duplicate|unique|409/i.test(
+              insertError instanceof Error ? insertError.message : String(insertError)
+            );
+            if (!conflict || !row.phone) throw insertError;
+            const serverExisting = await findByPhone(row.phone);
+            if (serverExisting?.id) {
+              customerId = serverExisting.id;
+              customerIdByKey.set(key, customerId);
+            } else {
+              results.skipped += groupRows.length;
+              groupedRows.delete(key);
+              return;
+            }
+          }
         } else if (row.existingCustomer && mode === "upsert") {
           await saveCustomer({
             id: customerId,
