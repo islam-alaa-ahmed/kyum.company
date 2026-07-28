@@ -6854,6 +6854,11 @@ function resetCustomerImportDialog() {
   if (progressBar) progressBar.style.width = "0%";
   const failedExportBtn = document.getElementById("customerImportFailedExportBtn");
   if (failedExportBtn) failedExportBtn.classList.add("hidden");
+  const decisionNotice = document.getElementById("customerImportDecisionNotice");
+  if (decisionNotice) {
+    decisionNotice.textContent = "";
+    decisionNotice.classList.add("hidden");
+  }
   customerImportPreviewFilter = "all";
   const previewFilter = document.getElementById("customerImportPreviewFilter");
   if (previewFilter) previewFilter.value = "all";
@@ -6864,6 +6869,7 @@ function customerImportRowMatchesFilter(row, filterValue = customerImportPreview
   if (filterValue === "valid") return row.errors.length === 0;
   if (filterValue === "new") return row.status === "new";
   if (filterValue === "existing") return row.status === "existing";
+  if (filterValue === "uploaded") return row.status === "uploaded";
   if (filterValue === "request") return row.status === "request";
   if (filterValue === "duplicates") {
     return row.errors.some(error => error.includes("مكرر") || error.includes("مكررة") || error.includes("مكرران"));
@@ -6880,6 +6886,7 @@ function renderCustomerImportPreview(preview) {
     customerImportErrorCount: summary.errors,
     customerImportNewCount: summary.newCustomers,
     customerImportExistingCount: summary.existingCustomers,
+    customerImportUploadedCount: summary.uploadedPreviously || 0,
     customerImportDuplicateCount: summary.duplicates
   };
   Object.entries(values).forEach(([id, value]) => {
@@ -6896,14 +6903,16 @@ function renderCustomerImportPreview(preview) {
     body.innerHTML = visibleRows.length ? visibleRows.map(row => {
       const statusLabel = row.status === "error"
         ? "خطأ"
-        : row.status === "request"
-          ? "طلب إضافي"
-          : row.status === "existing"
-            ? "موجود"
-            : "جديد";
+        : row.status === "uploaded"
+          ? "مرفوع مسبقًا"
+          : row.status === "request"
+            ? "طلب إضافي"
+            : row.status === "existing"
+              ? "موجود"
+              : "جديد";
       const statusClass = row.status === "error"
         ? "danger"
-        : row.status === "existing"
+        : (row.status === "existing" || row.status === "uploaded")
           ? "warning"
           : "success";
       return `
@@ -6926,8 +6935,19 @@ function renderCustomerImportPreview(preview) {
   }
 
   const executeBtn = document.getElementById("customerImportExecuteBtn");
+  const importableCount = preview.rows.filter(row => !row.errors.length && row.status !== "uploaded").length;
+  const decisionNotice = document.getElementById("customerImportDecisionNotice");
+  if (decisionNotice) {
+    const messages = [];
+    if (summary.errors) messages.push(`سيتم تجاهل ${summary.errors} صف به أخطاء ولن يتم حفظه.`);
+    if (summary.uploadedPreviously) messages.push(`تم العثور على ${summary.uploadedPreviously} صف مرفوع مسبقًا وسيتم استبعاده من الاستيراد.`);
+    messages.push(`سيتم اعتماد ${importableCount} صف فقط.`);
+    decisionNotice.textContent = messages.join(" ");
+    decisionNotice.classList.remove("hidden");
+  }
   if (executeBtn) {
-    executeBtn.disabled = summary.valid === 0;
+    executeBtn.disabled = importableCount === 0;
+    executeBtn.textContent = importableCount ? `اعتماد الاستيراد (${importableCount})` : "لا توجد صفوف قابلة للاستيراد";
   }
 }
 
@@ -6940,19 +6960,22 @@ async function previewCustomerImportFile(file) {
 
   try {
     const rows = await window.CustomerExcelCenter.parseImportFile(file);
+    const customerIds = customers.filter(customer => customer?.id).map(customer => customer.id);
+    const existingRequestKeys = await window.CustomersService.listExistingImportedRequestKeys(customerIds);
     const preview = window.CustomerExcelCenter.buildImportPreview(rows, {
       customers,
       representatives: representativeRecords,
       interests: interestRecords,
-      reasons: reasonRecords
+      reasons: reasonRecords,
+      existingRequestKeys
     });
     renderCustomerImportPreview(preview);
     showDataStatus(
       "customerImportStatus",
-      preview.summary.errors
-        ? `تم التحقق: سيتم استيراد ${preview.summary.valid} صف صحيح وتجاهل ${preview.summary.errors} صف به أخطاء.`
+      (preview.summary.errors || preview.summary.uploadedPreviously)
+        ? `تم التحقق: الأخطاء ${preview.summary.errors}، والمرفوع مسبقًا ${preview.summary.uploadedPreviously || 0}. راجع ملخص الاعتماد قبل الاستيراد.`
         : "تم التحقق من الملف وهو جاهز للاستيراد.",
-      preview.summary.errors ? "info" : "success"
+      (preview.summary.errors || preview.summary.uploadedPreviously) ? "info" : "success"
     );
   } catch (error) {
     customerImportPreview = null;
@@ -6999,7 +7022,14 @@ document.getElementById("customerImportExecuteBtn")?.addEventListener("click", a
     return;
   }
 
-  const validRows = customerImportPreview.rows.filter(row => !row.errors.length);
+  const validRows = customerImportPreview.rows.filter(row => !row.errors.length && row.status !== "uploaded");
+  const ignoredErrors = customerImportPreview.summary.errors || 0;
+  const uploadedPreviously = customerImportPreview.summary.uploadedPreviously || 0;
+  const confirmed = window.confirm(
+    `سيتم استيراد ${validRows.length} صف فقط. سيتم تجاهل ${ignoredErrors} صف به أخطاء و${uploadedPreviously} صف مرفوع مسبقًا. هل تريد المتابعة؟`
+  );
+  if (!confirmed) return;
+
   const executeBtn = document.getElementById("customerImportExecuteBtn");
   if (executeBtn) executeBtn.disabled = true;
 

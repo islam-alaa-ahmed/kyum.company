@@ -10824,3 +10824,19 @@ html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialo
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Phase M10.8.1 — Customer import validation decision notice */
+.customer-import-decision-notice {
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--warning, #d97706) 38%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning, #d97706) 10%, var(--surface, #ffffff));
+  color: var(--text-primary, #172033);
+  font-weight: 700;
+  line-height: 1.7;
+}
+html[data-theme="dark"] .customer-import-decision-notice {
+  background: color-mix(in srgb, #f59e0b 13%, var(--surface, #13233b));
+  color: var(--text-primary, #f8fafc);
+}

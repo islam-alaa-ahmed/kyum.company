@@ -254,6 +254,38 @@
   }
 
 
+  function importedRequestKey(customerId, requestNumber, quotationNumber) {
+    return `${String(customerId || "")}::${String(requestNumber || "").trim().toLowerCase() || "-"}::${String(quotationNumber || "").trim().toLowerCase() || "-"}`;
+  }
+
+  async function listExistingImportedRequestKeys(customerIds = []) {
+    const ids = [...new Set((customerIds || []).filter(Boolean))];
+    if (!ids.length) return new Set();
+
+    const keys = new Set();
+    const batchSize = 200;
+    for (let offset = 0; offset < ids.length; offset += batchSize) {
+      const batch = ids.slice(offset, offset + batchSize);
+      const pageSize = 1000;
+      for (let pageStart = 0; ; pageStart += pageSize) {
+        const rows = await unwrap(
+          client()
+            .from("customer_requests")
+            .select("customer_id, request_number, quotation_number")
+            .in("customer_id", batch)
+            .range(pageStart, pageStart + pageSize - 1),
+          "تعذر التحقق من البيانات المرفوعة مسبقًا"
+        );
+        (rows || []).forEach(row => {
+          keys.add(importedRequestKey(row.customer_id, row.request_number, row.quotation_number));
+        });
+        if (!rows || rows.length < pageSize) break;
+      }
+    }
+    return keys;
+  }
+
+
   async function saveImportedRequest(customerId, row) {
     if (!row.requestNumber && !row.quotationNumber) return { inserted: false, skipped: true };
 
@@ -386,6 +418,8 @@
     findByPhone,
     saveCustomer,
     deleteCustomer,
-    importCustomers
+    importCustomers,
+    listExistingImportedRequestKeys,
+    importedRequestKey
   });
 })();

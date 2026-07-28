@@ -336,6 +336,7 @@
     const reasonMap = new Map(
       (context.reasons || []).map(item => [normalizeHeader(item.name), item])
     );
+    const existingRequestKeys = context.existingRequestKeys || new Set();
     const existingMap = new Map(
       (context.customers || [])
         .map(item => [normalizePhone(item.phone), item])
@@ -392,6 +393,15 @@
       if (row.noSaleReason && !reason) errors.push("سبب عدم البيع غير مسجل");
 
       const existing = row.phone ? (existingMap.get(row.phone) || null) : null;
+      const storedRequestKey = existing && (row.requestNumber || row.quotationNumber)
+        ? `${String(existing.id)}::${normalizeHeader(row.requestNumber) || "-"}::${normalizeHeader(row.quotationNumber) || "-"}`
+        : "";
+      const uploadedPreviously = Boolean(
+        existing && (
+          (!row.requestNumber && !row.quotationNumber)
+          || (storedRequestKey && existingRequestKeys.has(storedRequestKey))
+        )
+      );
 
       return {
         ...row,
@@ -400,9 +410,12 @@
         interestIds,
         noSaleReasonId: reason?.id || null,
         existingCustomer: existing,
+        uploadedPreviously,
         status: errors.length
           ? "error"
-          : (existing ? ((row.requestNumber || row.quotationNumber) ? "request" : "existing") : "new"),
+          : uploadedPreviously
+            ? "uploaded"
+            : (existing ? ((row.requestNumber || row.quotationNumber) ? "request" : "existing") : "new"),
         errors
       };
     });
@@ -415,6 +428,7 @@
         errors: previewRows.filter(row => row.errors.length).length,
         newCustomers: previewRows.filter(row => row.status === "new").length,
         existingCustomers: previewRows.filter(row => row.status === "existing").length,
+        uploadedPreviously: previewRows.filter(row => row.status === "uploaded").length,
         duplicates: previewRows.filter(row =>
           row.errors.some(error => error.includes("مكرر") || error.includes("مكرران"))
         ).length
