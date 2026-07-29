@@ -1,4 +1,34 @@
 
+/* Phase M12.2 — Android runtime capability marker and defensive touch-lock recovery */
+(() => {
+  "use strict";
+  const isAndroid = /Android/i.test(navigator.userAgent || "");
+  if (!isAndroid) return;
+
+  document.documentElement.classList.add("kyum-android");
+
+  function recoverTouchLocks() {
+    const sidebar = document.getElementById("mainSidebar");
+    const launcher = document.getElementById("sidebarMenuToggle");
+    const sidebarActuallyOpen = sidebar?.classList.contains("is-open") && launcher?.getAttribute("aria-expanded") === "true";
+    if (!sidebarActuallyOpen) document.body.classList.remove("sidebar-menu-open");
+
+    const dashboard = document.getElementById("dashboardView");
+    if (!dashboard?.classList.contains("mobile-filters-open")) document.body.classList.remove("mobile-dashboard-sheet-open");
+
+    const customers = document.getElementById("customersView");
+    if (!customers?.classList.contains("mobile-customers-filters-open")) document.body.classList.remove("mobile-customers-sheet-open");
+  }
+
+  window.addEventListener("pageshow", recoverTouchLocks, { passive: true });
+  window.addEventListener("hashchange", recoverTouchLocks, { passive: true });
+  window.addEventListener("popstate", recoverTouchLocks, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) recoverTouchLocks();
+  }, { passive: true });
+  window.setTimeout(recoverTouchLocks, 0);
+})();
+
 /* Phase M7.1 — Shared Saudi phone normalization */
 (() => {
   "use strict";
@@ -299,7 +329,8 @@
     if (MOBILE_MEDIA.matches) {
       installDashboardShell();
       installCustomersShell();
-      refreshDashboard({ announce: false });
+      // The main application already renders after authentication. Avoid a second
+      // full dashboard render, which is expensive on Android WebView.
     }
   });
 
@@ -1380,6 +1411,8 @@
   let moveRaf = 0;
   let pendingClientX = 0;
   let suppressClickUntil = 0;
+  const DRAG_START_PX = 12;
+  const VERTICAL_CANCEL_PX = 10;
   let lastScrollY = Math.max(0, window.scrollY);
   let compact = false;
   let scrollTimer = 0;
@@ -1458,24 +1491,54 @@
     }
   }
 
+  function clearGestureState() {
+    if (moveRaf) {
+      cancelAnimationFrame(moveRaf);
+      moveRaf = 0;
+    }
+    gesture = null;
+    nav.classList.remove("is-live-tracking", "is-hold-navigating");
+    preview(null);
+    indicator.classList.remove("is-immediate");
+  }
+
   function beginGesture(event) {
     if (!MOBILE_MEDIA.matches || (event.pointerType === "mouse" && event.button !== 0)) return;
     const item = event.target.closest(".mobile-nav-item:not([hidden])");
     if (!item || !nav.contains(item)) return;
 
-    event.preventDefault();
-    suppressClickUntil = performance.now() + 800;
+    // Do not cancel a normal tap. Android must be allowed to emit its native click.
     pendingClientX = event.clientX;
-    gesture = { pointerId: event.pointerId, target: item };
-    nav.classList.add("is-live-tracking", "is-hold-navigating");
-    indicator.classList.add("is-immediate");
+    gesture = {
+      pointerId: event.pointerId,
+      target: item,
+      startX: event.clientX,
+      startY: event.clientY,
+      dragging: false
+    };
     preview(item);
-    positionBubbleAt(event.clientX);
-    try { nav.setPointerCapture?.(event.pointerId); } catch (_) {}
   }
 
   function moveGesture(event) {
     if (!gesture || event.pointerId !== gesture.pointerId) return;
+    const dx = event.clientX - gesture.startX;
+    const dy = event.clientY - gesture.startY;
+
+    // A vertical movement belongs to page scrolling, not bottom-nav dragging.
+    if (!gesture.dragging && Math.abs(dy) > VERTICAL_CANCEL_PX && Math.abs(dy) > Math.abs(dx)) {
+      clearGestureState();
+      return;
+    }
+
+    if (!gesture.dragging) {
+      if (Math.abs(dx) < DRAG_START_PX) return;
+      gesture.dragging = true;
+      nav.classList.add("is-live-tracking", "is-hold-navigating");
+      indicator.classList.add("is-immediate");
+      try { nav.setPointerCapture?.(event.pointerId); } catch (_) {}
+    }
+
+    // Only an intentional horizontal drag suppresses native browser handling.
     event.preventDefault();
     pendingClientX = event.clientX;
     if (!moveRaf) moveRaf = requestAnimationFrame(flushMove);
@@ -1483,27 +1546,33 @@
 
   function endGesture(event, cancelled = false) {
     if (!gesture || event.pointerId !== gesture.pointerId) return;
-    event.preventDefault();
-    if (moveRaf) {
-      cancelAnimationFrame(moveRaf);
-      moveRaf = 0;
-      pendingClientX = event.clientX;
-      flushMove();
-    }
+    const wasDragging = gesture.dragging;
     const target = gesture.target;
-    gesture = null;
-    nav.classList.remove("is-live-tracking", "is-hold-navigating");
-    preview(null);
-    indicator.classList.remove("is-immediate");
-    suppressClickUntil = performance.now() + 650;
-    if (!cancelled) activate(target);
+
+    if (wasDragging) {
+      event.preventDefault();
+      if (moveRaf) {
+        cancelAnimationFrame(moveRaf);
+        moveRaf = 0;
+        pendingClientX = event.clientX;
+        flushMove();
+      }
+    }
+
+    clearGestureState();
+
+    if (wasDragging && !cancelled) {
+      suppressClickUntil = performance.now() + 450;
+      activate(target);
+    }
+    // For a normal tap do nothing here: the existing click handler performs navigation.
     scheduleSync(true);
   }
 
-  nav.addEventListener("pointerdown", beginGesture, { passive: false });
+  nav.addEventListener("pointerdown", beginGesture, { passive: true });
   nav.addEventListener("pointermove", moveGesture, { passive: false });
   nav.addEventListener("pointerup", event => endGesture(event, false), { passive: false });
-  nav.addEventListener("pointercancel", event => endGesture(event, true), { passive: false });
+  nav.addEventListener("pointercancel", event => endGesture(event, true), { passive: true });
   nav.addEventListener("lostpointercapture", event => {
     if (gesture && event.pointerId === gesture.pointerId) endGesture(event, true);
   });
@@ -1512,9 +1581,9 @@
     if (performance.now() < suppressClickUntil) {
       event.preventDefault();
       event.stopImmediatePropagation();
-    } else {
-      scheduleSync(false);
+      return;
     }
+    scheduleSync(false);
   }, true);
   nav.addEventListener("contextmenu", event => event.preventDefault());
   nav.addEventListener("selectstart", event => event.preventDefault());

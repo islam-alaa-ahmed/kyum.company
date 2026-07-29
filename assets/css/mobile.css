@@ -3317,3 +3317,59 @@ html.is-offline body::before {
     transform: none !important;
   }
 }
+
+
+/* Phase M12.2 — Android Touch & Performance Recovery */
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
+  html.kyum-android body:not(.sidebar-menu-open) {
+    touch-action: pan-x pan-y pinch-zoom !important;
+  }
+
+  html.kyum-android .mobile-bottom-nav {
+    touch-action: pan-y !important;
+    overscroll-behavior: auto !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(248,250,252,.96) !important;
+    box-shadow: 0 8px 22px rgba(15,23,42,.15) !important;
+  }
+
+  html.kyum-android[data-theme="dark"] .mobile-bottom-nav {
+    background: rgba(10,23,43,.96) !important;
+    box-shadow: 0 9px 24px rgba(0,0,0,.30) !important;
+  }
+
+  html.kyum-android .mobile-nav-item {
+    touch-action: manipulation !important;
+  }
+
+  html.kyum-android .mobile-bottom-nav.is-live-tracking,
+  html.kyum-android .mobile-bottom-nav.is-hold-navigating,
+  html.kyum-android .mobile-bottom-nav.is-live-tracking .mobile-nav-item,
+  html.kyum-android .mobile-bottom-nav.is-hold-navigating .mobile-nav-item {
+    touch-action: none !important;
+  }
+
+  html.kyum-android #appHeader.topbar,
+  html.kyum-android #appHeader.topbar.is-scrolled,
+  html.kyum-android #appHeader.topbar.mobile-header-stable {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--surface) !important;
+    box-shadow: 0 5px 16px rgba(15,23,42,.10) !important;
+    transition: none !important;
+  }
+
+  html.kyum-android .sidebar-backdrop,
+  html.kyum-android dialog::backdrop,
+  html.kyum-android #customerDetailsDialog::backdrop {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  html.kyum-android .mobile-nav-item,
+  html.kyum-android .mobile-nav-active-indicator,
+  html.kyum-android .mobile-bottom-nav {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
