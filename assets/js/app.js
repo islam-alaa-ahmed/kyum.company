@@ -698,6 +698,24 @@ function showDataStatus(id, message = "", type = "info") {
   element.className = message ? `data-status ${type}` : "data-status hidden";
 }
 
+function applyReferenceCacheUpdate(event) {
+  const detail = event?.detail || {};
+  const key = String(detail.key || "");
+  const data = Array.isArray(detail.data) ? detail.data : null;
+  if (!data) return;
+
+  if (key === "sales_representatives:all") representativeRecords = data;
+  else if (key === "interest_categories:all") interestRecords = data;
+  else if (key === "no_sale_reasons:all") reasonRecords = data;
+  else return;
+
+  referenceDataLoaded = true;
+  referenceDataLoadedAt = Date.now();
+  refreshReferenceOptions();
+}
+
+window.addEventListener("kyum-reference-cache-updated", applyReferenceCacheUpdate);
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService || !window.customerSupabase) return;
 

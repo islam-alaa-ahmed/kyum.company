@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-3-10-m12-5-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-4-0-m13-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";
@@ -41,6 +41,7 @@ const APP_SHELL = [
   "./assets/js/supabase-config.js",
   "./assets/js/system-health-service.js",
   "./assets/js/system-settings-service.js",
+  "./assets/js/smart-cache.js",
   "./assets/js/users-service.js",
   "./assets/images/android-chrome-192x192.png",
   "./assets/images/android-chrome-512x512.png",

@@ -1,6 +1,8 @@
 // KYUM Phase 07 — Reference Data Supabase Service
 (function () {
   const CACHE_TTL_MS = 5 * 60 * 1000;
+  const PERSISTENT_TTL_MS = 24 * 60 * 60 * 1000;
+  const PERSISTENT_STALE_MAX_MS = 30 * 24 * 60 * 60 * 1000;
   const cache = new Map();
   const inFlight = new Map();
 
@@ -26,6 +28,42 @@
     return `${name}:${includeInactive ? "all" : "active"}`;
   }
 
+  async function currentNamespace() {
+    try {
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
+    } catch (_) {
+      return "user:anonymous";
+    }
+  }
+
+  function emitCacheUpdate(key, data, source) {
+    window.dispatchEvent(new CustomEvent("kyum-reference-cache-updated", {
+      detail: { key, data, source, updatedAt: Date.now() }
+    }));
+  }
+
+  async function persist(key, data, namespace) {
+    if (!window.KYUMSmartCache) return null;
+    return window.KYUMSmartCache.set(`reference:${key}`, data, {
+      namespace,
+      ttlMs: PERSISTENT_TTL_MS,
+      staleMaxMs: PERSISTENT_STALE_MAX_MS,
+      source: "supabase",
+      schemaVersion: 1
+    });
+  }
+
+  async function refreshFromNetwork(key, loader, namespace, previousData = null) {
+    const data = await loader();
+    cache.set(key, { data, timestamp: Date.now() });
+    await persist(key, data, namespace);
+    if (previousData && window.KYUMSmartCache?.hashValue(previousData) !== window.KYUMSmartCache?.hashValue(data)) {
+      emitCacheUpdate(key, data, "network-refresh");
+    }
+    return data;
+  }
+
   async function cachedList(key, loader) {
     const cached = cache.get(key);
     if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
@@ -37,9 +75,33 @@
     }
 
     const request = (async () => {
-      const data = await loader();
-      cache.set(key, { data, timestamp: Date.now() });
-      return data;
+      const namespace = await currentNamespace();
+      let persistent = null;
+
+      if (window.KYUMSmartCache) {
+        persistent = await window.KYUMSmartCache.get(`reference:${key}`, {
+          namespace,
+          allowStale: true,
+          staleMaxMs: PERSISTENT_STALE_MAX_MS
+        });
+      }
+
+      if (persistent?.hit) {
+        cache.set(key, { data: persistent.data, timestamp: Date.now() });
+        if (navigator.onLine !== false) {
+          refreshFromNetwork(key, loader, namespace, persistent.data).catch(error => {
+            console.warn(`Reference data background refresh skipped for ${key}:`, error);
+          });
+        }
+        return persistent.data;
+      }
+
+      try {
+        return await refreshFromNetwork(key, loader, namespace);
+      } catch (error) {
+        if (persistent?.data) return persistent.data;
+        throw error;
+      }
     })();
 
     inFlight.set(key, request);
@@ -54,12 +116,15 @@
   function invalidate(prefix = "") {
     if (!prefix) {
       cache.clear();
-      return;
+    } else {
+      for (const key of cache.keys()) {
+        if (key.startsWith(prefix)) cache.delete(key);
+      }
     }
 
-    for (const key of cache.keys()) {
-      if (key.startsWith(prefix)) cache.delete(key);
-    }
+    currentNamespace().then(namespace => {
+      window.KYUMSmartCache?.removePrefix(`reference:${prefix}`, { namespace });
+    }).catch(() => {});
   }
 
   async function listRepresentatives(includeInactive = true) {
