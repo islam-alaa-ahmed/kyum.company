@@ -13,6 +13,51 @@
     return window.customerSupabase;
   }
 
+
+  const FOLLOWUPS_CACHE_TTL_MS = 10 * 60 * 1000;
+  const FOLLOWUPS_CACHE_STALE_MAX_MS = 7 * 24 * 60 * 60 * 1000;
+  const FOLLOWUPS_CACHE_SCHEMA_VERSION = 1;
+  const followupRefreshes = new Map();
+
+  async function currentFollowupNamespace() {
+    try {
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
+    } catch (_) {
+      return "user:anonymous";
+    }
+  }
+
+  function followupScopeCacheKey(scope) {
+    const ids = Array.isArray(scope?.representativeIds)
+      ? [...scope.representativeIds].filter(Boolean).sort()
+      : [];
+    return `followups:${scope?.mode || "none"}:${ids.join(",") || "all"}`;
+  }
+
+  function emitFollowupCacheUpdate(data, source, cacheKey) {
+    window.dispatchEvent(new CustomEvent("kyum-followup-cache-updated", {
+      detail: { data, source, cacheKey, updatedAt: Date.now() }
+    }));
+  }
+
+  async function persistFollowups(cacheKey, rows, namespace) {
+    if (!window.KYUMSmartCache) return null;
+    return window.KYUMSmartCache.set(cacheKey, rows, {
+      namespace,
+      ttlMs: FOLLOWUPS_CACHE_TTL_MS,
+      staleMaxMs: FOLLOWUPS_CACHE_STALE_MAX_MS,
+      source: "supabase",
+      schemaVersion: FOLLOWUPS_CACHE_SCHEMA_VERSION
+    });
+  }
+
+  async function invalidateFollowupCache() {
+    if (!window.KYUMSmartCache) return;
+    const namespace = await currentFollowupNamespace();
+    await window.KYUMSmartCache.removePrefix("followups:", { namespace });
+  }
+
   async function unwrap(request, fallbackMessage) {
     const { data, error } = await request;
     if (error) {
@@ -85,8 +130,7 @@
     };
   }
 
-  async function listFollowups() {
-    const scope = await resolveRepresentativeScope();
+  async function fetchFollowupsFromNetwork(scope) {
     if (scope.mode === "none") return [];
 
     let request = client()
@@ -129,6 +173,64 @@
 
     const rows = await unwrap(request, "تعذر تحميل المتابعات");
     return (rows || []).map(normalizeFollowup);
+  }
+
+  async function refreshFollowupsInBackground(scope, namespace, cacheKey, previousRows) {
+    if (followupRefreshes.has(cacheKey)) return followupRefreshes.get(cacheKey);
+
+    const refresh = (async () => {
+      const rows = await fetchFollowupsFromNetwork(scope);
+      await persistFollowups(cacheKey, rows, namespace);
+      const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
+      const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
+      if (previousHash !== nextHash) {
+        emitFollowupCacheUpdate(rows, "network-refresh", cacheKey);
+      }
+      return rows;
+    })();
+
+    followupRefreshes.set(cacheKey, refresh);
+    try {
+      return await refresh;
+    } finally {
+      followupRefreshes.delete(cacheKey);
+    }
+  }
+
+  async function listFollowups(options = {}) {
+    const scope = await resolveRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    const namespace = await currentFollowupNamespace();
+    const cacheKey = followupScopeCacheKey(scope);
+    const force = Boolean(options.force);
+    let cached = null;
+
+    if (!force && window.KYUMSmartCache) {
+      cached = await window.KYUMSmartCache.get(cacheKey, {
+        namespace,
+        allowStale: true,
+        staleMaxMs: FOLLOWUPS_CACHE_STALE_MAX_MS
+      });
+    }
+
+    if (cached?.hit && Array.isArray(cached.data)) {
+      if (navigator.onLine !== false) {
+        refreshFollowupsInBackground(scope, namespace, cacheKey, cached.data).catch(error => {
+          console.warn("Follow-up cache background refresh skipped:", error);
+        });
+      }
+      return cached.data;
+    }
+
+    try {
+      const rows = await fetchFollowupsFromNetwork(scope);
+      await persistFollowups(cacheKey, rows, namespace);
+      return rows;
+    } catch (error) {
+      if (cached?.data && Array.isArray(cached.data)) return cached.data;
+      throw error;
+    }
   }
 
   async function updateCustomerSnapshot(record) {
@@ -231,6 +333,7 @@
       is_completed: Boolean(record.completed)
     });
 
+    await invalidateFollowupCache();
     return saved.id;
   }
 
@@ -249,6 +352,7 @@
       customer_id: record.customerId,
       contact_date: record.contactDate
     });
+    await invalidateFollowupCache();
   }
 
   async function audit(action, entityId, newData) {
@@ -273,6 +377,7 @@
   window.FollowupsService = Object.freeze({
     listFollowups,
     saveFollowup,
-    deleteFollowup
+    deleteFollowup,
+    invalidateFollowupCache
   });
 })();

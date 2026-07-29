@@ -241,7 +241,7 @@
   }
 
   window.KYUMSmartCache = Object.freeze({
-    version: "M13.2",
+    version: "M13.3",
     get,
     set,
     remove,

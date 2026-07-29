@@ -733,6 +733,20 @@ function applyCustomerCacheUpdate(event) {
 
 window.addEventListener("kyum-customer-cache-updated", applyCustomerCacheUpdate);
 
+function applyFollowupCacheUpdate(event) {
+  const rows = event?.detail?.data;
+  if (!Array.isArray(rows)) return;
+
+  followups = rows;
+  followupsLoaded = true;
+  followupsPage = 1;
+  showDataStatus("followupsStatus", "");
+  renderFollowups();
+  renderDashboard();
+}
+
+window.addEventListener("kyum-followup-cache-updated", applyFollowupCacheUpdate);
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService || !window.customerSupabase) return;
 
@@ -3621,7 +3635,7 @@ async function loadFollowupsFromSupabase(force = false) {
   showDataStatus("followupsStatus", "جاري تحميل المتابعات من Supabase...", "info");
 
   try {
-    followups = await window.FollowupsService.listFollowups();
+    followups = await window.FollowupsService.listFollowups({ force });
     followupsLoaded = true;
     followupsPage = 1;
     showDataStatus("followupsStatus", "");
