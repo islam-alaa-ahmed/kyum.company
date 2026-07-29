@@ -39,14 +39,60 @@
     e.loginView?.classList.add("hidden");
     e.appView?.classList.remove("hidden");
   }
+  const AUTH_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+  function authCacheNamespace(userId) {
+    return `auth:${String(userId || "anonymous")}`;
+  }
+
+  function isNetworkFailure(error) {
+    const text = String(error?.message || error || "").toLowerCase();
+    return !navigator.onLine || text.includes("failed to fetch") || text.includes("network") || text.includes("load failed");
+  }
+
+  async function readCachedProfile(userId) {
+    if (!window.KYUMSmartCache || !userId) return null;
+    const cached = await window.KYUMSmartCache.get("current-profile", {
+      namespace: authCacheNamespace(userId),
+      allowStale: true,
+      staleMaxMs: AUTH_CACHE_MAX_AGE_MS
+    });
+    return cached.hit ? cached.data : null;
+  }
+
+  async function cacheProfile(userId, profile) {
+    if (!window.KYUMSmartCache || !userId || !profile) return;
+    await window.KYUMSmartCache.set("current-profile", profile, {
+      namespace: authCacheNamespace(userId),
+      ttlMs: 24 * 60 * 60 * 1000,
+      staleMaxMs: AUTH_CACHE_MAX_AGE_MS,
+      source: "supabase-auth-profile",
+      schemaVersion: 1
+    });
+  }
+
   async function loadProfile(userId) {
-    const { data, error } = await window.customerSupabase
-      .from("user_profiles")
-      .select("id, full_name, email, role, representative_id, is_active, must_change_password, last_login_at")
-      .eq("id", userId).single();
-    if (error) throw new Error(`تعذر تحميل ملف المستخدم: ${error.message}`);
-    if (!data?.is_active) throw new Error("هذا الحساب غير نشط.");
-    return data;
+    const cachedProfile = await readCachedProfile(userId);
+
+    if (!navigator.onLine) {
+      if (!cachedProfile) throw new Error("فتح البرنامج بدون إنترنت متاح فقط بعد تسجيل دخول ناجح سابقًا على هذا الجهاز.");
+      if (!cachedProfile.is_active) throw new Error("هذا الحساب غير نشط.");
+      return cachedProfile;
+    }
+
+    try {
+      const { data, error } = await window.customerSupabase
+        .from("user_profiles")
+        .select("id, full_name, email, role, representative_id, is_active, must_change_password, last_login_at")
+        .eq("id", userId).single();
+      if (error) throw new Error(`تعذر تحميل ملف المستخدم: ${error.message}`);
+      if (!data?.is_active) throw new Error("هذا الحساب غير نشط.");
+      await cacheProfile(userId, data);
+      return data;
+    } catch (error) {
+      if (cachedProfile && isNetworkFailure(error)) return cachedProfile;
+      throw error;
+    }
   }
   async function activate(session) {
     if (!session?.user) return showLogin();
@@ -72,17 +118,37 @@
   }
   async function initialize() {
     const status = window.customerSupabaseStatus;
-    if (!status?.configured || !window.customerSupabase) return showLogin(status?.reason || "إعدادات Supabase غير مكتملة.");
+    if (!status?.configured || !window.customerSupabase) {
+      const reason = !navigator.onLine
+        ? "تعذر تحميل مكوّن تسجيل الدخول من النسخة المخزنة. افتح البرنامج مرة واحدة مع الإنترنت لتجهيز وضع Offline."
+        : (status?.reason || "إعدادات Supabase غير مكتملة.");
+      showLogin(reason);
+      state.initialized = true;
+      return;
+    }
     try {
       const { data, error } = await window.customerSupabase.auth.getSession();
       if (error) throw error;
+      if (!data.session) {
+        showLogin(navigator.onLine ? "" : "لا توجد جلسة دخول محفوظة على هذا الجهاز. يلزم الاتصال بالإنترنت لتسجيل الدخول.");
+        return;
+      }
       await activate(data.session);
     } catch (error) {
       showLogin(error instanceof Error ? error.message : "تعذر التحقق من الجلسة.");
     } finally { state.initialized = true; }
   }
   async function signIn(email, password) {
-    message(""); loading(true);
+    message("");
+    if (!navigator.onLine) {
+      message("تسجيل الدخول لأول مرة أو بعد انتهاء الجلسة يحتاج اتصالًا بالإنترنت. افتح البرنامج بالإنترنت ثم سيعمل لاحقًا بدون اتصال.");
+      return;
+    }
+    if (!window.customerSupabase?.auth) {
+      message("مكوّن تسجيل الدخول غير جاهز. أعد تحميل الصفحة بعد التأكد من الاتصال.");
+      return;
+    }
+    loading(true);
     try {
       const { data, error } = await window.customerSupabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;

@@ -4,6 +4,38 @@
     return window.customerSupabase;
   };
 
+  const PERMISSIONS_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+  function permissionsNamespace(profile) {
+    return `auth:${String(profile?.id || "anonymous")}`;
+  }
+
+  function isNetworkFailure(error) {
+    const text = String(error?.message || error || "").toLowerCase();
+    return !navigator.onLine || text.includes("failed to fetch") || text.includes("network") || text.includes("load failed");
+  }
+
+  async function readCachedPermissions(profile) {
+    if (!window.KYUMSmartCache || !profile?.id) return null;
+    const cached = await window.KYUMSmartCache.get(`permissions:${profile.role}`, {
+      namespace: permissionsNamespace(profile),
+      allowStale: true,
+      staleMaxMs: PERMISSIONS_CACHE_MAX_AGE_MS
+    });
+    return cached.hit && Array.isArray(cached.data) ? cached.data : null;
+  }
+
+  async function cachePermissions(profile, rows) {
+    if (!window.KYUMSmartCache || !profile?.id) return;
+    await window.KYUMSmartCache.set(`permissions:${profile.role}`, rows, {
+      namespace: permissionsNamespace(profile),
+      ttlMs: 24 * 60 * 60 * 1000,
+      staleMaxMs: PERMISSIONS_CACHE_MAX_AGE_MS,
+      source: "supabase-role-permissions",
+      schemaVersion: 1
+    });
+  }
+
   async function listScreens() {
     const { data, error } = await client().from("app_screens")
       .select("screen_key,screen_name,group_name,display_order,is_active")
@@ -60,8 +92,21 @@
     const role = profile?.role;
     if (!profile?.id || !role) throw new Error("ملف المستخدم أو الدور غير متاح.");
     if (role === "super_admin") return [];
-    const rows = await getRolePermissions(role);
-    return rows.map(row => Object.freeze({ ...row }));
+
+    const cachedRows = await readCachedPermissions(profile);
+    if (!navigator.onLine) {
+      if (!cachedRows) throw new Error("لا توجد صلاحيات محفوظة لهذا المستخدم. يلزم فتح البرنامج مرة واحدة مع الإنترنت.");
+      return cachedRows.map(row => Object.freeze({ ...row }));
+    }
+
+    try {
+      const rows = await getRolePermissions(role);
+      await cachePermissions(profile, rows);
+      return rows.map(row => Object.freeze({ ...row }));
+    } catch (error) {
+      if (cachedRows && isNetworkFailure(error)) return cachedRows.map(row => Object.freeze({ ...row }));
+      throw error;
+    }
   }
 
   window.PermissionsService = Object.freeze({
