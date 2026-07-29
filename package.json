@@ -1,6 +1,6 @@
 {
   "name": "kyum-company-crm-mobile",
-  "version": "18.5.1",
+  "version": "18.5.2",
   "private": true,
   "description": "Native Android/iOS packaging layer for KYUM Company CRM.",
   "scripts": {
@@ -11,7 +11,8 @@
     "native:open:android": "npx cap open android",
     "native:open:ios": "npx cap open ios",
     "native:doctor": "npx cap doctor",
-    "enterprise:offline:check": "node scripts/enterprise-offline-compliance-check.mjs"
+    "enterprise:offline:check": "node scripts/enterprise-offline-compliance-check.mjs",
+    "dashboard:offline:check": "node scripts/dashboard-offline-certification-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

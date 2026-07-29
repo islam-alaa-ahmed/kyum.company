@@ -7595,13 +7595,21 @@ document.getElementById("referenceCustomersTableBody")?.addEventListener("click"
 
 window.addEventListener("customer-auth-ready", async () => {
   window.DailyActivityService?.startHeartbeat?.();
-  await loadReferenceDataFromSupabase(true);
-  await loadCustomersFromSupabase(true);
-  await loadFollowupsFromSupabase(true);
-  await loadQuotationsFromSupabase(true);
+
+  // Dashboard certification: startup must be cache-first. A forced network
+  // reconciliation here bypassed IndexedDB on a cold offline launch and left
+  // the dashboard arrays empty. Each domain service now returns cached data
+  // immediately and performs Delta Sync in the background when online.
+  await Promise.allSettled([
+    loadReferenceDataFromSupabase(false),
+    loadCustomersFromSupabase(false),
+    loadFollowupsFromSupabase(false),
+    loadQuotationsFromSupabase(false)
+  ]);
+
   populateSecurityOptions();
   renderDashboard();
-  await loadDailyOperations(true);
+  await loadDailyOperations(false);
 
   const profile = window.CustomerAuth?.getState?.().profile;
   if (profile?.role === "sales_representative"
