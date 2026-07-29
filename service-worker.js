@@ -1,8 +1,7 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-5-3-m13-7-2";
+const CACHE_VERSION = "kyum-crm-pwa-18-5-3-m13-7-3";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";
-const SUPABASE_CDN_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
 
 const APP_SHELL = [
   "./",
@@ -73,23 +72,11 @@ function isStaticAsset(request, url) {
 }
 
 self.addEventListener("install", event => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(APP_SHELL_CACHE);
-    await cache.addAll(APP_SHELL);
-
-    // The Supabase browser SDK was previously loaded only from a CDN and was not
-    // covered by the same-origin runtime strategy. Cache it independently so a
-    // previously authenticated PWA can bootstrap while the device is offline.
-    try {
-      const response = await fetch(SUPABASE_CDN_URL, { mode: "cors", cache: "no-cache" });
-      if (response && response.ok) await cache.put(SUPABASE_CDN_URL, response.clone());
-    } catch (_) {
-      // Do not fail installation when the CDN is temporarily unavailable. The
-      // normal online page request will populate the runtime cache later.
-    }
-
-    await self.skipWaiting();
-  })());
+  event.waitUntil(
+    caches.open(APP_SHELL_CACHE)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", event => {
@@ -110,22 +97,6 @@ self.addEventListener("fetch", event => {
     return;
   }
   if (isDynamicOrSensitive(url)) return;
-
-  if (request.url === SUPABASE_CDN_URL) {
-    event.respondWith(
-      caches.match(SUPABASE_CDN_URL).then(cached => {
-        const network = fetch(request).then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(APP_SHELL_CACHE).then(cache => cache.put(SUPABASE_CDN_URL, copy));
-          }
-          return response;
-        }).catch(() => cached);
-        return cached || network;
-      })
-    );
-    return;
-  }
 
   if (request.mode === "navigate") {
     event.respondWith(

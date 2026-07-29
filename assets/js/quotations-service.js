@@ -19,9 +19,12 @@
   const quotationRefreshes = new Map();
 
   async function currentQuotationNamespace() {
+    const authState = window.CustomerAuth?.getState?.() || {};
+    const userId = authState.user?.id || authState.session?.user?.id || authState.profile?.id;
+    if (userId) return `user:${userId}`;
     try {
-      const result = await client().auth.getUser();
-      return `user:${result?.data?.user?.id || "anonymous"}`;
+      const result = await client().auth.getSession();
+      return `user:${result?.data?.session?.user?.id || "anonymous"}`;
     } catch (_) {
       return "user:anonymous";
     }
@@ -97,12 +100,26 @@
     };
   }
 
+  function scopeStorageKey(profileId) { return `kyum_offline_scope_v1:${profileId}`; }
+  function readCachedScope(profileId) {
+    try {
+      const value = JSON.parse(localStorage.getItem(scopeStorageKey(profileId)) || "null");
+      return value?.scope || null;
+    } catch (_) { return null; }
+  }
+  function writeCachedScope(profileId, scope) {
+    try { localStorage.setItem(scopeStorageKey(profileId), JSON.stringify({ scope, updatedAt: Date.now() })); } catch (_) {}
+    return scope;
+  }
+
   async function resolveRepresentativeScope() {
     const profile = window.CustomerAuth?.getState?.().profile || null;
     if (!profile) return { mode: "none", representativeIds: [] };
+    const cachedScope = readCachedScope(profile.id);
+    if (navigator.onLine === false && cachedScope) return cachedScope;
 
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
-      return { mode: "all", representativeIds: [] };
+      return writeCachedScope(profile.id, { mode: "all", representativeIds: [] });
     }
 
     if (profile.role !== "sales_representative" || !profile.representative_id) {
@@ -118,7 +135,7 @@
     if (profileError) throw new Error(`تعذر تحميل نطاق البيانات: ${profileError.message}`);
 
     if ((accessProfile?.access_mode || "own") !== "selected") {
-      return { mode: "selected", representativeIds: [ownId] };
+      return writeCachedScope(profile.id, { mode: "selected", representativeIds: [ownId] });
     }
 
     const { data: allowed, error: allowedError } = await client()

@@ -2899,7 +2899,7 @@ async function loadCustomersFromSupabase(force = false) {
   if (!window.CustomersService || !window.customerSupabase) return;
 
   customersLoading = true;
-  showDataStatus("customersStatus", "جاري تحميل العملاء من Supabase...", "info");
+  showDataStatus("customersStatus", navigator.onLine === false ? "جاري تحميل آخر بيانات العملاء المحفوظة..." : "جاري تحميل بيانات العملاء...", "info");
 
   try {
     customers = await window.CustomersService.listCustomers({ force });
