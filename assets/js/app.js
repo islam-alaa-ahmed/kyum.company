@@ -716,6 +716,23 @@ function applyReferenceCacheUpdate(event) {
 
 window.addEventListener("kyum-reference-cache-updated", applyReferenceCacheUpdate);
 
+function applyCustomerCacheUpdate(event) {
+  const rows = event?.detail?.data;
+  if (!Array.isArray(rows)) return;
+
+  customers = rows;
+  customersLoaded = true;
+  customersPage = 1;
+  showDataStatus("customersStatus", "");
+  refreshReferenceOptions();
+  renderCustomers();
+  renderReferenceCustomers();
+  renderDashboard();
+  renderRepresentatives();
+}
+
+window.addEventListener("kyum-customer-cache-updated", applyCustomerCacheUpdate);
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService || !window.customerSupabase) return;
 
@@ -2828,7 +2845,7 @@ async function loadCustomersFromSupabase(force = false) {
   showDataStatus("customersStatus", "جاري تحميل العملاء من Supabase...", "info");
 
   try {
-    customers = await window.CustomersService.listCustomers();
+    customers = await window.CustomersService.listCustomers({ force });
     customersLoaded = true;
     customersPage = 1;
     showDataStatus("customersStatus", "");

@@ -61,6 +61,49 @@
   }
 
   const CUSTOMER_PAGE_SIZE = 250;
+  const CUSTOMER_CACHE_TTL_MS = 15 * 60 * 1000;
+  const CUSTOMER_CACHE_STALE_MAX_MS = 7 * 24 * 60 * 60 * 1000;
+  const CUSTOMER_CACHE_SCHEMA_VERSION = 1;
+  const customerRefreshes = new Map();
+
+  async function currentCustomerNamespace() {
+    try {
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
+    } catch (_) {
+      return "user:anonymous";
+    }
+  }
+
+  function scopeCacheKey(scope) {
+    const ids = Array.isArray(scope?.representativeIds)
+      ? [...scope.representativeIds].filter(Boolean).sort()
+      : [];
+    return `customers:${scope?.mode || "none"}:${ids.join(",") || "all"}`;
+  }
+
+  function emitCustomerCacheUpdate(data, source, cacheKey) {
+    window.dispatchEvent(new CustomEvent("kyum-customer-cache-updated", {
+      detail: { data, source, cacheKey, updatedAt: Date.now() }
+    }));
+  }
+
+  async function persistCustomers(cacheKey, rows, namespace) {
+    if (!window.KYUMSmartCache) return null;
+    return window.KYUMSmartCache.set(cacheKey, rows, {
+      namespace,
+      ttlMs: CUSTOMER_CACHE_TTL_MS,
+      staleMaxMs: CUSTOMER_CACHE_STALE_MAX_MS,
+      source: "supabase",
+      schemaVersion: CUSTOMER_CACHE_SCHEMA_VERSION
+    });
+  }
+
+  async function invalidateCustomerCache() {
+    if (!window.KYUMSmartCache) return;
+    const namespace = await currentCustomerNamespace();
+    await window.KYUMSmartCache.removePrefix("customers:", { namespace });
+  }
 
   function customersSelectQuery() {
     return `
@@ -150,12 +193,10 @@
     return { mode: "selected", representativeIds: [ownRepresentativeId] };
   }
 
-  async function listCustomers() {
-    const scope = await resolveCustomerRepresentativeScope();
+  async function fetchCustomersFromNetwork(scope) {
     if (scope.mode === "none") return [];
 
     const allRows = [];
-
     for (let pageStart = 0; ; pageStart += CUSTOMER_PAGE_SIZE) {
       let request = client()
         .from("customers")
@@ -169,12 +210,69 @@
       }
 
       const page = await unwrap(request, "تعذر تحميل العملاء");
-
       allRows.push(...(page || []));
       if (!page || page.length < CUSTOMER_PAGE_SIZE) break;
     }
 
     return allRows.map(normalizeCustomer);
+  }
+
+  async function refreshCustomersInBackground(scope, namespace, cacheKey, previousRows) {
+    if (customerRefreshes.has(cacheKey)) return customerRefreshes.get(cacheKey);
+
+    const refresh = (async () => {
+      const rows = await fetchCustomersFromNetwork(scope);
+      await persistCustomers(cacheKey, rows, namespace);
+      const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
+      const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
+      if (previousHash !== nextHash) {
+        emitCustomerCacheUpdate(rows, "network-refresh", cacheKey);
+      }
+      return rows;
+    })();
+
+    customerRefreshes.set(cacheKey, refresh);
+    try {
+      return await refresh;
+    } finally {
+      customerRefreshes.delete(cacheKey);
+    }
+  }
+
+  async function listCustomers(options = {}) {
+    const scope = await resolveCustomerRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    const namespace = await currentCustomerNamespace();
+    const cacheKey = scopeCacheKey(scope);
+    const force = Boolean(options.force);
+    let cached = null;
+
+    if (!force && window.KYUMSmartCache) {
+      cached = await window.KYUMSmartCache.get(cacheKey, {
+        namespace,
+        allowStale: true,
+        staleMaxMs: CUSTOMER_CACHE_STALE_MAX_MS
+      });
+    }
+
+    if (cached?.hit && Array.isArray(cached.data)) {
+      if (navigator.onLine !== false) {
+        refreshCustomersInBackground(scope, namespace, cacheKey, cached.data).catch(error => {
+          console.warn("Customer cache background refresh skipped:", error);
+        });
+      }
+      return cached.data;
+    }
+
+    try {
+      const rows = await fetchCustomersFromNetwork(scope);
+      await persistCustomers(cacheKey, rows, namespace);
+      return rows;
+    } catch (error) {
+      if (cached?.data && Array.isArray(cached.data)) return cached.data;
+      throw error;
+    }
   }
 
   async function findByPhone(normalizedPhone, excludeId = null) {
@@ -295,6 +393,7 @@
       interest_ids: record.interestIds
     }, userId);
 
+    await invalidateCustomerCache();
     return saved.id;
   }
 
@@ -308,6 +407,7 @@
     await audit("delete", customerId, {
       customer_name: customerName
     });
+    await invalidateCustomerCache();
   }
 
   async function audit(action, entityId, newData, userId = null) {
@@ -606,6 +706,7 @@
     importCustomers,
     listExistingImportedRequestKeys,
     listImportedRequestIdentities,
-    importedRequestKey
+    importedRequestKey,
+    invalidateCustomerCache
   });
 })();
