@@ -34,8 +34,8 @@
     },
     "daily_operations": {
       "file": "assets/js/daily-operations-service.js",
-      "mode": "online_only",
-      "status": "gap"
+      "mode": "full_offline_create_update",
+      "status": "compliant"
     },
     "daily_alerts": {
       "file": "assets/js/daily-alerts-service.js",

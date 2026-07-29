@@ -768,6 +768,28 @@ function applyQuotationCacheUpdate(event) {
 
 window.addEventListener("kyum-quotation-cache-updated", applyQuotationCacheUpdate);
 
+function applyDailyOperationsCacheUpdate(event) {
+  const detail = event?.detail || {};
+  const workDate = detail.workDate || window.DailyOperationsService?.todayIso?.();
+  if (workDate && workDate !== window.DailyOperationsService?.todayIso?.() && workDate !== "global") return;
+
+  if (detail.type === "definitions" && Array.isArray(detail.data)) {
+    dailyTaskDefinitions = detail.data;
+  } else if (detail.type === "completions" && Array.isArray(detail.data)) {
+    dailyTaskRecords = detail.data;
+  } else if (detail.type === "targets" && detail.data) {
+    dailyOperationTargets = detail.data;
+  } else if (detail.type === "manager-note") {
+    dailyManagerNote = detail.data || null;
+  } else {
+    return;
+  }
+
+  renderDailyOperations();
+}
+
+window.addEventListener("kyum-daily-operations-cache-updated", applyDailyOperationsCacheUpdate);
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService || !window.customerSupabase) return;
 
@@ -5610,10 +5632,10 @@ async function loadDailyOperations(force = false) {
         dailyOperationTargets,
         dailyManagerNote
       ] = await Promise.all([
-        window.DailyOperationsService.listDefinitions(),
-        window.DailyOperationsService.listForDate(),
-        window.DailyOperationsService.getTargets(),
-        window.DailyOperationsService.getManagerNote()
+        window.DailyOperationsService.listDefinitions({ force }),
+        window.DailyOperationsService.listForDate(undefined, { force }),
+        window.DailyOperationsService.getTargets(undefined, { force }),
+        window.DailyOperationsService.getManagerNote(undefined, { force })
       ]);
     }
 
@@ -5666,12 +5688,16 @@ async function updateDailyTask(taskKey, completed) {
   );
 
   try {
-    await window.DailyOperationsService.setTaskState(
+    const updatedTask = await window.DailyOperationsService.setTaskState(
       taskKey,
       completed
     );
-    dailyTaskRecords =
-      await window.DailyOperationsService.listForDate();
+    const currentTaskIndex = dailyTaskRecords.findIndex(row =>
+      (updatedTask.id && String(row.id) === String(updatedTask.id)) ||
+      (row.taskKey === updatedTask.taskKey && row.userId === updatedTask.userId)
+    );
+    if (currentTaskIndex >= 0) dailyTaskRecords[currentTaskIndex] = updatedTask;
+    else dailyTaskRecords.push(updatedTask);
     renderDailyOperations();
     showDataStatus(
       "dailyOperationsStatus",
@@ -7793,13 +7819,12 @@ document.getElementById("editDailyManagerNoteBtn")?.addEventListener("click", ()
 document.getElementById("dailyTargetsForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   try {
-    await window.DailyOperationsService.saveTargets({
+    dailyOperationTargets = await window.DailyOperationsService.saveTargets({
       customersTarget: document.getElementById("dailyTargetCustomersInput").value,
       followupsTarget: document.getElementById("dailyTargetFollowupsInput").value,
       quotationsTarget: document.getElementById("dailyTargetQuotationsInput").value
     });
     closeDailyTargetsDialog();
-    dailyOperationTargets = await window.DailyOperationsService.getTargets();
     renderDailyOperations();
     showDataStatus("dailyOperationsStatus", "تم حفظ الأهداف اليومية.", "success");
   } catch (error) {
@@ -7810,12 +7835,11 @@ document.getElementById("dailyTargetsForm")?.addEventListener("submit", async ev
 document.getElementById("dailyManagerNoteForm")?.addEventListener("submit", async event => {
   event.preventDefault();
   try {
-    await window.DailyOperationsService.saveManagerNote({
+    dailyManagerNote = await window.DailyOperationsService.saveManagerNote({
       title: document.getElementById("dailyManagerNoteTitleInput").value,
       noteText: document.getElementById("dailyManagerNoteTextInput").value
     });
     closeDailyManagerNoteDialog();
-    dailyManagerNote = await window.DailyOperationsService.getManagerNote();
     renderDailyManagerNote();
     showDataStatus("dailyOperationsStatus", "تم حفظ ملاحظة المدير.", "success");
   } catch (error) {
