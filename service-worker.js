@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-5-4-m13-7-4";
+const CACHE_VERSION = "kyum-crm-pwa-18-5-5-m13-7-5";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";

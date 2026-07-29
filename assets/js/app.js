@@ -791,7 +791,7 @@ function applyDailyOperationsCacheUpdate(event) {
 window.addEventListener("kyum-daily-operations-cache-updated", applyDailyOperationsCacheUpdate);
 
 async function loadReferenceDataFromSupabase(force = false) {
-  if (!window.ReferenceDataService || !window.customerSupabase) return;
+  if (!window.ReferenceDataService) return;
 
   const cacheIsFresh =
     referenceDataLoaded &&
@@ -2896,10 +2896,10 @@ function canDeleteCustomers() {
 
 async function loadCustomersFromSupabase(force = false) {
   if (customersLoading || (customersLoaded && !force)) return;
-  if (!window.CustomersService || !window.customerSupabase) return;
+  if (!window.CustomersService) return;
 
   customersLoading = true;
-  showDataStatus("customersStatus", navigator.onLine === false ? "جاري تحميل آخر بيانات العملاء المحفوظة..." : "جاري تحميل بيانات العملاء...", "info");
+  showDataStatus("customersStatus", navigator.onLine === false ? "جاري تحميل آخر بيانات العملاء المحفوظة..." : "جاري تحميل العملاء...", "info");
 
   try {
     customers = await window.CustomersService.listCustomers({ force });
@@ -3673,10 +3673,10 @@ function canManageFollowups(action = "edit") {
 
 async function loadFollowupsFromSupabase(force = false) {
   if (followupsLoading || (followupsLoaded && !force)) return;
-  if (!window.FollowupsService || !window.customerSupabase) return;
+  if (!window.FollowupsService) return;
 
   followupsLoading = true;
-  showDataStatus("followupsStatus", "جاري تحميل المتابعات من Supabase...", "info");
+  showDataStatus("followupsStatus", navigator.onLine === false ? "جاري تحميل آخر بيانات المتابعات المحفوظة..." : "جاري تحميل المتابعات...", "info");
 
   try {
     followups = await window.FollowupsService.listFollowups({ force });
@@ -5726,10 +5726,10 @@ function canManageQuotations(action = "edit") {
 
 async function loadQuotationsFromSupabase(force = false) {
   if (quotationsLoading || (quotationsLoaded && !force)) return;
-  if (!window.QuotationsService || !window.customerSupabase) return;
+  if (!window.QuotationsService) return;
 
   quotationsLoading = true;
-  showDataStatus("quotationsStatus", "جاري تحميل عروض الأسعار من Supabase...", "info");
+  showDataStatus("quotationsStatus", navigator.onLine === false ? "جاري تحميل آخر بيانات عروض الأسعار المحفوظة..." : "جاري تحميل عروض الأسعار...", "info");
 
   try {
     quotations = await window.QuotationsService.listQuotations({ force });
