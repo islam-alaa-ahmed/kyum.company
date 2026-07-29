@@ -1650,3 +1650,71 @@
   document.addEventListener("DOMContentLoaded", sync, { once: true });
   sync();
 })();
+
+/* Phase M12.2.2 — Android vertical scroll lock recovery and permission-aware navigation sync */
+(() => {
+  "use strict";
+  if (!/Android/i.test(navigator.userAgent || "")) return;
+
+  const LOCKS = [
+    ["sidebar-menu-open", () => document.getElementById("mainSidebar")?.classList.contains("is-open")],
+    ["mobile-dashboard-sheet-open", () => document.getElementById("dashboardView")?.classList.contains("mobile-filters-open")],
+    ["mobile-customers-sheet-open", () => document.getElementById("customersView")?.classList.contains("mobile-customers-filters-open")],
+    ["mobile-reports-sheet-open", () => document.getElementById("reportsOverviewView")?.classList.contains("mobile-reports-filters-open")]
+  ];
+
+  function releaseStaleScrollLocks() {
+    LOCKS.forEach(([className, isActuallyOpen]) => {
+      if (!isActuallyOpen()) document.body.classList.remove(className);
+    });
+  }
+
+  function syncPermissionAwareNavigation() {
+    document.querySelectorAll("#mainSidebar .nav-group").forEach(group => {
+      const allowedChildren = [...group.querySelectorAll(".nav-item[data-view]")]
+        .filter(item => !item.hidden && !item.classList.contains("hidden") && item.getAttribute("aria-hidden") !== "true" && !item.disabled);
+      const visible = allowedChildren.length > 0;
+      group.hidden = !visible;
+      group.classList.toggle("hidden", !visible);
+      group.setAttribute("aria-hidden", String(!visible));
+      const toggle = group.querySelector(":scope > .nav-group-toggle");
+      if (toggle) {
+        toggle.disabled = !visible;
+        toggle.setAttribute("tabindex", visible ? "0" : "-1");
+        if (!visible) toggle.setAttribute("aria-expanded", "false");
+      }
+      if (!visible) group.classList.add("is-collapsed");
+    });
+
+    document.querySelectorAll("[data-mobile-view]").forEach(button => {
+      const view = String(button.dataset.mobileView || "").trim();
+      const source = view ? document.querySelector(`.nav-item[data-view="${CSS.escape(view)}"]`) : null;
+      const visible = Boolean(source && !source.hidden && !source.classList.contains("hidden") && source.getAttribute("aria-hidden") !== "true" && !source.disabled);
+      button.hidden = !visible;
+      button.classList.toggle("hidden", !visible);
+      button.setAttribute("aria-hidden", String(!visible));
+    });
+  }
+
+  const recover = () => {
+    releaseStaleScrollLocks();
+    syncPermissionAwareNavigation();
+  };
+
+  document.addEventListener("pointercancel", releaseStaleScrollLocks, { passive: true });
+  document.addEventListener("touchcancel", releaseStaleScrollLocks, { passive: true });
+  document.addEventListener("click", event => {
+    if (event.target.closest("#sidebarBackdrop, .nav-item[data-view], .nav-group-content button")) {
+      requestAnimationFrame(recover);
+    }
+  }, { passive: true });
+  window.addEventListener("pageshow", recover, { passive: true });
+  window.addEventListener("popstate", recover, { passive: true });
+  window.addEventListener("hashchange", recover, { passive: true });
+  window.addEventListener("kyum-navigation-permissions-applied", syncPermissionAwareNavigation);
+  window.addEventListener("customer-auth-ready", () => requestAnimationFrame(recover));
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) recover();
+  }, { passive: true });
+  requestAnimationFrame(recover);
+})();

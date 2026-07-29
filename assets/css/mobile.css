@@ -3373,3 +3373,47 @@ html.is-offline body::before {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Phase M12.2.2 — Android Vertical Scroll Recovery */
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
+  html.kyum-android,
+  html.kyum-android body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.kyum-android body:not(.sidebar-menu-open):not(.mobile-dashboard-sheet-open):not(.mobile-customers-sheet-open):not(.mobile-reports-sheet-open),
+  html.kyum-android body:not(.sidebar-menu-open) main,
+  html.kyum-android body:not(.sidebar-menu-open) .main-content,
+  html.kyum-android body:not(.sidebar-menu-open) .view-section,
+  html.kyum-android body:not(.sidebar-menu-open) .panel,
+  html.kyum-android body:not(.sidebar-menu-open) .table-card {
+    touch-action: pan-y pinch-zoom !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  html.kyum-android .table-wrap,
+  html.kyum-android .responsive-table,
+  html.kyum-android .analytics-tabs,
+  html.kyum-android .mobile-reports-jump-nav,
+  html.kyum-android .trend-12m-panel,
+  html.kyum-android [class*="horizontal-scroll"],
+  html.kyum-android [data-horizontal-scroll] {
+    touch-action: pan-x pan-y pinch-zoom !important;
+    overscroll-behavior-x: contain !important;
+    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  html.kyum-android .table-wrap,
+  html.kyum-android .responsive-table {
+    overflow-x: auto !important;
+  }
+
+  html.kyum-android #mainSidebar .nav-group[hidden],
+  html.kyum-android #mainSidebar .nav-group.hidden {
+    display: none !important;
+  }
+}
