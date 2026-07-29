@@ -27,30 +27,6 @@ let representativeImportPreview = null;
 let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
 
-let dashboardRenderBatchDepth = 0;
-let dashboardRenderPending = false;
-
-function requestDashboardRender() {
-  if (dashboardRenderBatchDepth > 0) {
-    dashboardRenderPending = true;
-    return;
-  }
-  renderDashboard();
-}
-
-async function withDashboardRenderBatch(task) {
-  dashboardRenderBatchDepth += 1;
-  try {
-    return await task();
-  } finally {
-    dashboardRenderBatchDepth = Math.max(0, dashboardRenderBatchDepth - 1);
-    if (dashboardRenderBatchDepth === 0 && dashboardRenderPending) {
-      dashboardRenderPending = false;
-      renderDashboard();
-    }
-  }
-}
-
 const seedCustomers = [
   {
     id: "C000001",
@@ -793,7 +769,7 @@ function syncRouteLocation(viewKey, replace = false) {
 
 function switchView(requestedName, options = {}) {
   const requestedView = String(requestedName || "").trim();
-  const permissions = window.CustomerPermissions;
+  const permissions = window.PermissionEngine || window.CustomerPermissions;
   const authState = window.CustomerAuth?.getState?.();
 
   if (!views[requestedView]) {
@@ -805,11 +781,13 @@ function switchView(requestedName, options = {}) {
   }
 
   if (authState?.profile) {
-    const authorization = permissions?.authorizeView?.(requestedView, "dashboard") || {
-      allowed: permissions?.canScreen?.(requestedView, "view") === true,
-      target: permissions?.firstAllowedScreen?.("dashboard") || null,
-      reason: "permission_denied"
-    };
+    const authorization = permissions?.authorize?.(requestedView, "dashboard")
+      || permissions?.authorizeView?.(requestedView, "dashboard")
+      || {
+        allowed: permissions?.canView?.(requestedView) === true || permissions?.canScreen?.(requestedView, "view") === true,
+        target: permissions?.firstAllowedScreen?.("dashboard") || null,
+        reason: "permission_denied"
+      };
 
     const visibleTrustedDailyNavigation = requestedView === "dailyOperations"
       && options.trustedNavigation === true
@@ -926,7 +904,10 @@ function switchView(requestedName, options = {}) {
 window.KYUMNavigation = Object.freeze({
   open: (viewKey, options = {}) => switchView(viewKey, options),
   current: () => activeViewKey,
-  canOpen: viewKey => Boolean(views[viewKey]) && Boolean(window.CustomerPermissions?.canScreen?.(viewKey, "view"))
+  canOpen: viewKey => Boolean(views[viewKey]) && Boolean(
+    window.PermissionEngine?.canView?.(viewKey)
+      ?? window.CustomerPermissions?.canScreen?.(viewKey, "view")
+  )
 });
 
 
@@ -1466,8 +1447,12 @@ async function savePermissions() {
     renderPermissionsMatrix(role);
     if (window.CustomerPermissions?.currentRole?.() === role) {
       await window.CustomerPermissions.loadCurrentPermissions();
-      window.CustomerPermissions.applyScreenVisibility();
-      window.CustomerPermissions.applyActionVisibility();
+      if (window.PermissionEngine?.refresh) {
+        window.PermissionEngine.refresh({ validateCurrentView: true });
+      } else {
+        window.CustomerPermissions.applyScreenVisibility();
+        window.CustomerPermissions.applyActionVisibility();
+      }
     }
     showDataStatus("permissionsStatus", "تم حفظ الصلاحيات والتحقق منها بنجاح.", "success");
   } catch (error) {
@@ -2828,7 +2813,7 @@ async function loadCustomersFromSupabase(force = false) {
     refreshReferenceOptions();
     renderCustomers();
     renderReferenceCustomers();
-    requestDashboardRender();
+    renderDashboard();
     renderRepresentatives();
   } catch (error) {
     console.error("Customer loading failed:", error);
@@ -3602,7 +3587,7 @@ async function loadFollowupsFromSupabase(force = false) {
     followupsPage = 1;
     showDataStatus("followupsStatus", "");
     renderFollowups();
-    requestDashboardRender();
+    renderDashboard();
   } catch (error) {
     console.error("Follow-up loading failed:", error);
     showDataStatus(
@@ -5651,7 +5636,7 @@ async function loadQuotationsFromSupabase(force = false) {
     showDataStatus("quotationsStatus", "");
     renderQuotations();
     renderCustomers();
-    requestDashboardRender();
+    renderDashboard();
   } catch (error) {
     console.error("Quotation loading failed:", error);
     showDataStatus(
@@ -7505,18 +7490,12 @@ document.getElementById("referenceCustomersTableBody")?.addEventListener("click"
 
 window.addEventListener("customer-auth-ready", async () => {
   window.DailyActivityService?.startHeartbeat?.();
-
-  await withDashboardRenderBatch(async () => {
-    await Promise.all([
-      loadReferenceDataFromSupabase(true),
-      loadCustomersFromSupabase(true),
-      loadFollowupsFromSupabase(true),
-      loadQuotationsFromSupabase(true)
-    ]);
-    dashboardRenderPending = true;
-  });
-
+  await loadReferenceDataFromSupabase(true);
+  await loadCustomersFromSupabase(true);
+  await loadFollowupsFromSupabase(true);
+  await loadQuotationsFromSupabase(true);
   populateSecurityOptions();
+  renderDashboard();
   await loadDailyOperations(true);
 
   const profile = window.CustomerAuth?.getState?.().profile;

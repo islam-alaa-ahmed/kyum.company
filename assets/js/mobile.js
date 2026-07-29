@@ -29,20 +29,6 @@
   window.setTimeout(recoverTouchLocks, 0);
 })();
 
-/* Phase M12.3.2 — Coalesce DOM observer work into one animation frame. */
-function createRafMutationObserver(callback) {
-  let frameId = 0;
-  let latestMutations = [];
-  return new MutationObserver(mutations => {
-    latestMutations = mutations;
-    if (frameId) return;
-    frameId = window.requestAnimationFrame(() => {
-      frameId = 0;
-      callback(latestMutations);
-    });
-  });
-}
-
 /* Phase M7.1 — Shared Saudi phone normalization */
 (() => {
   "use strict";
@@ -131,9 +117,17 @@ function createRafMutationObserver(callback) {
 
   function syncPermissionVisibility() {
     viewButtons.forEach(button => {
-      const source = desktopViewButton(button.dataset.mobileView);
-      const unavailable = !source || source.hidden || source.classList.contains("hidden") || source.getAttribute("aria-hidden") === "true";
+      const viewKey = button.dataset.mobileView;
+      const engineDecision = window.PermissionEngine?.canView?.(viewKey);
+      const source = desktopViewButton(viewKey);
+      const unavailable = typeof engineDecision === "boolean"
+        ? !engineDecision
+        : (!source || source.hidden || source.classList.contains("hidden") || source.getAttribute("aria-hidden") === "true");
       button.hidden = unavailable;
+      button.classList.toggle("hidden", unavailable);
+      button.setAttribute("aria-hidden", String(unavailable));
+      button.disabled = unavailable;
+      button.setAttribute("tabindex", unavailable ? "-1" : "0");
     });
   }
 
@@ -326,7 +320,7 @@ function createRafMutationObserver(callback) {
     if (event.target.closest(".nav-item[data-view]")) menuButton?.classList.remove("is-active");
   });
 
-  const observer = createRafMutationObserver(() => {
+  const observer = new MutationObserver(() => {
     syncPermissionVisibility();
     syncActiveState();
   });
@@ -460,7 +454,7 @@ function createRafMutationObserver(callback) {
     }));
 
     const body = customersView.querySelector("#customersTableBody");
-    if (body) createRafMutationObserver(decorateCustomerRows).observe(body, { childList: true, subtree: true });
+    if (body) new MutationObserver(decorateCustomerRows).observe(body, { childList: true, subtree: true });
     decorateCustomerRows();
     syncCustomersFilterState();
   }
@@ -516,7 +510,7 @@ function createRafMutationObserver(callback) {
     const dialog = document.getElementById("customerDetailsDialog");
     const content = document.getElementById("customerDetailsContent");
     if (!dialog || !content) return;
-    const observer = createRafMutationObserver(() => window.requestAnimationFrame(decorateCustomer360));
+    const observer = new MutationObserver(() => window.requestAnimationFrame(decorateCustomer360));
     observer.observe(content, { childList: true, subtree: false });
     dialog.addEventListener("close", () => document.body.classList.remove("mobile-customer360-open"));
     dialog.addEventListener("cancel", () => document.body.classList.remove("mobile-customer360-open"));
@@ -528,6 +522,12 @@ function createRafMutationObserver(callback) {
   }
   installPullToRefresh();
   installCustomer360Shell();
+  window.addEventListener("kyum-permissions-refreshed", () => {
+    syncPermissionVisibility();
+    syncActiveState();
+  });
+  window.addEventListener("kyum-navigation-permissions-applied", syncPermissionVisibility);
+
   syncPermissionVisibility();
   syncActiveState();
 })();
@@ -730,7 +730,7 @@ function createRafMutationObserver(callback) {
   function observeRows() {
     const body = document.getElementById("followupsTableBody");
     if (!body || rowObserver) return;
-    rowObserver = createRafMutationObserver(decorateRows);
+    rowObserver = new MutationObserver(decorateRows);
     rowObserver.observe(body, { childList: true, subtree: true });
     decorateRows();
   }
@@ -858,7 +858,7 @@ function createRafMutationObserver(callback) {
 
   function connectObserver() {
     observer?.disconnect();
-    observer = createRafMutationObserver(() => {
+    observer = new MutationObserver(() => {
       syncTables();
       syncProgress();
     });
@@ -1062,7 +1062,7 @@ function createRafMutationObserver(callback) {
     ensureToolbar();
     enhanceRows();
     observer?.disconnect();
-    observer = createRafMutationObserver(enhanceRows);
+    observer = new MutationObserver(enhanceRows);
     observer.observe(body, { childList: true, subtree: true });
   }
 
@@ -1196,7 +1196,7 @@ function createRafMutationObserver(callback) {
 
   function connectObserver() {
     observer?.disconnect();
-    observer = createRafMutationObserver(() => {
+    observer = new MutationObserver(() => {
       syncPeriodSummary();
       enhancePerformanceTable();
     });
@@ -1319,7 +1319,7 @@ function createRafMutationObserver(callback) {
     document.querySelectorAll("[data-mobile-admin-view]").forEach(btn => btn.classList.toggle("active", visible?.[0] === btn.dataset.mobileAdminView));
   }
 
-  const observer = createRafMutationObserver(() => {
+  const observer = new MutationObserver(() => {
     if (!MEDIA.matches) return;
     Object.entries(configs).forEach(([id,cfg]) => {
       const section = document.getElementById(id);
@@ -1634,7 +1634,7 @@ function createRafMutationObserver(callback) {
     });
   }
 
-  const observer = createRafMutationObserver(mutations => {
+  const observer = new MutationObserver(mutations => {
     if (gesture) return;
     const relevant = mutations.some(mutation => mutation.attributeName === "hidden" || mutation.attributeName === "aria-current");
     if (relevant) scheduleSync(true);

@@ -34,14 +34,24 @@
     return Object.freeze({ ...payload });
   }
 
+  function setNavigationElementVisibility(element, visible) {
+    if (!element) return;
+    element.classList.toggle("hidden", !visible);
+    element.hidden = !visible;
+    element.setAttribute("aria-hidden", String(!visible));
+    if ("disabled" in element) element.disabled = !visible;
+    element.setAttribute("tabindex", visible ? "0" : "-1");
+  }
+
   const engine = {
-    version: "1.0.0-foundation",
+    version: "1.1.0-navigation-integration",
     debugEnabled: false,
     navigationGroups: DEFAULT_NAVIGATION_GROUPS,
 
     initialize() {
       const source = legacyPermissions();
       const ready = Boolean(source?.permissionsLoaded || source?.currentRole?.() === "super_admin");
+      this.applyNavigationVisibility();
       window.dispatchEvent(new CustomEvent("kyum-permission-engine-ready", {
         detail: frozenResult({ ready, role: this.currentRole(), version: this.version })
       }));
@@ -108,6 +118,46 @@
       return this.groupScreens(groupKey, root).some(screenKey => this.canView(screenKey));
     },
 
+    applyNavigationVisibility(root = document) {
+      root.querySelectorAll?.(".nav-item[data-view]").forEach(button => {
+        setNavigationElementVisibility(button, this.canView(button.dataset.view));
+      });
+
+      root.querySelectorAll?.(".nav-group[data-nav-group]").forEach(group => {
+        const groupKey = normalizeKey(group.dataset.navGroup);
+        const visible = this.canShowGroup(groupKey, root);
+        setNavigationElementVisibility(group, visible);
+        if (!visible) {
+          group.classList.add("is-collapsed");
+          group.querySelector(".nav-group-toggle")?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      root.querySelectorAll?.("[data-mobile-view]").forEach(button => {
+        setNavigationElementVisibility(button, this.canView(button.dataset.mobileView));
+      });
+
+      window.dispatchEvent(new CustomEvent("kyum-navigation-permissions-applied", {
+        detail: frozenResult({ role: this.currentRole(), allowedScreens: this.allowedScreens() })
+      }));
+    },
+
+    validateCurrentView(preferred = "dashboard") {
+      const current = window.KYUMNavigation?.current?.()
+        || String(location.hash || "").replace(/^#\/?/, "").split(/[?&]/)[0]
+        || preferred;
+      const authorization = this.authorize(current, preferred);
+      if (authorization.allowed) return authorization;
+      if (authorization.target && authorization.target !== current) {
+        window.KYUMNavigation?.open?.(authorization.target, {
+          silent: true,
+          permissionFallback: true,
+          replaceHistory: true
+        });
+      }
+      return authorization;
+    },
+
     snapshot() {
       const source = legacyPermissions();
       const rows = source?.screenPermissions instanceof Map
@@ -122,10 +172,10 @@
       });
     },
 
-    refresh() {
-      const source = legacyPermissions();
-      source?.applyScreenVisibility?.();
-      source?.applyActionVisibility?.();
+    refresh(options = {}) {
+      this.applyNavigationVisibility(options.root || document);
+      legacyPermissions()?.applyActionVisibility?.(options.root || document);
+      if (options.validateCurrentView !== false) this.validateCurrentView(options.preferred || "dashboard");
       const snapshot = this.snapshot();
       window.dispatchEvent(new CustomEvent("kyum-permissions-refreshed", { detail: snapshot }));
       return snapshot;

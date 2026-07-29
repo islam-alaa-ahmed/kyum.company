@@ -133,43 +133,25 @@ window.CustomerPermissions = {
     return navOrder.find(key => this.canScreen(key, "view")) || null;
   },
 
-  applyScreenVisibility() {
-    const isAllowedNavItem = item => {
-      const viewKey = this.normalizeScreenKey(item?.dataset?.view);
-      return Boolean(viewKey && this.canScreen(viewKey, "view"));
-    };
-
-    document.querySelectorAll(".nav-item[data-view]").forEach(button => {
-      const allowed = isAllowedNavItem(button);
+  applyScreenVisibility(root = document) {
+    if (window.PermissionEngine?.applyNavigationVisibility) {
+      window.PermissionEngine.applyNavigationVisibility(root);
+      return;
+    }
+    root.querySelectorAll(".nav-item[data-view]").forEach(button => {
+      const allowed = this.canScreen(button.dataset.view, "view");
       button.classList.toggle("hidden", !allowed);
       button.hidden = !allowed;
       button.setAttribute("aria-hidden", String(!allowed));
       button.setAttribute("tabindex", allowed ? "0" : "-1");
       button.disabled = !allowed;
     });
-
-    document.querySelectorAll(".nav-group").forEach(group => {
-      const childItems = [...group.querySelectorAll(".nav-item[data-view]")];
-      const hasAllowedChild = childItems.some(isAllowedNavItem);
-      const toggle = group.querySelector(":scope > .nav-group-toggle");
-
-      group.classList.toggle("hidden", !hasAllowedChild);
-      group.hidden = !hasAllowedChild;
-      group.setAttribute("aria-hidden", String(!hasAllowedChild));
-
-      if (toggle) {
-        toggle.disabled = !hasAllowedChild;
-        toggle.setAttribute("tabindex", hasAllowedChild ? "0" : "-1");
-        toggle.setAttribute("aria-hidden", String(!hasAllowedChild));
-      }
-
-      if (!hasAllowedChild) {
-        group.classList.add("is-collapsed");
-        toggle?.setAttribute("aria-expanded", "false");
-      }
+    root.querySelectorAll(".nav-group").forEach(group => {
+      const visible = [...group.querySelectorAll(".nav-item[data-view]")].some(item => !item.classList.contains("hidden"));
+      group.classList.toggle("hidden", !visible);
+      group.hidden = !visible;
+      group.setAttribute("aria-hidden", String(!visible));
     });
-
-    window.dispatchEvent(new CustomEvent("kyum-navigation-permissions-applied"));
   },
 
   apply(profile) {
