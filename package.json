@@ -10,7 +10,8 @@
     "native:sync": "npm run native:prepare && npx cap sync",
     "native:open:android": "npx cap open android",
     "native:open:ios": "npx cap open ios",
-    "native:doctor": "npx cap doctor"
+    "native:doctor": "npx cap doctor",
+    "enterprise:offline:check": "node scripts/enterprise-offline-compliance-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
