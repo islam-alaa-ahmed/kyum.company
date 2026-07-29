@@ -27,6 +27,30 @@ let representativeImportPreview = null;
 let representativeImportFailedRows = [];
 const REFERENCE_CUSTOMERS_PAGE_SIZE = 10;
 
+let dashboardRenderBatchDepth = 0;
+let dashboardRenderPending = false;
+
+function requestDashboardRender() {
+  if (dashboardRenderBatchDepth > 0) {
+    dashboardRenderPending = true;
+    return;
+  }
+  renderDashboard();
+}
+
+async function withDashboardRenderBatch(task) {
+  dashboardRenderBatchDepth += 1;
+  try {
+    return await task();
+  } finally {
+    dashboardRenderBatchDepth = Math.max(0, dashboardRenderBatchDepth - 1);
+    if (dashboardRenderBatchDepth === 0 && dashboardRenderPending) {
+      dashboardRenderPending = false;
+      renderDashboard();
+    }
+  }
+}
+
 const seedCustomers = [
   {
     id: "C000001",
@@ -2804,7 +2828,7 @@ async function loadCustomersFromSupabase(force = false) {
     refreshReferenceOptions();
     renderCustomers();
     renderReferenceCustomers();
-    renderDashboard();
+    requestDashboardRender();
     renderRepresentatives();
   } catch (error) {
     console.error("Customer loading failed:", error);
@@ -3578,7 +3602,7 @@ async function loadFollowupsFromSupabase(force = false) {
     followupsPage = 1;
     showDataStatus("followupsStatus", "");
     renderFollowups();
-    renderDashboard();
+    requestDashboardRender();
   } catch (error) {
     console.error("Follow-up loading failed:", error);
     showDataStatus(
@@ -5627,7 +5651,7 @@ async function loadQuotationsFromSupabase(force = false) {
     showDataStatus("quotationsStatus", "");
     renderQuotations();
     renderCustomers();
-    renderDashboard();
+    requestDashboardRender();
   } catch (error) {
     console.error("Quotation loading failed:", error);
     showDataStatus(
@@ -7481,12 +7505,18 @@ document.getElementById("referenceCustomersTableBody")?.addEventListener("click"
 
 window.addEventListener("customer-auth-ready", async () => {
   window.DailyActivityService?.startHeartbeat?.();
-  await loadReferenceDataFromSupabase(true);
-  await loadCustomersFromSupabase(true);
-  await loadFollowupsFromSupabase(true);
-  await loadQuotationsFromSupabase(true);
+
+  await withDashboardRenderBatch(async () => {
+    await Promise.all([
+      loadReferenceDataFromSupabase(true),
+      loadCustomersFromSupabase(true),
+      loadFollowupsFromSupabase(true),
+      loadQuotationsFromSupabase(true)
+    ]);
+    dashboardRenderPending = true;
+  });
+
   populateSecurityOptions();
-  renderDashboard();
   await loadDailyOperations(true);
 
   const profile = window.CustomerAuth?.getState?.().profile;
