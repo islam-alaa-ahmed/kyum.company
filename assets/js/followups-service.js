@@ -130,7 +130,7 @@
     };
   }
 
-  async function fetchFollowupsFromNetwork(scope) {
+  async function fetchFollowupsFromNetwork(scope, options = {}) {
     if (scope.mode === "none") return [];
 
     let request = client()
@@ -166,6 +166,7 @@
       .order("contact_date", { ascending: false })
       .order("created_at", { ascending: false });
 
+    if (options.updatedSince) request = request.gte("updated_at", options.updatedSince);
     if (scope.mode === "selected") {
       if (!scope.representativeIds.length) return [];
       request = request.in("representative_id", scope.representativeIds);
@@ -175,16 +176,35 @@
     return (rows || []).map(normalizeFollowup);
   }
 
+  function sortFollowups(rows) {
+    return [...(rows || [])].sort((a, b) => {
+      const contactDiff = String(b?.contactDate || "").localeCompare(String(a?.contactDate || ""));
+      if (contactDiff) return contactDiff;
+      return (Date.parse(b?.createdAt || "") || 0) - (Date.parse(a?.createdAt || "") || 0);
+    });
+  }
+
   async function refreshFollowupsInBackground(scope, namespace, cacheKey, previousRows) {
     if (followupRefreshes.has(cacheKey)) return followupRefreshes.get(cacheKey);
 
     const refresh = (async () => {
-      const rows = await fetchFollowupsFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "followups",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: previousRows,
+            fetchFull: () => fetchFollowupsFromNetwork(scope),
+            fetchDelta: since => fetchFollowupsFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortFollowups
+          })
+        : { rows: await fetchFollowupsFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistFollowups(cacheKey, rows, namespace);
       const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
       const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
       if (previousHash !== nextHash) {
-        emitFollowupCacheUpdate(rows, "network-refresh", cacheKey);
+        emitFollowupCacheUpdate(rows, `network-${result.mode}`, cacheKey);
       }
       return rows;
     })();
@@ -224,7 +244,19 @@
     }
 
     try {
-      const rows = await fetchFollowupsFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "followups",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: cached?.data,
+            fetchFull: () => fetchFollowupsFromNetwork(scope),
+            fetchDelta: since => fetchFollowupsFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortFollowups,
+            forceFull: true
+          })
+        : { rows: await fetchFollowupsFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistFollowups(cacheKey, rows, namespace);
       return rows;
     } catch (error) {
@@ -373,6 +405,8 @@
       console.warn("Follow-up audit log skipped:", error);
     }
   }
+
+  window.KYUMSyncEngine?.register?.("followups", () => listFollowups());
 
   window.FollowupsService = Object.freeze({
     listFollowups,

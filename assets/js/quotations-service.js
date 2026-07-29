@@ -136,7 +136,7 @@
     };
   }
 
-  async function fetchQuotationsFromNetwork(scope) {
+  async function fetchQuotationsFromNetwork(scope, options = {}) {
     if (scope.mode === "none") return [];
 
     let request = client()
@@ -172,6 +172,7 @@
       .order("quotation_date", { ascending: false })
       .order("created_at", { ascending: false });
 
+    if (options.updatedSince) request = request.gte("updated_at", options.updatedSince);
     if (scope.mode === "selected") {
       if (!scope.representativeIds.length) return [];
       request = request.in("representative_id", scope.representativeIds);
@@ -181,16 +182,35 @@
     return (rows || []).map(normalizeQuotation);
   }
 
+  function sortQuotations(rows) {
+    return [...(rows || [])].sort((a, b) => {
+      const dateDiff = String(b?.quotationDate || "").localeCompare(String(a?.quotationDate || ""));
+      if (dateDiff) return dateDiff;
+      return (Date.parse(b?.createdAt || "") || 0) - (Date.parse(a?.createdAt || "") || 0);
+    });
+  }
+
   async function refreshQuotationsInBackground(scope, namespace, cacheKey, previousRows) {
     if (quotationRefreshes.has(cacheKey)) return quotationRefreshes.get(cacheKey);
 
     const refresh = (async () => {
-      const rows = await fetchQuotationsFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "quotations",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: previousRows,
+            fetchFull: () => fetchQuotationsFromNetwork(scope),
+            fetchDelta: since => fetchQuotationsFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortQuotations
+          })
+        : { rows: await fetchQuotationsFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistQuotations(cacheKey, rows, namespace);
       const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
       const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
       if (previousHash !== nextHash) {
-        emitQuotationCacheUpdate(rows, "network-refresh", cacheKey);
+        emitQuotationCacheUpdate(rows, `network-${result.mode}`, cacheKey);
       }
       return rows;
     })();
@@ -230,7 +250,19 @@
     }
 
     try {
-      const rows = await fetchQuotationsFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "quotations",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: cached?.data,
+            fetchFull: () => fetchQuotationsFromNetwork(scope),
+            fetchDelta: since => fetchQuotationsFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortQuotations,
+            forceFull: true
+          })
+        : { rows: await fetchQuotationsFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistQuotations(cacheKey, rows, namespace);
       return rows;
     } catch (error) {
@@ -403,6 +435,8 @@
       console.warn("Quotation audit log skipped:", error);
     }
   }
+
+  window.KYUMSyncEngine?.register?.("quotations", () => listQuotations());
 
   window.QuotationsService = Object.freeze({
     listQuotations,

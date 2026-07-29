@@ -193,7 +193,7 @@
     return { mode: "selected", representativeIds: [ownRepresentativeId] };
   }
 
-  async function fetchCustomersFromNetwork(scope) {
+  async function fetchCustomersFromNetwork(scope, options = {}) {
     if (scope.mode === "none") return [];
 
     const allRows = [];
@@ -204,6 +204,7 @@
         .order("created_at", { ascending: false })
         .range(pageStart, pageStart + CUSTOMER_PAGE_SIZE - 1);
 
+      if (options.updatedSince) request = request.gte("updated_at", options.updatedSince);
       if (scope.mode === "selected") {
         if (!scope.representativeIds.length) return [];
         request = request.in("representative_id", scope.representativeIds);
@@ -217,16 +218,35 @@
     return allRows.map(normalizeCustomer);
   }
 
+  function sortCustomers(rows) {
+    return [...(rows || [])].sort((a, b) => {
+      const left = Date.parse(a?.createdAt || "") || 0;
+      const right = Date.parse(b?.createdAt || "") || 0;
+      return right - left;
+    });
+  }
+
   async function refreshCustomersInBackground(scope, namespace, cacheKey, previousRows) {
     if (customerRefreshes.has(cacheKey)) return customerRefreshes.get(cacheKey);
 
     const refresh = (async () => {
-      const rows = await fetchCustomersFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "customers",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: previousRows,
+            fetchFull: () => fetchCustomersFromNetwork(scope),
+            fetchDelta: since => fetchCustomersFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortCustomers
+          })
+        : { rows: await fetchCustomersFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistCustomers(cacheKey, rows, namespace);
       const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
       const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
       if (previousHash !== nextHash) {
-        emitCustomerCacheUpdate(rows, "network-refresh", cacheKey);
+        emitCustomerCacheUpdate(rows, `network-${result.mode}`, cacheKey);
       }
       return rows;
     })();
@@ -266,7 +286,19 @@
     }
 
     try {
-      const rows = await fetchCustomersFromNetwork(scope);
+      const result = window.KYUMSyncEngine
+        ? await window.KYUMSyncEngine.sync({
+            entity: "customers",
+            namespace,
+            scopeKey: cacheKey,
+            cachedRows: cached?.data,
+            fetchFull: () => fetchCustomersFromNetwork(scope),
+            fetchDelta: since => fetchCustomersFromNetwork(scope, { updatedSince: since }),
+            sortRows: sortCustomers,
+            forceFull: true
+          })
+        : { rows: await fetchCustomersFromNetwork(scope), mode: "full" };
+      const rows = result.rows;
       await persistCustomers(cacheKey, rows, namespace);
       return rows;
     } catch (error) {
@@ -697,6 +729,8 @@
   }
 
 
+
+  window.KYUMSyncEngine?.register?.("customers", () => listCustomers());
 
   window.CustomersService = Object.freeze({
     listCustomers,
