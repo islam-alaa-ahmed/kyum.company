@@ -19,12 +19,11 @@
   const quotationRefreshes = new Map();
 
   async function currentQuotationNamespace() {
-    const authState = window.CustomerAuth?.getState?.() || {};
-    const userId = authState.user?.id || authState.session?.user?.id || authState.profile?.id;
-    if (userId) return `user:${userId}`;
+    const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
+    if (localId) return `user:${localId}`;
     try {
-      const result = await client().auth.getSession();
-      return `user:${result?.data?.session?.user?.id || "anonymous"}`;
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
     } catch (_) {
       return "user:anonymous";
     }
@@ -100,26 +99,19 @@
     };
   }
 
-  function scopeStorageKey(profileId) { return `kyum_offline_scope_v1:${profileId}`; }
-  function readCachedScope(profileId) {
-    try {
-      const value = JSON.parse(localStorage.getItem(scopeStorageKey(profileId)) || "null");
-      return value?.scope || null;
-    } catch (_) { return null; }
-  }
-  function writeCachedScope(profileId, scope) {
-    try { localStorage.setItem(scopeStorageKey(profileId), JSON.stringify({ scope, updatedAt: Date.now() })); } catch (_) {}
-    return scope;
-  }
-
   async function resolveRepresentativeScope() {
     const profile = window.CustomerAuth?.getState?.().profile || null;
     if (!profile) return { mode: "none", representativeIds: [] };
-    const cachedScope = readCachedScope(profile.id);
-    if (navigator.onLine === false && cachedScope) return cachedScope;
+    const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "quotations");
+    if (navigator.onLine === false) {
+      if (cachedScope) return cachedScope;
+      if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) return { mode: "all", representativeIds: [] };
+      if (profile.role === "sales_representative" && profile.representative_id) return { mode: "selected", representativeIds: [profile.representative_id] };
+      return { mode: "none", representativeIds: [] };
+    }
 
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
-      return writeCachedScope(profile.id, { mode: "all", representativeIds: [] });
+      return { mode: "all", representativeIds: [] };
     }
 
     if (profile.role !== "sales_representative" || !profile.representative_id) {
@@ -135,7 +127,7 @@
     if (profileError) throw new Error(`تعذر تحميل نطاق البيانات: ${profileError.message}`);
 
     if ((accessProfile?.access_mode || "own") !== "selected") {
-      return writeCachedScope(profile.id, { mode: "selected", representativeIds: [ownId] });
+      return { mode: "selected", representativeIds: [ownId] };
     }
 
     const { data: allowed, error: allowedError } = await client()
@@ -242,6 +234,8 @@
 
   async function listQuotations(options = {}) {
     const scope = await resolveRepresentativeScope();
+    const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
+    if (scopeUserId && navigator.onLine !== false) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "quotations", scope);
     if (scope.mode === "none") return [];
 
     const namespace = await currentQuotationNamespace();

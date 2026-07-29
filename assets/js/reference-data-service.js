@@ -29,6 +29,8 @@
   }
 
   async function currentNamespace() {
+    const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
+    if (localId) return `user:${localId}`;
     try {
       const result = await client().auth.getUser();
       return `user:${result?.data?.user?.id || "anonymous"}`;

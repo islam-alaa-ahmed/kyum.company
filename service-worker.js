@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-5-3-m13-7-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-5-4-m13-7-4";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";
@@ -44,6 +44,7 @@ const APP_SHELL = [
   "./assets/js/smart-cache.js",
   "./assets/js/sync-engine.js",
   "./assets/js/offline-queue.js",
+  "./assets/js/offline-session-store.js",
   "./assets/js/users-service.js",
   "./assets/images/android-chrome-192x192.png",
   "./assets/images/android-chrome-512x512.png",

@@ -85,12 +85,17 @@ window.CustomerPermissions = {
     return Boolean(row?.[field]);
   },
 
-  async loadCurrentPermissions() {
+  async loadCurrentPermissions(options = {}) {
     this.permissionsLoaded = false;
     this.screenPermissions = new Map();
-    if (!window.PermissionsService) return;
+    const profile = window.CustomerAuth?.getState?.().profile;
+    if (profile?.role === "super_admin") { this.permissionsLoaded = true; return; }
+    if (!window.PermissionsService) throw new Error("خدمة الصلاحيات غير محملة.");
     try {
-      const rows = await window.PermissionsService.getCurrentUserPermissions();
+      const rows = options.offline
+        ? window.KYUMOfflineSessionStore?.loadPermissions?.(profile?.id) || []
+        : await window.PermissionsService.getCurrentUserPermissions();
+      if (options.offline && !rows.length) throw new Error("لا توجد صلاحيات محفوظة لهذا الحساب.");
       this.screenPermissions = new Map(rows.map(row => [row.screen_key, Object.freeze({ ...row })]));
       this.permissionsLoaded = true;
     } catch (error) {

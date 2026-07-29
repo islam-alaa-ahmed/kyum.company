@@ -55,32 +55,15 @@
     return saved;
   }
 
-  function permissionCacheKey(userId) { return `kyum_offline_permissions_v1:${userId}`; }
-  function readPermissionCache(userId) {
-    try {
-      const value = JSON.parse(localStorage.getItem(permissionCacheKey(userId)) || "null");
-      return Array.isArray(value?.rows) ? value.rows : null;
-    } catch (_) { return null; }
-  }
-  function writePermissionCache(userId, rows) {
-    try { localStorage.setItem(permissionCacheKey(userId), JSON.stringify({ rows, updatedAt: Date.now() })); } catch (_) {}
-  }
-
   async function getCurrentUserPermissions() {
     const profile = window.CustomerAuth?.getState?.().profile;
     const role = profile?.role;
     if (!profile?.id || !role) throw new Error("ملف المستخدم أو الدور غير متاح.");
     if (role === "super_admin") return [];
-    const cached = readPermissionCache(profile.id);
-    if (navigator.onLine === false && cached) return cached.map(row => Object.freeze({ ...row }));
-    try {
-      const rows = await getRolePermissions(role);
-      writePermissionCache(profile.id, rows);
-      return rows.map(row => Object.freeze({ ...row }));
-    } catch (error) {
-      if (cached) return cached.map(row => Object.freeze({ ...row }));
-      throw error;
-    }
+    const rows = await getRolePermissions(role);
+    const normalized = rows.map(row => Object.freeze({ ...row }));
+    window.KYUMOfflineSessionStore?.savePermissions?.(profile.id, normalized);
+    return normalized;
   }
 
   window.PermissionsService = Object.freeze({

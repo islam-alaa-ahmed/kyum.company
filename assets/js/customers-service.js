@@ -67,12 +67,11 @@
   const customerRefreshes = new Map();
 
   async function currentCustomerNamespace() {
-    const authState = window.CustomerAuth?.getState?.() || {};
-    const userId = authState.user?.id || authState.session?.user?.id || authState.profile?.id;
-    if (userId) return `user:${userId}`;
+    const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
+    if (localId) return `user:${localId}`;
     try {
-      const result = await client().auth.getSession();
-      return `user:${result?.data?.session?.user?.id || "anonymous"}`;
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
     } catch (_) {
       return "user:anonymous";
     }
@@ -145,26 +144,19 @@
     `;
   }
 
-  function scopeStorageKey(profileId) { return `kyum_offline_scope_v1:${profileId}`; }
-  function readCachedScope(profileId) {
-    try {
-      const value = JSON.parse(localStorage.getItem(scopeStorageKey(profileId)) || "null");
-      return value?.scope || null;
-    } catch (_) { return null; }
-  }
-  function writeCachedScope(profileId, scope) {
-    try { localStorage.setItem(scopeStorageKey(profileId), JSON.stringify({ scope, updatedAt: Date.now() })); } catch (_) {}
-    return scope;
-  }
-
   async function resolveCustomerRepresentativeScope() {
     const profile = window.CustomerAuth?.getState?.().profile || null;
     if (!profile) return { mode: "none", representativeIds: [] };
-    const cachedScope = readCachedScope(profile.id);
-    if (navigator.onLine === false && cachedScope) return cachedScope;
+    const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "customers");
+    if (navigator.onLine === false) {
+      if (cachedScope) return cachedScope;
+      if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) return { mode: "all", representativeIds: [] };
+      if (profile.role === "sales_representative" && profile.representative_id) return { mode: "selected", representativeIds: [profile.representative_id] };
+      return { mode: "none", representativeIds: [] };
+    }
 
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
-      return writeCachedScope(profile.id, { mode: "all", representativeIds: [] });
+      return { mode: "all", representativeIds: [] };
     }
 
     if (profile.role !== "sales_representative") {
@@ -185,7 +177,7 @@
 
     const accessMode = accessProfile?.access_mode || "own";
     if (accessMode === "own") {
-      return writeCachedScope(profile.id, { mode: "selected", representativeIds: [ownRepresentativeId] });
+      return { mode: "selected", representativeIds: [ownRepresentativeId] };
     }
 
     if (accessMode === "selected") {
@@ -201,13 +193,13 @@
         ownRepresentativeId,
         ...(allowedRows || []).map(row => row.representative_id).filter(Boolean)
       ]));
-      return writeCachedScope(profile.id, { mode: "selected", representativeIds });
+      return { mode: "selected", representativeIds };
     }
 
     // A sales representative must never receive an unfiltered customer query.
     // Even if an old profile contains access_mode=all, keep the account scoped
     // to its directly linked representative.
-    return writeCachedScope(profile.id, { mode: "selected", representativeIds: [ownRepresentativeId] });
+    return { mode: "selected", representativeIds: [ownRepresentativeId] };
   }
 
   async function fetchCustomersFromNetwork(scope, options = {}) {
@@ -278,6 +270,8 @@
 
   async function listCustomers(options = {}) {
     const scope = await resolveCustomerRepresentativeScope();
+    const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
+    if (scopeUserId && navigator.onLine !== false) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "customers", scope);
     if (scope.mode === "none") return [];
 
     const namespace = await currentCustomerNamespace();
