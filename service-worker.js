@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-3-8-m12-3-2";
+const CACHE_VERSION = "kyum-crm-pwa-18-3-7-m12-5-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_URL = "./offline.html";
@@ -32,6 +32,7 @@ const APP_SHELL = [
   "./assets/js/performance-monitor.js",
   "./assets/js/permissions-service.js",
   "./assets/js/permissions.js",
+  "./assets/js/permission-engine.js",
   "./assets/js/pwa.js",
   "./assets/js/quotations-service.js",
   "./assets/js/reference-data-service.js",
