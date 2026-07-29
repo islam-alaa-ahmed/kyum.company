@@ -356,7 +356,7 @@
     );
   }
 
-  async function saveCustomer(record, context = {}) {
+  async function saveCustomerOnline(record, context = {}) {
     requirePermission("customers", record?.id ? "edit" : "add");
     let userId = context.userId || null;
     if (!userId) {
@@ -427,6 +427,45 @@
 
     await invalidateCustomerCache();
     return saved.id;
+  }
+
+  async function assertCustomerNotConflicted(record, baseUpdatedAt) {
+    if (!record?.id || !baseUpdatedAt) return;
+    const { data, error } = await client()
+      .from("customers")
+      .select("id, updated_at")
+      .eq("id", record.id)
+      .maybeSingle();
+    if (error) throw new Error(`تعذر التحقق من تعارض العميل: ${error.message}`);
+    const serverTime = Date.parse(data?.updated_at || "") || 0;
+    const baseTime = Date.parse(baseUpdatedAt || "") || 0;
+    if (serverTime && baseTime && serverTime > baseTime + 1000) {
+      throw new window.KYUMOfflineQueue.ConflictError("تم تعديل العميل على الخادم بعد آخر مزامنة.", {
+        entityId: record.id, serverUpdatedAt: data.updated_at, baseUpdatedAt
+      });
+    }
+  }
+
+  async function queueCustomer(record) {
+    const action = record?.id ? "update" : "create";
+    const queued = await window.KYUMOfflineQueue.enqueue({
+      entity: "customers",
+      action,
+      payload: record,
+      localEntityId: action === "create" ? undefined : record.id,
+      baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
+    });
+    return queued.localEntityId;
+  }
+
+  async function saveCustomer(record, context = {}) {
+    requirePermission("customers", record?.id ? "edit" : "add");
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      return queueCustomer(record);
+    }
+    // Online failures are not auto-queued after a request starts, because the
+    // server may already have committed the write. This prevents duplicate creates.
+    return saveCustomerOnline(record, context);
   }
 
   async function deleteCustomer(customerId, customerName) {
@@ -731,6 +770,14 @@
 
 
   window.KYUMSyncEngine?.register?.("customers", () => listCustomers());
+  window.KYUMOfflineQueue?.register?.("customers", async operation => {
+    const record = { ...operation.payload };
+    if (operation.action === "update") {
+      await assertCustomerNotConflicted(record, operation.baseUpdatedAt);
+    }
+    const id = await saveCustomerOnline(record, { skipOfflineQueue: true });
+    return { id };
+  });
 
   window.CustomersService = Object.freeze({
     listCustomers,

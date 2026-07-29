@@ -332,7 +332,7 @@
     );
   }
 
-  async function saveQuotation(record) {
+  async function saveQuotationOnline(record) {
     requirePermission("quotations", record?.id ? "edit" : "add");
     const { data: userData, error: userError } = await client().auth.getUser();
 
@@ -397,6 +397,48 @@
     return saved.id;
   }
 
+  async function assertQuotationNotConflicted(record, baseUpdatedAt) {
+    if (!record?.id || !baseUpdatedAt) return;
+    const { data, error } = await client()
+      .from("quotations")
+      .select("id, updated_at")
+      .eq("id", record.id)
+      .maybeSingle();
+    if (error) throw new Error(`تعذر التحقق من تعارض عرض السعر: ${error.message}`);
+    const serverTime = Date.parse(data?.updated_at || "") || 0;
+    const baseTime = Date.parse(baseUpdatedAt || "") || 0;
+    if (serverTime && baseTime && serverTime > baseTime + 1000) {
+      throw new window.KYUMOfflineQueue.ConflictError("تم تعديل عرض السعر على الخادم بعد آخر مزامنة.", {
+        entityId: record.id, serverUpdatedAt: data.updated_at, baseUpdatedAt
+      });
+    }
+  }
+
+  async function queueQuotation(record) {
+    const action = record?.id ? "update" : "create";
+    const dependencies = [];
+    if (String(record?.customerId || "").startsWith("local:")) {
+      const parent = await window.KYUMOfflineQueue.findCreateOperationByLocalId(record.customerId);
+      if (!parent) throw new Error("تعذر ربط عرض السعر بالعميل المحلي المعلق.");
+      dependencies.push(parent.id);
+    }
+    const queued = await window.KYUMOfflineQueue.enqueue({
+      entity: "quotations", action, payload: record, dependsOn: dependencies,
+      baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
+    });
+    return queued.localEntityId;
+  }
+
+  async function saveQuotation(record, context = {}) {
+    requirePermission("quotations", record?.id ? "edit" : "add");
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      return queueQuotation(record);
+    }
+    // Do not auto-queue an online failure after transmission starts; the insert
+    // may already be committed and replaying it could create a duplicate.
+    return saveQuotationOnline(record);
+  }
+
   async function deleteQuotation(record) {
     requirePermission("quotations", "delete");
     await unwrap(
@@ -437,6 +479,17 @@
   }
 
   window.KYUMSyncEngine?.register?.("quotations", () => listQuotations());
+  window.KYUMOfflineQueue?.register?.("quotations", async (operation, helpers) => {
+    const record = { ...operation.payload };
+    if (String(record.customerId || "").startsWith("local:")) {
+      const resolved = await helpers.resolveServerId(record.customerId, operation.namespace);
+      if (!resolved) throw new Error("لم تتم مزامنة العميل المرتبط بعرض السعر بعد.");
+      record.customerId = resolved;
+    }
+    if (operation.action === "update") await assertQuotationNotConflicted(record, operation.baseUpdatedAt);
+    const id = await saveQuotationOnline(record);
+    return { id };
+  });
 
   window.QuotationsService = Object.freeze({
     listQuotations,

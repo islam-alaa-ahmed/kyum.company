@@ -310,7 +310,7 @@
     );
   }
 
-  async function saveFollowup(record) {
+  async function saveFollowupOnline(record) {
     requirePermission("followups", record?.id ? "edit" : "add");
     const { data: userData, error: userError } = await client().auth.getUser();
     if (userError) {
@@ -369,6 +369,48 @@
     return saved.id;
   }
 
+  async function assertFollowupNotConflicted(record, baseUpdatedAt) {
+    if (!record?.id || !baseUpdatedAt) return;
+    const { data, error } = await client()
+      .from("customer_followups")
+      .select("id, updated_at")
+      .eq("id", record.id)
+      .maybeSingle();
+    if (error) throw new Error(`تعذر التحقق من تعارض المتابعة: ${error.message}`);
+    const serverTime = Date.parse(data?.updated_at || "") || 0;
+    const baseTime = Date.parse(baseUpdatedAt || "") || 0;
+    if (serverTime && baseTime && serverTime > baseTime + 1000) {
+      throw new window.KYUMOfflineQueue.ConflictError("تم تعديل المتابعة على الخادم بعد آخر مزامنة.", {
+        entityId: record.id, serverUpdatedAt: data.updated_at, baseUpdatedAt
+      });
+    }
+  }
+
+  async function queueFollowup(record) {
+    const action = record?.id ? "update" : "create";
+    const dependencies = [];
+    if (String(record?.customerId || "").startsWith("local:")) {
+      const parent = await window.KYUMOfflineQueue.findCreateOperationByLocalId(record.customerId);
+      if (!parent) throw new Error("تعذر ربط المتابعة بالعميل المحلي المعلق.");
+      dependencies.push(parent.id);
+    }
+    const queued = await window.KYUMOfflineQueue.enqueue({
+      entity: "followups", action, payload: record, dependsOn: dependencies,
+      baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
+    });
+    return queued.localEntityId;
+  }
+
+  async function saveFollowup(record, context = {}) {
+    requirePermission("followups", record?.id ? "edit" : "add");
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      return queueFollowup(record);
+    }
+    // Do not auto-queue an online failure after transmission starts; the insert
+    // may already be committed and replaying it could create a duplicate.
+    return saveFollowupOnline(record);
+  }
+
   async function deleteFollowup(record) {
     requirePermission("followups", "delete");
     await unwrap(
@@ -407,6 +449,17 @@
   }
 
   window.KYUMSyncEngine?.register?.("followups", () => listFollowups());
+  window.KYUMOfflineQueue?.register?.("followups", async (operation, helpers) => {
+    const record = { ...operation.payload };
+    if (String(record.customerId || "").startsWith("local:")) {
+      const resolved = await helpers.resolveServerId(record.customerId, operation.namespace);
+      if (!resolved) throw new Error("لم تتم مزامنة العميل المرتبط بالمتابعة بعد.");
+      record.customerId = resolved;
+    }
+    if (operation.action === "update") await assertFollowupNotConflicted(record, operation.baseUpdatedAt);
+    const id = await saveFollowupOnline(record);
+    return { id };
+  });
 
   window.FollowupsService = Object.freeze({
     listFollowups,

@@ -334,6 +334,12 @@ function isValidSaudiMobile(value) {
 
 async function findCustomerByPhone(phone, excludeId = null) {
   const normalized = normalizePhone(phone);
+  if (navigator.onLine === false) {
+    return customers.find(customer =>
+      String(customer.id) !== String(excludeId || "")
+      && normalizePhone(customer.phone) === normalized
+    ) || null;
+  }
   return window.CustomersService.findByPhone(normalized, excludeId);
 }
 
@@ -3584,6 +3590,7 @@ async function handleCustomerSubmit(event) {
 
     await window.CustomersService.saveCustomer({
       id: editingId,
+      updatedAt: editingId ? (customers.find(item => String(item.id) === String(editingId))?.updatedAt || "") : "",
       name: document.getElementById("customerName").value,
       type: customerType,
       contactPersonName: customerType === "شركة" ? contactPersonName : "",
@@ -3822,6 +3829,7 @@ async function handleFollowupSubmit(event) {
 
     const followupPayload = {
       id: editingFollowupId,
+      updatedAt: editingFollowupId ? (followups.find(item => String(item.id) === String(editingFollowupId))?.updatedAt || "") : "",
       customerId,
       contactDate: document.getElementById("followupContactDate").value,
       method: document.getElementById("followupMethod").value,
@@ -5896,7 +5904,9 @@ async function handleQuotationSubmit(event) {
   const submitButton = event.submitter;
 
   try {
-    const duplicate = await window.QuotationsService.findByNumber(code, editingQuotationId);
+    const duplicate = navigator.onLine === false
+      ? quotations.find(item => String(item.id) !== String(editingQuotationId || "") && String(item.code || "").trim().toLowerCase() === code.toLowerCase())
+      : await window.QuotationsService.findByNumber(code, editingQuotationId);
 
     if (duplicate) {
       alert(`رقم عرض السعر ${code} مسجل بالفعل ولا يمكن تكراره.`);
@@ -5911,6 +5921,7 @@ async function handleQuotationSubmit(event) {
 
     await window.QuotationsService.saveQuotation({
       id: editingQuotationId,
+      updatedAt: editingQuotationId ? (quotations.find(item => String(item.id) === String(editingQuotationId))?.updatedAt || "") : "",
       code,
       customerId,
       representativeId,
