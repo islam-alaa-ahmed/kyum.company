@@ -13,6 +13,50 @@
     return window.customerSupabase;
   }
 
+  const QUOTATIONS_CACHE_TTL_MS = 10 * 60 * 1000;
+  const QUOTATIONS_CACHE_STALE_MAX_MS = 7 * 24 * 60 * 60 * 1000;
+  const QUOTATIONS_CACHE_SCHEMA_VERSION = 1;
+  const quotationRefreshes = new Map();
+
+  async function currentQuotationNamespace() {
+    try {
+      const result = await client().auth.getUser();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
+    } catch (_) {
+      return "user:anonymous";
+    }
+  }
+
+  function quotationScopeCacheKey(scope) {
+    const ids = Array.isArray(scope?.representativeIds)
+      ? [...scope.representativeIds].filter(Boolean).sort()
+      : [];
+    return `quotations:${scope?.mode || "none"}:${ids.join(",") || "all"}`;
+  }
+
+  function emitQuotationCacheUpdate(data, source, cacheKey) {
+    window.dispatchEvent(new CustomEvent("kyum-quotation-cache-updated", {
+      detail: { data, source, cacheKey, updatedAt: Date.now() }
+    }));
+  }
+
+  async function persistQuotations(cacheKey, rows, namespace) {
+    if (!window.KYUMSmartCache) return null;
+    return window.KYUMSmartCache.set(cacheKey, rows, {
+      namespace,
+      ttlMs: QUOTATIONS_CACHE_TTL_MS,
+      staleMaxMs: QUOTATIONS_CACHE_STALE_MAX_MS,
+      source: "supabase",
+      schemaVersion: QUOTATIONS_CACHE_SCHEMA_VERSION
+    });
+  }
+
+  async function invalidateQuotationCache() {
+    if (!window.KYUMSmartCache) return;
+    const namespace = await currentQuotationNamespace();
+    await window.KYUMSmartCache.removePrefix("quotations:", { namespace });
+  }
+
   async function unwrap(request, fallbackMessage) {
     const { data, error } = await request;
 
@@ -92,8 +136,7 @@
     };
   }
 
-  async function listQuotations() {
-    const scope = await resolveRepresentativeScope();
+  async function fetchQuotationsFromNetwork(scope) {
     if (scope.mode === "none") return [];
 
     let request = client()
@@ -136,6 +179,64 @@
 
     const rows = await unwrap(request, "تعذر تحميل عروض الأسعار");
     return (rows || []).map(normalizeQuotation);
+  }
+
+  async function refreshQuotationsInBackground(scope, namespace, cacheKey, previousRows) {
+    if (quotationRefreshes.has(cacheKey)) return quotationRefreshes.get(cacheKey);
+
+    const refresh = (async () => {
+      const rows = await fetchQuotationsFromNetwork(scope);
+      await persistQuotations(cacheKey, rows, namespace);
+      const previousHash = window.KYUMSmartCache?.hashValue?.(previousRows);
+      const nextHash = window.KYUMSmartCache?.hashValue?.(rows);
+      if (previousHash !== nextHash) {
+        emitQuotationCacheUpdate(rows, "network-refresh", cacheKey);
+      }
+      return rows;
+    })();
+
+    quotationRefreshes.set(cacheKey, refresh);
+    try {
+      return await refresh;
+    } finally {
+      quotationRefreshes.delete(cacheKey);
+    }
+  }
+
+  async function listQuotations(options = {}) {
+    const scope = await resolveRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    const namespace = await currentQuotationNamespace();
+    const cacheKey = quotationScopeCacheKey(scope);
+    const force = Boolean(options.force);
+    let cached = null;
+
+    if (!force && window.KYUMSmartCache) {
+      cached = await window.KYUMSmartCache.get(cacheKey, {
+        namespace,
+        allowStale: true,
+        staleMaxMs: QUOTATIONS_CACHE_STALE_MAX_MS
+      });
+    }
+
+    if (cached?.hit && Array.isArray(cached.data)) {
+      if (navigator.onLine !== false) {
+        refreshQuotationsInBackground(scope, namespace, cacheKey, cached.data).catch(error => {
+          console.warn("Quotation cache background refresh skipped:", error);
+        });
+      }
+      return cached.data;
+    }
+
+    try {
+      const rows = await fetchQuotationsFromNetwork(scope);
+      await persistQuotations(cacheKey, rows, namespace);
+      return rows;
+    } catch (error) {
+      if (cached?.data && Array.isArray(cached.data)) return cached.data;
+      throw error;
+    }
   }
 
   async function findByNumber(quotationNumber, excludeId = null) {
@@ -260,6 +361,7 @@
       rejection_reason_id: payload.rejection_reason_id
     });
 
+    await invalidateQuotationCache();
     return saved.id;
   }
 
@@ -279,6 +381,7 @@
       quotation_number: record.code,
       customer_id: record.customerId
     });
+    await invalidateQuotationCache();
   }
 
   async function audit(action, entityId, newData) {
@@ -305,6 +408,7 @@
     listQuotations,
     findByNumber,
     saveQuotation,
-    deleteQuotation
+    deleteQuotation,
+    invalidateQuotationCache
   });
 })();

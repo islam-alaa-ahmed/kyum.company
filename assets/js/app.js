@@ -747,6 +747,21 @@ function applyFollowupCacheUpdate(event) {
 
 window.addEventListener("kyum-followup-cache-updated", applyFollowupCacheUpdate);
 
+function applyQuotationCacheUpdate(event) {
+  const rows = event?.detail?.data;
+  if (!Array.isArray(rows)) return;
+
+  quotations = rows;
+  quotationsLoaded = true;
+  quotationsPage = 1;
+  showDataStatus("quotationsStatus", "");
+  renderQuotations();
+  renderCustomers();
+  renderDashboard();
+}
+
+window.addEventListener("kyum-quotation-cache-updated", applyQuotationCacheUpdate);
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService || !window.customerSupabase) return;
 
@@ -5683,7 +5698,7 @@ async function loadQuotationsFromSupabase(force = false) {
   showDataStatus("quotationsStatus", "جاري تحميل عروض الأسعار من Supabase...", "info");
 
   try {
-    quotations = await window.QuotationsService.listQuotations();
+    quotations = await window.QuotationsService.listQuotations({ force });
     quotationsLoaded = true;
     quotationsPage = 1;
     showDataStatus("quotationsStatus", "");
