@@ -10,6 +10,31 @@
     import: "can_import"
   });
 
+  const ACTION_BINDINGS = Object.freeze([
+    Object.freeze({ selector: "#addCustomerBtn,#referenceAddCustomerBtn,[data-daily-suggested-add-customer]", screen: "customers", action: "add" }),
+    Object.freeze({ selector: "#customersImportBtn,#referenceCustomersImportBtn,#customerImportChooseFileBtn,#customerImportExecuteBtn,#customerImportOverrideBtn,#customerImportOverrideConfirmBtn,[data-daily-suggested-import]", screen: "customers", action: "import" }),
+    Object.freeze({ selector: "#customersTemplateBtn,#referenceCustomersExportBtn,#referenceCustomersTemplateBtn,#customerImportFailedExportBtn", screen: "customers", action: "export" }),
+    Object.freeze({ selector: "[data-edit],[data-reference-customer-edit]", screen: "customers", action: "edit" }),
+    Object.freeze({ selector: "[data-delete],[data-reference-customer-delete]", screen: "customers", action: "delete" }),
+    Object.freeze({ selector: "#addFollowupBtn,#customer360AddFollowupBtn,[data-add-followup],[data-daily-suggested-followup],[data-daily-suggested-contacted]", screen: "followups", action: "add" }),
+    Object.freeze({ selector: "[data-edit-followup]", screen: "followups", action: "edit" }),
+    Object.freeze({ selector: "[data-delete-followup]", screen: "followups", action: "delete" }),
+    Object.freeze({ selector: "#addQuotationBtn", screen: "quotations", action: "add" }),
+    Object.freeze({ selector: "[data-edit-quotation]", screen: "quotations", action: "edit" }),
+    Object.freeze({ selector: "[data-delete-quotation]", screen: "quotations", action: "delete" }),
+    Object.freeze({ selector: "#representativesImportBtn,#representativeImportChooseFileBtn,#representativeImportExecuteBtn", screen: "representatives", action: "import" }),
+    Object.freeze({ selector: "#representativesTemplateBtn,#representativeImportFailedExportBtn", screen: "representatives", action: "export" }),
+    Object.freeze({ selector: "#openExportCenterBtn,#exportDailyPerformanceCsvBtn,#exportReportsExcelBtn,#exportReportsPdfBtn,#exportReportsPngBtn,#exportReportsCsvBtn", screen: "reportsOverview", action: "export" }),
+    Object.freeze({ selector: "#customer360ExportBtn,#customer360ExportPdfBtn,#customer360ExportExcelBtn,#customer360ExportPngBtn", screen: "customers", action: "export" }),
+    Object.freeze({ selector: "#addUserBtn", screen: "users", action: "add" }),
+    Object.freeze({ selector: "[data-edit-user],[data-reset-password]", screen: "users", action: "edit" }),
+    Object.freeze({ selector: "#savePermissionsBtn", screen: "permissions", action: "edit" }),
+    Object.freeze({ selector: "#createBackupBtn,#restoreBackupBtn", screen: "backups", action: "add" }),
+    Object.freeze({ selector: "#downloadBackupBtn", screen: "backups", action: "export" }),
+    Object.freeze({ selector: "#saveSystemSettingsBtn", screen: "systemSettings", action: "edit" }),
+    Object.freeze({ selector: "[data-add-reference]", screen: "settings", action: "add" })
+  ]);
+
   const DEFAULT_NAVIGATION_GROUPS = Object.freeze({
     "main-navigation": Object.freeze(["dashboard", "dailyOperations"]),
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
@@ -44,14 +69,18 @@
   }
 
   const engine = {
-    version: "1.1.0-navigation-integration",
+    version: "1.2.0-action-authorization",
     debugEnabled: false,
     navigationGroups: DEFAULT_NAVIGATION_GROUPS,
+    actionBindings: ACTION_BINDINGS,
+    actionGuardInstalled: false,
 
     initialize() {
       const source = legacyPermissions();
       const ready = Boolean(source?.permissionsLoaded || source?.currentRole?.() === "super_admin");
       this.applyNavigationVisibility();
+      this.applyActionVisibility();
+      this.installActionGuard();
       window.dispatchEvent(new CustomEvent("kyum-permission-engine-ready", {
         detail: frozenResult({ ready, role: this.currentRole(), version: this.version })
       }));
@@ -82,6 +111,62 @@
     canDelete(screenKey) { return this.can(screenKey, "delete"); },
     canExport(screenKey) { return this.can(screenKey, "export"); },
     canImport(screenKey) { return this.can(screenKey, "import"); },
+
+    requireAction(screenKey, action = "view", options = {}) {
+      const key = normalizeKey(screenKey);
+      const normalizedAction = normalizeAction(action);
+      const allowed = this.can(key, normalizedAction);
+      if (allowed) return true;
+      const labels = { view: "عرض", add: "إضافة", edit: "تعديل", delete: "حذف", export: "تصدير", import: "استيراد" };
+      const message = options.message || `لا توجد صلاحية ${labels[normalizedAction] || normalizedAction} لهذه الشاشة.`;
+      window.dispatchEvent(new CustomEvent("kyum-permission-denied", {
+        detail: frozenResult({ screenKey: key, action: normalizedAction, message })
+      }));
+      if (!options.silent) alert(message);
+      return false;
+    },
+
+    applyActionBindings(root = document) {
+      this.actionBindings.forEach(binding => {
+        root.querySelectorAll?.(binding.selector).forEach(element => {
+          element.dataset.permissionScreen = binding.screen;
+          element.dataset.permissionAction = binding.action;
+        });
+      });
+    },
+
+    applyActionVisibility(root = document) {
+      this.applyActionBindings(root);
+      root.querySelectorAll?.("[data-permission-screen][data-permission-action]").forEach(element => {
+        const allowed = this.can(element.dataset.permissionScreen, element.dataset.permissionAction);
+        element.classList.toggle("hidden", !allowed);
+        element.hidden = !allowed;
+        element.setAttribute("aria-hidden", String(!allowed));
+        if ("disabled" in element) element.disabled = !allowed;
+        element.setAttribute("tabindex", allowed ? "0" : "-1");
+      });
+    },
+
+    installActionGuard() {
+      if (this.actionGuardInstalled) return;
+      this.actionGuardInstalled = true;
+      document.addEventListener("click", event => {
+        let target = event.target?.closest?.("[data-permission-screen][data-permission-action]");
+        if (!target) {
+          const binding = this.actionBindings.find(item => event.target?.closest?.(item.selector));
+          if (binding) {
+            target = event.target.closest(binding.selector);
+            target.dataset.permissionScreen = binding.screen;
+            target.dataset.permissionAction = binding.action;
+          }
+        }
+        if (!target) return;
+        if (this.can(target.dataset.permissionScreen, target.dataset.permissionAction)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        this.requireAction(target.dataset.permissionScreen, target.dataset.permissionAction);
+      }, true);
+    },
 
     allowedScreens() {
       return Object.freeze([...(legacyPermissions()?.allowedScreenKeys?.() || [])]);
@@ -174,7 +259,7 @@
 
     refresh(options = {}) {
       this.applyNavigationVisibility(options.root || document);
-      legacyPermissions()?.applyActionVisibility?.(options.root || document);
+      this.applyActionVisibility(options.root || document);
       if (options.validateCurrentView !== false) this.validateCurrentView(options.preferred || "dashboard");
       const snapshot = this.snapshot();
       window.dispatchEvent(new CustomEvent("kyum-permissions-refreshed", { detail: snapshot }));
@@ -204,7 +289,7 @@
     }
   };
 
-  window.PermissionEngine = Object.freeze(engine);
+  window.PermissionEngine = Object.seal(engine);
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => engine.initialize(), { once: true });

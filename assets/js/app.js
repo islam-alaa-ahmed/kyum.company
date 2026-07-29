@@ -1185,10 +1185,14 @@ function renderActivityTrend(data) {
 }
 
 function canScreenAction(screenKey, action = "view") {
+  if (window.PermissionEngine?.can) return window.PermissionEngine.can(screenKey, action);
   return Boolean(window.CustomerPermissions?.canScreen?.(screenKey, action));
 }
 
 function requireScreenAction(screenKey, action, message) {
+  if (window.PermissionEngine?.requireAction) {
+    return window.PermissionEngine.requireAction(screenKey, action, { message });
+  }
   return Boolean(window.CustomerPermissions?.requireAction?.(screenKey, action, { message }));
 }
 
@@ -2791,11 +2795,11 @@ function stopSystemHealthAutoRefresh() {
 }
 
 function canManageCustomers() {
-  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+  return canScreenAction("customers", "edit");
 }
 
 function canDeleteCustomers() {
-  return ["super_admin", "sales_manager"].includes(currentRole());
+  return canScreenAction("customers", "delete");
 }
 
 async function loadCustomersFromSupabase(force = false) {
@@ -2887,7 +2891,7 @@ function renderCustomers() {
         <td>
           <div class="row-actions">
             <button class="edit-btn" data-details="${customer.id}">عرض</button>
-            ${canManageFollowups() ? `<button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>` : ""}
+            ${canManageFollowups("add") ? `<button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>` : ""}
             ${canManageCustomers() ? `<button class="edit-btn" data-edit="${customer.id}">تعديل</button>` : ""}
             ${canDeleteCustomers() ? `<button class="delete-btn" data-delete="${customer.id}">حذف</button>` : ""}
           </div>
@@ -3570,8 +3574,8 @@ function customerById(id) {
   return customers.find(customer => customer.id === id);
 }
 
-function canManageFollowups() {
-  return ["super_admin", "sales_manager", "sales_representative"].includes(currentRole());
+function canManageFollowups(action = "edit") {
+  return canScreenAction("followups", action);
 }
 
 async function loadFollowupsFromSupabase(force = false) {
@@ -3649,7 +3653,7 @@ function renderFollowups() {
   const start = (followupsPage - 1) * FOLLOWUPS_PAGE_SIZE;
   const rows = allRows.slice(start, start + FOLLOWUPS_PAGE_SIZE);
 
-  document.getElementById("addFollowupBtn")?.classList.toggle("hidden", !canManageFollowups());
+  document.getElementById("addFollowupBtn")?.classList.toggle("hidden", !canManageFollowups("add"));
 
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
@@ -3672,8 +3676,8 @@ function renderFollowups() {
           <td><span class="status-badge status-${status}">${statusLabel(status)}</span></td>
           <td>
             <div class="row-actions">
-              ${canManageFollowups() ? `<button class="edit-btn" data-edit-followup="${item.id}">تعديل</button>` : ""}
-              ${canManageFollowups() ? `<button class="delete-btn" data-delete-followup="${item.id}">حذف</button>` : ""}
+              ${canManageFollowups("edit") ? `<button class="edit-btn" data-edit-followup="${item.id}">تعديل</button>` : ""}
+              ${canManageFollowups("delete") ? `<button class="delete-btn" data-delete-followup="${item.id}">حذف</button>` : ""}
             </div>
           </td>
         </tr>`;
@@ -3727,7 +3731,7 @@ async function handleFollowupSubmit(event) {
   if (!requireScreenAction("followups", action, "لا توجد صلاحية حفظ المتابعات.")) return;
   event.preventDefault();
 
-  if (!canManageFollowups()) {
+  if (!canManageFollowups(action)) {
     alert("لا توجد صلاحية لإدارة المتابعات.");
     return;
   }
@@ -3816,7 +3820,7 @@ async function handleFollowupSubmit(event) {
 
 async function deleteFollowup(id) {
   if (!requireScreenAction("followups", "delete", "لا توجد صلاحية حذف المتابعات.")) return;
-  if (!canManageFollowups()) {
+  if (!canManageFollowups("delete")) {
     alert("لا توجد صلاحية لحذف المتابعات.");
     return;
   }
@@ -3951,7 +3955,7 @@ function showCustomerDetails(customerId) {
   const editButton = document.getElementById("customer360EditBtn");
   const followupButton = document.getElementById("customer360AddFollowupBtn");
   editButton.classList.toggle("hidden", !canManageCustomers());
-  followupButton.classList.toggle("hidden", !canManageFollowups());
+  followupButton.classList.toggle("hidden", !canManageFollowups("add"));
 
   const profile = [
     ["رقم العميل", customer.customerNumber || customer.phone || "—"],
@@ -5323,7 +5327,7 @@ function renderDailySuggestedCustomers() {
   body.innerHTML = rows.length
     ? rows.map((item, index) => {
       const whatsappNumber = dailyWhatsAppNumber(item.phone);
-      const canAddFollowup = canManageFollowups();
+      const canAddFollowup = canManageFollowups("add");
       return `
         <tr>
           <td>${index + 1}</td>

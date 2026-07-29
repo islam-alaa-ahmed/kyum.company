@@ -29,15 +29,16 @@ window.CustomerPermissions = {
     add: "إضافة",
     edit: "تعديل",
     delete: "حذف",
-    export: "تصدير"
+    export: "تصدير",
+    import: "استيراد"
   }),
 
   canAction(screenKey, action = "view") {
-    return this.canScreen(screenKey, action);
+    return window.PermissionEngine?.can?.(screenKey, action) ?? this.canScreen(screenKey, action);
   },
 
   requireAction(screenKey, action = "view", options = {}) {
-    const allowed = this.canScreen(screenKey, action);
+    const allowed = window.PermissionEngine?.can?.(screenKey, action) ?? this.canScreen(screenKey, action);
     if (allowed) return true;
 
     const label = options.label || this.actionLabels[action] || action;
@@ -50,12 +51,14 @@ window.CustomerPermissions = {
   },
 
   applyActionVisibility(root = document) {
+    if (window.PermissionEngine?.applyActionVisibility) {
+      window.PermissionEngine.applyActionVisibility(root);
+      return;
+    }
     root.querySelectorAll("[data-permission-screen][data-permission-action]").forEach(element => {
-      const allowed = this.canScreen(
-        element.dataset.permissionScreen,
-        element.dataset.permissionAction
-      );
+      const allowed = this.canScreen(element.dataset.permissionScreen, element.dataset.permissionAction);
       element.classList.toggle("hidden", !allowed);
+      element.hidden = !allowed;
       element.setAttribute("aria-hidden", String(!allowed));
       if ("disabled" in element) element.disabled = !allowed;
       element.setAttribute("tabindex", allowed ? "0" : "-1");
@@ -78,7 +81,7 @@ window.CustomerPermissions = {
     if (role === "super_admin") return true;
     if (!this.permissionsLoaded) return false;
     const row = this.screenPermissions.get(screenKey);
-    const field = { view:"can_view", add:"can_add", edit:"can_edit", delete:"can_delete", export:"can_export" }[action] || "can_view";
+    const field = { view:"can_view", add:"can_add", edit:"can_edit", delete:"can_delete", export:"can_export", import:"can_add" }[action] || "can_view";
     return Boolean(row?.[field]);
   },
 
