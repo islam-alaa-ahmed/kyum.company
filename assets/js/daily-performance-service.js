@@ -320,7 +320,7 @@
     };
   }
 
-  async function loadReport(workDate, existingData) {
+  async function loadReportOnline(workDate, existingData) {
     const [
       definitions,
       taskCompletions,
@@ -349,6 +349,15 @@
       followups: existingData.followups || [],
       quotations: existingData.quotations || []
     });
+  }
+
+  async function loadReport(workDate, existingData, options = {}) {
+    if (!window.KYUMOfflineReadCache) return loadReportOnline(workDate, existingData);
+    return window.KYUMOfflineReadCache.read(
+      `daily-performance:${workDate}`,
+      () => loadReportOnline(workDate, existingData),
+      options
+    );
   }
 
   function toCsv(report) {

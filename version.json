@@ -1,14 +1,13 @@
 {
-  "version": "18.8.0",
-  "build": 18800,
+  "version": "18.9.0",
+  "build": 18900,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Sync Correctness & Queue Recovery",
+  "title": "Remaining Modules Offline Integration",
   "notes": [
-    "تثبيت Offline Queue على User Namespace محلي موثوق ومنع user:anonymous",
-    "استعادة العمليات التي توقفت أثناء processing بعد إغلاق التطبيق أو انقطاعه",
-    "منع تكرار إدراج نفس العملية باستخدام idempotency/dedupe key",
-    "إضافة Retry وDiscard وConflict Resolution وQueue Diagnostics APIs",
-    "تنظيف العمليات المتزامنة القديمة مع الاحتفاظ بسجل تشخيصي لمدة سبعة أيام"
+    "إضافة طبقة Offline Read Cache مشتركة للوحدات اليومية",
+    "إدراج التنبيهات والاقتراحات والنشاط والأداء اليومي ضمن Cache-First",
+    "إزالة القراءة المباشرة للتنبيهات من app.js",
+    "تقوية البيانات المرجعية لعرض آخر نسخة محفوظة مهما كان عمرها"
   ]
 }

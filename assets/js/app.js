@@ -4726,13 +4726,9 @@ async function loadDailyPerformanceReport(force = false) {
         { customers, followups, quotations }
       );
 
-    const reportAlerts = await window.customerSupabase
-      .from("daily_alerts")
-      .select("*")
-      .eq("work_date", dailyPerformanceSelectedDate());
-
-    if (reportAlerts.error) throw reportAlerts.error;
-    dailyPerformanceSnapshot.alerts = reportAlerts.data || [];
+    dailyPerformanceSnapshot.alerts = window.DailyAlertsService
+      ? await window.DailyAlertsService.list(dailyPerformanceSelectedDate())
+      : [];
 
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();

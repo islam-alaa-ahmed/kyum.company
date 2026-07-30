@@ -1,5 +1,6 @@
 // KYUM Phase 16.6 — Daily Attendance & Activity Timeline Service
 (function () {
+  // Offline reads are persisted by KYUMOfflineReadCache on top of KYUMSmartCache.
   let heartbeatTimer = null;
   let lastInteractionAt = Date.now();
 
@@ -277,7 +278,7 @@
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
-  async function load(workDate) {
+  async function loadOnline(workDate) {
     const [sessions, auditLogs, taskEvents, alertEvents] = await Promise.all([
       listSessions(workDate),
       listAudit(workDate),
@@ -289,6 +290,11 @@
       sessions,
       timeline: buildTimeline({ sessions, auditLogs, taskEvents, alertEvents })
     };
+  }
+
+  async function load(workDate, options = {}) {
+    if (!window.KYUMOfflineReadCache) return loadOnline(workDate);
+    return window.KYUMOfflineReadCache.read(`daily-activity:${workDate}`, () => loadOnline(workDate), options);
   }
 
   window.DailyActivityService = Object.freeze({

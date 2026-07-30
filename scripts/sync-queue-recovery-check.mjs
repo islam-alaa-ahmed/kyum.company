@@ -14,7 +14,7 @@ const checks = [
   ['Conflict resolution', q.includes('async function resolveConflict(')],
   ['Queue cleanup', q.includes('COMPLETED_RETENTION_MS') && q.includes('async function cleanup(')],
   ['Diagnostics stats', q.includes('openConflicts') && q.includes('lastSyncedAt')],
-  ['Version unified', read('index.html').includes('?v=18.8.0') && read('assets/js/pwa.js').includes('18.8.0') && read('service-worker.js').includes('18-8-0-m13-10')]
+  ['Version unified', (() => { const version = JSON.parse(read('version.json')).version; return read('index.html').includes(`?v=${version}`) && read('assets/js/pwa.js').includes(version) && read('service-worker.js').includes(`kyum-crm-pwa-${version.replaceAll('.', '-')}`); })()]
 ];
 let failed = 0;
 for (const [name, ok] of checks) { console.log(`${ok ? 'PASS' : 'FAIL'} - ${name}`); if (!ok) failed++; }

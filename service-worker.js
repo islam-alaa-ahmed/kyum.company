@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-8-0-m13-10";
+const CACHE_VERSION = "kyum-crm-pwa-18-9-0-m13-11";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -19,6 +19,7 @@ const CORE_APP_SHELL = [
   "./assets/js/permissions.js",
   "./assets/js/permission-engine.js",
   "./assets/js/smart-cache.js",
+  "./assets/js/offline-read-cache.js",
   "./assets/js/sync-engine.js",
   "./assets/js/offline-queue.js",
   "./assets/js/permissions-service.js",

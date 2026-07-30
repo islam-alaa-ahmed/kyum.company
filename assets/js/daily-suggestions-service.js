@@ -1,5 +1,6 @@
 // Phase M10.6.2 — persisted daily customer suggestions service.
 (function () {
+  // Offline reads are persisted by KYUMOfflineReadCache on top of KYUMSmartCache.
   function client() {
     return window.customerSupabase || null;
   }
@@ -34,7 +35,7 @@
     }).format(new Date());
   }
 
-  async function load(options = {}) {
+  async function loadOnline(options = {}) {
     const supabase = client();
     const suggestionDate = options.date || riyadhDate();
 
@@ -74,7 +75,19 @@
     };
   }
 
-  async function loadTeamSummary(options = {}) {
+  async function load(options = {}) {
+    const suggestionDate = options.date || riyadhDate();
+    const userId = await resolveAuthenticatedUserId(options.userId || null);
+    if (!userId) throw new Error("Authenticated user is required.");
+    if (!window.KYUMOfflineReadCache) return loadOnline({ ...options, userId, date: suggestionDate });
+    return window.KYUMOfflineReadCache.read(
+      `daily-suggestions:${suggestionDate}:${userId}`,
+      () => loadOnline({ ...options, userId, date: suggestionDate }),
+      options
+    );
+  }
+
+  async function loadTeamSummaryOnline(options = {}) {
     const supabase = client();
     const suggestionDate = options.date || riyadhDate();
 
@@ -86,6 +99,16 @@
     );
     if (error) throw error;
     return Array.isArray(data) ? data : [];
+  }
+
+  async function loadTeamSummary(options = {}) {
+    const suggestionDate = options.date || riyadhDate();
+    if (!window.KYUMOfflineReadCache) return loadTeamSummaryOnline(options);
+    return window.KYUMOfflineReadCache.read(
+      `daily-suggestions-team:${suggestionDate}`,
+      () => loadTeamSummaryOnline({ ...options, date: suggestionDate }),
+      options
+    );
   }
 
   async function complete(options = {}) {
@@ -102,6 +125,7 @@
       { p_suggestion_id: suggestionId, p_followup_id: followupId }
     );
     if (error) throw error;
+    await window.KYUMOfflineReadCache?.invalidate?.("daily-suggestions:");
     return Number(data || 0);
   }
 

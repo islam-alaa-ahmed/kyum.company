@@ -13,7 +13,9 @@ for (const [label,file] of [['Customers','assets/js/customers-service.js'],['Fol
 }
 const app=read('assets/js/app.js');
 add('UI shows last synchronization status', app.includes('formatOfflineCacheStatus'));
-add('Version unified', read('index.html').includes('?v=18.8.0') && read('assets/js/pwa.js').includes('18.8.0') && read('service-worker.js').includes('18-8-0-m13-10'));
+const version = JSON.parse(read('version.json')).version;
+const cacheVersion = version.replaceAll('.', '-');
+add('Version unified', read('index.html').includes(`?v=${version}`) && read('assets/js/pwa.js').includes(version) && read('service-worker.js').includes(`kyum-crm-pwa-${cacheVersion}`));
 for (const c of checks) console.log(`${c.ok?'PASS':'FAIL'}: ${c.name}${c.detail?` — ${c.detail}`:''}`);
 const failed=checks.filter(c=>!c.ok);
 console.log(`\n${checks.length-failed.length}/${checks.length} PASS`);

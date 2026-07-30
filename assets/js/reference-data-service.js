@@ -84,13 +84,14 @@
         persistent = await window.KYUMSmartCache.get(`reference:${key}`, {
           namespace,
           allowStale: true,
+          allowStaleAnyAge: true,
           staleMaxMs: PERSISTENT_STALE_MAX_MS
         });
       }
 
       if (persistent?.hit) {
         cache.set(key, { data: persistent.data, timestamp: Date.now() });
-        if (navigator.onLine !== false) {
+        if (window.customerSupabase) {
           refreshFromNetwork(key, loader, namespace, persistent.data).catch(error => {
             console.warn(`Reference data background refresh skipped for ${key}:`, error);
           });

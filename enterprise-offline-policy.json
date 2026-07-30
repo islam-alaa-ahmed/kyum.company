@@ -1,5 +1,5 @@
 {
-  "policyVersion": "1.0.0",
+  "policyVersion": "1.1.0",
   "enforcementMode": "block-new-unregistered-data-paths",
   "requiredArchitecture": [
     "permission-check",
@@ -30,7 +30,7 @@
     "reference_data": {
       "file": "assets/js/reference-data-service.js",
       "mode": "offline_read_online_write",
-      "status": "partial"
+      "status": "compliant"
     },
     "daily_operations": {
       "file": "assets/js/daily-operations-service.js",
@@ -39,23 +39,23 @@
     },
     "daily_alerts": {
       "file": "assets/js/daily-alerts-service.js",
-      "mode": "online_only",
-      "status": "gap"
+      "mode": "offline_read_online_write",
+      "status": "compliant"
     },
     "daily_suggestions": {
       "file": "assets/js/daily-suggestions-service.js",
-      "mode": "online_only",
-      "status": "gap"
+      "mode": "offline_read_online_write",
+      "status": "compliant"
     },
     "daily_activity": {
       "file": "assets/js/daily-activity-service.js",
-      "mode": "online_only",
-      "status": "gap"
+      "mode": "offline_read_online_write",
+      "status": "compliant"
     },
     "daily_performance": {
       "file": "assets/js/daily-performance-service.js",
-      "mode": "online_only_derived",
-      "status": "gap"
+      "mode": "offline_read_derived",
+      "status": "compliant"
     },
     "users": {
       "file": "assets/js/users-service.js",
@@ -107,6 +107,7 @@
     "assets/js/diagnostics-service.js",
     "assets/js/followups-service.js",
     "assets/js/offline-queue.js",
+    "assets/js/offline-read-cache.js",
     "assets/js/permissions-service.js",
     "assets/js/quotations-service.js",
     "assets/js/reference-data-service.js",
@@ -122,8 +123,7 @@
     "assets/js/app.js": [
       "sales_representatives update",
       "sales_representatives delete",
-      "generic reference delete",
-      "daily_alerts direct read"
+      "generic reference delete"
     ]
   },
   "rulesForFutureFeatures": {

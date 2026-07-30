@@ -1,5 +1,6 @@
 // KYUM Phase 16.5 — Daily Alerts Service
 (function () {
+  // Offline reads are persisted by KYUMOfflineReadCache on top of KYUMSmartCache.
   const syncCache = new Map();
   const syncInFlight = new Map();
   const SYNC_TTL_MS = 60 * 1000;
@@ -15,7 +16,7 @@
       .toISOString().slice(0, 10);
   }
 
-  async function list(workDate = todayIso()) {
+  async function listOnline(workDate = todayIso()) {
     const { data, error } = await client()
       .from("daily_alerts")
       .select(`
@@ -30,6 +31,11 @@
 
     if (error) throw new Error(`تعذر تحميل التنبيهات: ${error.message}`);
     return data || [];
+  }
+
+  async function list(workDate = todayIso(), options = {}) {
+    if (!window.KYUMOfflineReadCache) return listOnline(workDate);
+    return window.KYUMOfflineReadCache.read(`daily-alerts:${workDate}`, () => listOnline(workDate), options);
   }
 
   async function sync(workDate = todayIso(), options = {}) {
@@ -120,6 +126,7 @@
       console.warn("Alert action history failed:", actionError);
     }
 
+    await window.KYUMOfflineReadCache?.invalidate?.(`daily-alerts:`);
     return data;
   }
 
