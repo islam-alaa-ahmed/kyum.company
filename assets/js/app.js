@@ -183,6 +183,11 @@ let pendingDailySuggestionCompletion = null;
 let dailySuggestedTeamRows = [];
 let dailySuggestedTeamLoading = false;
 let dailySuggestedTeamError = "";
+let dailyWhatsAppTemplate = { message_text: "", image_path: null, image_name: null, image_mime: null };
+let dailyWhatsAppTemplatePendingFile = null;
+let dailyWhatsAppTemplateRemoveImage = false;
+let dailyWhatsAppTemplateLoading = false;
+let dailyWhatsAppTemplatePreviewUrl = "";
 let dailyAlerts = [];
 let dailyAlertsLoading = false;
 let dailyAlertPendingAction = null;
@@ -5332,6 +5337,107 @@ function renderDailyManagerNote() {
     ?.classList.toggle("hidden", !canManage);
 }
 
+function dailyWhatsAppTemplateMessage() {
+  return String(dailyWhatsAppTemplate?.message_text || "").trim();
+}
+
+function updateDailyWhatsAppTemplateStatus(message, type = "") {
+  const node = document.getElementById("dailyWhatsAppTemplateStatus");
+  if (!node) return;
+  node.textContent = message || "";
+  node.className = `daily-whatsapp-template-state${type ? ` is-${type}` : ""}`;
+}
+
+function renderDailyWhatsAppTemplate() {
+  const message = document.getElementById("dailyWhatsAppTemplateMessage");
+  const count = document.getElementById("dailyWhatsAppTemplateCount");
+  const preview = document.getElementById("dailyWhatsAppTemplatePreview");
+  const image = document.getElementById("dailyWhatsAppTemplatePreviewImage");
+  const name = document.getElementById("dailyWhatsAppTemplateImageName");
+  const remove = document.getElementById("dailyWhatsAppTemplateRemoveImageBtn");
+  if (message && document.activeElement !== message) message.value = dailyWhatsAppTemplate.message_text || "";
+  if (count) count.textContent = String((message?.value || dailyWhatsAppTemplate.message_text || "").length);
+
+  const localFile = dailyWhatsAppTemplatePendingFile;
+  const hasStored = Boolean(dailyWhatsAppTemplate.image_path) && !dailyWhatsAppTemplateRemoveImage;
+  if (localFile && image) {
+    image.src = URL.createObjectURL(localFile);
+    if (name) name.textContent = localFile.name;
+    preview?.classList.remove("hidden");
+  } else if (hasStored && image) {
+    if (dailyWhatsAppTemplatePreviewUrl) image.src = dailyWhatsAppTemplatePreviewUrl;
+    else image.removeAttribute("src");
+    image.alt = "صورة رسالة واتساب المحفوظة";
+    if (name) name.textContent = dailyWhatsAppTemplate.image_name || "صورة محفوظة";
+    preview?.classList.remove("hidden");
+  } else {
+    preview?.classList.add("hidden");
+  }
+  remove?.classList.toggle("hidden", !(localFile || hasStored));
+}
+
+async function loadDailyWhatsAppTemplate() {
+  if (dailyWhatsAppTemplateLoading || !window.WhatsAppTemplateService) return;
+  dailyWhatsAppTemplateLoading = true;
+  updateDailyWhatsAppTemplateStatus("جارٍ التحميل...");
+  try {
+    dailyWhatsAppTemplate = await window.WhatsAppTemplateService.load();
+    if (dailyWhatsAppTemplatePreviewUrl) URL.revokeObjectURL(dailyWhatsAppTemplatePreviewUrl);
+    dailyWhatsAppTemplatePreviewUrl = "";
+    if (dailyWhatsAppTemplate.image_path) {
+      const storedFile = await window.WhatsAppTemplateService.downloadImage(dailyWhatsAppTemplate);
+      if (storedFile) dailyWhatsAppTemplatePreviewUrl = URL.createObjectURL(storedFile);
+    }
+    dailyWhatsAppTemplatePendingFile = null;
+    dailyWhatsAppTemplateRemoveImage = false;
+    updateDailyWhatsAppTemplateStatus("الإعداد محفوظ لحسابك", "success");
+  } catch (error) {
+    console.error("WhatsApp template load failed", error);
+    updateDailyWhatsAppTemplateStatus("تعذر تحميل الإعداد", "error");
+  } finally {
+    dailyWhatsAppTemplateLoading = false;
+    renderDailyWhatsAppTemplate();
+  }
+}
+
+async function saveDailyWhatsAppTemplate() {
+  const button = document.getElementById("dailyWhatsAppTemplateSaveBtn");
+  const message = document.getElementById("dailyWhatsAppTemplateMessage")?.value || "";
+  if (!window.WhatsAppTemplateService) return;
+  if (button) button.disabled = true;
+  updateDailyWhatsAppTemplateStatus("جارٍ الحفظ...");
+  try {
+    dailyWhatsAppTemplate = await window.WhatsAppTemplateService.save({
+      messageText: message,
+      imageFile: dailyWhatsAppTemplatePendingFile,
+      removeImage: dailyWhatsAppTemplateRemoveImage
+    });
+    dailyWhatsAppTemplatePendingFile = null;
+    dailyWhatsAppTemplateRemoveImage = false;
+    if (dailyWhatsAppTemplatePreviewUrl) URL.revokeObjectURL(dailyWhatsAppTemplatePreviewUrl);
+    dailyWhatsAppTemplatePreviewUrl = "";
+    if (dailyWhatsAppTemplate.image_path) {
+      const storedFile = await window.WhatsAppTemplateService.downloadImage(dailyWhatsAppTemplate);
+      if (storedFile) dailyWhatsAppTemplatePreviewUrl = URL.createObjectURL(storedFile);
+    }
+    updateDailyWhatsAppTemplateStatus("تم حفظ الرسالة والصورة لحسابك", "success");
+    renderDailySuggestedCustomers();
+  } catch (error) {
+    console.error("WhatsApp template save failed", error);
+    const code = error?.message || "";
+    updateDailyWhatsAppTemplateStatus(
+      code === "IMAGE_TOO_LARGE" ? "حجم الصورة أكبر من 5 ميجابايت"
+        : code === "INVALID_IMAGE_TYPE" ? "صيغة الصورة غير مدعومة"
+          : code === "MESSAGE_TOO_LONG" ? "الرسالة أطول من الحد المسموح"
+            : "تعذر حفظ الإعداد",
+      "error"
+    );
+  } finally {
+    if (button) button.disabled = false;
+    renderDailyWhatsAppTemplate();
+  }
+}
+
 function dailySuggestedCustomers(type = dailySuggestedCustomerType) {
   return dailySuggestedSuggestionRows.filter(item => item.customer_type === type);
 }
@@ -5444,7 +5550,7 @@ function renderDailySuggestedCustomers() {
             <div class="daily-suggested-actions">
               ${canAddFollowup ? `<button type="button" class="secondary-btn compact-btn" data-daily-suggested-followup="${escapeHtml(String(item.customer_id))}">إضافة متابعة</button>` : ""}
               ${canAddFollowup ? `<button type="button" class="primary-btn compact-btn" data-daily-suggested-contacted="${escapeHtml(String(item.customer_id))}" data-daily-suggestion-id="${escapeHtml(String(item.suggestion_id))}">تم التواصل</button>` : ""}
-              ${whatsappNumber ? `<a class="daily-whatsapp-btn" href="https://wa.me/${escapeHtml(whatsappNumber)}" target="_blank" rel="noopener noreferrer">واتساب</a>` : ""}
+              ${whatsappNumber ? `<a class="daily-whatsapp-btn" href="${escapeHtml(window.WhatsAppTemplateService?.directUrl?.(whatsappNumber, dailyWhatsAppTemplateMessage()) || `https://wa.me/${whatsappNumber}`)}" target="_blank" rel="noopener noreferrer">واتساب</a>${dailyWhatsAppTemplate?.image_path ? `<button type="button" class="daily-whatsapp-share-btn" data-daily-whatsapp-share="${escapeHtml(whatsappNumber)}">صورة + رسالة</button>` : ""}` : ""}
             </div>
           </td>
         </tr>`;
@@ -5656,7 +5762,7 @@ async function loadDailyOperations(force = false) {
     ]);
 
     renderDailyOperations();
-    await loadDailyAlerts(force);
+    await Promise.all([loadDailyAlerts(force), loadDailyWhatsAppTemplate()]);
     await renderCurrentDailySession();
     showDataStatus("dailyOperationsStatus", "");
   } catch (error) {
@@ -8011,7 +8117,41 @@ setOptions();
 
 
 // Phase M10.6 — Daily suggested customer contact report.
-document.getElementById("dailyOperationsView")?.addEventListener("click", event => {
+document.getElementById("dailyOperationsView")?.addEventListener("click", async event => {
+  if (event.target.closest("#dailyWhatsAppTemplateImageBtn")) {
+    document.getElementById("dailyWhatsAppTemplateImage")?.click();
+    return;
+  }
+  if (event.target.closest("#dailyWhatsAppTemplateRemoveImageBtn")) {
+    dailyWhatsAppTemplatePendingFile = null;
+    dailyWhatsAppTemplateRemoveImage = true;
+    renderDailyWhatsAppTemplate();
+    updateDailyWhatsAppTemplateStatus("سيتم حذف الصورة عند الحفظ");
+    return;
+  }
+  if (event.target.closest("#dailyWhatsAppTemplateSaveBtn")) {
+    await saveDailyWhatsAppTemplate();
+    return;
+  }
+  const shareButton = event.target.closest("[data-daily-whatsapp-share]");
+  if (shareButton) {
+    shareButton.disabled = true;
+    try {
+      await window.WhatsAppTemplateService?.shareImageAndMessage?.(
+        dailyWhatsAppTemplate,
+        shareButton.dataset.dailyWhatsappShare
+      );
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("WhatsApp share failed", error);
+        updateDailyWhatsAppTemplateStatus("تعذرت مشاركة الصورة؛ استخدم زر واتساب للنص", "error");
+      }
+    } finally {
+      shareButton.disabled = false;
+    }
+    return;
+  }
+
   const teamRetryButton = event.target.closest("[data-daily-team-retry]");
   if (teamRetryButton) {
     loadDailySuggestedTeam(true);
@@ -8061,6 +8201,30 @@ document.getElementById("dailyOperationsView")?.addEventListener("click", event 
     if (completed) completed.value = "true";
     if (result) result.value = "تم التواصل";
   }
+});
+
+document.getElementById("dailyWhatsAppTemplateMessage")?.addEventListener("input", event => {
+  const count = document.getElementById("dailyWhatsAppTemplateCount");
+  if (count) count.textContent = String(event.target.value.length);
+});
+
+document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change", event => {
+  const file = event.target.files?.[0] || null;
+  if (!file) return;
+  if (!(["image/jpeg", "image/png", "image/webp"].includes(file.type))) {
+    updateDailyWhatsAppTemplateStatus("صيغة الصورة غير مدعومة", "error");
+    event.target.value = "";
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    updateDailyWhatsAppTemplateStatus("حجم الصورة أكبر من 5 ميجابايت", "error");
+    event.target.value = "";
+    return;
+  }
+  dailyWhatsAppTemplatePendingFile = file;
+  dailyWhatsAppTemplateRemoveImage = false;
+  updateDailyWhatsAppTemplateStatus("صورة جديدة جاهزة للحفظ");
+  renderDailyWhatsAppTemplate();
 });
 
 // Phase M9.2 — Daily Operations phone ownership lookup.

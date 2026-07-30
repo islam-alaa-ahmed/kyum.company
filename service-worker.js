@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-12-3-m13-14-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-13-0-m13-15";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -45,6 +45,7 @@ const OPTIONAL_APP_SHELL = [
   "./assets/js/daily-operations-service.js",
   "./assets/js/daily-performance-service.js",
   "./assets/js/daily-suggestions-service.js",
+  "./assets/js/whatsapp-template-service.js",
   "./assets/js/diagnostics-engine.js",
   "./assets/js/diagnostics-service.js",
   "./assets/js/export-center.js",
