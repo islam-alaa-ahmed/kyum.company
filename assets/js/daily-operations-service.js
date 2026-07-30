@@ -8,8 +8,8 @@
   const refreshes = new Map();
 
   function requirePermission(action = "view") {
-    if (!window.CustomerPermissions?.requireAction?.("daily_tasks", action, { silent: true })) {
-      throw new Error(`Permission denied: daily_tasks.${action}`);
+    if (!window.CustomerPermissions?.requireAction?.("dailyOperations", action, { silent: true })) {
+      throw new Error(`Permission denied: dailyOperations.${action}`);
     }
   }
 

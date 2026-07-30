@@ -5660,10 +5660,13 @@ async function loadDailyOperations(force = false) {
     await renderCurrentDailySession();
     showDataStatus("dailyOperationsStatus", "");
   } catch (error) {
+    console.error("[Daily Operations] Failed to load:", error);
+    const rawMessage = error instanceof Error ? error.message : "";
+    const isPermissionDenied = /Permission denied:\s*dailyOperations\./i.test(rawMessage);
     showDataStatus(
       "dailyOperationsStatus",
-      error instanceof Error
-        ? error.message
+      isPermissionDenied
+        ? "لا توجد صلاحية لعرض إدارة المهام اليومية."
         : "تعذر تحميل المهام اليومية.",
       "error"
     );
