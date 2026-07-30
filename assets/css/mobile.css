@@ -3417,3 +3417,118 @@ html.is-offline body::before {
     display: none !important;
   }
 }
+
+
+/* Phase M13.14 — UI Regression Recovery */
+@media (min-width: 1024px) {
+  #followupsView > .mobile-followups-toolbar,
+  #followupsView > .mobile-followups-quicknav,
+  #followupsView > .mobile-followups-filter-backdrop,
+  #quotationsView > .mobile-quotations-toolbar,
+  #quotationsView > .mobile-quotations-filter-backdrop {
+    display: none !important;
+  }
+
+  #followupsView .followup-filters.mobile-followups-filter-sheet,
+  #quotationsView .quotation-filters.mobile-quotations-filter-sheet {
+    position: static !important;
+    inset: auto !important;
+    z-index: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #followupsView .mobile-followups-sheet-header,
+  #quotationsView .mobile-quotations-sheet-header,
+  #quotationsView .mobile-filter-apply {
+    display: none !important;
+  }
+
+  #followupsView > .actions-row,
+  #quotationsView > .actions-row {
+    width: 100% !important;
+    margin-bottom: 14px !important;
+  }
+
+  #followupsView #addFollowupBtn,
+  #quotationsView #addQuotationBtn {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    color: inherit !important;
+    overflow: visible !important;
+  }
+
+  #quotationsView #addQuotationBtn::before { display: none !important; }
+}
+
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px) {
+  #customersView > .actions-row {
+    display: grid !important;
+    grid-template-columns: 1fr 46px !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  #customersView > .actions-row > .search-box {
+    order: 1 !important;
+    grid-column: 1 / 2 !important;
+    min-width: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  #customersView > .actions-row > .mobile-customers-filter-btn {
+    order: 2 !important;
+    grid-column: 2 / 3 !important;
+  }
+
+  #customersView > .actions-row > .customer-main-actions {
+    order: 3 !important;
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  #customersView .customer-main-actions > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+  }
+
+  #customersView .customer-main-actions #addCustomerBtn {
+    grid-column: 1 / -1 !important;
+    height: 48px !important;
+  }
+
+  #quotationsView .actions-row #addQuotationBtn {
+    bottom: calc(var(--mobile-nav-height, 68px) + var(--mobile-safe-bottom, env(safe-area-inset-bottom)) + 22px) !important;
+    inset-inline-end: 18px !important;
+    z-index: 70 !important;
+  }
+
+  #quotationsView #quotationsPagination {
+    position: relative !important;
+    z-index: 2 !important;
+    margin-bottom: calc(var(--mobile-nav-height, 68px) + var(--mobile-safe-bottom, env(safe-area-inset-bottom)) + 28px) !important;
+    padding-bottom: 12px !important;
+  }
+}
