@@ -2,7 +2,7 @@ import fs from 'node:fs';
 const read = p => fs.readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const q = read('assets/js/offline-queue.js');
 const checks = [
-  ['Queue version M13.10', q.includes('version: "M13.10"')],
+  ['Queue version M13.13', q.includes('version: "M13.13"')],
   ['Anonymous namespace blocked', q.includes('invalid_offline_queue_namespace') && !q.includes('return "user:anonymous"')],
   ['Offline session namespace used', q.includes('OfflineSessionStore?.currentUserId')],
   ['Interrupted processing recovery', q.includes('PROCESSING_TIMEOUT_MS') && q.includes('Recovered after interrupted synchronization')],

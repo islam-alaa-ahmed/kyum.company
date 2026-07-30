@@ -466,22 +466,47 @@
     if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
       return queueCustomer(record);
     }
-    // Online failures are not auto-queued after a request starts, because the
-    // server may already have committed the write. This prevents duplicate creates.
-    return saveCustomerOnline(record, context);
+    try {
+      return await saveCustomerOnline(record, context);
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        return queueCustomer(record);
+      }
+      throw error;
+    }
   }
 
-  async function deleteCustomer(customerId, customerName) {
-    requirePermission("customers", "delete");
+  async function deleteCustomerOnline(customerId, customerName) {
     await unwrap(
       client().from("customers").delete().eq("id", customerId),
       "تعذر حذف العميل"
     );
-
-    await audit("delete", customerId, {
-      customer_name: customerName
-    });
+    await audit("delete", customerId, { customer_name: customerName });
     await invalidateCustomerCache();
+  }
+
+  async function deleteCustomer(customerId, customerName, context = {}) {
+    requirePermission("customers", "delete");
+    const queueDelete = () => window.KYUMOfflineQueue.enqueue({
+      entity: "customers", action: "delete", payload: { id: customerId, name: customerName },
+      localEntityId: customerId, idempotencyKey: `customers:delete:${customerId}`
+    });
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      await queueDelete();
+      await invalidateCustomerCache();
+      return { queued: true };
+    }
+    try {
+      await deleteCustomerOnline(customerId, customerName);
+      return { queued: false };
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        await queueDelete();
+        await invalidateCustomerCache();
+        return { queued: true };
+      }
+      throw error;
+    }
   }
 
   async function audit(action, entityId, newData, userId = null) {
@@ -774,6 +799,10 @@
 
   window.KYUMSyncEngine?.register?.("customers", () => listCustomers());
   window.KYUMOfflineQueue?.register?.("customers", async operation => {
+    if (operation.action === "delete") {
+      await deleteCustomerOnline(operation.payload.id, operation.payload.name || "");
+      return { id: operation.payload.id };
+    }
     const record = { ...operation.payload };
     if (operation.action === "update") {
       await assertCustomerNotConflicted(record, operation.baseUpdatedAt);

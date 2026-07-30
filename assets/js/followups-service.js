@@ -419,27 +419,46 @@
     if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
       return queueFollowup(record);
     }
-    // Do not auto-queue an online failure after transmission starts; the insert
-    // may already be committed and replaying it could create a duplicate.
-    return saveFollowupOnline(record);
+    try {
+      return await saveFollowupOnline(record);
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        return queueFollowup(record);
+      }
+      throw error;
+    }
   }
 
-  async function deleteFollowup(record) {
-    requirePermission("followups", "delete");
+  async function deleteFollowupOnline(record) {
     await unwrap(
-      client()
-        .from("customer_followups")
-        .delete()
-        .eq("id", record.id),
+      client().from("customer_followups").delete().eq("id", record.id),
       "تعذر حذف المتابعة"
     );
-
     await recalculateLastContact(record.customerId);
-    await audit("delete", record.id, {
-      customer_id: record.customerId,
-      contact_date: record.contactDate
-    });
+    await audit("delete", record.id, { customer_id: record.customerId, contact_date: record.contactDate });
     await invalidateFollowupCache();
+  }
+
+  async function deleteFollowup(record, context = {}) {
+    requirePermission("followups", "delete");
+    const queueDelete = () => window.KYUMOfflineQueue.enqueue({
+      entity: "followups", action: "delete", payload: record,
+      localEntityId: record.id, idempotencyKey: `followups:delete:${record.id}`
+    });
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      await queueDelete();
+      return { queued: true };
+    }
+    try {
+      await deleteFollowupOnline(record);
+      return { queued: false };
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        await queueDelete();
+        return { queued: true };
+      }
+      throw error;
+    }
   }
 
   async function audit(action, entityId, newData) {
@@ -464,6 +483,10 @@
   window.KYUMSyncEngine?.register?.("followups", () => listFollowups());
   window.KYUMOfflineQueue?.register?.("followups", async (operation, helpers) => {
     const record = { ...operation.payload };
+    if (operation.action === "delete") {
+      await deleteFollowupOnline(record);
+      return { id: record.id };
+    }
     if (String(record.customerId || "").startsWith("local:")) {
       const resolved = await helpers.resolveServerId(record.customerId, operation.namespace);
       if (!resolved) throw new Error("لم تتم مزامنة العميل المرتبط بالمتابعة بعد.");

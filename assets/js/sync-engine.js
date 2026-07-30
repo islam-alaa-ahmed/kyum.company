@@ -1,4 +1,4 @@
-// KYUM Phase M13.5 — Enterprise Delta Sync Engine
+// KYUM Phase M13.13 — Connectivity-resilient Enterprise Delta Sync Engine
 (function () {
   "use strict";
 
@@ -125,7 +125,7 @@
 
   async function runTask(entity, reason) {
     const task = tasks.get(entity);
-    if (!task || navigator.onLine === false) return;
+    if (!task) return;
     try {
       await task({ reason });
       const timer = retryTimers.get(entity);
@@ -143,7 +143,6 @@
   }
 
   function triggerAll(reason = "manual") {
-    if (navigator.onLine === false) return Promise.resolve([]);
     return Promise.allSettled(Array.from(tasks.keys()).map(entity => runTask(entity, reason)));
   }
 
@@ -161,7 +160,7 @@
   }
 
   window.KYUMSyncEngine = Object.freeze({
-    version: "M13.5",
+    version: "M13.13",
     sync,
     register,
     triggerAll,

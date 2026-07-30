@@ -18,6 +18,7 @@ for (const file of required.slice(1,5)) {
   if (!text.includes("KYUMOfflineReadCache")) { console.error(`FAIL ${file} is not cache-first`); failures++; }
 }
 const index = fs.readFileSync("index.html","utf8");
-if (!index.includes("offline-read-cache.js?v=18.10.0")) { console.error("FAIL helper load order/version"); failures++; }
+const version = JSON.parse(fs.readFileSync("version.json","utf8")).version;
+if (!index.includes(`offline-read-cache.js?v=${version}`)) { console.error("FAIL helper load order/version"); failures++; }
 if (failures) process.exit(1);
 console.log("Remaining Modules Offline Integration: PASS");

@@ -11130,3 +11130,14 @@ html[data-theme="dark"] .customer-import-dialog:not(.representative-import-dialo
     justify-content: center;
   }
 }
+
+/* Phase M13.13 — Sync Recovery Center */
+.sync-recovery-center-panel { margin-top: 18px; }
+.sync-recovery-table td { vertical-align: middle; }
+.sync-recovery-table td:nth-child(6) { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sync-recovery-row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (max-width: 768px) {
+  .sync-recovery-center-panel .panel-header { align-items: stretch; }
+  .sync-recovery-center-panel .diagnostics-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .sync-recovery-table { min-width: 900px; }
+}

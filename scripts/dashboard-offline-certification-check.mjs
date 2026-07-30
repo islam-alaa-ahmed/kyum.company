@@ -3,6 +3,7 @@ import fs from 'node:fs';
 let failures = 0;
 const app = fs.readFileSync('assets/js/app.js', 'utf8');
 const index = fs.readFileSync('index.html', 'utf8');
+const version = JSON.parse(fs.readFileSync('version.json', 'utf8')).version;
 
 function check(condition, message) {
   if (condition) console.log(`PASS - ${message}`);
@@ -22,9 +23,9 @@ check(!/customerSupabase|\.from\s*\(|\.rpc\s*\(/.test(dashboardSlice), 'Dashboar
 check(/customers/i.test(dashboardSlice), 'Dashboard consumes customers state');
 check(/followups/i.test(dashboardSlice), 'Dashboard consumes followups state');
 check(/quotations/i.test(dashboardSlice), 'Dashboard consumes quotations state');
-check(index.includes('smart-cache.js?v=18.10.0'), 'Smart Cache loads before application');
+check(index.includes(`smart-cache.js?v=${version}`), 'Smart Cache loads before application');
 check(index.indexOf('smart-cache.js') < index.indexOf('app.js'), 'Smart Cache load order is valid');
-check(index.includes('app.js?v=18.10.0'), 'Dashboard application version is unified');
+check(index.includes(`app.js?v=${version}`), 'Dashboard application version is unified');
 
 if (failures) {
   console.error(`Dashboard Offline Certification: FAIL (${failures})`);

@@ -1,4 +1,4 @@
-// KYUM Phase M13.10 — Sync Correctness & Queue Recovery
+// KYUM Phase M13.13 — Offline Write Completion & Sync Recovery Center
 (function () {
   "use strict";
 
@@ -345,6 +345,23 @@
     return () => handlers.delete(entity);
   }
 
+  async function retryAll(options = {}) {
+    const namespace = options.namespace || await getNamespace({ allowNetwork: false });
+    const rows = await list({ namespace, statuses: ["failed", "retry", "pending", "conflict"] });
+    let updated = 0;
+    for (const operation of rows) {
+      if (operation.status === "processing") continue;
+      operation.status = "retry";
+      operation.nextAttemptAt = 0;
+      operation.lastError = "";
+      operation.updatedAt = Date.now();
+      await putOperation(operation);
+      updated += 1;
+    }
+    if (updated) emit("kyum-offline-queue-retry-all", { namespace, updated });
+    return process({ namespace });
+  }
+
   async function retry(operationId) {
     const operation = await getOperation(operationId);
     if (!operation) throw new Error("offline_operation_not_found");
@@ -452,8 +469,8 @@
   }
 
   window.KYUMOfflineQueue = Object.freeze({
-    version: "M13.10", ConflictError, enqueue, register, process, recover,
-    list, stats, retry, discard, cleanup, listConflicts, resolveConflict,
+    version: "M13.13", ConflictError, enqueue, register, process, recover,
+    list, stats, retry, retryAll, discard, cleanup, listConflicts, resolveConflict,
     resolveServerId, findCreateOperationByLocalId, isRetryableError, getNamespace
   });
   installLifecycle();

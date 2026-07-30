@@ -1,12 +1,12 @@
 {
-  "version": "18.10.0",
-  "build": 181000,
+  "version": "18.11.0",
+  "build": 181100,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Full Enterprise Offline Certification",
+  "title": "Offline Write Completion & Sync Recovery Center",
   "notes": [
-    "اعتماد طبقة التشغيل والكاش والمزامنة للوحدات المسجلة",
-    "إضافة فحص موحد للوحة التحكم ودورة Offline كاملة",
-    "توثيق الوظائف الإدارية Online Only والاستثناءات المعتمدة"
+    "استكمال Queue لعمليات Create وUpdate وDelete في الوحدات الأساسية",
+    "تحويل أخطاء الشبكة القابلة للاستعادة إلى عمليات معلقة",
+    "إضافة مركز استعادة المزامنة والتعارضات والتشخيص"
   ]
 }

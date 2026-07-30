@@ -30,8 +30,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.10.0" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.10.0" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.11.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.11.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1775,6 +1775,31 @@
           </div>
         </article>
 
+        <article class="panel sync-recovery-center-panel">
+          <div class="panel-header">
+            <div>
+              <h3>مركز استعادة المزامنة</h3>
+              <p>متابعة عمليات Offline المعلقة والفاشلة والتعارضات وإعادة تشغيلها بأمان.</p>
+            </div>
+            <div class="diagnostics-actions">
+              <button id="syncNowBtn" class="primary-btn" type="button">مزامنة الآن</button>
+              <button id="syncRetryAllBtn" class="secondary-btn compact-btn" type="button">إعادة محاولة الكل</button>
+            </div>
+          </div>
+          <div id="syncRecoveryStatus" class="data-status hidden" role="status"></div>
+          <div class="diagnostics-summary-grid sync-recovery-summary">
+            <article><span>معلقة</span><strong id="syncPendingCount">0</strong><small>Pending + Retry</small></article>
+            <article><span>قيد المزامنة</span><strong id="syncProcessingCount">0</strong><small>Processing</small></article>
+            <article><span>فشلت</span><strong id="syncFailedCount">0</strong><small>Failed</small></article>
+            <article><span>تعارضات</span><strong id="syncConflictCount">0</strong><small>Open conflicts</small></article>
+            <article><span>آخر مزامنة</span><strong id="syncLastSuccessAt">—</strong><small>آخر عملية ناجحة</small></article>
+          </div>
+          <div class="table-wrap"><table class="sync-recovery-table">
+            <thead><tr><th>الوحدة</th><th>العملية</th><th>الحالة</th><th>المحاولات</th><th>آخر تحديث</th><th>الخطأ</th><th>الإجراءات</th></tr></thead>
+            <tbody id="syncRecoveryRows"><tr><td colspan="7"><div class="empty-state">جارٍ تحميل حالة المزامنة...</div></td></tr></tbody>
+          </table></div>
+        </article>
+
         <article class="panel smart-health-panel">
           <div class="panel-header">
             <div>
@@ -2571,10 +2596,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.10.0"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.10.0"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.10.0"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.10.0"></script>
+  <script src="assets/js/performance-monitor.js?v=18.11.0"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.11.0"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.11.0"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.11.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -2737,42 +2762,43 @@
     </form>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.10.0"></script>
-  <script src="assets/js/offline-session-store.js?v=18.10.0"></script>
-  <script src="assets/js/supabase-client.js?v=18.10.0"></script>
-  <script src="assets/js/permissions.js?v=18.10.0"></script>
-  <script src="assets/js/permission-engine.js?v=18.10.0"></script>
-  <script src="assets/js/smart-cache.js?v=18.10.0"></script>
-  <script src="assets/js/sync-engine.js?v=18.10.0"></script>
-  <script src="assets/js/offline-queue.js?v=18.10.0"></script>
-  <script src="assets/js/permissions-service.js?v=18.10.0"></script>
-  <script src="assets/js/auth-session.js?v=18.10.0"></script>
-  <script src="assets/js/reference-data-service.js?v=18.10.0"></script>
-  <script src="assets/js/customers-service.js?v=18.10.0"></script>
-  <script src="assets/js/followups-service.js?v=18.10.0"></script>
-  <script src="assets/js/quotations-service.js?v=18.10.0"></script>
-  <script src="assets/js/users-service.js?v=18.10.0"></script>
-  <script src="assets/js/activity-service.js?v=18.10.0"></script>
-  <script src="assets/js/backup-service.js?v=18.10.0"></script>
-  <script src="assets/js/system-settings-service.js?v=18.10.0"></script>
-  <script src="assets/js/system-health-service.js?v=18.10.0"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.10.0"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.10.0"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.10.0"></script>
+  <script src="assets/js/supabase-config.js?v=18.11.0"></script>
+  <script src="assets/js/offline-session-store.js?v=18.11.0"></script>
+  <script src="assets/js/supabase-client.js?v=18.11.0"></script>
+  <script src="assets/js/permissions.js?v=18.11.0"></script>
+  <script src="assets/js/permission-engine.js?v=18.11.0"></script>
+  <script src="assets/js/smart-cache.js?v=18.11.0"></script>
+  <script src="assets/js/sync-engine.js?v=18.11.0"></script>
+  <script src="assets/js/offline-queue.js?v=18.11.0"></script>
+  <script src="assets/js/sync-recovery-center.js?v=18.11.0"></script>
+  <script src="assets/js/permissions-service.js?v=18.11.0"></script>
+  <script src="assets/js/auth-session.js?v=18.11.0"></script>
+  <script src="assets/js/reference-data-service.js?v=18.11.0"></script>
+  <script src="assets/js/customers-service.js?v=18.11.0"></script>
+  <script src="assets/js/followups-service.js?v=18.11.0"></script>
+  <script src="assets/js/quotations-service.js?v=18.11.0"></script>
+  <script src="assets/js/users-service.js?v=18.11.0"></script>
+  <script src="assets/js/activity-service.js?v=18.11.0"></script>
+  <script src="assets/js/backup-service.js?v=18.11.0"></script>
+  <script src="assets/js/system-settings-service.js?v=18.11.0"></script>
+  <script src="assets/js/system-health-service.js?v=18.11.0"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.11.0"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.11.0"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.11.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.10.0"></script>
-  <script src="assets/js/export-center.js?v=18.10.0"></script>
-  <script src="assets/js/customer360-engine.js?v=18.10.0"></script>
-  <script src="assets/js/customer360-export.js?v=18.10.0"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.10.0"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.10.0"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.10.0"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.10.0"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.10.0"></script>
-  <script src="assets/js/app.js?v=18.10.0"></script>
-  <script src="assets/js/mobile.js?v=18.10.0"></script>
-  <script src="assets/js/pwa.js?v=18.10.0"></script>
-  <script src="assets/js/native.js?v=18.10.0"></script>
+  <script src="assets/js/reports-engine.js?v=18.11.0"></script>
+  <script src="assets/js/export-center.js?v=18.11.0"></script>
+  <script src="assets/js/customer360-engine.js?v=18.11.0"></script>
+  <script src="assets/js/customer360-export.js?v=18.11.0"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.11.0"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.11.0"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.11.0"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.11.0"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.11.0"></script>
+  <script src="assets/js/app.js?v=18.11.0"></script>
+  <script src="assets/js/mobile.js?v=18.11.0"></script>
+  <script src="assets/js/pwa.js?v=18.11.0"></script>
+  <script src="assets/js/native.js?v=18.11.0"></script>
 </body>
 </html>

@@ -447,28 +447,46 @@
     if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
       return queueQuotation(record);
     }
-    // Do not auto-queue an online failure after transmission starts; the insert
-    // may already be committed and replaying it could create a duplicate.
-    return saveQuotationOnline(record);
+    try {
+      return await saveQuotationOnline(record);
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        return queueQuotation(record);
+      }
+      throw error;
+    }
   }
 
-  async function deleteQuotation(record) {
-    requirePermission("quotations", "delete");
+  async function deleteQuotationOnline(record) {
     await unwrap(
-      client()
-        .from("quotations")
-        .delete()
-        .eq("id", record.id),
+      client().from("quotations").delete().eq("id", record.id),
       "تعذر حذف عرض السعر"
     );
-
     await recalculateCustomerSnapshot(record.customerId);
-
-    await audit("delete", record.id, {
-      quotation_number: record.code,
-      customer_id: record.customerId
-    });
+    await audit("delete", record.id, { quotation_number: record.code, customer_id: record.customerId });
     await invalidateQuotationCache();
+  }
+
+  async function deleteQuotation(record, context = {}) {
+    requirePermission("quotations", "delete");
+    const queueDelete = () => window.KYUMOfflineQueue.enqueue({
+      entity: "quotations", action: "delete", payload: record,
+      localEntityId: record.id, idempotencyKey: `quotations:delete:${record.id}`
+    });
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      await queueDelete();
+      return { queued: true };
+    }
+    try {
+      await deleteQuotationOnline(record);
+      return { queued: false };
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        await queueDelete();
+        return { queued: true };
+      }
+      throw error;
+    }
   }
 
   async function audit(action, entityId, newData) {
@@ -494,6 +512,10 @@
   window.KYUMSyncEngine?.register?.("quotations", () => listQuotations());
   window.KYUMOfflineQueue?.register?.("quotations", async (operation, helpers) => {
     const record = { ...operation.payload };
+    if (operation.action === "delete") {
+      await deleteQuotationOnline(record);
+      return { id: record.id };
+    }
     if (String(record.customerId || "").startsWith("local:")) {
       const resolved = await helpers.resolveServerId(record.customerId, operation.namespace);
       if (!resolved) throw new Error("لم تتم مزامنة العميل المرتبط بعرض السعر بعد.");

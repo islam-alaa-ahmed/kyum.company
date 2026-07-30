@@ -7,7 +7,8 @@ const commands = [
   ['node', ['scripts/cache-first-connectivity-check.mjs']],
   ['node', ['scripts/sync-queue-recovery-check.mjs']],
   ['node', ['scripts/remaining-modules-offline-check.mjs']],
-  ['node', ['scripts/dashboard-offline-certification-check.mjs']]
+  ['node', ['scripts/dashboard-offline-certification-check.mjs']],
+  ['node', ['scripts/offline-write-completion-check.mjs']]
 ];
 let failures = 0;
 for (const [cmd, args] of commands) {
@@ -21,6 +22,7 @@ const required = [
   'assets/js/sync-engine.js',
   'assets/js/offline-queue.js',
   'assets/js/offline-read-cache.js',
+  'assets/js/sync-recovery-center.js',
   'service-worker.js',
   'enterprise-offline-policy.json'
 ];
