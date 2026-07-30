@@ -13,7 +13,7 @@ for (const [label,file] of [['Customers','assets/js/customers-service.js'],['Fol
 }
 const app=read('assets/js/app.js');
 add('UI shows last synchronization status', app.includes('formatOfflineCacheStatus'));
-add('Version unified', read('index.html').includes('?v=18.7.0') && read('assets/js/pwa.js').includes('18.7.0') && read('service-worker.js').includes('18-7-0-m13-9'));
+add('Version unified', read('index.html').includes('?v=18.8.0') && read('assets/js/pwa.js').includes('18.8.0') && read('service-worker.js').includes('18-8-0-m13-10'));
 for (const c of checks) console.log(`${c.ok?'PASS':'FAIL'}: ${c.name}${c.detail?` — ${c.detail}`:''}`);
 const failed=checks.filter(c=>!c.ok);
 console.log(`\n${checks.length-failed.length}/${checks.length} PASS`);

@@ -1,14 +1,14 @@
 {
-  "version": "18.7.0",
-  "build": 18700,
+  "version": "18.8.0",
+  "build": 18800,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Cache-First Scope & Connectivity Resilience",
+  "title": "Sync Correctness & Queue Recovery",
   "notes": [
-    "عرض آخر بيانات صحيحة من Smart Cache مهما كان عمرها بدل إسقاطها بعد انتهاء stale window",
-    "إلغاء اعتماد القراءة ونطاق المندوب على navigator.onLine كقرار وحيد",
-    "الرجوع الآمن إلى نطاق المستخدم المحفوظ عند فشل أو ضعف الاتصال",
-    "تشغيل تحديث الشبكة في الخلفية عند توفر عميل Supabase مع الاحتفاظ بالبيانات المحلية عند الفشل",
-    "إظهار مصدر البيانات المحلية ووقت آخر مزامنة في شاشات العملاء والمتابعات وعروض الأسعار"
+    "تثبيت Offline Queue على User Namespace محلي موثوق ومنع user:anonymous",
+    "استعادة العمليات التي توقفت أثناء processing بعد إغلاق التطبيق أو انقطاعه",
+    "منع تكرار إدراج نفس العملية باستخدام idempotency/dedupe key",
+    "إضافة Retry وDiscard وConflict Resolution وQueue Diagnostics APIs",
+    "تنظيف العمليات المتزامنة القديمة مع الاحتفاظ بسجل تشخيصي لمدة سبعة أيام"
   ]
 }
