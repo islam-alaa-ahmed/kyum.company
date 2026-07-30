@@ -826,7 +826,7 @@ window.addEventListener("kyum-offline-read-updated", event => {
 
 window.addEventListener("kyum-daily-derived-invalidated", event => {
   const workDate = event?.detail?.workDate;
-  const reportView = document.getElementById("dailyPerformanceReportView");
+  const reportView = document.getElementById("dailyPerformanceReport");
   if (workDate === dailyPerformanceSelectedDate?.() && reportView && !reportView.classList.contains("hidden")) {
     loadDailyPerformanceReport(true);
   }
@@ -4775,33 +4775,59 @@ async function loadDailyPerformanceReport(force = false) {
   );
 
   try {
-    if (force) {
-      await Promise.all([
-        loadCustomersFromSupabase(true),
-        loadFollowupsFromSupabase(true),
-        loadQuotationsFromSupabase(true)
-      ]);
+    const workDate = dailyPerformanceSelectedDate();
+    const startedAt = performance.now();
+
+    // تقرير الأداء يستخدم استعلامات يومية مخصصة بدل إعادة تحميل وحدات
+    // العملاء والمتابعات والعروض بالكامل وإعادة رسم شاشاتها.
+    let reportSources = { customers, followups, quotations };
+    if (window.customerSupabase) {
+      try {
+        const sourceStartedAt = performance.now();
+        const [reportCustomers, reportFollowups, reportQuotations] = await Promise.all([
+          window.CustomersService?.listDailyPerformanceCustomers?.(workDate) || Promise.resolve(customers),
+          window.FollowupsService?.listDailyPerformanceFollowups?.(workDate) || Promise.resolve(followups),
+          window.QuotationsService?.listDailyPerformanceQuotations?.(workDate) || Promise.resolve(quotations)
+        ]);
+        reportSources = {
+          customers: reportCustomers || [],
+          followups: reportFollowups || [],
+          quotations: reportQuotations || []
+        };
+        console.info(`[Daily Performance] report sources: ${Math.round(performance.now() - sourceStartedAt)}ms`);
+      } catch (sourceError) {
+        console.warn("Daily performance optimized source query failed; using loaded data.", sourceError);
+      }
     }
 
     dailyPerformanceSnapshot =
       await window.DailyPerformanceService.loadReport(
-        dailyPerformanceSelectedDate(),
-        { customers, followups, quotations },
+        workDate,
+        reportSources,
         { force }
       );
 
-    dailyPerformanceSnapshot.alerts = window.DailyAlertsService
-      ? await window.DailyAlertsService.list(dailyPerformanceSelectedDate(), { force })
-      : [];
-
+    // اعرض التقرير الأساسي فورًا؛ التنبيهات والنشاط إضافات مستقلة لا تعطل الشاشة.
+    dailyPerformanceSnapshot.alerts = [];
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();
-    await loadDailyActivityReport(force);
     showDataStatus(
       "dailyPerformanceStatus",
-      `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
+      `تم تحميل التقرير في ${Math.round(performance.now() - startedAt)} مللي ثانية.`,
       "success"
     );
+
+    Promise.allSettled([
+      window.DailyAlertsService
+        ? window.DailyAlertsService.list(workDate, { force })
+        : Promise.resolve([]),
+      loadDailyActivityReport(force)
+    ]).then(results => {
+      if (results[0].status === "fulfilled" && dailyPerformanceSnapshot) {
+        dailyPerformanceSnapshot.alerts = results[0].value || [];
+        renderDailyAlertsReport();
+      }
+    });
   } catch (error) {
     showDataStatus(
       "dailyPerformanceStatus",
@@ -5194,7 +5220,7 @@ async function loadDailyAlerts(forceSync = false) {
     if (forceSync) {
       await window.DailyAlertsService.sync(undefined, { force: true });
     }
-    dailyAlerts = await window.DailyAlertsService.list(undefined, { force: forceSync });
+    dailyAlerts = await window.DailyAlertsService.list();
     renderDailyAlerts();
     showDataStatus("dailyAlertsStatus", "");
   } catch (error) {
@@ -5547,7 +5573,7 @@ async function loadDailySuggestedCustomers(force = false) {
   dailySuggestedSuggestionsError = "";
   renderDailySuggestedCustomers();
   try {
-    const result = await service.load({ force });
+    const result = await service.load();
     dailySuggestedSuggestionRows = result.rows || [];
     dailySuggestedSuggestionProgress = result.progress || dailySuggestedSuggestionProgress;
   } catch (error) {
@@ -5641,7 +5667,7 @@ async function loadDailySuggestedTeam(force = false) {
   dailySuggestedTeamError = "";
   renderDailySuggestedTeam();
   try {
-    dailySuggestedTeamRows = await service.loadTeamSummary({ force });
+    dailySuggestedTeamRows = await service.loadTeamSummary();
   } catch (error) {
     dailySuggestedTeamError = error?.message || "تعذر تحميل متابعة إنجاز الفريق.";
     console.error("Daily suggestions team summary failed", error);
@@ -5882,7 +5908,7 @@ async function updateDailyTask(taskKey, completed) {
       window.KYUMOfflineReadCache?.invalidate?.(`daily-performance:${updatedTask.workDate || dailyLocalDate()}`),
       window.KYUMOfflineReadCache?.invalidate?.(`daily-activity:${updatedTask.workDate || dailyLocalDate()}`)
     ]);
-    const dailyReportView = document.getElementById("dailyPerformanceReportView");
+    const dailyReportView = document.getElementById("dailyPerformanceReport");
     if (dailyReportView && !dailyReportView.classList.contains("hidden")) {
       await loadDailyPerformanceReport(true);
     }

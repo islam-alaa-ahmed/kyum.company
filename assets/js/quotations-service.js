@@ -231,6 +231,32 @@
     }
   }
 
+  async function listDailyPerformanceQuotations(workDate) {
+    const scope = await resolveRepresentativeScope();
+    if (scope.mode === "none") return [];
+    if (scope.mode === "selected" && !scope.representativeIds.length) return [];
+
+    let request = client()
+      .from("quotations")
+      .select(`
+        id, quotation_number, customer_id, representative_id, quotation_date,
+        amount, status, expiry_date, rejection_reason_id, description, notes,
+        created_at, updated_at,
+        customer:customers (id, customer_name, phone),
+        representative:sales_representatives (id, full_name),
+        rejection_reason:no_sale_reasons (id, name)
+      `)
+      .eq("quotation_date", workDate)
+      .order("quotation_date", { ascending: false });
+
+    if (scope.mode === "selected") {
+      request = request.in("representative_id", scope.representativeIds);
+    }
+
+    const rows = await unwrap(request, "تعذر تحميل عروض تقرير الأداء");
+    return (rows || []).map(normalizeQuotation);
+  }
+
   async function listQuotations(options = {}) {
     const scope = await resolveRepresentativeScope();
     const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
@@ -531,6 +557,7 @@
 
   window.QuotationsService = Object.freeze({
     listQuotations,
+    listDailyPerformanceQuotations,
     getLastReadStatus: () => lastReadStatus,
     findByNumber,
     saveQuotation,

@@ -310,6 +310,33 @@
     }
   }
 
+  function reportDayBounds(workDate) {
+    const start = new Date(`${workDate}T00:00:00`);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    return { start: start.toISOString(), end: end.toISOString() };
+  }
+
+  async function listDailyPerformanceCustomers(workDate) {
+    const scope = await resolveCustomerRepresentativeScope();
+    if (scope.mode === "none") return [];
+    const bounds = reportDayBounds(workDate);
+    let request = client()
+      .from("customers")
+      .select(customersSelectQuery())
+      .gte("created_at", bounds.start)
+      .lt("created_at", bounds.end)
+      .order("created_at", { ascending: false });
+
+    if (scope.mode === "selected") {
+      if (!scope.representativeIds.length) return [];
+      request = request.in("representative_id", scope.representativeIds);
+    }
+
+    const rows = await unwrap(request, "تعذر تحميل عملاء تقرير الأداء");
+    return (rows || []).map(normalizeCustomer);
+  }
+
   async function findByPhone(normalizedPhone, excludeId = null) {
     const rows = await unwrap(
       client().rpc("check_customer_phone_ownership", {
@@ -816,6 +843,7 @@
 
   window.CustomersService = Object.freeze({
     listCustomers,
+    listDailyPerformanceCustomers,
     getLastReadStatus: () => lastReadStatus,
     findByPhone,
     saveCustomer,

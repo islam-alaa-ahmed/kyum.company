@@ -225,6 +225,43 @@
     }
   }
 
+  async function listDailyPerformanceFollowups(workDate) {
+    const scope = await resolveRepresentativeScope();
+    if (scope.mode === "none") return [];
+
+    const select = `
+      id, customer_id, contact_date, contact_method, representative_id,
+      contact_result, quotation_number, no_sale_reason_id, next_followup_date,
+      is_completed, notes, created_at, updated_at,
+      customer:customers (id, customer_name, phone),
+      representative:sales_representatives (id, full_name),
+      no_sale_reason:no_sale_reasons (id, name)
+    `;
+
+    function applyScope(request) {
+      if (scope.mode !== "selected") return request;
+      return request.in("representative_id", scope.representativeIds);
+    }
+
+    if (scope.mode === "selected" && !scope.representativeIds.length) return [];
+
+    const [dailyResult, overdueResult] = await Promise.all([
+      applyScope(client().from("customer_followups").select(select).eq("contact_date", workDate)),
+      applyScope(
+        client().from("customer_followups").select(select)
+          .lt("next_followup_date", workDate)
+          .eq("is_completed", false)
+      )
+    ]);
+
+    if (dailyResult.error) throw new Error(`تعذر تحميل متابعات اليوم: ${dailyResult.error.message}`);
+    if (overdueResult.error) throw new Error(`تعذر تحميل المتابعات المتأخرة: ${overdueResult.error.message}`);
+
+    const byId = new Map();
+    [...(dailyResult.data || []), ...(overdueResult.data || [])].forEach(row => byId.set(row.id, row));
+    return [...byId.values()].map(normalizeFollowup);
+  }
+
   async function listFollowups(options = {}) {
     const scope = await resolveRepresentativeScope();
     const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
@@ -502,6 +539,7 @@
 
   window.FollowupsService = Object.freeze({
     listFollowups,
+    listDailyPerformanceFollowups,
     getLastReadStatus: () => lastReadStatus,
     saveFollowup,
     deleteFollowup,

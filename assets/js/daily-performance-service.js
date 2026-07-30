@@ -12,6 +12,31 @@
       .toISOString().slice(0, 10);
   }
 
+  const STATIC_METADATA_TTL_MS = 5 * 60 * 1000;
+  let staticMetadataCache = null;
+  let staticMetadataPromise = null;
+
+  async function loadStaticMetadata(force = false) {
+    if (!force && staticMetadataCache
+      && Date.now() - staticMetadataCache.loadedAt < STATIC_METADATA_TTL_MS) {
+      return staticMetadataCache;
+    }
+    if (staticMetadataPromise) return staticMetadataPromise;
+
+    staticMetadataPromise = Promise.all([
+      loadTaskDefinitions(),
+      loadRepresentatives(),
+      loadUsers()
+    ]).then(([definitions, representatives, users]) => {
+      staticMetadataCache = { definitions, representatives, users, loadedAt: Date.now() };
+      return staticMetadataCache;
+    }).finally(() => {
+      staticMetadataPromise = null;
+    });
+
+    return staticMetadataPromise;
+  }
+
   async function loadTaskDefinitions() {
     const { data, error } = await client()
       .from("daily_task_definitions")
@@ -320,22 +345,14 @@
     };
   }
 
-  async function loadReportOnline(workDate, existingData) {
-    const [
-      definitions,
-      taskCompletions,
-      targets,
-      managerNote,
-      representatives,
-      users
-    ] = await Promise.all([
-      loadTaskDefinitions(),
+  async function loadReportOnline(workDate, existingData, options = {}) {
+    const [metadata, taskCompletions, targets, managerNote] = await Promise.all([
+      loadStaticMetadata(Boolean(options.forceMetadata)),
       loadTaskCompletions(workDate),
       loadTargets(workDate),
-      loadManagerNote(workDate),
-      loadRepresentatives(),
-      loadUsers()
+      loadManagerNote(workDate)
     ]);
+    const { definitions, representatives, users } = metadata;
 
     return buildReport({
       workDate,
@@ -352,10 +369,10 @@
   }
 
   async function loadReport(workDate, existingData, options = {}) {
-    if (!window.KYUMOfflineReadCache) return loadReportOnline(workDate, existingData);
+    if (!window.KYUMOfflineReadCache) return loadReportOnline(workDate, existingData, options);
     return window.KYUMOfflineReadCache.read(
       `daily-performance:${workDate}`,
-      () => loadReportOnline(workDate, existingData),
+      () => loadReportOnline(workDate, existingData, options),
       options
     );
   }
