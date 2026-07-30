@@ -1,12 +1,12 @@
 {
-  "version": "18.12.0",
-  "build": 181200,
+  "version": "18.12.1",
+  "build": 181201,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "UI Regression Recovery",
+  "title": "Update Dialog Hotfix",
   "notes": [
-    "استعادة تخطيط فلاتر عروض الأسعار والمتابعات على سطح المكتب",
-    "إظهار بحث العملاء أعلى إجراءات الاستيراد على الموبايل",
-    "ضبط زر إضافة العرض وترقيم الصفحات وحذف النصوص القديمة"
+    "توحيد إصدار Runtime مع version.json",
+    "منع ظهور نافذة التحديث الإجباري بعد كل Refresh",
+    "الحفاظ على إصلاحات UI Regression Recovery"
   ]
 }
