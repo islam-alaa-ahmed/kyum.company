@@ -118,7 +118,8 @@
     const staleMaxMs = Number(options.staleMaxMs || entry.staleMaxMs || DEFAULT_STALE_MAX_MS);
     const stale = ageMs > ttlMs;
 
-    if (stale && (!options.allowStale || ageMs > staleMaxMs)) {
+    const allowStaleAnyAge = options.allowStaleAnyAge === true;
+    if (stale && (!options.allowStale || (!allowStaleAnyAge && ageMs > staleMaxMs))) {
       return { hit: false, stale: true, data: null, metadata: { ageMs, ...entry } };
     }
 

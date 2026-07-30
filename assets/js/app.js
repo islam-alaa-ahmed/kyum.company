@@ -704,6 +704,20 @@ function showDataStatus(id, message = "", type = "info") {
   element.className = message ? `data-status ${type}` : "data-status hidden";
 }
 
+
+function formatOfflineCacheStatus(status) {
+  if (!status || status.source !== "cache") return "";
+  const updatedAt = Number(status.metadata?.updatedAt || 0);
+  if (!updatedAt) return status.stale ? "يتم عرض آخر بيانات محفوظة محليًا." : "";
+  const minutes = Math.max(0, Math.floor((Date.now() - updatedAt) / 60000));
+  if (minutes < 1) return "يتم عرض بيانات محفوظة محليًا — آخر مزامنة منذ أقل من دقيقة.";
+  if (minutes < 60) return `يتم عرض بيانات محفوظة محليًا — آخر مزامنة منذ ${minutes} دقيقة.`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `يتم عرض بيانات محفوظة محليًا — آخر مزامنة منذ ${hours} ساعة.`;
+  const days = Math.floor(hours / 24);
+  return `يتم عرض بيانات محفوظة محليًا — آخر مزامنة منذ ${days} يوم.`;
+}
+
 function applyReferenceCacheUpdate(event) {
   const detail = event?.detail || {};
   const key = String(detail.key || "");
@@ -2905,7 +2919,7 @@ async function loadCustomersFromSupabase(force = false) {
     customers = await window.CustomersService.listCustomers({ force });
     customersLoaded = true;
     customersPage = 1;
-    showDataStatus("customersStatus", "");
+    showDataStatus("customersStatus", formatOfflineCacheStatus(window.CustomersService.getLastReadStatus?.()), "info");
     refreshReferenceOptions();
     renderCustomers();
     renderReferenceCustomers();
@@ -3682,7 +3696,7 @@ async function loadFollowupsFromSupabase(force = false) {
     followups = await window.FollowupsService.listFollowups({ force });
     followupsLoaded = true;
     followupsPage = 1;
-    showDataStatus("followupsStatus", "");
+    showDataStatus("followupsStatus", formatOfflineCacheStatus(window.FollowupsService.getLastReadStatus?.()), "info");
     renderFollowups();
     renderDashboard();
   } catch (error) {
@@ -5735,7 +5749,7 @@ async function loadQuotationsFromSupabase(force = false) {
     quotations = await window.QuotationsService.listQuotations({ force });
     quotationsLoaded = true;
     quotationsPage = 1;
-    showDataStatus("quotationsStatus", "");
+    showDataStatus("quotationsStatus", formatOfflineCacheStatus(window.QuotationsService.getLastReadStatus?.()), "info");
     renderQuotations();
     renderCustomers();
     renderDashboard();

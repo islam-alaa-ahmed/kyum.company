@@ -15,9 +15,10 @@
 
 
   const FOLLOWUPS_CACHE_TTL_MS = 10 * 60 * 1000;
-  const FOLLOWUPS_CACHE_STALE_MAX_MS = 7 * 24 * 60 * 60 * 1000;
+  const FOLLOWUPS_CACHE_STALE_MAX_MS = 10 * 365 * 24 * 60 * 60 * 1000;
   const FOLLOWUPS_CACHE_SCHEMA_VERSION = 1;
   const followupRefreshes = new Map();
+  let lastReadStatus = null;
 
   async function currentFollowupNamespace() {
     const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
@@ -97,46 +98,44 @@
     const profile = window.CustomerAuth?.getState?.().profile || null;
     if (!profile) return { mode: "none", representativeIds: [] };
     const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "followups");
-    if (navigator.onLine === false) {
-      if (cachedScope) return cachedScope;
-      if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) return { mode: "all", representativeIds: [] };
-      if (profile.role === "sales_representative" && profile.representative_id) return { mode: "selected", representativeIds: [profile.representative_id] };
-      return { mode: "none", representativeIds: [] };
-    }
 
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
       return { mode: "all", representativeIds: [] };
     }
-
     if (profile.role !== "sales_representative" || !profile.representative_id) {
       return { mode: "none", representativeIds: [] };
     }
 
     const ownId = profile.representative_id;
-    const { data: accessProfile, error: profileError } = await client()
-      .from("user_data_access_profiles")
-      .select("access_mode")
-      .eq("user_id", profile.id)
-      .maybeSingle();
-    if (profileError) throw new Error(`تعذر تحميل نطاق البيانات: ${profileError.message}`);
+    const fallbackScope = cachedScope || { mode: "selected", representativeIds: [ownId] };
+    if (!window.customerSupabase) return fallbackScope;
 
-    if ((accessProfile?.access_mode || "own") !== "selected") {
-      return { mode: "selected", representativeIds: [ownId] };
+    try {
+      const { data: accessProfile, error: profileError } = await client()
+        .from("user_data_access_profiles")
+        .select("access_mode")
+        .eq("user_id", profile.id)
+        .maybeSingle();
+      if (profileError) throw profileError;
+      if ((accessProfile?.access_mode || "own") !== "selected") return { mode: "selected", representativeIds: [ownId] };
+
+      const { data: allowed, error: allowedError } = await client()
+        .from("user_data_access_representatives")
+        .select("representative_id")
+        .eq("user_id", profile.id);
+      if (allowedError) throw allowedError;
+
+      return {
+        mode: "selected",
+        representativeIds: Array.from(new Set([
+          ownId,
+          ...(allowed || []).map(row => row.representative_id).filter(Boolean)
+        ]))
+      };
+    } catch (error) {
+      console.warn("Follow-up scope network refresh failed; cached scope retained.", error);
+      return fallbackScope;
     }
-
-    const { data: allowed, error: allowedError } = await client()
-      .from("user_data_access_representatives")
-      .select("representative_id")
-      .eq("user_id", profile.id);
-    if (allowedError) throw new Error(`تعذر تحميل المندوبين المسموحين: ${allowedError.message}`);
-
-    return {
-      mode: "selected",
-      representativeIds: Array.from(new Set([
-        ownId,
-        ...(allowed || []).map(row => row.representative_id).filter(Boolean)
-      ]))
-    };
   }
 
   async function fetchFollowupsFromNetwork(scope, options = {}) {
@@ -229,7 +228,7 @@
   async function listFollowups(options = {}) {
     const scope = await resolveRepresentativeScope();
     const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
-    if (scopeUserId && navigator.onLine !== false) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "followups", scope);
+    if (scopeUserId) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "followups", scope);
     if (scope.mode === "none") return [];
 
     const namespace = await currentFollowupNamespace();
@@ -241,12 +240,14 @@
       cached = await window.KYUMSmartCache.get(cacheKey, {
         namespace,
         allowStale: true,
+        allowStaleAnyAge: true,
         staleMaxMs: FOLLOWUPS_CACHE_STALE_MAX_MS
       });
     }
 
     if (cached?.hit && Array.isArray(cached.data)) {
-      if (navigator.onLine !== false) {
+      lastReadStatus = { source: "cache", stale: Boolean(cached.stale), metadata: cached.metadata || null };
+      if (window.customerSupabase) {
         refreshFollowupsInBackground(scope, namespace, cacheKey, cached.data).catch(error => {
           console.warn("Follow-up cache background refresh skipped:", error);
         });
@@ -269,6 +270,7 @@
         : { rows: await fetchFollowupsFromNetwork(scope), mode: "full" };
       const rows = result.rows;
       await persistFollowups(cacheKey, rows, namespace);
+      lastReadStatus = { source: "network", stale: false, metadata: { updatedAt: Date.now(), recordCount: rows.length } };
       return rows;
     } catch (error) {
       if (cached?.data && Array.isArray(cached.data)) return cached.data;
@@ -474,6 +476,7 @@
 
   window.FollowupsService = Object.freeze({
     listFollowups,
+    getLastReadStatus: () => lastReadStatus,
     saveFollowup,
     deleteFollowup,
     invalidateFollowupCache

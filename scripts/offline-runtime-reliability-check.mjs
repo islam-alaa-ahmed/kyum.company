@@ -35,7 +35,7 @@ if (!process.exitCode) pass("Critical CDN libraries are registered in Vendor Cac
 if (sw.includes("cache.addAll(APP_SHELL)")) fail("Legacy all-or-nothing cache.addAll installation is still present");
 else pass("App Shell installation is resilient and caches assets independently");
 
-const expectedVersion = "18.6.0";
+const expectedVersion = version.version;
 if (version.version !== expectedVersion || pkg.version !== expectedVersion) {
   fail(`Version mismatch: version.json=${version.version}, package.json=${pkg.version}`);
 } else pass(`Release version is unified at ${expectedVersion}`);

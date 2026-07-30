@@ -62,9 +62,10 @@
 
   const CUSTOMER_PAGE_SIZE = 250;
   const CUSTOMER_CACHE_TTL_MS = 15 * 60 * 1000;
-  const CUSTOMER_CACHE_STALE_MAX_MS = 7 * 24 * 60 * 60 * 1000;
+  const CUSTOMER_CACHE_STALE_MAX_MS = 10 * 365 * 24 * 60 * 60 * 1000;
   const CUSTOMER_CACHE_SCHEMA_VERSION = 1;
   const customerRefreshes = new Map();
+  let lastReadStatus = null;
 
   async function currentCustomerNamespace() {
     const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
@@ -148,58 +149,46 @@
     const profile = window.CustomerAuth?.getState?.().profile || null;
     if (!profile) return { mode: "none", representativeIds: [] };
     const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "customers");
-    if (navigator.onLine === false) {
-      if (cachedScope) return cachedScope;
-      if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) return { mode: "all", representativeIds: [] };
-      if (profile.role === "sales_representative" && profile.representative_id) return { mode: "selected", representativeIds: [profile.representative_id] };
-      return { mode: "none", representativeIds: [] };
-    }
 
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
       return { mode: "all", representativeIds: [] };
     }
-
-    if (profile.role !== "sales_representative") {
+    if (profile.role !== "sales_representative" || !profile.representative_id) {
       return { mode: "none", representativeIds: [] };
     }
 
-    const ownRepresentativeId = profile.representative_id || null;
-    if (!ownRepresentativeId) return { mode: "none", representativeIds: [] };
+    const ownRepresentativeId = profile.representative_id;
+    const fallbackScope = cachedScope || { mode: "selected", representativeIds: [ownRepresentativeId] };
+    if (!window.customerSupabase) return fallbackScope;
 
-    const { data: accessProfile, error: accessProfileError } = await client()
-      .from("user_data_access_profiles")
-      .select("access_mode")
-      .eq("user_id", profile.id)
-      .maybeSingle();
-    if (accessProfileError) {
-      throw new Error(`تعذر تحميل نطاق بيانات المستخدم: ${accessProfileError.message}`);
-    }
+    try {
+      const { data: accessProfile, error: accessProfileError } = await client()
+        .from("user_data_access_profiles")
+        .select("access_mode")
+        .eq("user_id", profile.id)
+        .maybeSingle();
+      if (accessProfileError) throw accessProfileError;
 
-    const accessMode = accessProfile?.access_mode || "own";
-    if (accessMode === "own") {
-      return { mode: "selected", representativeIds: [ownRepresentativeId] };
-    }
+      const accessMode = accessProfile?.access_mode || "own";
+      if (accessMode !== "selected") return { mode: "selected", representativeIds: [ownRepresentativeId] };
 
-    if (accessMode === "selected") {
       const { data: allowedRows, error: allowedError } = await client()
         .from("user_data_access_representatives")
         .select("representative_id")
         .eq("user_id", profile.id);
-      if (allowedError) {
-        throw new Error(`تعذر تحميل المندوبين المسموحين: ${allowedError.message}`);
-      }
+      if (allowedError) throw allowedError;
 
-      const representativeIds = Array.from(new Set([
-        ownRepresentativeId,
-        ...(allowedRows || []).map(row => row.representative_id).filter(Boolean)
-      ]));
-      return { mode: "selected", representativeIds };
+      return {
+        mode: "selected",
+        representativeIds: Array.from(new Set([
+          ownRepresentativeId,
+          ...(allowedRows || []).map(row => row.representative_id).filter(Boolean)
+        ]))
+      };
+    } catch (error) {
+      console.warn("Customer scope network refresh failed; cached scope retained.", error);
+      return fallbackScope;
     }
-
-    // A sales representative must never receive an unfiltered customer query.
-    // Even if an old profile contains access_mode=all, keep the account scoped
-    // to its directly linked representative.
-    return { mode: "selected", representativeIds: [ownRepresentativeId] };
   }
 
   async function fetchCustomersFromNetwork(scope, options = {}) {
@@ -271,7 +260,7 @@
   async function listCustomers(options = {}) {
     const scope = await resolveCustomerRepresentativeScope();
     const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
-    if (scopeUserId && navigator.onLine !== false) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "customers", scope);
+    if (scopeUserId) window.KYUMOfflineSessionStore?.saveScope?.(scopeUserId, "customers", scope);
     if (scope.mode === "none") return [];
 
     const namespace = await currentCustomerNamespace();
@@ -283,12 +272,14 @@
       cached = await window.KYUMSmartCache.get(cacheKey, {
         namespace,
         allowStale: true,
+        allowStaleAnyAge: true,
         staleMaxMs: CUSTOMER_CACHE_STALE_MAX_MS
       });
     }
 
     if (cached?.hit && Array.isArray(cached.data)) {
-      if (navigator.onLine !== false) {
+      lastReadStatus = { source: "cache", stale: Boolean(cached.stale), metadata: cached.metadata || null };
+      if (window.customerSupabase) {
         refreshCustomersInBackground(scope, namespace, cacheKey, cached.data).catch(error => {
           console.warn("Customer cache background refresh skipped:", error);
         });
@@ -311,6 +302,7 @@
         : { rows: await fetchCustomersFromNetwork(scope), mode: "full" };
       const rows = result.rows;
       await persistCustomers(cacheKey, rows, namespace);
+      lastReadStatus = { source: "network", stale: false, metadata: { updatedAt: Date.now(), recordCount: rows.length } };
       return rows;
     } catch (error) {
       if (cached?.data && Array.isArray(cached.data)) return cached.data;
@@ -792,6 +784,7 @@
 
   window.CustomersService = Object.freeze({
     listCustomers,
+    getLastReadStatus: () => lastReadStatus,
     findByPhone,
     saveCustomer,
     deleteCustomer,
