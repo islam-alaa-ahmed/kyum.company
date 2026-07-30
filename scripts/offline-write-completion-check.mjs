@@ -16,7 +16,7 @@ const checks = [
   ["Recovery Center implementation", /KYUMSyncRecoveryCenter/.test(files.center) && /data-sync-retry/.test(files.center)],
   ["Recovery Center UI", /syncRecoveryRows/.test(files.html) && /syncRetryAllBtn/.test(files.html)],
   ["Recovery Center app shell", /sync-recovery-center\.js/.test(files.sw)],
-  ["Version 18.11.0", /18\.11\.0/.test(files.version) && /18-11-0-m13-13/.test(files.sw)]
+  ["Version matches runtime cache", (() => { const v = JSON.parse(files.version).version; return files.sw.includes(v.replaceAll(".", "-")); })()]
 ];
 let passed=0;
 for (const [name, ok] of checks) { console.log(`${ok ? "PASS" : "FAIL"} — ${name}`); if (ok) passed++; }

@@ -808,6 +808,29 @@ function applyDailyOperationsCacheUpdate(event) {
 }
 
 window.addEventListener("kyum-daily-operations-cache-updated", applyDailyOperationsCacheUpdate);
+window.addEventListener("kyum-offline-read-updated", event => {
+  const detail = event?.detail || {};
+  const selectedDate = dailyPerformanceSelectedDate?.();
+  if (detail.key === `daily-performance:${selectedDate}` && detail.data) {
+    dailyPerformanceSnapshot = detail.data;
+    populateDailyPerformanceEmployees();
+    renderDailyPerformanceReport();
+  }
+  if (detail.key === `daily-activity:${selectedDate}` && detail.data) {
+    dailyActivitySnapshot = detail.data;
+    populateDailyActivityEmployees();
+    renderDailyAttendance();
+    renderDailyActivityTimeline();
+  }
+});
+
+window.addEventListener("kyum-daily-derived-invalidated", event => {
+  const workDate = event?.detail?.workDate;
+  const reportView = document.getElementById("dailyPerformanceReport");
+  if (workDate === dailyPerformanceSelectedDate?.() && reportView && !reportView.classList.contains("hidden")) {
+    loadDailyPerformanceReport(true);
+  }
+});
 
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService) return;
@@ -4728,7 +4751,8 @@ async function loadDailyPerformanceReport(force = false) {
     dailyPerformanceSnapshot =
       await window.DailyPerformanceService.loadReport(
         dailyPerformanceSelectedDate(),
-        { customers, followups, quotations }
+        { customers, followups, quotations },
+        { force }
       );
 
     dailyPerformanceSnapshot.alerts = window.DailyAlertsService
@@ -5818,6 +5842,14 @@ async function updateDailyTask(taskKey, completed) {
     if (currentTaskIndex >= 0) dailyTaskRecords[currentTaskIndex] = updatedTask;
     else dailyTaskRecords.push(updatedTask);
     renderDailyOperations();
+    await Promise.allSettled([
+      window.KYUMOfflineReadCache?.invalidate?.(`daily-performance:${updatedTask.workDate || dailyLocalDate()}`),
+      window.KYUMOfflineReadCache?.invalidate?.(`daily-activity:${updatedTask.workDate || dailyLocalDate()}`)
+    ]);
+    const dailyReportView = document.getElementById("dailyPerformanceReport");
+    if (dailyReportView && !dailyReportView.classList.contains("hidden")) {
+      await loadDailyPerformanceReport(true);
+    }
     showDataStatus(
       "dailyOperationsStatus",
       completed

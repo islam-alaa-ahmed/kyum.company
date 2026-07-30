@@ -1,12 +1,13 @@
 {
-  "version": "18.13.0",
-  "build": 181300,
+  "version": "18.14.0",
+  "build": 181400,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Personal WhatsApp Message Template",
+  "title": "Daily Reports Consistency & Deep Regression Recovery",
   "notes": [
-    "رسالة واتساب واحدة وصورة واحدة لكل مستخدم",
-    "حفظ خاص بالمستخدم عبر RLS وSupabase Storage",
-    "فتح رقم العميل بالنص الجاهز ودعم مشاركة الصورة والنص على الأجهزة المتوافقة"
+    "تحديث تقارير المهام فور تغيير حالة المهمة",
+    "إبطال كاش تقارير الأداء والنشاط بعد عمليات المهام",
+    "دعم Weak Network Queue Fallback للمهام اليومية",
+    "استعادة اعتماد Enterprise Offline بعد خدمة WhatsApp"
   ]
 }

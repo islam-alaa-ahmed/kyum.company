@@ -224,6 +224,18 @@
     }
   }
 
+
+  async function invalidateDerivedDailyReports(workDate) {
+    if (!window.KYUMOfflineReadCache) return;
+    await Promise.allSettled([
+      window.KYUMOfflineReadCache.invalidate(`daily-performance:${workDate}`),
+      window.KYUMOfflineReadCache.invalidate(`daily-activity:${workDate}`)
+    ]);
+    window.dispatchEvent(new CustomEvent("kyum-daily-derived-invalidated", {
+      detail: { workDate, source: "daily-operations-write", updatedAt: Date.now() }
+    }));
+  }
+
   async function setTaskStateOnline(taskKey, completed, workDate = todayIso()) {
     const state = authState();
     const userId = state?.user?.id;
@@ -254,6 +266,7 @@
     } catch (auditError) { console.warn("Daily task audit skipped:", auditError); }
     const normalized = normalizeCompletion(data);
     await mergeCompletionIntoCache(normalized, workDate, "online-write");
+    await invalidateDerivedDailyReports(workDate);
     return normalized;
   }
 
@@ -272,7 +285,7 @@
 
   async function setTaskState(taskKey, completed, workDate = todayIso(), context = {}) {
     requirePermission("edit");
-    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+    const queueTaskState = async () => {
       const state = authState();
       const now = new Date().toISOString();
       const cached = await readCache("completions", workDate);
@@ -299,9 +312,22 @@
         localEntityId: optimistic.id,
         baseUpdatedAt: existing?.updatedAt || ""
       });
-      return mergeCompletionIntoCache(optimistic, workDate, "offline-optimistic");
+      const merged = await mergeCompletionIntoCache(optimistic, workDate, "offline-optimistic");
+      await invalidateDerivedDailyReports(workDate);
+      return merged;
+    };
+
+    if (!context.skipOfflineQueue && navigator.onLine === false && window.KYUMOfflineQueue) {
+      return queueTaskState();
     }
-    return setTaskStateOnline(taskKey, completed, workDate);
+    try {
+      return await setTaskStateOnline(taskKey, completed, workDate);
+    } catch (error) {
+      if (!context.skipOfflineQueue && window.KYUMOfflineQueue?.isRetryableError?.(error)) {
+        return queueTaskState();
+      }
+      throw error;
+    }
   }
 
   async function fetchTargets(workDate) {

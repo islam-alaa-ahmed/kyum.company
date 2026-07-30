@@ -91,6 +91,11 @@
       "file": "assets/js/diagnostics-service.js",
       "mode": "online_only_diagnostics",
       "status": "accepted_online_only"
+    },
+    "whatsapp_templates": {
+      "file": "assets/js/whatsapp-template-service.js",
+      "mode": "online_only_user_media_settings",
+      "status": "accepted_online_only"
     }
   },
   "registeredDirectDataFiles": [
@@ -117,7 +122,8 @@
     "assets/js/sync-engine.js",
     "assets/js/system-health-service.js",
     "assets/js/system-settings-service.js",
-    "assets/js/users-service.js"
+    "assets/js/users-service.js",
+    "assets/js/whatsapp-template-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [
