@@ -1,9 +1,12 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-5-5-m13-7-5";
+const CACHE_VERSION = "kyum-crm-pwa-18-6-0-m13-8";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
 const OFFLINE_URL = "./offline.html";
 
-const APP_SHELL = [
+// Core files must be available for an offline boot. Optional files are cached
+// independently so one missing asset can never abort the entire installation.
+const CORE_APP_SHELL = [
   "./",
   "./index.html",
   "./offline.html",
@@ -11,47 +14,64 @@ const APP_SHELL = [
   "./version.json",
   "./assets/css/style.css",
   "./assets/css/mobile.css",
-  "./assets/js/activity-service.js",
-  "./assets/js/app.js",
+  "./assets/js/offline-session-store.js",
+  "./assets/js/supabase-client.js",
+  "./assets/js/permissions.js",
+  "./assets/js/permission-engine.js",
+  "./assets/js/smart-cache.js",
+  "./assets/js/sync-engine.js",
+  "./assets/js/offline-queue.js",
+  "./assets/js/permissions-service.js",
   "./assets/js/auth-session.js",
+  "./assets/js/reference-data-service.js",
+  "./assets/js/customers-service.js",
+  "./assets/js/followups-service.js",
+  "./assets/js/quotations-service.js",
+  "./assets/js/app.js",
+  "./assets/js/mobile.js",
+  "./assets/js/pwa.js"
+];
+
+const OPTIONAL_APP_SHELL = [
+  "./assets/js/activity-service.js",
   "./assets/js/backup-service.js",
   "./assets/js/customer-excel-center.js",
   "./assets/js/customer360-engine.js",
   "./assets/js/customer360-export.js",
-  "./assets/js/customers-service.js",
   "./assets/js/daily-activity-service.js",
   "./assets/js/daily-alerts-service.js",
   "./assets/js/daily-operations-service.js",
   "./assets/js/daily-performance-service.js",
+  "./assets/js/daily-suggestions-service.js",
   "./assets/js/diagnostics-engine.js",
   "./assets/js/diagnostics-service.js",
   "./assets/js/export-center.js",
-  "./assets/js/followups-service.js",
   "./assets/js/health-alerts-engine.js",
-  "./assets/js/mobile.js",
+  "./assets/js/native.js",
   "./assets/js/performance-monitor.js",
-  "./assets/js/permissions-service.js",
-  "./assets/js/permissions.js",
-  "./assets/js/permission-engine.js",
-  "./assets/js/pwa.js",
-  "./assets/js/quotations-service.js",
-  "./assets/js/reference-data-service.js",
   "./assets/js/reports-engine.js",
-  "./assets/js/supabase-client.js",
+  "./assets/js/representative-excel-center.js",
   "./assets/js/supabase-config.js",
   "./assets/js/system-health-service.js",
   "./assets/js/system-settings-service.js",
-  "./assets/js/smart-cache.js",
-  "./assets/js/sync-engine.js",
-  "./assets/js/offline-queue.js",
-  "./assets/js/offline-session-store.js",
   "./assets/js/users-service.js",
   "./assets/images/android-chrome-192x192.png",
   "./assets/images/android-chrome-512x512.png",
   "./assets/images/apple-touch-icon.png",
+  "./assets/images/favicon.ico",
+  "./assets/images/favicon-16x16.png",
+  "./assets/images/favicon-32x32.png",
   "./assets/images/maskable-icon-192x192.png",
   "./assets/images/maskable-icon-512x512.png",
+  "./assets/images/pwa-splash-landscape.png",
+  "./assets/images/pwa-splash-portrait.png",
   "./assets/images/kyum-header-logo.png"
+];
+
+const VENDOR_URLS = [
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
+  "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
 ];
 
 function isDynamicOrSensitive(url) {
@@ -72,20 +92,89 @@ function isStaticAsset(request, url) {
     /\.(?:css|js|png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(url.pathname);
 }
 
+function isApprovedVendor(url) {
+  return url.hostname === "cdn.jsdelivr.net" ||
+    url.hostname === "fonts.googleapis.com" ||
+    url.hostname === "fonts.gstatic.com";
+}
+
+async function cacheIndividually(cacheName, urls, { required = false } = {}) {
+  const cache = await caches.open(cacheName);
+  const results = await Promise.allSettled(urls.map(async assetUrl => {
+    const request = new Request(new URL(assetUrl, self.registration.scope).href, { cache: "reload" });
+    const response = await fetch(request);
+    if (!response || (!response.ok && response.type !== "opaque")) {
+      throw new Error(`Unable to cache ${assetUrl}`);
+    }
+    await cache.put(request, response);
+  }));
+
+  if (required) {
+    const failed = results
+      .map((result, index) => ({ result, assetUrl: urls[index] }))
+      .filter(item => item.result.status === "rejected");
+    if (failed.length) {
+      throw new Error(`Core app shell cache failed: ${failed.map(item => item.assetUrl).join(", ")}`);
+    }
+  }
+}
+
+async function matchIgnoringVersion(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  return cache.match(request, { ignoreSearch: true });
+}
+
+async function cacheFirstSameOrigin(request) {
+  const cached = await matchIgnoringVersion(request, APP_SHELL_CACHE) ||
+    await matchIgnoringVersion(request, RUNTIME_CACHE);
+
+  const networkPromise = fetch(request).then(async response => {
+    if (response && response.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  });
+
+  if (cached) {
+    networkPromise.catch(() => undefined);
+    return cached;
+  }
+
+  return networkPromise;
+}
+
+async function cacheFirstVendor(request) {
+  const cache = await caches.open(VENDOR_CACHE);
+  const cached = await cache.match(request, { ignoreSearch: true });
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response && (response.ok || response.type === "opaque")) {
+    await cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(APP_SHELL_CACHE)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    await cacheIndividually(APP_SHELL_CACHE, CORE_APP_SHELL, { required: true });
+    await Promise.all([
+      cacheIndividually(APP_SHELL_CACHE, OPTIONAL_APP_SHELL),
+      cacheIndividually(VENDOR_CACHE, VENDOR_URLS)
+    ]);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(key => !key.startsWith(CACHE_VERSION)).map(key => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys
+      .filter(key => !key.startsWith(CACHE_VERSION))
+      .map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener("fetch", event => {
@@ -93,38 +182,39 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
-  if (url.pathname.endsWith("/version.json")) {
-    event.respondWith(fetch(request, { cache: "no-store" }));
+
+  if (url.origin === self.location.origin && url.pathname.endsWith("/version.json")) {
+    event.respondWith(fetch(request, { cache: "no-store" }).catch(() => matchIgnoringVersion(request, APP_SHELL_CACHE)));
     return;
   }
-  if (isDynamicOrSensitive(url)) return;
+
+  if (isDynamicOrSensitive(url) && !isApprovedVendor(url)) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) || (await caches.match("./index.html")) || caches.match(OFFLINE_URL))
-    );
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) {
+          const cache = await caches.open(RUNTIME_CACHE);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      } catch (_) {
+        return (await matchIgnoringVersion(request, RUNTIME_CACHE)) ||
+          (await matchIgnoringVersion(new Request("./index.html"), APP_SHELL_CACHE)) ||
+          (await matchIgnoringVersion(new Request(OFFLINE_URL), APP_SHELL_CACHE));
+      }
+    })());
     return;
   }
 
   if (url.origin === self.location.origin && isStaticAsset(request, url)) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        const network = fetch(request).then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
-          }
-          return response;
-        }).catch(() => cached);
-        return cached || network;
-      })
-    );
+    event.respondWith(cacheFirstSameOrigin(request).catch(() => new Response("", { status: 504, statusText: "Offline asset unavailable" })));
+    return;
+  }
+
+  if (isApprovedVendor(url) && (request.destination === "script" || request.destination === "style" || request.destination === "font")) {
+    event.respondWith(cacheFirstVendor(request));
   }
 });
 
