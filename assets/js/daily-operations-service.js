@@ -225,12 +225,18 @@
   }
 
 
-  async function invalidateDerivedDailyReports(workDate) {
-    if (!window.KYUMOfflineReadCache) return;
-    await Promise.allSettled([
-      window.KYUMOfflineReadCache.invalidate(`daily-performance:${workDate}`),
-      window.KYUMOfflineReadCache.invalidate(`daily-activity:${workDate}`)
-    ]);
+  async function invalidateDerivedDailyReports(workDate, entity = "daily_task_completions") {
+    if (window.KYUMCacheDependencyEngine) {
+      await window.KYUMCacheDependencyEngine.invalidate(entity, {
+        workDate,
+        source: "daily-operations-service"
+      });
+    } else if (window.KYUMOfflineReadCache) {
+      await Promise.allSettled([
+        window.KYUMOfflineReadCache.invalidate(`daily-performance:${workDate}`),
+        window.KYUMOfflineReadCache.invalidate(`daily-activity:${workDate}`)
+      ]);
+    }
     window.dispatchEvent(new CustomEvent("kyum-daily-derived-invalidated", {
       detail: { workDate, source: "daily-operations-write", updatedAt: Date.now() }
     }));
@@ -371,6 +377,7 @@
     const normalized = normalizeTargets(data, workDate);
     await writeCache("targets", workDate, normalized, "online-write");
     emit("targets", workDate, normalized, "online-write");
+    await invalidateDerivedDailyReports(workDate, "daily_operation_targets");
     return normalized;
   }
 
@@ -392,6 +399,7 @@
       });
       await writeCache("targets", workDate, optimistic, "offline-optimistic");
       emit("targets", workDate, optimistic, "offline-optimistic");
+      await invalidateDerivedDailyReports(workDate, "daily_operation_targets");
       return optimistic;
     }
     return saveTargetsOnline(targets, workDate);
@@ -437,6 +445,7 @@
     const normalized = normalizeManagerNote(data);
     await writeCache("manager-note", workDate, normalized, "online-write");
     emit("manager-note", workDate, normalized, "online-write");
+    await invalidateDerivedDailyReports(workDate, "daily_manager_notes");
     return normalized;
   }
 
@@ -459,6 +468,7 @@
       });
       await writeCache("manager-note", workDate, optimistic, "offline-optimistic");
       emit("manager-note", workDate, optimistic, "offline-optimistic");
+      await invalidateDerivedDailyReports(workDate, "daily_manager_notes");
       return optimistic;
     }
     return saveManagerNoteOnline(note, workDate);

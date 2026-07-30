@@ -429,6 +429,7 @@
     }, userId);
 
     await invalidateCustomerCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("customers", { action: record.id ? "update" : "create", createdDate: record.createdAt || record.created_at, source: "customers-service" });
     return saved.id;
   }
 
@@ -458,6 +459,7 @@
       localEntityId: action === "create" ? undefined : record.id,
       baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
     });
+    await window.KYUMCacheDependencyEngine?.invalidate?.("customers", { action, createdDate: record?.createdAt || record?.created_at, source: "customers-service-queue" });
     return queued.localEntityId;
   }
 
@@ -483,6 +485,7 @@
     );
     await audit("delete", customerId, { customer_name: customerName });
     await invalidateCustomerCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("customers", { action: "delete", source: "customers-service" });
   }
 
   async function deleteCustomer(customerId, customerName, context = {}) {

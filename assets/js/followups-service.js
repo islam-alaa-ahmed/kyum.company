@@ -379,6 +379,7 @@
     });
 
     await invalidateFollowupCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("followups", { action: record.id ? "update" : "create", contactDate: record.contactDate, source: "followups-service" });
     return saved.id;
   }
 
@@ -411,6 +412,7 @@
       entity: "followups", action, payload: record, dependsOn: dependencies,
       baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
     });
+    await window.KYUMCacheDependencyEngine?.invalidate?.("followups", { action, contactDate: record?.contactDate, source: "followups-service-queue" });
     return queued.localEntityId;
   }
 
@@ -437,6 +439,7 @@
     await recalculateLastContact(record.customerId);
     await audit("delete", record.id, { customer_id: record.customerId, contact_date: record.contactDate });
     await invalidateFollowupCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("followups", { action: "delete", contactDate: record.contactDate, source: "followups-service" });
   }
 
   async function deleteFollowup(record, context = {}) {

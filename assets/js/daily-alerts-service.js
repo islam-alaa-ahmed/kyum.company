@@ -126,7 +126,7 @@
       console.warn("Alert action history failed:", actionError);
     }
 
-    await window.KYUMOfflineReadCache?.invalidate?.(`daily-alerts:`);
+    await window.KYUMCacheDependencyEngine?.invalidate?.("daily_alerts", { workDate: data?.work_date, action: actionType, source: "daily-alerts-service" });
     return data;
   }
 

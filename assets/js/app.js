@@ -832,6 +832,41 @@ window.addEventListener("kyum-daily-derived-invalidated", event => {
   }
 });
 
+let cacheDependencyRefreshTimer = null;
+window.addEventListener("kyum-cache-dependencies-invalidated", event => {
+  const detail = event?.detail || {};
+  clearTimeout(cacheDependencyRefreshTimer);
+  cacheDependencyRefreshTimer = setTimeout(() => {
+    const selectedDate = dailyPerformanceSelectedDate?.();
+    const sameDate = !detail.workDate || detail.workDate === selectedDate;
+    const prefixes = Array.isArray(detail.prefixes) ? detail.prefixes : [];
+
+    if (sameDate && prefixes.some(prefix => prefix.startsWith("daily-performance:"))) {
+      const view = document.getElementById("dailyPerformanceReportView");
+      if (view && !view.classList.contains("hidden")) loadDailyPerformanceReport(true);
+    }
+    if (sameDate && prefixes.some(prefix => prefix.startsWith("daily-activity:"))) {
+      const view = document.getElementById("dailyActivityReportView");
+      if (view && !view.classList.contains("hidden")) loadDailyActivityReport?.(true);
+    }
+    if (prefixes.some(prefix => prefix.startsWith("daily-alerts:"))) {
+      const alertsView = document.getElementById("dailyOperationsView");
+      if (alertsView && !alertsView.classList.contains("hidden")) loadDailyAlerts(true);
+    }
+    if (prefixes.some(prefix => prefix.startsWith("daily-suggestions:"))) {
+      const dailyView = document.getElementById("dailyOperationsView");
+      if (dailyView && !dailyView.classList.contains("hidden")) loadDailySuggestedCustomers(true);
+    }
+    if (prefixes.some(prefix => prefix.startsWith("daily-suggestions-team:"))) {
+      const dailyView = document.getElementById("dailyOperationsView");
+      if (dailyView && !dailyView.classList.contains("hidden")) loadDailySuggestedTeam(true);
+    }
+    if (detail.entity === "customers" || detail.entity === "followups" || detail.entity === "quotations") {
+      renderDashboard();
+    }
+  }, 120);
+});
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService) return;
 

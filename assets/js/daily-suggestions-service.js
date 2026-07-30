@@ -125,7 +125,7 @@
       { p_suggestion_id: suggestionId, p_followup_id: followupId }
     );
     if (error) throw error;
-    await window.KYUMOfflineReadCache?.invalidate?.("daily-suggestions:");
+    await window.KYUMCacheDependencyEngine?.invalidate?.("daily_customer_suggestions", { date: options.date || riyadhDate(), action: "complete", source: "daily-suggestions-service" });
     return Number(data || 0);
   }
 

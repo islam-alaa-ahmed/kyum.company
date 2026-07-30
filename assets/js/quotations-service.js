@@ -407,6 +407,7 @@
     });
 
     await invalidateQuotationCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("quotations", { action: record.id ? "update" : "create", quotationDate: record.quotationDate, source: "quotations-service" });
     return saved.id;
   }
 
@@ -439,6 +440,7 @@
       entity: "quotations", action, payload: record, dependsOn: dependencies,
       baseUpdatedAt: record?.updatedAt || record?.updated_at || ""
     });
+    await window.KYUMCacheDependencyEngine?.invalidate?.("quotations", { action, quotationDate: record?.quotationDate, source: "quotations-service-queue" });
     return queued.localEntityId;
   }
 
@@ -465,6 +467,7 @@
     await recalculateCustomerSnapshot(record.customerId);
     await audit("delete", record.id, { quotation_number: record.code, customer_id: record.customerId });
     await invalidateQuotationCache();
+    await window.KYUMCacheDependencyEngine?.invalidate?.("quotations", { action: "delete", quotationDate: record.quotationDate, source: "quotations-service" });
   }
 
   async function deleteQuotation(record, context = {}) {

@@ -1,13 +1,13 @@
 {
-  "version": "18.14.0",
-  "build": 181400,
+  "version": "18.15.0",
+  "build": 181500,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Daily Reports Consistency & Deep Regression Recovery",
+  "title": "Enterprise Cache Dependency Engine",
   "notes": [
-    "تحديث تقارير المهام فور تغيير حالة المهمة",
-    "إبطال كاش تقارير الأداء والنشاط بعد عمليات المهام",
-    "دعم Weak Network Queue Fallback للمهام اليومية",
-    "استعادة اعتماد Enterprise Offline بعد خدمة WhatsApp"
+    "ربط عمليات الكتابة بالتقارير والكاشات التابعة مركزيًا",
+    "تحديث تقارير الأداء والنشاط والتنبيهات والاقتراحات بعد تغير البيانات",
+    "دعم Invalidation موحد للعمليات Online وOffline Queue",
+    "منع استمرار Snapshots قديمة بعد إضافة أو تعديل البيانات"
   ]
 }
