@@ -1,13 +1,12 @@
 {
-  "version": "18.9.0",
-  "build": 18900,
+  "version": "18.10.0",
+  "build": 181000,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Remaining Modules Offline Integration",
+  "title": "Full Enterprise Offline Certification",
   "notes": [
-    "إضافة طبقة Offline Read Cache مشتركة للوحدات اليومية",
-    "إدراج التنبيهات والاقتراحات والنشاط والأداء اليومي ضمن Cache-First",
-    "إزالة القراءة المباشرة للتنبيهات من app.js",
-    "تقوية البيانات المرجعية لعرض آخر نسخة محفوظة مهما كان عمرها"
+    "اعتماد طبقة التشغيل والكاش والمزامنة للوحدات المسجلة",
+    "إضافة فحص موحد للوحة التحكم ودورة Offline كاملة",
+    "توثيق الوظائف الإدارية Online Only والاستثناءات المعتمدة"
   ]
 }
