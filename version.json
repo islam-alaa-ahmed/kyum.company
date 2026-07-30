@@ -1,13 +1,13 @@
 {
-  "version": "18.15.0",
-  "build": 181500,
+  "version": "18.16.0",
+  "build": 181600,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Enterprise Cache Dependency Engine",
+  "title": "Enterprise Stabilization & Report Refresh Consistency",
   "notes": [
-    "ربط عمليات الكتابة بالتقارير والكاشات التابعة مركزيًا",
-    "تحديث تقارير الأداء والنشاط والتنبيهات والاقتراحات بعد تغير البيانات",
-    "دعم Invalidation موحد للعمليات Online وOffline Queue",
-    "منع استمرار Snapshots قديمة بعد إضافة أو تعديل البيانات"
+    "تمرير التحديث الإجباري حتى طبقة القراءة النهائية في تقارير النشاط والتنبيهات والاقتراحات",
+    "إصلاح مراجع Daily Performance القديمة وربطها بالعنصر الفعلي",
+    "توحيد تحديث تقرير الأداء المركب مع النشاط والتنبيهات دون Snapshot قديمة",
+    "تقليل المسارات الميتة والاعتماد على Refresh Pipeline الحالي"
   ]
 }

@@ -826,7 +826,7 @@ window.addEventListener("kyum-offline-read-updated", event => {
 
 window.addEventListener("kyum-daily-derived-invalidated", event => {
   const workDate = event?.detail?.workDate;
-  const reportView = document.getElementById("dailyPerformanceReport");
+  const reportView = document.getElementById("dailyPerformanceReportView");
   if (workDate === dailyPerformanceSelectedDate?.() && reportView && !reportView.classList.contains("hidden")) {
     loadDailyPerformanceReport(true);
   }
@@ -4791,12 +4791,12 @@ async function loadDailyPerformanceReport(force = false) {
       );
 
     dailyPerformanceSnapshot.alerts = window.DailyAlertsService
-      ? await window.DailyAlertsService.list(dailyPerformanceSelectedDate())
+      ? await window.DailyAlertsService.list(dailyPerformanceSelectedDate(), { force })
       : [];
 
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();
-    await loadDailyActivityReport();
+    await loadDailyActivityReport(force);
     showDataStatus(
       "dailyPerformanceStatus",
       `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
@@ -5056,13 +5056,14 @@ function renderDailyAttendance() {
     : '<tr><td colspan="7" class="empty-state">لا توجد جلسات نشاط مسجلة لهذا اليوم.</td></tr>';
 }
 
-async function loadDailyActivityReport() {
+async function loadDailyActivityReport(force = false) {
   if (dailyActivityLoading || !window.DailyActivityService) return;
   dailyActivityLoading = true;
 
   try {
     dailyActivitySnapshot = await window.DailyActivityService.load(
-      dailyPerformanceSelectedDate()
+      dailyPerformanceSelectedDate(),
+      { force }
     );
     populateDailyActivityEmployees();
     renderDailyAttendance();
@@ -5193,7 +5194,7 @@ async function loadDailyAlerts(forceSync = false) {
     if (forceSync) {
       await window.DailyAlertsService.sync(undefined, { force: true });
     }
-    dailyAlerts = await window.DailyAlertsService.list();
+    dailyAlerts = await window.DailyAlertsService.list(undefined, { force: forceSync });
     renderDailyAlerts();
     showDataStatus("dailyAlertsStatus", "");
   } catch (error) {
@@ -5546,7 +5547,7 @@ async function loadDailySuggestedCustomers(force = false) {
   dailySuggestedSuggestionsError = "";
   renderDailySuggestedCustomers();
   try {
-    const result = await service.load();
+    const result = await service.load({ force });
     dailySuggestedSuggestionRows = result.rows || [];
     dailySuggestedSuggestionProgress = result.progress || dailySuggestedSuggestionProgress;
   } catch (error) {
@@ -5640,7 +5641,7 @@ async function loadDailySuggestedTeam(force = false) {
   dailySuggestedTeamError = "";
   renderDailySuggestedTeam();
   try {
-    dailySuggestedTeamRows = await service.loadTeamSummary();
+    dailySuggestedTeamRows = await service.loadTeamSummary({ force });
   } catch (error) {
     dailySuggestedTeamError = error?.message || "تعذر تحميل متابعة إنجاز الفريق.";
     console.error("Daily suggestions team summary failed", error);
@@ -5881,7 +5882,7 @@ async function updateDailyTask(taskKey, completed) {
       window.KYUMOfflineReadCache?.invalidate?.(`daily-performance:${updatedTask.workDate || dailyLocalDate()}`),
       window.KYUMOfflineReadCache?.invalidate?.(`daily-activity:${updatedTask.workDate || dailyLocalDate()}`)
     ]);
-    const dailyReportView = document.getElementById("dailyPerformanceReport");
+    const dailyReportView = document.getElementById("dailyPerformanceReportView");
     if (dailyReportView && !dailyReportView.classList.contains("hidden")) {
       await loadDailyPerformanceReport(true);
     }
