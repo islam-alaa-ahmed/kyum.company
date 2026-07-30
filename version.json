@@ -1,12 +1,12 @@
 {
-  "version": "18.12.1",
-  "build": 181201,
+  "version": "18.12.2",
+  "build": 181202,
   "forceUpdate": true,
   "releaseDate": "2026-07-30",
-  "title": "Update Dialog Hotfix",
+  "title": "Update Runtime Recovery",
   "notes": [
-    "توحيد إصدار Runtime مع version.json",
-    "منع ظهور نافذة التحديث الإجباري بعد كل Refresh",
-    "الحفاظ على إصلاحات UI Regression Recovery"
+    "منع تكرار نافذة التحديث عند بقاء Runtime قديم",
+    "إضافة Cache Busting فعلي لملفات التشغيل الحرجة",
+    "استعادة تلقائية عند اكتمال طلب التحديث وعدم تفعيل النسخة الجديدة"
   ]
 }

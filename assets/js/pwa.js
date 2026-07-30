@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const CURRENT_VERSION = "18.12.1";
+  const CURRENT_VERSION = "18.12.2";
   const VERSION_ENDPOINT = "./version.json";
   const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
   const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
@@ -36,6 +36,24 @@
       if (delta !== 0) return delta > 0 ? 1 : -1;
     }
     return 0;
+  }
+
+  function readExpectedRelease() {
+    try {
+      return String(localStorage.getItem("kyumExpectedRelease") || "").trim();
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function clearCompletedUpdateMarker() {
+    const expectedRelease = readExpectedRelease();
+    if (!expectedRelease || compareVersions(CURRENT_VERSION, expectedRelease) < 0) return;
+    try {
+      localStorage.removeItem("kyumExpectedRelease");
+      localStorage.removeItem("kyumUpdateRequestedAt");
+      localStorage.setItem("kyumActiveRelease", CURRENT_VERSION);
+    } catch (_) {}
   }
 
   function createInstallBanner() {
@@ -167,7 +185,18 @@
       const release = await fetchLatestRelease();
       updateState.lastCheckedAt = new Date().toISOString();
       updateState.latestRelease = release?.version && compareVersions(release.version, CURRENT_VERSION) > 0 ? release : null;
-      if (updateState.latestRelease && showDialog) showUpdateDialog(updateState.latestRelease);
+      if (updateState.latestRelease && showDialog) {
+        const expectedRelease = readExpectedRelease();
+        if (expectedRelease && compareVersions(expectedRelease, updateState.latestRelease.version) >= 0) {
+          // The user already requested this exact release. Do not reopen the modal
+          // forever; complete the stale-runtime recovery automatically.
+          await withTimeout(clearApplicationCaches(), 5000).catch(() => undefined);
+          await withTimeout(unregisterServiceWorkers(), 5000).catch(() => undefined);
+          window.setTimeout(() => reloadWithCacheBuster(expectedRelease), 100);
+          return updateState.latestRelease;
+        }
+        showUpdateDialog(updateState.latestRelease);
+      }
       return updateState.latestRelease;
     } catch (error) {
       updateState.lastCheckedAt = new Date().toISOString();
@@ -246,7 +275,7 @@
   async function registerServiceWorker() {
     if (!("serviceWorker" in navigator) || location.protocol === "file:" || isNative) return;
     try {
-      serviceWorkerRegistration = await navigator.serviceWorker.register("./service-worker.js", { scope: "./", updateViaCache: "none" });
+      serviceWorkerRegistration = await navigator.serviceWorker.register(`./service-worker.js?v=${encodeURIComponent(CURRENT_VERSION)}`, { scope: "./", updateViaCache: "none" });
       await serviceWorkerRegistration.update();
       serviceWorkerRegistration.addEventListener("updatefound", () => {
         const worker = serviceWorkerRegistration.installing;
@@ -298,6 +327,7 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!navigator.onLine) document.documentElement.classList.add("is-offline");
+    clearCompletedUpdateMarker();
     await registerServiceWorker();
     openShortcutView();
     checkForUpdate({ silent: true });

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-12-1-m13-14-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-12-2-m13-14-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -127,10 +127,15 @@ async function matchIgnoringVersion(request, cacheName) {
 }
 
 async function cacheFirstSameOrigin(request) {
-  const cached = await matchIgnoringVersion(request, APP_SHELL_CACHE) ||
-    await matchIgnoringVersion(request, RUNTIME_CACHE);
+  const requestUrl = new URL(request.url);
+  const shellCache = await caches.open(APP_SHELL_CACHE);
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
+  const cached = await shellCache.match(request) ||
+    await runtimeCache.match(request) ||
+    (requestUrl.search ? null : await matchIgnoringVersion(request, APP_SHELL_CACHE)) ||
+    (requestUrl.search ? null : await matchIgnoringVersion(request, RUNTIME_CACHE));
 
-  const networkPromise = fetch(request).then(async response => {
+  const networkPromise = fetch(request, { cache: requestUrl.search ? "reload" : "default" }).then(async response => {
     if (response && response.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
       await cache.put(request, response.clone());
