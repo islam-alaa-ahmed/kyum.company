@@ -11200,3 +11200,17 @@ body.dark-mode .daily-whatsapp-template-card { background:rgba(15,23,42,.5); }
     width:100%;
   }
 }
+
+/* Phase M13.22 — employee targets and manager-note audience */
+.daily-targets-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.employee-targets-dialog{width:min(1180px,96vw)}
+.employee-targets-toolbar{display:flex;align-items:end;gap:12px;margin:12px 0}
+.employee-targets-table-wrap{max-height:58vh;overflow:auto;border:1px solid var(--border-color,#dbe3ee);border-radius:14px}
+.employee-targets-table{min-width:980px}
+.employee-targets-table input[type="number"]{width:86px}
+.employee-targets-table td,.employee-targets-table th{text-align:center;vertical-align:middle}
+.employee-targets-table td:first-child,.employee-targets-table th:first-child{text-align:right;min-width:180px}
+.daily-note-recipients{border:1px solid var(--border-color,#dbe3ee);border-radius:12px;padding:12px}
+.daily-note-recipients-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:10px;max-height:220px;overflow:auto}
+.daily-note-recipient{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--border-color,#dbe3ee);border-radius:10px}
+@media(max-width:700px){.employee-targets-dialog{width:98vw}.daily-targets-actions{width:100%;justify-content:stretch}.daily-targets-actions button{flex:1}}

@@ -12,31 +12,6 @@
       .toISOString().slice(0, 10);
   }
 
-  const STATIC_METADATA_TTL_MS = 5 * 60 * 1000;
-  let staticMetadataCache = null;
-  let staticMetadataPromise = null;
-
-  async function loadStaticMetadata(force = false) {
-    if (!force && staticMetadataCache
-      && Date.now() - staticMetadataCache.loadedAt < STATIC_METADATA_TTL_MS) {
-      return staticMetadataCache;
-    }
-    if (staticMetadataPromise) return staticMetadataPromise;
-
-    staticMetadataPromise = Promise.all([
-      loadTaskDefinitions(),
-      loadRepresentatives(),
-      loadUsers()
-    ]).then(([definitions, representatives, users]) => {
-      staticMetadataCache = { definitions, representatives, users, loadedAt: Date.now() };
-      return staticMetadataCache;
-    }).finally(() => {
-      staticMetadataPromise = null;
-    });
-
-    return staticMetadataPromise;
-  }
-
   async function loadTaskDefinitions() {
     const { data, error } = await client()
       .from("daily_task_definitions")
@@ -84,7 +59,7 @@
   async function loadManagerNote(workDate) {
     const { data, error } = await client()
       .from("daily_manager_notes")
-      .select("work_date,title,note_text,updated_at")
+      .select("work_date,title,note_text,created_by,audience_scope,recipient_user_ids,updated_at")
       .eq("work_date", workDate)
       .maybeSingle();
 
@@ -111,6 +86,11 @@
 
     if (error) throw new Error(`تعذر تحميل المستخدمين: ${error.message}`);
     return data || [];
+  }
+
+  async function loadEmployeeSettings(workDate) {
+    if (!window.EmployeeReportSettingsService?.listForDate) return [];
+    return window.EmployeeReportSettingsService.listForDate(workDate);
   }
 
   function sameDate(value, date) {
@@ -180,14 +160,25 @@
     managerNote,
     users,
     representatives,
+    employeeSettings,
     customers,
     followups,
     quotations
   }) {
-    const employees = buildEmployees(users, representatives);
+    const settingsByUser = new Map((employeeSettings || []).map(item => [item.userId, item]));
+    const employees = buildEmployees(users, representatives)
+      .map(employee => ({ ...employee, reportSettings: settingsByUser.get(employee.userId) || null }))
+      .filter(employee => employee.reportSettings?.isActive !== false && employee.reportSettings?.includeInDailyReports !== false);
 
     const rows = employees.map(employee => {
-      const taskStates = definitions.map(definition => {
+      const requiresDailyTasks = employee.reportSettings?.requiresDailyTasks !== false;
+      const requiresTargets = employee.reportSettings?.requiresTargets !== false;
+      const employeeTargets = {
+        customers: Number(employee.reportSettings?.customersTarget ?? targets.customers_target ?? 0),
+        followups: Number(employee.reportSettings?.followupsTarget ?? targets.followups_target ?? 0),
+        quotations: Number(employee.reportSettings?.quotationsTarget ?? targets.quotations_target ?? 0)
+      };
+      const taskStates = (requiresDailyTasks ? definitions : []).map(definition => {
         const completion = taskCompletions.find(item =>
           item.task_key === definition.task_key
           && (
@@ -236,15 +227,15 @@
 
       const customerTargetRate = targetAchievement(
         employeeCustomers.length,
-        targets.customers_target
+        employeeTargets.customers
       );
       const followupTargetRate = targetAchievement(
         employeeFollowups.length,
-        targets.followups_target
+        employeeTargets.followups
       );
       const quotationTargetRate = targetAchievement(
         employeeQuotations.length,
-        targets.quotations_target
+        employeeTargets.quotations
       );
 
       const taskPoints = completedTasks * 10;
@@ -264,12 +255,9 @@
         taskPoints + activityPoints + targetBonus - overduePenalty
       );
 
-      const completionRate = Math.round(
-        checklistRate * 0.4
-        + customerTargetRate * 0.2
-        + followupTargetRate * 0.2
-        + quotationTargetRate * 0.2
-      );
+      const completionRate = requiresTargets
+        ? Math.round(checklistRate * 0.4 + customerTargetRate * 0.2 + followupTargetRate * 0.2 + quotationTargetRate * 0.2)
+        : checklistRate;
 
       return {
         ...employee,
@@ -280,20 +268,19 @@
         followups: employeeFollowups,
         quotations: employeeQuotations,
         overdueFollowups,
-        targets: {
-          customers: Number(targets.customers_target || 0),
-          followups: Number(targets.followups_target || 0),
-          quotations: Number(targets.quotations_target || 0)
-        },
+        reportSettings: employee.reportSettings,
+        requiresDailyTasks,
+        requiresTargets,
+        targets: employeeTargets,
         targetRates: {
           customers: customerTargetRate,
           followups: followupTargetRate,
           quotations: quotationTargetRate
         },
         targetsMet: {
-          customers: customerTargetRate >= 100,
-          followups: followupTargetRate >= 100,
-          quotations: quotationTargetRate >= 100
+          customers: requiresTargets && customerTargetRate >= 100,
+          followups: requiresTargets && followupTargetRate >= 100,
+          quotations: requiresTargets && quotationTargetRate >= 100
         },
         points,
         completionRate
@@ -323,6 +310,9 @@
       managerNote: managerNote ? {
         title: managerNote.title || "",
         noteText: managerNote.note_text || "",
+        createdBy: managerNote.created_by || null,
+        audienceScope: managerNote.audience_scope || "all",
+        recipientUserIds: Array.isArray(managerNote.recipient_user_ids) ? managerNote.recipient_user_ids : [],
         updatedAt: managerNote.updated_at || null
       } : null,
       rows,
@@ -333,6 +323,7 @@
         checklistRate: totalTaskSlots
           ? Math.round(totalCompletedTasks / totalTaskSlots * 100)
           : 0,
+        targetEmployees: rows.filter(item => item.requiresTargets).length,
         customersTargetMet: rows.filter(item => item.targetsMet.customers).length,
         followupsTargetMet: rows.filter(item => item.targetsMet.followups).length,
         quotationsTargetMet: rows.filter(item => item.targetsMet.quotations).length,
@@ -345,14 +336,24 @@
     };
   }
 
-  async function loadReportOnline(workDate, existingData, options = {}) {
-    const [metadata, taskCompletions, targets, managerNote] = await Promise.all([
-      loadStaticMetadata(Boolean(options.forceMetadata)),
+  async function loadReportOnline(workDate, existingData) {
+    const [
+      definitions,
+      taskCompletions,
+      targets,
+      managerNote,
+      representatives,
+      users,
+      employeeSettings
+    ] = await Promise.all([
+      loadTaskDefinitions(),
       loadTaskCompletions(workDate),
       loadTargets(workDate),
-      loadManagerNote(workDate)
+      loadManagerNote(workDate),
+      loadRepresentatives(),
+      loadUsers(),
+      loadEmployeeSettings(workDate)
     ]);
-    const { definitions, representatives, users } = metadata;
 
     return buildReport({
       workDate,
@@ -362,6 +363,7 @@
       managerNote,
       users,
       representatives,
+      employeeSettings,
       customers: existingData.customers || [],
       followups: existingData.followups || [],
       quotations: existingData.quotations || []
@@ -369,10 +371,10 @@
   }
 
   async function loadReport(workDate, existingData, options = {}) {
-    if (!window.KYUMOfflineReadCache) return loadReportOnline(workDate, existingData, options);
+    if (!window.KYUMOfflineReadCache) return loadReportOnline(workDate, existingData);
     return window.KYUMOfflineReadCache.read(
       `daily-performance:${workDate}`,
-      () => loadReportOnline(workDate, existingData, options),
+      () => loadReportOnline(workDate, existingData),
       options
     );
   }

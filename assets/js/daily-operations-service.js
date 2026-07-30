@@ -112,6 +112,8 @@
       title: row.title || "",
       noteText: row.note_text || "",
       createdBy: row.created_by || null,
+      audienceScope: row.audience_scope || "all",
+      recipientUserIds: Array.isArray(row.recipient_user_ids) ? row.recipient_user_ids : [],
       updatedAt: row.updated_at || null,
       pendingSync: Boolean(row.pendingSync)
     } : null;
@@ -407,7 +409,7 @@
 
   async function fetchManagerNote(workDate) {
     const { data, error } = await client().from("daily_manager_notes")
-      .select("id, work_date, title, note_text, created_by, updated_at")
+      .select("id, work_date, title, note_text, created_by, audience_scope, recipient_user_ids, updated_at")
       .eq("work_date", workDate).maybeSingle();
     if (error) throw new Error(`تعذر تحميل ملاحظة المدير: ${error.message}`);
     return normalizeManagerNote(data);
@@ -436,6 +438,8 @@
       work_date: workDate,
       title: String(note.title || "").trim(),
       note_text: String(note.noteText || "").trim(),
+      audience_scope: ["all","report_participants","selected"].includes(note.audienceScope) ? note.audienceScope : "all",
+      recipient_user_ids: Array.isArray(note.recipientUserIds) ? note.recipientUserIds : [],
       created_by: auth?.user?.id || null,
       updated_at: new Date().toISOString()
     };
@@ -458,6 +462,8 @@
         workDate,
         title: String(note.title || "").trim(),
         noteText: String(note.noteText || "").trim(),
+        audienceScope: ["all","report_participants","selected"].includes(note.audienceScope) ? note.audienceScope : "all",
+        recipientUserIds: Array.isArray(note.recipientUserIds) ? note.recipientUserIds : [],
         createdBy: authState()?.user?.id || null,
         updatedAt: new Date().toISOString(),
         pendingSync: true

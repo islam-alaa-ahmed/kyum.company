@@ -170,6 +170,8 @@ let dailyTaskRecords = [];
 let dailyTaskDefinitions = [];
 let dailyOperationTargets = null;
 let dailyManagerNote = null;
+let employeeReportSettings = [];
+let employeeTargetsDialogRows = [];
 let dailyOperationsLoading = false;
 let dailySuggestedCustomerType = "شركة";
 let dailySuggestedSuggestionRows = [];
@@ -4666,6 +4668,7 @@ function renderDailyPerformanceReport() {
   const rows = dailyPerformanceFilteredRows();
   const snapshot = dailyPerformanceSnapshot;
   const employeeCount = rows.length;
+  const targetEmployeeCount = rows.filter(item => item.requiresTargets !== false).length;
 
   const totalTaskSlots = rows.reduce(
     (sum, item) => sum + item.taskStates.length,
@@ -4699,15 +4702,15 @@ function renderDailyPerformanceReport() {
   document.getElementById("dailyPerformanceCustomersTargetMet").textContent =
     customersTargetMet;
   document.getElementById("dailyPerformanceCustomersTargetRate").textContent =
-    `${employeeCount ? Math.round(customersTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+    `${targetEmployeeCount ? Math.round(customersTargetMet / targetEmployeeCount * 100) : 0}% من الموظفين الخاضعين للأهداف`;
   document.getElementById("dailyPerformanceFollowupsTargetMet").textContent =
     followupsTargetMet;
   document.getElementById("dailyPerformanceFollowupsTargetRate").textContent =
-    `${employeeCount ? Math.round(followupsTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+    `${targetEmployeeCount ? Math.round(followupsTargetMet / targetEmployeeCount * 100) : 0}% من الموظفين الخاضعين للأهداف`;
   document.getElementById("dailyPerformanceQuotationsTargetMet").textContent =
     quotationsTargetMet;
   document.getElementById("dailyPerformanceQuotationsTargetRate").textContent =
-    `${employeeCount ? Math.round(quotationsTargetMet / employeeCount * 100) : 0}% من الموظفين`;
+    `${targetEmployeeCount ? Math.round(quotationsTargetMet / targetEmployeeCount * 100) : 0}% من الموظفين الخاضعين للأهداف`;
   document.getElementById("dailyPerformanceOverdue").textContent = overdue;
 
   document.getElementById("dailyPerformanceManagerNoteTitle").textContent =
@@ -4989,6 +4992,12 @@ function dailyActivityTypeLabel(type) {
   }[type] || type || "نشاط";
 }
 
+function timelineAllowedUserIds() {
+  return new Set((employeeReportSettings || [])
+    .filter(item => item.isActive !== false && item.includeInTimelineReport !== false)
+    .map(item => item.userId));
+}
+
 function populateDailyActivityEmployees() {
   const select = document.getElementById("dailyActivityEmployeeFilter");
   if (!select || !dailyActivitySnapshot) return;
@@ -4996,7 +5005,8 @@ function populateDailyActivityEmployees() {
   const selected = select.value;
   const employees = new Map();
 
-  dailyActivitySnapshot.sessions.forEach(session => {
+  const allowedUserIds = timelineAllowedUserIds();
+  dailyActivitySnapshot.sessions.filter(session => !allowedUserIds.size || allowedUserIds.has(session.user_id)).forEach(session => {
     employees.set(
       `user:${session.user_id}`,
       session.user_profile?.full_name
@@ -5005,7 +5015,7 @@ function populateDailyActivityEmployees() {
     );
   });
 
-  dailyActivitySnapshot.timeline.forEach(event => {
+  dailyActivitySnapshot.timeline.filter(event => !allowedUserIds.size || allowedUserIds.has(event.userId)).forEach(event => {
     if (event.userId) {
       employees.set(`user:${event.userId}`, event.employeeName || "غير محدد");
     }
@@ -5029,10 +5039,12 @@ function filteredDailyActivityTimeline() {
   const employee = document.getElementById("dailyActivityEmployeeFilter")?.value || "";
   const type = document.getElementById("dailyActivityTypeFilter")?.value || "";
 
+  const allowedUserIds = timelineAllowedUserIds();
   return dailyActivitySnapshot.timeline.filter(event => {
+    const scopeMatches = !allowedUserIds.size || allowedUserIds.has(event.userId);
     const employeeMatches = !employee || employee === `user:${event.userId}`;
     const typeMatches = !type || event.type === type;
-    return employeeMatches && typeMatches;
+    return scopeMatches && employeeMatches && typeMatches;
   });
 }
 
@@ -5074,8 +5086,10 @@ function renderDailyAttendance() {
   const timeline = dailyActivitySnapshot.timeline;
   const sessions = dailyActivitySnapshot.sessions;
 
-  body.innerHTML = sessions.length
-    ? sessions.map(session => {
+  const allowedUserIds = timelineAllowedUserIds();
+  const visibleSessions = sessions.filter(session => !allowedUserIds.size || allowedUserIds.has(session.user_id));
+  body.innerHTML = visibleSessions.length
+    ? visibleSessions.map(session => {
         const userEvents = timeline.filter(event =>
           event.userId === session.user_id
         );
@@ -5355,6 +5369,15 @@ function dailyTargetPercent(actual, target) {
 function renderDailyChecklist(today, profile) {
   const container = document.getElementById("dailyChecklist");
   if (!container) return;
+  const personalSetting = currentEmployeeReportSetting();
+  if (personalSetting?.requiresDailyTasks === false) {
+    document.getElementById("dailyTasksCompletionRate").textContent = "—";
+    document.getElementById("dailyTasksCompletionText").textContent = "غير مطلوب";
+    document.getElementById("dailyChecklistPermission").textContent = "غير خاضع للمهام";
+    document.getElementById("dailyChecklistPermission").className = "daily-permission-badge readonly";
+    container.innerHTML = '<div class="empty-state">لا توجد مهام يومية مطلوبة من حسابك وفق إعدادات الإدارة.</div>';
+    return;
+  }
 
   const completedCount = dailyTaskDefinitions.filter(definition =>
     Boolean(dailyTaskCompletion(definition.taskKey, today, profile)?.completed)
@@ -5408,8 +5431,20 @@ function renderDailyChecklist(today, profile) {
     : '<div class="empty-state">لا توجد مهام يومية مفعلة.</div>';
 }
 
+function currentEmployeeReportSetting() {
+  const userId = window.CustomerAuth?.getState?.().user?.id;
+  return employeeReportSettings.find(item => item.userId === userId) || null;
+}
+
 function renderDailyTargets(actuals) {
-  const targets = dailyOperationTargets || {
+  const personal = currentEmployeeReportSetting();
+  const targets = personal?.requiresTargets === false ? {
+    customersTarget: 0, followupsTarget: 0, quotationsTarget: 0
+  } : personal ? {
+    customersTarget: personal.customersTarget,
+    followupsTarget: personal.followupsTarget,
+    quotationsTarget: personal.quotationsTarget
+  } : dailyOperationTargets || {
     customersTarget: 0,
     followupsTarget: 0,
     quotationsTarget: 0
@@ -5436,19 +5471,32 @@ function renderDailyTargets(actuals) {
     `الهدف: ${targets.quotationsTarget}`;
 }
 
+function managerNoteVisibleToCurrentUser() {
+  if (!dailyManagerNote) return true;
+  const auth = window.CustomerAuth?.getState?.();
+  const userId = auth?.user?.id;
+  const canManage = Boolean(window.CustomerPermissions?.canScreen?.("dailyOperationsSettings", "edit"));
+  if (canManage || dailyManagerNote.audienceScope === "all" || !dailyManagerNote.audienceScope) return true;
+  if (dailyManagerNote.audienceScope === "selected") return (dailyManagerNote.recipientUserIds || []).includes(userId);
+  if (dailyManagerNote.audienceScope === "report_participants") {
+    return currentEmployeeReportSetting()?.includeInDailyReports !== false;
+  }
+  return true;
+}
+
 function renderDailyManagerNote() {
+  const visible = managerNoteVisibleToCurrentUser();
+  const card = document.getElementById("dailyManagerNoteCard");
+  card?.classList.toggle("hidden", !visible);
   document.getElementById("dailyManagerNoteTitle").textContent =
     dailyManagerNote?.title || "لا توجد ملاحظة يومية.";
   document.getElementById("dailyManagerNoteText").textContent =
     dailyManagerNote?.noteText || "يمكن للإدارة إضافة توجيه يومي للفريق.";
 
-  const canManage = Boolean(
-    window.CustomerPermissions?.canScreen?.("dailyOperationsSettings", "edit")
-  );
-  document.getElementById("editDailyManagerNoteBtn")
-    ?.classList.toggle("hidden", !canManage);
-  document.getElementById("editDailyTargetsBtn")
-    ?.classList.toggle("hidden", !canManage);
+  const canManage = Boolean(window.CustomerPermissions?.canScreen?.("dailyOperationsSettings", "edit"));
+  document.getElementById("editDailyManagerNoteBtn")?.classList.toggle("hidden", !canManage);
+  document.getElementById("editDailyTargetsBtn")?.classList.toggle("hidden", !canManage);
+  document.getElementById("manageEmployeeTargetsBtn")?.classList.toggle("hidden", !canManage);
 }
 
 function dailyWhatsAppTemplateMessage() {
@@ -5860,12 +5908,14 @@ async function loadDailyOperations(force = false) {
         dailyTaskDefinitions,
         dailyTaskRecords,
         dailyOperationTargets,
-        dailyManagerNote
+        dailyManagerNote,
+        employeeReportSettings
       ] = await Promise.all([
         window.DailyOperationsService.listDefinitions({ force }),
         window.DailyOperationsService.listForDate(undefined, { force }),
         window.DailyOperationsService.getTargets(undefined, { force }),
-        window.DailyOperationsService.getManagerNote(undefined, { force })
+        window.DailyOperationsService.getManagerNote(undefined, { force }),
+        window.EmployeeReportSettingsService?.listForDate?.() || Promise.resolve([])
       ]);
     }
 
@@ -8090,9 +8140,95 @@ document.getElementById("editDailyTargetsBtn")?.addEventListener("click", () => 
 document.getElementById("editDailyManagerNoteBtn")?.addEventListener("click", () => {
   document.getElementById("dailyManagerNoteTitleInput").value =
     dailyManagerNote?.title || "";
-  document.getElementById("dailyManagerNoteTextInput").value =
-    dailyManagerNote?.noteText || "";
+  document.getElementById("dailyManagerNoteTextInput").value = dailyManagerNote?.noteText || "";
+  document.getElementById("dailyManagerNoteAudienceScope").value = dailyManagerNote?.audienceScope || "all";
+  renderManagerNoteRecipients();
+  syncManagerNoteRecipientsVisibility();
   document.getElementById("dailyManagerNoteDialog").showModal();
+});
+
+
+function escapeAttribute(value) { return escapeHtml(String(value || "")); }
+
+function renderManagerNoteRecipients() {
+  const container = document.getElementById("dailyManagerNoteRecipients");
+  if (!container) return;
+  const selected = new Set(dailyManagerNote?.recipientUserIds || []);
+  container.innerHTML = employeeReportSettings.length
+    ? employeeReportSettings.map(item => `<label class="daily-note-recipient"><input type="checkbox" value="${escapeAttribute(item.userId)}" ${selected.has(item.userId) ? "checked" : ""}><span>${escapeHtml(item.fullName)}</span></label>`).join("")
+    : '<div class="empty-state">لا توجد بيانات موظفين متاحة.</div>';
+}
+
+function syncManagerNoteRecipientsVisibility() {
+  const scope = document.getElementById("dailyManagerNoteAudienceScope")?.value || "all";
+  document.getElementById("dailyManagerNoteRecipientsWrap")?.classList.toggle("hidden", scope !== "selected");
+}
+
+document.getElementById("dailyManagerNoteAudienceScope")?.addEventListener("change", syncManagerNoteRecipientsVisibility);
+
+function renderEmployeeTargetsRows() {
+  const body = document.getElementById("employeeTargetsBody");
+  if (!body) return;
+  body.innerHTML = employeeTargetsDialogRows.length ? employeeTargetsDialogRows.map((item, index) => `
+    <tr data-employee-target-row="${index}">
+      <td><strong>${escapeHtml(item.fullName)}</strong><br><small>${escapeHtml(item.role || "")}</small></td>
+      <td><input type="checkbox" data-field="includeInDailyReports" ${item.includeInDailyReports ? "checked" : ""}></td>
+      <td><input type="checkbox" data-field="includeInTimelineReport" ${item.includeInTimelineReport ? "checked" : ""}></td>
+      <td><input type="checkbox" data-field="requiresDailyTasks" ${item.requiresDailyTasks ? "checked" : ""}></td>
+      <td><input type="checkbox" data-field="requiresTargets" ${item.requiresTargets ? "checked" : ""}></td>
+      <td><input type="number" min="0" max="9999" data-field="customersTarget" value="${Number(item.customersTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
+      <td><input type="number" min="0" max="9999" data-field="followupsTarget" value="${Number(item.followupsTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
+      <td><input type="number" min="0" max="9999" data-field="quotationsTarget" value="${Number(item.quotationsTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
+    </tr>`).join("") : '<tr><td colspan="8">لا توجد حسابات نشطة.</td></tr>';
+}
+
+async function loadEmployeeTargetsDialog() {
+  const date = document.getElementById("employeeTargetsEffectiveFrom")?.value || window.EmployeeReportSettingsService?.isoDate?.();
+  showDataStatus("employeeTargetsStatus", "جاري تحميل الإعدادات...", "info");
+  try {
+    employeeTargetsDialogRows = await window.EmployeeReportSettingsService.listForDate(date, { force: true });
+    renderEmployeeTargetsRows();
+    showDataStatus("employeeTargetsStatus", "");
+  } catch (error) {
+    showDataStatus("employeeTargetsStatus", error.message || "تعذر تحميل الإعدادات.", "error");
+  }
+}
+
+function openEmployeeTargetsDialog() {
+  const input = document.getElementById("employeeTargetsEffectiveFrom");
+  if (input && !input.value) input.value = window.EmployeeReportSettingsService?.isoDate?.() || new Date().toISOString().slice(0,10);
+  document.getElementById("employeeTargetsDialog")?.showModal();
+  loadEmployeeTargetsDialog();
+}
+function closeEmployeeTargetsDialog() { document.getElementById("employeeTargetsDialog")?.close(); }
+
+document.getElementById("manageEmployeeTargetsBtn")?.addEventListener("click", openEmployeeTargetsDialog);
+document.getElementById("reloadEmployeeTargetsBtn")?.addEventListener("click", loadEmployeeTargetsDialog);
+["closeEmployeeTargetsDialogBtn","cancelEmployeeTargetsBtn"].forEach(id => document.getElementById(id)?.addEventListener("click", closeEmployeeTargetsDialog));
+document.getElementById("employeeTargetsBody")?.addEventListener("change", event => {
+  const row = event.target.closest("tr[data-employee-target-row]");
+  if (!row) return;
+  const index = Number(row.dataset.employeeTargetRow);
+  const item = employeeTargetsDialogRows[index];
+  const field = event.target.dataset.field;
+  if (!item || !field) return;
+  item[field] = event.target.type === "checkbox" ? event.target.checked : Number(event.target.value || 0);
+  if (field === "requiresTargets") renderEmployeeTargetsRows();
+});
+document.getElementById("employeeTargetsForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const effectiveFrom = document.getElementById("employeeTargetsEffectiveFrom").value;
+  showDataStatus("employeeTargetsStatus", "جاري حفظ الإعدادات...", "info");
+  try {
+    await window.EmployeeReportSettingsService.saveMany(employeeTargetsDialogRows.map(item => ({ ...item, effectiveFrom })));
+    employeeReportSettings = await window.EmployeeReportSettingsService.listForDate();
+    closeEmployeeTargetsDialog();
+    renderDailyOperations();
+    dailyPerformanceSnapshot = null;
+    showDataStatus("dailyOperationsStatus", "تم حفظ أهداف ومشاركة الموظفين في التقارير.", "success");
+  } catch (error) {
+    showDataStatus("employeeTargetsStatus", error.message || "تعذر حفظ الإعدادات.", "error");
+  }
 });
 
 ["closeDailyTargetsDialogBtn","cancelDailyTargetsBtn"].forEach(id => {
@@ -8123,7 +8259,9 @@ document.getElementById("dailyManagerNoteForm")?.addEventListener("submit", asyn
   try {
     dailyManagerNote = await window.DailyOperationsService.saveManagerNote({
       title: document.getElementById("dailyManagerNoteTitleInput").value,
-      noteText: document.getElementById("dailyManagerNoteTextInput").value
+      noteText: document.getElementById("dailyManagerNoteTextInput").value,
+      audienceScope: document.getElementById("dailyManagerNoteAudienceScope").value,
+      recipientUserIds: [...document.querySelectorAll('#dailyManagerNoteRecipients input:checked')].map(input => input.value)
     });
     closeDailyManagerNoteDialog();
     renderDailyManagerNote();

@@ -96,6 +96,11 @@
       "file": "assets/js/whatsapp-template-service.js",
       "mode": "online_only_user_media_settings",
       "status": "accepted_online_only"
+    },
+    "employee_report_settings": {
+      "file": "assets/js/employee-report-settings-service.js",
+      "mode": "online_only_admin_configuration",
+      "status": "accepted_online_only"
     }
   },
   "registeredDirectDataFiles": [
@@ -123,7 +128,8 @@
     "assets/js/system-health-service.js",
     "assets/js/system-settings-service.js",
     "assets/js/users-service.js",
-    "assets/js/whatsapp-template-service.js"
+    "assets/js/whatsapp-template-service.js",
+    "assets/js/employee-report-settings-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [
