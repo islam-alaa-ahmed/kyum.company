@@ -4775,59 +4775,33 @@ async function loadDailyPerformanceReport(force = false) {
   );
 
   try {
-    const workDate = dailyPerformanceSelectedDate();
-    const startedAt = performance.now();
-
-    // تقرير الأداء يستخدم استعلامات يومية مخصصة بدل إعادة تحميل وحدات
-    // العملاء والمتابعات والعروض بالكامل وإعادة رسم شاشاتها.
-    let reportSources = { customers, followups, quotations };
-    if (window.customerSupabase) {
-      try {
-        const sourceStartedAt = performance.now();
-        const [reportCustomers, reportFollowups, reportQuotations] = await Promise.all([
-          window.CustomersService?.listDailyPerformanceCustomers?.(workDate) || Promise.resolve(customers),
-          window.FollowupsService?.listDailyPerformanceFollowups?.(workDate) || Promise.resolve(followups),
-          window.QuotationsService?.listDailyPerformanceQuotations?.(workDate) || Promise.resolve(quotations)
-        ]);
-        reportSources = {
-          customers: reportCustomers || [],
-          followups: reportFollowups || [],
-          quotations: reportQuotations || []
-        };
-        console.info(`[Daily Performance] report sources: ${Math.round(performance.now() - sourceStartedAt)}ms`);
-      } catch (sourceError) {
-        console.warn("Daily performance optimized source query failed; using loaded data.", sourceError);
-      }
+    if (force) {
+      await Promise.all([
+        loadCustomersFromSupabase(true),
+        loadFollowupsFromSupabase(true),
+        loadQuotationsFromSupabase(true)
+      ]);
     }
 
     dailyPerformanceSnapshot =
       await window.DailyPerformanceService.loadReport(
-        workDate,
-        reportSources,
+        dailyPerformanceSelectedDate(),
+        { customers, followups, quotations },
         { force }
       );
 
-    // اعرض التقرير الأساسي فورًا؛ التنبيهات والنشاط إضافات مستقلة لا تعطل الشاشة.
-    dailyPerformanceSnapshot.alerts = [];
+    dailyPerformanceSnapshot.alerts = window.DailyAlertsService
+      ? await window.DailyAlertsService.list(dailyPerformanceSelectedDate())
+      : [];
+
     populateDailyPerformanceEmployees();
     renderDailyPerformanceReport();
+    await loadDailyActivityReport();
     showDataStatus(
       "dailyPerformanceStatus",
-      `تم تحميل التقرير في ${Math.round(performance.now() - startedAt)} مللي ثانية.`,
+      `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
       "success"
     );
-
-    Promise.allSettled([
-      window.DailyAlertsService
-        ? window.DailyAlertsService.list(workDate, { force })
-        : Promise.resolve([]),
-      loadDailyActivityReport(force)
-    ]).then(results => {
-      if (results[0].status === "fulfilled" && dailyPerformanceSnapshot) {
-        dailyPerformanceSnapshot.alerts = results[0].value || [];
-        renderDailyAlertsReport();
-      }
-    });
   } catch (error) {
     showDataStatus(
       "dailyPerformanceStatus",
@@ -5082,14 +5056,13 @@ function renderDailyAttendance() {
     : '<tr><td colspan="7" class="empty-state">لا توجد جلسات نشاط مسجلة لهذا اليوم.</td></tr>';
 }
 
-async function loadDailyActivityReport(force = false) {
+async function loadDailyActivityReport() {
   if (dailyActivityLoading || !window.DailyActivityService) return;
   dailyActivityLoading = true;
 
   try {
     dailyActivitySnapshot = await window.DailyActivityService.load(
-      dailyPerformanceSelectedDate(),
-      { force }
+      dailyPerformanceSelectedDate()
     );
     populateDailyActivityEmployees();
     renderDailyAttendance();
@@ -8329,10 +8302,24 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
   const button = document.getElementById("dailyPhoneLookupButton");
   if (!form || !input || !result || !button) return;
 
+  let lookupRequestSequence = 0;
+
+  function resetLookupResult() {
+    result.className = "daily-phone-lookup-result hidden";
+    result.textContent = "";
+  }
+
   function showLookupResult(type, html) {
     result.className = `daily-phone-lookup-result is-${type}`;
     result.innerHTML = html;
   }
+
+  input.addEventListener("input", () => {
+    // Invalidate any in-flight lookup and immediately clear the previous result
+    // whenever the user edits or removes the searched phone number.
+    lookupRequestSequence += 1;
+    resetLookupResult();
+  });
 
   async function openExistingCustomer(customerId) {
     if (!customerId) return;
@@ -8346,8 +8333,8 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
   form.addEventListener("submit", async event => {
     event.preventDefault();
     const normalizedPhone = normalizePhone(input.value);
-    result.className = "daily-phone-lookup-result hidden";
-    result.textContent = "";
+    const requestSequence = ++lookupRequestSequence;
+    resetLookupResult();
 
     if (!isValidSaudiMobile(normalizedPhone)) {
       showLookupResult("error", "أدخل رقم جوال سعودي صحيحًا بصيغة <strong>05XXXXXXXX</strong>.");
@@ -8359,6 +8346,10 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
     button.textContent = "جاري البحث...";
     try {
       const customer = await findCustomerByPhone(normalizedPhone);
+      if (
+        requestSequence !== lookupRequestSequence
+        || normalizePhone(input.value) !== normalizedPhone
+      ) return;
       if (!customer) {
         showLookupResult("success", `الرقم <strong>${escapeHtml(normalizedPhone)}</strong> غير مرتبط بأي عميل مسجل.`);
         return;
@@ -8380,7 +8371,12 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
         + (details.canAccess && details.id ? `<div class="daily-phone-result-actions"><button type="button" class="secondary-btn compact-btn" data-open-existing-customer="${escapeHtml(String(details.id))}">فتح العميل الحالي</button></div>` : "")
       );
     } catch (error) {
-      showLookupResult("error", escapeHtml(error instanceof Error ? error.message : "تعذر التحقق من رقم الجوال."));
+      if (
+        requestSequence === lookupRequestSequence
+        && normalizePhone(input.value) === normalizedPhone
+      ) {
+        showLookupResult("error", escapeHtml(error instanceof Error ? error.message : "تعذر التحقق من رقم الجوال."));
+      }
     } finally {
       button.disabled = false;
       button.textContent = "بحث";
