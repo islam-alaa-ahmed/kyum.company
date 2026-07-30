@@ -11182,3 +11182,21 @@ body.dark-mode .daily-whatsapp-template-card { background:rgba(15,23,42,.5); }
   .daily-whatsapp-template-actions { display:grid; grid-template-columns:1fr 1fr; }
   .daily-suggested-actions .daily-whatsapp-share-btn { min-height:38px; }
 }
+
+/* Phase M13.21 — Manual report display controls */
+.daily-report-show-btn{
+  align-self:end;
+  min-height:44px;
+  white-space:nowrap;
+}
+.daily-tasks-report-controls{
+  grid-template-columns:minmax(240px,1fr) auto;
+}
+@media(max-width:700px){
+  .daily-tasks-report-controls{
+    grid-template-columns:1fr;
+  }
+  .daily-report-show-btn{
+    width:100%;
+  }
+}

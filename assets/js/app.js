@@ -196,6 +196,8 @@ let dailyActivityLoading = false;
 let dailyPerformanceSnapshot = null;
 let dailyPerformanceLoading = false;
 let dailyPerformanceDetailType = "tasks";
+let dailyActivityReportRequested = false;
+let dailyTasksReportRequested = false;
 
 
 let editingId = null;
@@ -814,12 +816,16 @@ window.addEventListener("kyum-offline-read-updated", event => {
   if (detail.key === `daily-performance:${selectedDate}` && detail.data) {
     dailyPerformanceSnapshot = detail.data;
     populateDailyPerformanceEmployees();
+    populateDailyTasksEmployees();
+    resetDailyTasksReportView();
+    dailyActivityReportRequested = false;
     renderDailyPerformanceReport();
   }
   if (detail.key === `daily-activity:${selectedDate}` && detail.data) {
     dailyActivitySnapshot = detail.data;
     populateDailyActivityEmployees();
     renderDailyAttendance();
+    dailyActivityReportRequested = false;
     renderDailyActivityTimeline();
   }
 });
@@ -4443,6 +4449,34 @@ function populateDailyPerformanceEmployees() {
   }
 }
 
+function populateDailyTasksEmployees() {
+  const select = document.getElementById("dailyTasksEmployeeFilter");
+  if (!select || !dailyPerformanceSnapshot) return;
+
+  const selected = select.value;
+  const options = dailyPerformanceSnapshot.rows.map(item => ({
+    value: item.key,
+    label: item.code ? `${item.name} — ${item.code}` : item.name
+  }));
+
+  select.innerHTML = [
+    '<option value="">اختر الموظف</option>',
+    ...options.map(item =>
+      `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`
+    )
+  ].join("");
+
+  if (options.some(item => item.value === selected)) select.value = selected;
+}
+
+function resetDailyTasksReportView() {
+  dailyTasksReportRequested = false;
+  const container = document.getElementById("dailyPerformanceDetailContent");
+  if (container && dailyPerformanceDetailType === "tasks") {
+    container.innerHTML = '<div class="empty-state">اختر الموظف ثم اضغط عرض بيانات التقرير.</div>';
+  }
+}
+
 function dailyPerformanceStatusIcon(completed) {
   return completed
     ? '<span class="daily-performance-status completed"><b>✓</b> تم التحديث</span>'
@@ -4488,10 +4522,19 @@ function renderDailyPerformanceDetail() {
   title.textContent = config.title;
   subtitle.textContent = config.subtitle;
 
+  const taskControls = document.getElementById("dailyTasksReportControls");
+  if (taskControls) taskControls.classList.toggle("hidden", dailyPerformanceDetailType !== "tasks");
+
   if (dailyPerformanceDetailType === "tasks") {
+    const selectedEmployee = document.getElementById("dailyTasksEmployeeFilter")?.value || "";
+    if (!dailyTasksReportRequested || !selectedEmployee) {
+      container.innerHTML = '<div class="empty-state">اختر الموظف ثم اضغط عرض بيانات التقرير.</div>';
+      return;
+    }
+    const taskRows = (dailyPerformanceSnapshot?.rows || []).filter(item => item.key === selectedEmployee);
     container.innerHTML = `
       <div class="daily-performance-task-cards">
-        ${rows.map(item => `
+        ${taskRows.map(item => `
           <article>
             <div class="daily-performance-task-card-head">
               <div>
@@ -4827,6 +4870,14 @@ function resetDailyPerformanceFilters() {
   }
   if (employee) employee.value = "";
 
+  const activityEmployee = document.getElementById("dailyActivityEmployeeFilter");
+  const activityType = document.getElementById("dailyActivityTypeFilter");
+  const tasksEmployee = document.getElementById("dailyTasksEmployeeFilter");
+  if (activityEmployee) activityEmployee.value = "";
+  if (activityType) activityType.value = "";
+  if (tasksEmployee) tasksEmployee.value = "";
+  dailyActivityReportRequested = false;
+  dailyTasksReportRequested = false;
   loadDailyPerformanceReport(true);
 }
 
@@ -4961,7 +5012,7 @@ function populateDailyActivityEmployees() {
   });
 
   select.innerHTML = [
-    '<option value="">كل الموظفين</option>',
+    '<option value="">اختر الموظف</option>',
     ...[...employees.entries()]
       .sort((a, b) => a[1].localeCompare(b[1], "ar"))
       .map(([value, label]) =>
@@ -4969,9 +5020,7 @@ function populateDailyActivityEmployees() {
       )
   ].join("");
 
-  if (employees.has(selected.replace("user:", ""))) {
-    select.value = selected;
-  }
+  if (employees.has(selected)) select.value = selected;
 }
 
 function filteredDailyActivityTimeline() {
@@ -4990,6 +5039,12 @@ function filteredDailyActivityTimeline() {
 function renderDailyActivityTimeline() {
   const container = document.getElementById("dailyActivityTimeline");
   if (!container || !dailyActivitySnapshot) return;
+
+  const employee = document.getElementById("dailyActivityEmployeeFilter")?.value || "";
+  if (!dailyActivityReportRequested || !employee) {
+    container.innerHTML = '<div class="empty-state">اختر الموظف ثم اضغط عرض بيانات التقرير.</div>';
+    return;
+  }
 
   const events = filteredDailyActivityTimeline();
   container.innerHTML = events.length
@@ -7881,17 +7936,54 @@ document.getElementById("dailyPerformanceDetailSelector")?.addEventListener(
   "change",
   event => {
     dailyPerformanceDetailType = event.target.value;
-    renderDailyPerformanceDetail();
+    if (dailyPerformanceDetailType === "tasks") resetDailyTasksReportView();
+    else renderDailyPerformanceDetail();
   }
 );
 
 document.getElementById("dailyActivityEmployeeFilter")?.addEventListener(
   "change",
-  renderDailyActivityTimeline
+  () => {
+    dailyActivityReportRequested = false;
+    renderDailyActivityTimeline();
+  }
 );
 document.getElementById("dailyActivityTypeFilter")?.addEventListener(
   "change",
-  renderDailyActivityTimeline
+  () => {
+    dailyActivityReportRequested = false;
+    renderDailyActivityTimeline();
+  }
+);
+document.getElementById("showDailyActivityReportBtn")?.addEventListener(
+  "click",
+  () => {
+    const employee = document.getElementById("dailyActivityEmployeeFilter")?.value || "";
+    if (!employee) {
+      showDataStatus("dailyPerformanceStatus", "اختر الموظف أولًا لعرض خط سير يومه.", "error");
+      return;
+    }
+    dailyActivityReportRequested = true;
+    showDataStatus("dailyPerformanceStatus", "");
+    renderDailyActivityTimeline();
+  }
+);
+document.getElementById("dailyTasksEmployeeFilter")?.addEventListener(
+  "change",
+  resetDailyTasksReportView
+);
+document.getElementById("showDailyTasksReportBtn")?.addEventListener(
+  "click",
+  () => {
+    const employee = document.getElementById("dailyTasksEmployeeFilter")?.value || "";
+    if (!employee) {
+      showDataStatus("dailyPerformanceStatus", "اختر الموظف أولًا لعرض تقرير المهام اليومية.", "error");
+      return;
+    }
+    dailyTasksReportRequested = true;
+    showDataStatus("dailyPerformanceStatus", "");
+    renderDailyPerformanceDetail();
+  }
 );
 
 document.getElementById("endDailyWorkBtn")?.addEventListener("click", async () => {
