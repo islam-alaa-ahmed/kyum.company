@@ -1,73 +1,73 @@
-# Phase M14.5 — Installation Completion Report, Photos & Customer Signature
+# Phase M14.6 — Installation Exceptions, Revisit Workflow & Operational Reports
+
+## Baseline
+Latest cumulative baseline through Phase M14.5.
 
 ## Root Cause
-Phase M14.4 completed the field status workflow but did not provide a durable completion document, evidence storage, customer acceptance signature, or printable handover report. Marking a request as completed therefore did not create auditable proof of the work performed.
+Phase M14.4 recorded deferred and failed execution states, but those records had no dedicated operational queue, no controlled revisit entity, and no installation-specific performance reporting. Reusing the original request date alone would overwrite history and prevent reliable revisit measurement.
 
 ## Scope
-- Add the `installationCompletion` screen under Installation Management.
-- List completed installation requests and show documented/pending status.
-- Create or update one completion report per installation request.
-- Capture work summary, recipient identity/role, and customer notes.
-- Upload before/after photographs and customer signature to a private Supabase Storage bucket.
-- Capture touch/pointer signature using an HTML canvas, with image upload fallback.
-- Open evidence through short-lived signed URLs.
-- Print the completion report or save it as PDF through the browser print dialog.
-- Add screen/action permissions and representative-scoped RLS.
+- Add an exceptions/revisit screen for deferred and failed installation requests.
+- Add a controlled installation_revisits table with one active scheduled revisit per request.
+- Reschedule the original installation request while retaining revisit history.
+- Add operational reports for completion rate, revisit rate, execution duration, technician productivity, and failure reasons.
+- Add CSV export.
+- Register both screens in navigation, permission engine, versioning, and offline App Shell.
 
 ## Out of Scope
-- Offline upload/write queue for installation evidence.
-- Image compression or background upload.
-- Deleting/replacing historical evidence.
-- Automated customer messaging.
-- Installation analytics.
-
-## Files Modified
-- `index.html`
-- `assets/css/installation-completion.css`
-- `assets/js/app.js`
-- `assets/js/installations-service.js`
-- `assets/js/installation-completion.js`
-- `assets/js/permission-engine.js`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `supabase/migrations/phase_m14_5_installation_completion_report_photos_signature.sql`
-- `supabase/verification/phase_m14_5_installation_completion_verification.sql`
+- Offline writes for installation operations.
+- Customer satisfaction survey.
+- Route optimization and GPS tracking.
+- Inventory/material consumption.
+- Changes to customers, quotations, RLS scope rules, or legacy business logic.
 
 ## Version
-- Version: `18.28.0`
-- Build: `182800`
-- Cache Token: `kyum-crm-pwa-18-28-0-m14-5`
+- Version: 18.29.0
+- Build: 182900
+- Cache Token: kyum-crm-pwa-18-29-0-m14-6
 
-## Security and Data Rules
-- A completion report can only be created for a request whose status is `مكتمل`.
-- Evidence bucket is private.
-- Accepted file types: JPEG, PNG, WebP.
-- Maximum file size: 10 MB per file.
-- Maximum new before/after images selected in one save: 12.
-- Access is controlled by `installationCompletion` permissions and existing representative visibility.
-- Evidence is opened with a time-limited signed URL.
+## Modified Files
+- index.html
+- assets/css/installation-operations-reports.css
+- assets/js/app.js
+- assets/js/installation-operations-reports.js
+- assets/js/installations-service.js
+- assets/js/permission-engine.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_6_installation_exceptions_revisits_reports.sql
+- supabase/verification/phase_m14_6_installation_exceptions_revisits_reports_verification.sql
+- PHASE_REPORT.md
 
-## Offline Declaration
-The UI assets are part of the App Shell. Report writes and evidence uploads are intentionally online-only in this phase. Existing Offline Cache, Queue, Smart Sync, and Offline Login behavior remain unchanged.
+## Database
+New table: public.installation_revisits
 
-## Validation Report
-- JavaScript syntax: PASS for all project JavaScript files.
-- CSS brace validation: PASS for all 12 CSS files.
-- HTML IDs: 762 total, 0 duplicates.
-- Missing local CSS/JS references: 0.
-- Version and App Shell registration: PASS.
-- Dashboard Offline Certification: PASS.
-- Offline Runtime Reliability: PASS; 59/59 local CSS/JS assets registered.
-- Cache-first Connectivity: 15/15 PASS.
-- Sync Queue Recovery: 13/13 PASS.
-- Remaining Modules Offline Integration: PASS.
-- Offline Write Completion: 10/10 PASS.
-- Full Enterprise Offline Certification: PASS WITH DECLARED ONLINE-ONLY EXCLUSIONS.
+Controls:
+- Foreign keys to installation_requests and installation_technicians.
+- One active scheduled revisit per installation request.
+- RLS based on installationExceptions permission and current representative visibility.
+- Audit fields for creator and timestamps.
 
-## Regression Report
-- Installation phases M14.1 through M14.4 remain present and loaded.
-- No customer, quotation, sales representative, permission scope, or RLS behavior was removed.
-- No existing Offline Queue or Smart Sync domain was modified.
-- The pre-existing documented warning in `assets/js/app.js` remains unchanged and outside this phase scope.
+## Permission Keys
+- installationExceptions: view/edit
+- installationReports: view/export
+
+Super Admin receives the applicable permissions initially.
+
+## Impact Audit
+No changes were made to customer, follow-up, quotation, permission scope, offline queue, smart sync, or completion evidence logic. Existing installation phases remain loaded in their previous order.
+
+## Validation
+- JavaScript syntax: PASS
+- CSS brace validation: PASS
+- Duplicate HTML IDs: 0
+- Offline Runtime Reliability: PASS (61/61 local CSS/JS assets registered)
+- Cache-first Connectivity: 15/15 PASS
+- Sync Queue Recovery: 13/13 PASS
+- Offline Write Completion: 10/10 PASS
+- Full Enterprise Offline Certification: PASS WITH DECLARED ONLINE-ONLY EXCLUSIONS
+
+## Documented Previous Warning
+The pre-existing direct UI data paths in assets/js/app.js for sales representative update/delete and generic reference delete remain unchanged and outside this phase scope.

@@ -1,12 +1,12 @@
 {
-  "version": "18.28.0",
-  "build": 182800,
+  "version": "18.29.0",
+  "build": 182900,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Installation Completion Report, Photos & Customer Signature",
+  "title": "Installation Exceptions, Revisit Workflow & Operational Reports",
   "notes": [
-    "إضافة محاضر إكمال التركيبات",
-    "رفع صور قبل وبعد التركيب",
-    "توقيع العميل وطباعة المحضر"
+    "إدارة الاستثناءات والطلبات المؤجلة والمتعذرة",
+    "جدولة إعادة الزيارة وربطها بالفني",
+    "تقارير تشغيلية وإنتاجية الفنيين"
   ]
 }
