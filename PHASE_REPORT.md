@@ -1,36 +1,50 @@
-# Phase M14.2 — Installation Requests Data Model & Core Screen
+# Phase M14.3 — Installation Scheduling Calendar & Assignment Foundation
 
 ## Root Cause
-Phase M14.1 established only the installations navigation and overview. There was no persistent installation request entity, no RLS-scoped CRUD service, and no operational screen for linking a request to a customer and accepted quotation.
+Phase M14.2 provided persistent installation requests and basic request scheduling fields, but there was no operational calendar, no technician master data, no assignment ownership fields, and no permission-scoped screen for workload distribution.
 
 ## Scope
-- Added `installation_requests` with generated request numbers, customer/quotation/representative links, schedule, status, priority, address, description and notes.
-- Added quotation/customer consistency validation and representative inheritance from the customer.
-- Added RLS policies using the existing screen permission and representative visibility engines.
-- Added the `installationRequests` screen to navigation and permissions.
-- Added responsive filters, KPI summary, table, create/edit dialog and delete action.
-- Only accepted quotations are offered in the form and are filtered by selected customer.
-- Added the new CSS/JS assets to the offline App Shell.
+- Added the `installationSchedule` screen under Installations Management.
+- Added a Gregorian monthly calendar with technician/status filters and daily request cards.
+- Added pending scheduling/assignment list and workload KPIs.
+- Added technician operational master data with status, specialty, city and phone.
+- Added assignment dialog for date, time slot, technician, status and notes.
+- Added database assignment audit fields and automatic assignment stamping.
+- Added RLS and screen permissions using the existing permission engine.
+- Registered all new CSS/JS assets in the Offline App Shell.
 
 ## Files Modified
 - `index.html`
-- `assets/css/installation-requests.css`
+- `assets/css/installation-scheduling.css`
 - `assets/js/app.js`
 - `assets/js/installations-service.js`
-- `assets/js/installations-module.js`
+- `assets/js/installation-scheduling.js`
 - `assets/js/permission-engine.js`
 - `assets/js/pwa.js`
 - `service-worker.js`
 - `package.json`
 - `version.json`
-- `supabase/migrations/phase_m14_2_installation_requests_data_model.sql`
-- `supabase/verification/phase_m14_2_installation_requests_verification.sql`
+- `supabase/migrations/phase_m14_3_installation_scheduling_assignment.sql`
+- `supabase/verification/phase_m14_3_installation_scheduling_verification.sql`
 - `PHASE_REPORT.md`
 
 ## Release
-- Version: `18.25.0`
-- Build: `182500`
-- Cache Token: `kyum-crm-pwa-18-25-0-m14-2`
+- Version: `18.26.0`
+- Build: `182600`
+- Cache Token: `kyum-crm-pwa-18-26-0-m14-3`
 
 ## Regression Boundaries
-No customer, quotation, follow-up, permission, smart-cache, queue, background-sync, authentication, or reporting business logic was replaced. Existing M13.23 responsive layers and M14.1 foundation remain intact.
+No customer, quotation, follow-up, representative visibility, authentication, Smart Cache, Sync Queue, Background Sync or existing responsive layer was replaced. Installation scheduling and technicians remain declared online-only operational setup until a later offline integration phase.
+
+## Validation
+- JavaScript syntax: PASS
+- Duplicate HTML IDs: PASS (0 duplicates)
+- Local CSS/JS references: PASS
+- Version and Cache Token synchronization: PASS
+- Dashboard Offline Certification: PASS
+- Offline Runtime Reliability: PASS
+- Cache-first Connectivity: 15/15 PASS
+- Sync Queue Recovery: 13/13 PASS
+- Offline Write Completion: 10/10 PASS
+- Full Enterprise Offline Certification: PASS WITH DECLARED ONLINE-ONLY EXCLUSIONS
+- Existing documented `assets/js/app.js` direct-data warning remains unchanged and outside this scope.
