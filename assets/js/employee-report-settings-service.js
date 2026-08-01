@@ -25,6 +25,7 @@
       role: user?.role || row?.role || "",
       representativeId: user?.representative_id || row?.representative_id || null,
       effectiveFrom: row?.effective_from || isoDate(),
+      includeInDashboardPerformance: row?.include_in_dashboard_performance !== false,
       includeInDailyReports: row?.include_in_daily_reports !== false,
       includeInTimelineReport: row?.include_in_timeline_report !== false,
       requiresDailyTasks: row?.requires_daily_tasks !== false,
@@ -66,6 +67,7 @@
     const payload = {
       user_id: settings.userId,
       effective_from: settings.effectiveFrom || isoDate(),
+      include_in_dashboard_performance: settings.includeInDashboardPerformance !== false,
       include_in_daily_reports: settings.includeInDailyReports !== false,
       include_in_timeline_report: settings.includeInTimelineReport !== false,
       requires_daily_tasks: settings.requiresDailyTasks !== false,

@@ -1046,7 +1046,10 @@ function switchView(requestedName, options = {}) {
   });
   document.getElementById("pageSubtitle").textContent = pageMeta[name][1];
 
-  if (name === "dashboard") renderDashboard();
+  if (name === "dashboard") {
+    renderDashboard();
+    ensureDashboardRepresentativeSettings().then(() => renderDashboard());
+  }
   if (name === "customers") {
     loadCustomersFromSupabase();
     renderCustomers();
@@ -1088,6 +1091,53 @@ window.KYUMNavigation = Object.freeze({
 });
 
 
+function dashboardRepresentativeSettingMap() {
+  const map = new Map();
+  employeeReportSettings.forEach(item => {
+    const representativeId = String(item?.representativeId || "").trim();
+    if (!representativeId) return;
+    const current = map.get(representativeId);
+    const visible = item.includeInDashboardPerformance !== false;
+    map.set(representativeId, current === undefined ? visible : (current || visible));
+  });
+  return map;
+}
+
+function dashboardVisibleRepresentatives() {
+  if (!employeeReportSettings.length) return representatives;
+  const settingMap = dashboardRepresentativeSettingMap();
+  return representatives.filter(rep => !settingMap.has(String(rep.uuid || "")) || settingMap.get(String(rep.uuid || "")) !== false);
+}
+
+function dashboardHiddenRepresentativeNames() {
+  const visibleNames = new Set(dashboardVisibleRepresentatives().map(rep => rep.name));
+  return new Set(representatives.filter(rep => !visibleNames.has(rep.name)).map(rep => rep.name));
+}
+
+function refreshDashboardRepresentativeOptions() {
+  const select = document.getElementById("dashboardRepFilter");
+  if (!select) return;
+  const current = select.value || "";
+  const visibleRepresentatives = dashboardVisibleRepresentatives();
+  replaceSelectOptions(
+    select,
+    visibleRepresentatives.map(rep => ({ label: rep.name, value: rep.name })),
+    "كل المندوبين",
+    visibleRepresentatives.some(rep => rep.name === current) ? current : ""
+  );
+}
+
+async function ensureDashboardRepresentativeSettings(force = false) {
+  if (!window.EmployeeReportSettingsService?.listForDate) return;
+  if (employeeReportSettings.length && !force) return;
+  try {
+    employeeReportSettings = await window.EmployeeReportSettingsService.listForDate(undefined, { force });
+    refreshDashboardRepresentativeOptions();
+  } catch (error) {
+    console.warn("[Dashboard] Employee visibility settings unavailable; using default representatives.", error);
+  }
+}
+
 function dashboardFilterState() {
   return {
     representative: document.getElementById("dashboardRepFilter")?.value || "",
@@ -1105,9 +1155,11 @@ function dateInRange(value, from, to) {
 
 function dashboardData() {
   const filters = dashboardFilterState();
+  const hiddenRepresentativeNames = dashboardHiddenRepresentativeNames();
 
   const filteredCustomers = customers.filter(customer =>
-    (!filters.representative || customer.representative === filters.representative)
+    !hiddenRepresentativeNames.has(customer.representative)
+    && (!filters.representative || customer.representative === filters.representative)
     && (!filters.type || customer.type === filters.type)
     && (!filters.interest || customer.interests.includes(filters.interest))
     && dateInRange(customer.contactDate, filters.from, filters.to)
@@ -1131,6 +1183,8 @@ function dashboardData() {
 }
 
 function renderDashboard() {
+  const settingsButton = document.getElementById("dashboardRepresentativeVisibilityBtn");
+  settingsButton?.classList.toggle("hidden", !window.EmployeeReportSettingsService?.canManage?.());
   const data = dashboardData();
   const filteredCustomers = data.customers;
   const filteredFollowups = data.followups;
@@ -1212,7 +1266,7 @@ function renderDashboard() {
 }
 
 function renderRepresentativePerformance(data) {
-  const rows = representatives.map(rep => {
+  const rows = dashboardVisibleRepresentatives().map(rep => {
     const repCustomers = data.customers.filter(c => c.representative === rep.name);
     const repFollowups = data.followups.filter(f => f.representative === rep.name);
     const repQuotations = data.quotations.filter(q => q.representative === rep.name);
@@ -8172,6 +8226,7 @@ function renderEmployeeTargetsRows() {
   body.innerHTML = employeeTargetsDialogRows.length ? employeeTargetsDialogRows.map((item, index) => `
     <tr data-employee-target-row="${index}">
       <td><strong>${escapeHtml(item.fullName)}</strong><br><small>${escapeHtml(item.role || "")}</small></td>
+      <td><input type="checkbox" data-field="includeInDashboardPerformance" ${item.includeInDashboardPerformance ? "checked" : ""}></td>
       <td><input type="checkbox" data-field="includeInDailyReports" ${item.includeInDailyReports ? "checked" : ""}></td>
       <td><input type="checkbox" data-field="includeInTimelineReport" ${item.includeInTimelineReport ? "checked" : ""}></td>
       <td><input type="checkbox" data-field="requiresDailyTasks" ${item.requiresDailyTasks ? "checked" : ""}></td>
@@ -8179,7 +8234,7 @@ function renderEmployeeTargetsRows() {
       <td><input type="number" min="0" max="9999" data-field="customersTarget" value="${Number(item.customersTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
       <td><input type="number" min="0" max="9999" data-field="followupsTarget" value="${Number(item.followupsTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
       <td><input type="number" min="0" max="9999" data-field="quotationsTarget" value="${Number(item.quotationsTarget || 0)}" ${item.requiresTargets ? "" : "disabled"}></td>
-    </tr>`).join("") : '<tr><td colspan="8">لا توجد حسابات نشطة.</td></tr>';
+    </tr>`).join("") : '<tr><td colspan="9">لا توجد حسابات نشطة.</td></tr>';
 }
 
 async function loadEmployeeTargetsDialog() {
@@ -8203,6 +8258,7 @@ function openEmployeeTargetsDialog() {
 function closeEmployeeTargetsDialog() { document.getElementById("employeeTargetsDialog")?.close(); }
 
 document.getElementById("manageEmployeeTargetsBtn")?.addEventListener("click", openEmployeeTargetsDialog);
+document.getElementById("dashboardRepresentativeVisibilityBtn")?.addEventListener("click", openEmployeeTargetsDialog);
 document.getElementById("reloadEmployeeTargetsBtn")?.addEventListener("click", loadEmployeeTargetsDialog);
 ["closeEmployeeTargetsDialogBtn","cancelEmployeeTargetsBtn"].forEach(id => document.getElementById(id)?.addEventListener("click", closeEmployeeTargetsDialog));
 document.getElementById("employeeTargetsBody")?.addEventListener("change", event => {
@@ -8222,8 +8278,10 @@ document.getElementById("employeeTargetsForm")?.addEventListener("submit", async
   try {
     await window.EmployeeReportSettingsService.saveMany(employeeTargetsDialogRows.map(item => ({ ...item, effectiveFrom })));
     employeeReportSettings = await window.EmployeeReportSettingsService.listForDate();
+    refreshDashboardRepresentativeOptions();
     closeEmployeeTargetsDialog();
     renderDailyOperations();
+    if (activeViewKey === "dashboard") renderDashboard();
     dailyPerformanceSnapshot = null;
     showDataStatus("dailyOperationsStatus", "تم حفظ أهداف ومشاركة الموظفين في التقارير.", "success");
   } catch (error) {

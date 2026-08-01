@@ -11214,3 +11214,10 @@ body.dark-mode .daily-whatsapp-template-card { background:rgba(15,23,42,.5); }
 .daily-note-recipients-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:10px;max-height:220px;overflow:auto}
 .daily-note-recipient{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--border-color,#dbe3ee);border-radius:10px}
 @media(max-width:700px){.employee-targets-dialog{width:98vw}.daily-targets-actions{width:100%;justify-content:stretch}.daily-targets-actions button{flex:1}}
+
+/* Phase M13.22.1 — Dashboard representative visibility integration */
+.dashboard-representative-settings-btn{margin-inline-start:auto;white-space:nowrap}
+@media(max-width:700px){
+  #dashboardView .panel-header:has(#dashboardRepresentativeVisibilityBtn){align-items:stretch;flex-direction:column}
+  .dashboard-representative-settings-btn{width:100%;margin-inline-start:0}
+}
