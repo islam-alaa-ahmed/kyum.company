@@ -1,38 +1,88 @@
-# Phase M13.23.3 — Daily Operations & Reports Responsive Integration
+# KYUM CRM Enterprise
+## Phase M13.23.4 — Mobile Shell & Touch Certification
 
-## Root Cause
-قواعد الاستجابة الخاصة بالعمليات اليومية والتقارير كانت موزعة بين `style.css` و`mobile.css`، مع تركيز قوي على الموبايل فقط وعدم وجود طبقة متدرجة مستقلة تجمع سلوك Tablet وLaptop وDesktop وWide Desktop. أدى ذلك إلى احتمالات تعارض في الشبكات، تمدد الفلاتر والبطاقات، وخروج الجداول أو الحوارات عن مساحة العرض.
+### Baseline
+The official baseline for this phase is the full uploaded project merged with the approved Phase M13.23.3 modified files. No older or partial source was used.
 
-## Scope
-- إدارة المهام اليومية.
-- تقرير الأداء اليومي.
-- مركز التقارير.
-- حوار تصدير التقارير وحوار أهداف الموظفين المرتبطان بالتقارير.
-- لا تعديل على Business Logic أو Supabase أو SQL أو RLS أو الصلاحيات أو Offline/Smart Sync.
+### Root Cause Analysis
+The mobile shell was functional, but its final behavior depended on several accumulated hotfix blocks inside `assets/css/mobile.css` and multiple runtime handlers inside `assets/js/mobile.js`. The audit identified overlapping ownership of:
 
-## Modified Files
-- `assets/css/daily-reports-responsive.css` — ملف جديد بطبقة Responsive معزولة.
-- `index.html` — ربط ملف المرحلة وتحديث Cache Query Token.
-- `service-worker.js` — إضافة ملف CSS إلى App Shell وتحديث Cache Token.
-- `assets/js/pwa.js` — توحيد رقم الإصدار.
-- `package.json` — توحيد رقم الإصدار.
-- `version.json` — بيانات الإصدار والبناء.
+- `touch-action` between the page, horizontal containers and bottom navigation.
+- Mobile visual viewport height during browser chrome and on-screen keyboard changes.
+- Portrait/landscape shell classification on coarse-touch devices.
+- Stale body scroll-lock classes after navigation, visibility changes or orientation changes.
+- Safe-area positioning for the fixed header, drawer and bottom navigation.
+- Minimum touch target sizing and keyboard focus visibility.
 
-## Version
-- Version: `18.20.0`
-- Build: `182000`
-- Cache Token: `kyum-crm-pwa-18-20-0-m13-23-3`
+The previous rules were preserved. A final isolated certification layer was added to resolve precedence without deleting historical fixes.
 
-## Responsive Coverage
-- Mobile Small / Large.
-- Mobile Portrait / Landscape مع الحفاظ على Mobile Shell.
-- Tablet Portrait / Landscape.
-- Laptop / Compact Desktop.
-- Desktop / Wide Desktop.
-- Touch / Safe Area / Light Mode / Dark Mode باستخدام المتغيرات الحالية دون تغيير الثيم.
+### Scope
+- Mobile shell stability in portrait and landscape.
+- Coarse-touch devices up to 1024 device pixels.
+- Safe-area handling for header, drawer and bottom navigation.
+- Visual Viewport synchronization.
+- Vertical page scrolling and horizontal component scrolling ownership.
+- Bottom navigation drag/tap behavior protection.
+- 44px minimum touch targets.
+- Focus-visible and reduced-motion accessibility guards.
+- Recovery of stale mobile shell scroll locks.
 
-## Regression Controls
-- لم يتم تعديل أي JavaScript وظيفي باستثناء رقم الإصدار في `pwa.js`.
-- لم يتم تعديل أي خدمة بيانات أو صلاحيات.
-- لم يتم تعديل بنية HTML للشاشات أو IDs المستخدمة بواسطة Runtime.
-- تم إبقاء كل قواعد الموبايل السابقة، والملف الجديد يعمل كطبقة تكامل أخيرة محددة النطاق.
+### Excluded Scope
+- Business logic and data calculations.
+- Supabase, SQL and RLS.
+- Users, roles, permissions and data visibility.
+- Offline queue, Smart Sync and service data paths.
+- Desktop visual redesign.
+- Removal or refactoring of previous mobile hotfixes.
+
+### Files Modified
+- `assets/css/mobile-shell-touch-certification.css` — new isolated certification layer.
+- `assets/js/mobile.js` — Visual Viewport sync, shell mode markers and stale lock recovery.
+- `index.html` — load the certification stylesheet and synchronize asset tokens.
+- `service-worker.js` — cache token update and certification stylesheet registration.
+- `assets/js/pwa.js` — runtime version synchronization.
+- `package.json` — package version synchronization.
+- `version.json` — release metadata.
+- `PHASE_REPORT.md` — phase documentation.
+
+### Version
+- Version: `18.21.0`
+- Build: `182100`
+- Cache Token: `kyum-crm-pwa-18-21-0-m13-23-4`
+
+### Impact Audit
+- Existing mobile header and bottom navigation implementations remain in place.
+- The new stylesheet loads after all previous responsive layers and only applies to mobile/coarse-touch media conditions.
+- Existing desktop and fine-pointer administration isolation remains unchanged.
+- No HTML element IDs or data attributes were changed.
+- The new CSS file is registered in the core App Shell to preserve offline boot.
+
+### Regression Audit
+PASS:
+- JavaScript syntax: `mobile.js`, `pwa.js`, `service-worker.js`.
+- CSS brace balance across all responsive layers.
+- Version token synchronization.
+- Dashboard Offline Certification.
+- Offline Runtime Reliability.
+- Cache-first Connectivity: 15/15.
+- Sync Queue Recovery: 13/13.
+- Remaining Modules Offline Integration.
+- Offline Write Completion: 10/10.
+- Full Enterprise Offline Certification.
+
+Documented previous warning retained:
+- `assets/js/app.js` contains temporary direct UI data paths for sales representative update/delete and generic reference delete. This warning predates this phase and is outside the responsive scope.
+
+### Validation Report
+- Mobile portrait shell remains mobile.
+- Coarse-touch landscape shell is forced to a single-column mobile layout.
+- Fixed shell components consume safe-area insets.
+- Visual viewport height updates without continuous synchronous layout work.
+- Normal taps retain native click behavior.
+- Intentional horizontal bottom-navigation drag suppresses browser handling only while dragging.
+- Vertical gestures remain owned by page scrolling.
+- Horizontal tables and tab strips retain horizontal pan support.
+- Stale body scroll locks are removed only when their associated UI is not open.
+
+### Certification Result
+**PASS WITH ONE DOCUMENTED PREVIOUS OFFLINE ARCHITECTURE WARNING**

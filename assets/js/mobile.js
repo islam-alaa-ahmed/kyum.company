@@ -1664,3 +1664,62 @@
   document.addEventListener("DOMContentLoaded", sync, { once: true });
   sync();
 })();
+
+/* Phase M13.23.4 — Mobile Shell & Touch Certification */
+(() => {
+  "use strict";
+
+  const MOBILE_MEDIA = window.matchMedia("(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)");
+  const root = document.documentElement;
+  let viewportRaf = 0;
+
+  function syncVisualViewport() {
+    viewportRaf = 0;
+    const viewportHeight = Math.round(window.visualViewport?.height || window.innerHeight || root.clientHeight || 0);
+    if (viewportHeight > 0) root.style.setProperty("--kyum-visual-viewport-height", `${viewportHeight}px`);
+    root.classList.toggle("kyum-mobile-shell", MOBILE_MEDIA.matches);
+    root.classList.toggle("kyum-mobile-landscape", MOBILE_MEDIA.matches && window.matchMedia("(orientation: landscape)").matches);
+  }
+
+  function scheduleViewportSync() {
+    if (viewportRaf) return;
+    viewportRaf = requestAnimationFrame(syncVisualViewport);
+  }
+
+  function recoverShellLocks() {
+    if (!MOBILE_MEDIA.matches) {
+      document.body.classList.remove("sidebar-menu-open", "mobile-dashboard-sheet-open", "mobile-customers-sheet-open", "mobile-reports-sheet-open");
+      return;
+    }
+
+    const lockMap = [
+      ["sidebar-menu-open", document.getElementById("mainSidebar")?.classList.contains("is-open")],
+      ["mobile-dashboard-sheet-open", document.getElementById("dashboardView")?.classList.contains("mobile-filters-open")],
+      ["mobile-customers-sheet-open", document.getElementById("customersView")?.classList.contains("mobile-customers-filters-open")],
+      ["mobile-reports-sheet-open", document.getElementById("reportsView")?.classList.contains("mobile-reports-filters-open")]
+    ];
+
+    for (const [className, isOpen] of lockMap) {
+      if (!isOpen) document.body.classList.remove(className);
+    }
+  }
+
+  function certifyShell() {
+    syncVisualViewport();
+    recoverShellLocks();
+    document.getElementById("appHeader")?.classList.toggle("mobile-header-stable", MOBILE_MEDIA.matches);
+  }
+
+  window.visualViewport?.addEventListener("resize", scheduleViewportSync, { passive: true });
+  window.visualViewport?.addEventListener("scroll", scheduleViewportSync, { passive: true });
+  window.addEventListener("resize", scheduleViewportSync, { passive: true });
+  window.addEventListener("orientationchange", () => window.setTimeout(certifyShell, 120), { passive: true });
+  window.addEventListener("pageshow", certifyShell, { passive: true });
+  window.addEventListener("hashchange", recoverShellLocks, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) certifyShell();
+  }, { passive: true });
+  MOBILE_MEDIA.addEventListener?.("change", certifyShell);
+  document.addEventListener("DOMContentLoaded", certifyShell, { once: true });
+  certifyShell();
+})();

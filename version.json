@@ -1,12 +1,12 @@
 {
-  "version": "18.20.0",
-  "build": 182000,
+  "version": "18.21.0",
+  "build": 182100,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Daily Operations & Reports Responsive Integration",
+  "title": "Mobile Shell & Touch Certification",
   "notes": [
-    "توحيد الاستجابة المتدرجة لشاشة إدارة المهام اليومية وتقرير الأداء اليومي ومركز التقارير",
-    "ضبط الفلاتر والبطاقات والجداول والحوارات على Mobile وTablet وLaptop وWide Desktop",
-    "الحفاظ على واجهة الموبايل في الوضع الأفقي وعدم تعديل منطق الأعمال أو الصلاحيات أو المزامنة"
+    "اعتماد ثبات Mobile Shell في Portrait وLandscape مع الحفاظ على واجهة الموبايل",
+    "توحيد Safe Area وVisual Viewport واستعادة أقفال التمرير العالقة بأمان",
+    "اعتماد أهداف لمس لا تقل عن 44px وتحسين ملكية التمرير الأفقي والرأسي دون تغيير منطق الأعمال"
   ]
 }
