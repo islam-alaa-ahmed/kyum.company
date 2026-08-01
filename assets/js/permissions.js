@@ -73,12 +73,24 @@ window.CustomerPermissions = {
     return String(screenKey || "").trim();
   },
 
+  roleActionBaseline(role, screenKey, action) {
+    // Product rule: active sales representatives must always be able to create
+    // customers and quotations. This baseline protects the runtime from stale
+    // or incomplete cached permission rows while server-side RLS remains the
+    // final authorization boundary.
+    return role === "sales_representative"
+      && action === "add"
+      && (screenKey === "customers" || screenKey === "quotations");
+  },
+
   canScreen(screenKey, action = "view") {
     screenKey = this.normalizeScreenKey(screenKey);
+    action = String(action || "view").trim().toLowerCase();
     if (!screenKey) return false;
     if (screenKey === "aboutApp" && action === "view") return true;
     const role = this.currentRole();
     if (role === "super_admin") return true;
+    if (this.roleActionBaseline(role, screenKey, action)) return true;
     if (!this.permissionsLoaded) return false;
     const row = this.screenPermissions.get(screenKey);
     const field = { view:"can_view", add:"can_add", edit:"can_edit", delete:"can_delete", export:"can_export", import:"can_add" }[action] || "can_view";
