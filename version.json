@@ -1,12 +1,12 @@
 {
-  "version": "18.18.6",
-  "build": 181806,
+  "version": "18.19.0",
+  "build": 181900,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Sales Representative Create Action Runtime Recovery",
+  "title": "Enterprise Responsive Foundation",
   "notes": [
-    "استعادة إضافة العملاء وعروض الأسعار لمندوب المبيعات على مستوى Runtime",
-    "الحفاظ على محرك البحث داخل اختيار عميل عرض السعر",
-    "تحديث كاش الصلاحيات والإصدار بصورة تراكمية"
+    "إضافة طبقة Responsive Foundation موحدة وآمنة",
+    "توحيد الحاويات والجداول والنوافذ والمسافات عبر أحجام الشاشات",
+    "الحفاظ على واجهة الموبايل في الوضع الأفقي وعلى جميع الإصلاحات السابقة"
   ]
 }
