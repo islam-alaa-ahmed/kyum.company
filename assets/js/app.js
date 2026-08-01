@@ -3025,8 +3025,8 @@ function stopSystemHealthAutoRefresh() {
   }
 }
 
-function canManageCustomers() {
-  return canScreenAction("customers", "edit");
+function canManageCustomers(action = "edit") {
+  return canScreenAction("customers", action);
 }
 
 function canDeleteCustomers() {
@@ -3095,7 +3095,7 @@ function renderCustomers() {
   const rows = allRows.slice(start, start + CUSTOMERS_PAGE_SIZE);
 
   const addButton = document.getElementById("addCustomerBtn");
-  addButton?.classList.toggle("hidden", !canManageCustomers());
+  addButton?.classList.toggle("hidden", !canManageCustomers("add"));
 
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
