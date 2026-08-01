@@ -30,8 +30,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.18.2" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.18.2" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.18.3" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.18.3" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -2499,10 +2499,43 @@
           <input id="quotationCode" required>
         </label>
 
-        <label>
-          العميل
-          <select id="quotationCustomer" required></select>
-        </label>
+        <div class="quotation-customer-field">
+          <label for="quotationCustomerSearch">العميل</label>
+          <div id="quotationCustomerCombobox" class="searchable-select" data-open="false">
+            <input
+              id="quotationCustomerSearch"
+              class="searchable-select-input"
+              type="search"
+              required
+              placeholder="ابحث باسم العميل أو رقم الجوال..."
+              autocomplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="quotationCustomerOptions"
+            >
+            <button
+              id="quotationCustomerToggle"
+              class="searchable-select-toggle"
+              type="button"
+              aria-label="فتح قائمة العملاء"
+              tabindex="-1"
+            >⌄</button>
+            <div
+              id="quotationCustomerOptions"
+              class="searchable-select-options hidden"
+              role="listbox"
+              aria-label="نتائج بحث العملاء"
+            ></div>
+            <select
+              id="quotationCustomer"
+              class="searchable-select-native"
+              tabindex="-1"
+              aria-hidden="true"
+            ></select>
+          </div>
+          <small id="quotationCustomerHint">يمكن البحث بالاسم أو رقم الجوال أو كود العميل.</small>
+        </div>
 
         <label>
           المندوب المسؤول
@@ -2679,10 +2712,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.18.2"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.18.2"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.18.2"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.18.2"></script>
+  <script src="assets/js/performance-monitor.js?v=18.18.3"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.18.3"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.18.3"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.18.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -2845,45 +2878,45 @@
     </form>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.18.2"></script>
-  <script src="assets/js/offline-session-store.js?v=18.18.2"></script>
-  <script src="assets/js/supabase-client.js?v=18.18.2"></script>
-  <script src="assets/js/permissions.js?v=18.18.2"></script>
-  <script src="assets/js/permission-engine.js?v=18.18.2"></script>
-  <script src="assets/js/smart-cache.js?v=18.18.2"></script>
-  <script src="assets/js/sync-engine.js?v=18.18.2"></script>
-  <script src="assets/js/offline-queue.js?v=18.18.2"></script>
-  <script src="assets/js/permissions-service.js?v=18.18.2"></script>
-  <script src="assets/js/auth-session.js?v=18.18.2"></script>
-  <script src="assets/js/reference-data-service.js?v=18.18.2"></script>
-  <script src="assets/js/customers-service.js?v=18.18.2"></script>
-  <script src="assets/js/followups-service.js?v=18.18.2"></script>
-  <script src="assets/js/quotations-service.js?v=18.18.2"></script>
-  <script src="assets/js/users-service.js?v=18.18.2"></script>
-  <script src="assets/js/activity-service.js?v=18.18.2"></script>
-  <script src="assets/js/backup-service.js?v=18.18.2"></script>
-  <script src="assets/js/system-settings-service.js?v=18.18.2"></script>
-  <script src="assets/js/system-health-service.js?v=18.18.2"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.18.2"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.18.2"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.18.2"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.18.2"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.18.2"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.18.2"></script>
+  <script src="assets/js/supabase-config.js?v=18.18.3"></script>
+  <script src="assets/js/offline-session-store.js?v=18.18.3"></script>
+  <script src="assets/js/supabase-client.js?v=18.18.3"></script>
+  <script src="assets/js/permissions.js?v=18.18.3"></script>
+  <script src="assets/js/permission-engine.js?v=18.18.3"></script>
+  <script src="assets/js/smart-cache.js?v=18.18.3"></script>
+  <script src="assets/js/sync-engine.js?v=18.18.3"></script>
+  <script src="assets/js/offline-queue.js?v=18.18.3"></script>
+  <script src="assets/js/permissions-service.js?v=18.18.3"></script>
+  <script src="assets/js/auth-session.js?v=18.18.3"></script>
+  <script src="assets/js/reference-data-service.js?v=18.18.3"></script>
+  <script src="assets/js/customers-service.js?v=18.18.3"></script>
+  <script src="assets/js/followups-service.js?v=18.18.3"></script>
+  <script src="assets/js/quotations-service.js?v=18.18.3"></script>
+  <script src="assets/js/users-service.js?v=18.18.3"></script>
+  <script src="assets/js/activity-service.js?v=18.18.3"></script>
+  <script src="assets/js/backup-service.js?v=18.18.3"></script>
+  <script src="assets/js/system-settings-service.js?v=18.18.3"></script>
+  <script src="assets/js/system-health-service.js?v=18.18.3"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.18.3"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.18.3"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.18.3"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.18.3"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.18.3"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.18.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.18.2"></script>
-  <script src="assets/js/export-center.js?v=18.18.2"></script>
-  <script src="assets/js/customer360-engine.js?v=18.18.2"></script>
-  <script src="assets/js/customer360-export.js?v=18.18.2"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.18.2"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.18.2"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.18.2"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.18.2"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.18.2"></script>
-  <script src="assets/js/app.js?v=18.18.2"></script>
-  <script src="assets/js/mobile.js?v=18.18.2"></script>
-  <script src="assets/js/pwa.js?v=18.18.2"></script>
-  <script src="assets/js/native.js?v=18.18.2"></script>
+  <script src="assets/js/reports-engine.js?v=18.18.3"></script>
+  <script src="assets/js/export-center.js?v=18.18.3"></script>
+  <script src="assets/js/customer360-engine.js?v=18.18.3"></script>
+  <script src="assets/js/customer360-export.js?v=18.18.3"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.18.3"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.18.3"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.18.3"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.18.3"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.18.3"></script>
+  <script src="assets/js/app.js?v=18.18.3"></script>
+  <script src="assets/js/mobile.js?v=18.18.3"></script>
+  <script src="assets/js/pwa.js?v=18.18.3"></script>
+  <script src="assets/js/native.js?v=18.18.3"></script>
 </body>
 </html>

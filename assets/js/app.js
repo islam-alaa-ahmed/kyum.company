@@ -400,6 +400,118 @@ function replaceSelectOptions(select, options, placeholder = null, selectedValue
 }
 
 
+
+function normalizeQuotationCustomerSearch(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function quotationCustomerDisplay(customer) {
+  if (!customer) return "";
+  const details = [customer.phone, customer.customerNumber].filter(Boolean).join(" · ");
+  return details ? `${customer.name} — ${details}` : customer.name;
+}
+
+function selectedQuotationCustomer() {
+  const select = document.getElementById("quotationCustomer");
+  return customers.find(customer => String(customer.id) === String(select?.value || "")) || null;
+}
+
+function closeQuotationCustomerOptions() {
+  const wrapper = document.getElementById("quotationCustomerCombobox");
+  const input = document.getElementById("quotationCustomerSearch");
+  const options = document.getElementById("quotationCustomerOptions");
+  if (!wrapper || !input || !options) return;
+  wrapper.dataset.open = "false";
+  input.setAttribute("aria-expanded", "false");
+  options.classList.add("hidden");
+}
+
+function renderQuotationCustomerOptions(query = "") {
+  const options = document.getElementById("quotationCustomerOptions");
+  if (!options) return;
+
+  const normalizedQuery = normalizeQuotationCustomerSearch(query);
+  const digitQuery = String(query || "").replace(/\D/g, "");
+  const currentValue = document.getElementById("quotationCustomer")?.value || "";
+
+  const ranked = customers
+    .map(customer => {
+      const name = normalizeQuotationCustomerSearch(customer.name);
+      const phone = String(customer.phone || "").replace(/\D/g, "");
+      const code = normalizeQuotationCustomerSearch(customer.customerNumber);
+      let rank = 99;
+
+      if (!normalizedQuery && !digitQuery) rank = 10;
+      else if (name === normalizedQuery || phone === digitQuery || code === normalizedQuery) rank = 0;
+      else if (name.startsWith(normalizedQuery) || (digitQuery && phone.startsWith(digitQuery)) || code.startsWith(normalizedQuery)) rank = 1;
+      else if (name.includes(normalizedQuery) || (digitQuery && phone.includes(digitQuery)) || code.includes(normalizedQuery)) rank = 2;
+
+      return { customer, rank };
+    })
+    .filter(item => item.rank < 99)
+    .sort((a, b) => a.rank - b.rank || String(a.customer.name || "").localeCompare(String(b.customer.name || ""), "ar"))
+    .slice(0, 80);
+
+  if (!ranked.length) {
+    options.innerHTML = '<div class="searchable-select-empty">لا توجد نتائج مطابقة.</div>';
+    return;
+  }
+
+  options.innerHTML = ranked.map(({ customer }) => {
+    const isSelected = String(customer.id) === String(currentValue);
+    return `
+      <button
+        type="button"
+        class="searchable-select-option${isSelected ? " is-selected" : ""}"
+        role="option"
+        aria-selected="${isSelected ? "true" : "false"}"
+        data-quotation-customer-id="${escapeHtml(String(customer.id))}"
+      >
+        <strong>${escapeHtml(customer.name || "عميل بدون اسم")}</strong>
+        <span>${escapeHtml(customer.phone || "بدون رقم جوال")}${customer.customerNumber ? ` · ${escapeHtml(customer.customerNumber)}` : ""}</span>
+      </button>
+    `;
+  }).join("");
+}
+
+function openQuotationCustomerOptions() {
+  const wrapper = document.getElementById("quotationCustomerCombobox");
+  const input = document.getElementById("quotationCustomerSearch");
+  const options = document.getElementById("quotationCustomerOptions");
+  if (!wrapper || !input || !options) return;
+  renderQuotationCustomerOptions(input.value);
+  wrapper.dataset.open = "true";
+  input.setAttribute("aria-expanded", "true");
+  options.classList.remove("hidden");
+}
+
+function setQuotationCustomerSelection(customerId, { close = true } = {}) {
+  const select = document.getElementById("quotationCustomer");
+  const input = document.getElementById("quotationCustomerSearch");
+  if (!select || !input) return;
+
+  const customer = customers.find(item => String(item.id) === String(customerId || "")) || null;
+  select.value = customer ? String(customer.id) : "";
+  input.value = customer ? quotationCustomerDisplay(customer) : "";
+  input.dataset.selectedCustomerId = customer ? String(customer.id) : "";
+  input.setCustomValidity(customer ? "" : "اختر العميل من نتائج البحث.");
+  renderQuotationCustomerOptions("");
+  if (close) closeQuotationCustomerOptions();
+}
+
+function syncQuotationCustomerSearchFromSelect() {
+  const select = document.getElementById("quotationCustomer");
+  setQuotationCustomerSelection(select?.value || "", { close: true });
+}
+
 function getSelectedCustomerInterestIds() {
   const select = document.getElementById("customerInterest");
   if (!select) return [];
@@ -700,6 +812,7 @@ function refreshReferenceOptions() {
   }));
   replaceSelectOptions(document.getElementById("followupCustomer"), customerOptions);
   replaceSelectOptions(document.getElementById("quotationCustomer"), customerOptions);
+  syncQuotationCustomerSearchFromSelect();
 
   renderReferenceData();
   syncReferenceDataPanel();
@@ -3025,8 +3138,8 @@ function stopSystemHealthAutoRefresh() {
   }
 }
 
-function canManageCustomers(action = "edit") {
-  return canScreenAction("customers", action);
+function canManageCustomers() {
+  return canScreenAction("customers", "edit");
 }
 
 function canDeleteCustomers() {
@@ -3095,7 +3208,7 @@ function renderCustomers() {
   const rows = allRows.slice(start, start + CUSTOMERS_PAGE_SIZE);
 
   const addButton = document.getElementById("addCustomerBtn");
-  addButton?.classList.toggle("hidden", !canManageCustomers("add"));
+  addButton?.classList.toggle("hidden", !canManageCustomers());
 
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
@@ -6205,6 +6318,7 @@ function openQuotationDialog(quotation = null, customerId = null) {
   document.getElementById("quotationCode").value = quotation?.code || nextQuotationCode();
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";
+  syncQuotationCustomerSearchFromSelect();
   document.getElementById("quotationRepresentative").value =
     quotation?.representativeId
     || customerById(customerId)?.representativeId
@@ -6225,6 +6339,7 @@ function openQuotationDialog(quotation = null, customerId = null) {
 function closeQuotationDialog() {
   document.getElementById("quotationDialog").close();
   document.getElementById("quotationForm").reset();
+  setQuotationCustomerSelection("", { close: true });
   editingQuotationId = null;
 }
 
@@ -8448,6 +8563,83 @@ document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click",
   renderPerformanceMonitor();
   if (systemHealthSnapshot) renderSystemHealth();
 });
+
+
+(function setupQuotationCustomerSearchableSelect() {
+  const wrapper = document.getElementById("quotationCustomerCombobox");
+  const input = document.getElementById("quotationCustomerSearch");
+  const toggle = document.getElementById("quotationCustomerToggle");
+  const options = document.getElementById("quotationCustomerOptions");
+  const select = document.getElementById("quotationCustomer");
+  const dialog = document.getElementById("quotationDialog");
+  if (!wrapper || !input || !toggle || !options || !select) return;
+
+  input.addEventListener("focus", openQuotationCustomerOptions);
+  input.addEventListener("click", openQuotationCustomerOptions);
+  toggle.addEventListener("click", () => {
+    if (wrapper.dataset.open === "true") {
+      closeQuotationCustomerOptions();
+      return;
+    }
+    input.focus();
+    openQuotationCustomerOptions();
+  });
+
+  input.addEventListener("input", () => {
+    const selectedId = input.dataset.selectedCustomerId || "";
+    const selected = customers.find(item => String(item.id) === String(selectedId)) || null;
+    if (!selected || input.value !== quotationCustomerDisplay(selected)) {
+      select.value = "";
+      input.dataset.selectedCustomerId = "";
+      input.setCustomValidity("اختر العميل من نتائج البحث.");
+    }
+    openQuotationCustomerOptions();
+  });
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeQuotationCustomerOptions();
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      openQuotationCustomerOptions();
+      options.querySelector(".searchable-select-option")?.focus();
+    }
+  });
+
+  options.addEventListener("click", event => {
+    const button = event.target.closest("[data-quotation-customer-id]");
+    if (!button) return;
+    setQuotationCustomerSelection(button.dataset.quotationCustomerId);
+    input.focus();
+  });
+
+  options.addEventListener("keydown", event => {
+    const current = event.target.closest(".searchable-select-option");
+    if (!current) return;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const buttons = [...options.querySelectorAll(".searchable-select-option")];
+      const index = buttons.indexOf(current);
+      const nextIndex = event.key === "ArrowDown"
+        ? Math.min(buttons.length - 1, index + 1)
+        : Math.max(0, index - 1);
+      buttons[nextIndex]?.focus();
+    } else if (event.key === "Escape") {
+      closeQuotationCustomerOptions();
+      input.focus();
+    }
+  });
+
+  select.addEventListener("change", syncQuotationCustomerSearchFromSelect);
+
+  document.addEventListener("pointerdown", event => {
+    if (!wrapper.contains(event.target)) closeQuotationCustomerOptions();
+  });
+
+  dialog?.addEventListener("close", closeQuotationCustomerOptions);
+})();
 
 setOptions();
 (() => {

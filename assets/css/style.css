@@ -11221,3 +11221,125 @@ body.dark-mode .daily-whatsapp-template-card { background:rgba(15,23,42,.5); }
   #dashboardView .panel-header:has(#dashboardRepresentativeVisibilityBtn){align-items:stretch;flex-direction:column}
   .dashboard-representative-settings-btn{width:100%;margin-inline-start:0}
 }
+
+
+/* Phase M13.22.3 — Quotation customer searchable select */
+.quotation-customer-field{
+  display:grid;
+  gap:7px;
+  min-width:0;
+}
+.quotation-customer-field>label{
+  font-weight:700;
+}
+.quotation-customer-field>small{
+  color:var(--muted);
+  line-height:1.5;
+}
+.searchable-select{
+  position:relative;
+  min-width:0;
+}
+.searchable-select-input{
+  width:100%;
+  padding-inline-end:44px;
+}
+.searchable-select-toggle{
+  position:absolute;
+  inset-inline-end:7px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:var(--text);
+  font-size:20px;
+  cursor:pointer;
+  z-index:2;
+}
+.searchable-select[data-open="true"] .searchable-select-toggle{
+  transform:translateY(-50%) rotate(180deg);
+}
+.searchable-select-native{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  inset-inline-start:0;
+  bottom:0;
+}
+.searchable-select-options{
+  position:absolute;
+  z-index:1200;
+  inset-inline:0;
+  top:calc(100% + 7px);
+  max-height:min(320px,42vh);
+  overflow:auto;
+  padding:6px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--surface);
+  box-shadow:0 18px 45px rgba(15,23,42,.2);
+}
+.searchable-select-option{
+  display:grid;
+  gap:4px;
+  width:100%;
+  padding:11px 12px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:var(--text);
+  text-align:right;
+  cursor:pointer;
+}
+.searchable-select-option:hover,
+.searchable-select-option:focus,
+.searchable-select-option.is-selected{
+  background:var(--soft);
+  outline:none;
+}
+.searchable-select-option strong{
+  font-size:14px;
+}
+.searchable-select-option span,
+.searchable-select-empty{
+  color:var(--muted);
+  font-size:12px;
+}
+.searchable-select-empty{
+  padding:18px 12px;
+  text-align:center;
+}
+html[data-theme="dark"] .searchable-select-options{
+  background:var(--dark-inner-surface,#111827);
+  border-color:var(--dark-control-border,rgba(148,163,184,.28));
+}
+html[data-theme="dark"] .searchable-select-option{
+  color:#fff;
+}
+html[data-theme="dark"] .searchable-select-option:hover,
+html[data-theme="dark"] .searchable-select-option:focus,
+html[data-theme="dark"] .searchable-select-option.is-selected{
+  background:rgba(59,130,246,.18);
+}
+@media (max-width:767px){
+  #quotationDialog{
+    overflow:visible;
+  }
+  #quotationDialog form{
+    overflow:visible;
+  }
+  .searchable-select-options{
+    position:fixed;
+    z-index:10050;
+    inset-inline:18px;
+    top:auto;
+    bottom:max(18px,env(safe-area-inset-bottom));
+    max-height:min(52vh,420px);
+    border-radius:18px;
+  }
+}
