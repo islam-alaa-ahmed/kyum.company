@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-23-0-m13-23-6";
+const CACHE_VERSION = "kyum-crm-pwa-18-24-0-m14-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -19,6 +19,7 @@ const CORE_APP_SHELL = [
   "./assets/css/daily-reports-responsive.css",
   "./assets/css/mobile-shell-touch-certification.css",
   "./assets/css/tablet-desktop-certification.css",
+  "./assets/css/installations-foundation.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/permissions.js",

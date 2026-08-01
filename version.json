@@ -1,12 +1,12 @@
 {
-  "version": "18.23.0",
-  "build": 182300,
+  "version": "18.24.0",
+  "build": 182400,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Final Enterprise Responsive Certification",
+  "title": "Installations Module Foundation",
   "notes": [
-    "الاعتماد النهائي لتكامل Responsive عبر Mobile وTablet وLaptop وDesktop وWide Desktop",
-    "اعتماد Portrait وLandscape وSafe Area وTouch وLight Mode وDark Mode دون تغيير منطق الأعمال",
-    "إغلاق سلسلة M13.23 بعد نجاح اختبارات Offline Cache وSmart Sync وQueue وRegression"
+    "إضافة قسم إدارة التركيبات أسفل إدارة العملاء في القائمة الرئيسية",
+    "إنشاء لوحة تأسيسية Responsive لدورة طلبات وجدولة وتنفيذ التركيبات",
+    "ربط القسم بمحرك التنقل والصلاحيات وتسجيله ضمن Offline App Shell"
   ]
 }

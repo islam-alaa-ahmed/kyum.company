@@ -38,6 +38,7 @@
   const DEFAULT_NAVIGATION_GROUPS = Object.freeze({
     "main-navigation": Object.freeze(["dashboard", "dailyOperations"]),
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
+    "installations-management": Object.freeze(["installationsOverview"]),
     "reports-analytics": Object.freeze(["reportsOverview", "dailyPerformanceReport"]),
     "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "systemSettings", "aboutApp"])
   });
