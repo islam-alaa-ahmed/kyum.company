@@ -30,19 +30,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.29.1" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.29.1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.30.0" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.30.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -127,6 +128,7 @@
             <button class="nav-item" data-view="installationCompletion" type="button">محاضر التركيبات</button>
             <button class="nav-item" data-view="installationExceptions" type="button">الاستثناءات وإعادة الزيارة</button>
             <button class="nav-item" data-view="installationReports" type="button">تقارير التركيبات</button>
+            <button class="nav-item" data-view="installationSettings" type="button">إعدادات التركيبات</button>
           </div>
         </section>
 
@@ -1203,67 +1205,21 @@
 
 
       <section id="installationsOverviewView" class="view-section hidden installations-overview-view" aria-hidden="true">
-        <div class="installations-hero panel">
-          <div>
-            <span class="installations-eyebrow">وحدة تشغيل ميداني</span>
-            <h3 class="section-title">إدارة التركيبات</h3>
-            <p>مركز موحد لتحويل عمليات البيع المعتمدة إلى طلبات تركيب ومتابعة الجدولة والتنفيذ والإغلاق.</p>
-          </div>
-          <div class="installations-foundation-badge" aria-label="حالة الوحدة">
-            <strong>Foundation</strong>
-            <span>تم تأسيس القسم والتنقل والصلاحيات</span>
-          </div>
+        <div class="actions-row installation-dashboard-header"><div><h3 class="section-title">لوحة التركيبات</h3><p class="section-note">ملخص تشغيلي مباشر للطلبات والجدولة والتنفيذ والاستثناءات.</p></div><button id="refreshInstallationsDashboardBtn" class="secondary-btn" type="button">تحديث البيانات</button></div>
+        <div id="installationsDashboardStatus" class="status-message hidden"></div>
+        <div class="installations-kpi-grid">
+          <article class="panel installation-kpi-card"><span>تركيبات اليوم</span><strong id="installationsDashToday">0</strong><small>المواعيد المحددة لليوم</small></article>
+          <article class="panel installation-kpi-card"><span>قيد التنفيذ</span><strong id="installationsDashInProgress">0</strong><small>في الطريق أو قيد التنفيذ</small></article>
+          <article class="panel installation-kpi-card"><span>متأخرة</span><strong id="installationsDashOverdue">0</strong><small>تجاوزت الموعد ولم تُغلق</small></article>
+          <article class="panel installation-kpi-card"><span>مكتملة</span><strong id="installationsDashCompleted">0</strong><small>إجمالي التركيبات المكتملة</small></article>
+          <article class="panel installation-kpi-card"><span>غير مسندة</span><strong id="installationsDashUnassigned">0</strong><small>طلبات بلا فني مسؤول</small></article>
+          <article class="panel installation-kpi-card"><span>استثناءات مفتوحة</span><strong id="installationsDashExceptions">0</strong><small>مؤجلة أو متعذرة</small></article>
         </div>
-
-        <div class="installations-kpi-grid" aria-label="مؤشرات التركيبات">
-          <article class="panel installation-kpi-card"><span>تركيبات اليوم</span><strong>—</strong><small>سيتم ربطها ببيانات الطلبات</small></article>
-          <article class="panel installation-kpi-card"><span>قيد التنفيذ</span><strong>—</strong><small>تحديث لحظي بعد تفعيل التشغيل</small></article>
-          <article class="panel installation-kpi-card"><span>متأخرة</span><strong>—</strong><small>وفق موعد التنفيذ وSLA</small></article>
-          <article class="panel installation-kpi-card"><span>مكتملة</span><strong>—</strong><small>بعد اعتماد محضر التركيب</small></article>
+        <div class="installation-dashboard-grid">
+          <article class="panel"><div class="panel-header"><div><h3>توزيع الحالات</h3><p>عدد الطلبات في كل حالة تشغيلية.</p></div></div><div id="installationsStatusSummary" class="installation-status-summary"></div></article>
+          <article class="panel"><div class="panel-header"><div><h3>أقرب التركيبات</h3><p>الطلبات المجدولة القادمة.</p></div></div><div id="installationsUpcomingList" class="installation-upcoming-list"></div></article>
         </div>
-
-        <div class="installations-module-grid">
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">01</div>
-            <div><h4>طلبات التركيبات</h4><p>إنشاء الطلب وربطه بالعميل وعرض السعر ومتابعة حالته حتى الإغلاق.</p></div>
-          </article>
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">02</div>
-            <div><h4>تقويم وجدولة التركيبات</h4><p>عرض يومي وأسبوعي وشهري للمواعيد والطاقة التشغيلية المتاحة.</p></div>
-          </article>
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">03</div>
-            <div><h4>توزيع الفنيين</h4><p>إسناد الطلبات للفرق والفنيين وإعادة الجدولة وفق التوفر والموقع.</p></div>
-          </article>
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">04</div>
-            <div><h4>تنفيذ التركيب</h4><p>واجهة ميدانية للجوال تشمل الوصول والبدء والإنهاء وتعذر التنفيذ.</p></div>
-          </article>
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">05</div>
-            <div><h4>محاضر التركيب</h4><p>توثيق الصور والتوقيع والملاحظات والاستلام وإرفاق المستندات.</p></div>
-          </article>
-          <article class="panel installation-module-card">
-            <div class="installation-module-index">06</div>
-            <div><h4>التقارير والإعدادات</h4><p>الإنتاجية والتأخير وإعادة الزيارة وأسباب التعذر وأنواع التركيبات.</p></div>
-          </article>
-        </div>
-
-        <article class="panel installations-workflow-panel">
-          <div class="panel-header">
-            <div><h3>دورة العمل المعتمدة</h3><p>الهيكل التشغيلي الذي ستُبنى عليه المراحل التالية.</p></div>
-          </div>
-          <ol class="installations-workflow" aria-label="دورة عمل التركيب">
-            <li><span>1</span><strong>اعتماد البيع</strong></li>
-            <li><span>2</span><strong>إنشاء طلب تركيب</strong></li>
-            <li><span>3</span><strong>تحديد الموعد والفني</strong></li>
-            <li><span>4</span><strong>تنفيذ الزيارة</strong></li>
-            <li><span>5</span><strong>المحضر والتوقيع</strong></li>
-            <li><span>6</span><strong>إغلاق الطلب</strong></li>
-          </ol>
-        </article>
       </section>
-
 
       <section id="installationRequestsView" class="view-section hidden installation-requests-view" aria-hidden="true">
         <div class="actions-row installation-requests-header">
@@ -2970,10 +2926,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.29.1"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.29.1"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.29.1"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.29.1"></script>
+  <script src="assets/js/performance-monitor.js?v=18.30.0"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.30.0"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.30.0"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.30.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3262,51 +3218,65 @@
     </form>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.29.1"></script>
-  <script src="assets/js/offline-session-store.js?v=18.29.1"></script>
-  <script src="assets/js/supabase-client.js?v=18.29.1"></script>
-  <script src="assets/js/permissions.js?v=18.29.1"></script>
-  <script src="assets/js/permission-engine.js?v=18.29.1"></script>
-  <script src="assets/js/smart-cache.js?v=18.29.1"></script>
-  <script src="assets/js/sync-engine.js?v=18.29.1"></script>
-  <script src="assets/js/offline-queue.js?v=18.29.1"></script>
-  <script src="assets/js/permissions-service.js?v=18.29.1"></script>
-  <script src="assets/js/auth-session.js?v=18.29.1"></script>
-  <script src="assets/js/reference-data-service.js?v=18.29.1"></script>
-  <script src="assets/js/customers-service.js?v=18.29.1"></script>
-  <script src="assets/js/followups-service.js?v=18.29.1"></script>
-  <script src="assets/js/quotations-service.js?v=18.29.1"></script>
-  <script src="assets/js/users-service.js?v=18.29.1"></script>
-  <script src="assets/js/activity-service.js?v=18.29.1"></script>
-  <script src="assets/js/backup-service.js?v=18.29.1"></script>
-  <script src="assets/js/system-settings-service.js?v=18.29.1"></script>
-  <script src="assets/js/system-health-service.js?v=18.29.1"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.29.1"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.29.1"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.29.1"></script>
-  <script src="assets/js/installations-service.js?v=18.29.1"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.29.1"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.29.1"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.29.1"></script>
+      <section id="installationSettingsView" class="view-section hidden installation-settings-view" aria-hidden="true">
+        <div class="actions-row"><div><h3 class="section-title">إعدادات التركيبات</h3><p class="section-note">ضبط فترات العمل والمهلة التشغيلية والقيم الافتراضية للوحدة.</p></div></div>
+        <div id="installationSettingsStatus" class="status-message hidden"></div>
+        <form id="installationSettingsForm" class="panel installation-settings-form">
+          <label>اسم الفترة الصباحية<input id="installationMorningLabel" required maxlength="40"></label>
+          <label>اسم الفترة المسائية<input id="installationEveningLabel" required maxlength="40"></label>
+          <label>مهلة اعتبار الطلب متأخرًا بالأيام<input id="installationSlaDays" type="number" min="0" max="365" required></label>
+          <label>الأولوية الافتراضية<select id="installationDefaultPriority"><option>عادية</option><option>عاجلة</option><option>حرجة</option></select></label>
+          <label class="installation-settings-check"><input id="installationRequireCompletionReport" type="checkbox"><span>إلزام محضر الإكمال قبل الإغلاق النهائي</span></label>
+          <div class="installation-settings-actions"><button class="primary-btn" type="submit">حفظ الإعدادات</button></div>
+        </form>
+      </section>
+
+  <script src="assets/js/supabase-config.js?v=18.30.0"></script>
+  <script src="assets/js/offline-session-store.js?v=18.30.0"></script>
+  <script src="assets/js/supabase-client.js?v=18.30.0"></script>
+  <script src="assets/js/permissions.js?v=18.30.0"></script>
+  <script src="assets/js/permission-engine.js?v=18.30.0"></script>
+  <script src="assets/js/smart-cache.js?v=18.30.0"></script>
+  <script src="assets/js/sync-engine.js?v=18.30.0"></script>
+  <script src="assets/js/offline-queue.js?v=18.30.0"></script>
+  <script src="assets/js/permissions-service.js?v=18.30.0"></script>
+  <script src="assets/js/auth-session.js?v=18.30.0"></script>
+  <script src="assets/js/reference-data-service.js?v=18.30.0"></script>
+  <script src="assets/js/customers-service.js?v=18.30.0"></script>
+  <script src="assets/js/followups-service.js?v=18.30.0"></script>
+  <script src="assets/js/quotations-service.js?v=18.30.0"></script>
+  <script src="assets/js/users-service.js?v=18.30.0"></script>
+  <script src="assets/js/activity-service.js?v=18.30.0"></script>
+  <script src="assets/js/backup-service.js?v=18.30.0"></script>
+  <script src="assets/js/system-settings-service.js?v=18.30.0"></script>
+  <script src="assets/js/system-health-service.js?v=18.30.0"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.30.0"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.30.0"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.30.0"></script>
+  <script src="assets/js/installations-service.js?v=18.30.0"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.30.0"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.30.0"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.30.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.29.1"></script>
-  <script src="assets/js/export-center.js?v=18.29.1"></script>
-  <script src="assets/js/customer360-engine.js?v=18.29.1"></script>
-  <script src="assets/js/customer360-export.js?v=18.29.1"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.29.1"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.29.1"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.29.1"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.29.1"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.29.1"></script>
-  <script src="assets/js/app.js?v=18.29.1"></script>
-  <script src="assets/js/installations-module.js?v=18.29.1"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.29.1"></script>
-  <script src="assets/js/installation-execution.js?v=18.29.1"></script>
-  <script src="assets/js/installation-completion.js?v=18.29.1"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.29.1"></script>
-  <script src="assets/js/mobile.js?v=18.29.1"></script>
-  <script src="assets/js/pwa.js?v=18.29.1"></script>
-  <script src="assets/js/native.js?v=18.29.1"></script>
+  <script src="assets/js/reports-engine.js?v=18.30.0"></script>
+  <script src="assets/js/export-center.js?v=18.30.0"></script>
+  <script src="assets/js/customer360-engine.js?v=18.30.0"></script>
+  <script src="assets/js/customer360-export.js?v=18.30.0"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.30.0"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.30.0"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.30.0"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.30.0"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.30.0"></script>
+  <script src="assets/js/app.js?v=18.30.0"></script>
+  <script src="assets/js/installations-module.js?v=18.30.0"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.30.0"></script>
+  <script src="assets/js/installation-execution.js?v=18.30.0"></script>
+  <script src="assets/js/installation-completion.js?v=18.30.0"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.30.0"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.30.0"></script>
+  <script src="assets/js/mobile.js?v=18.30.0"></script>
+  <script src="assets/js/pwa.js?v=18.30.0"></script>
+  <script src="assets/js/native.js?v=18.30.0"></script>
 </body>
 </html>

@@ -1,33 +1,25 @@
-# Phase M14.6.1 — Schema Compatibility Hotfix
+# Phase M14.7 — Installation Dashboard Integration, Settings & Final Module Certification
 
 ## Root Cause
-M14.6 used a non-canonical permissions schema (`group_key`, `sort_order`, `role_id`, `public.roles`, `can_import`) while the actual KYUM baseline defines `app_screens(group_name, display_order)` and `role_screen_permissions(role, screen_key, ... can_export)` using `public.app_role`.
+The installations overview remained a static foundation placeholder after operational screens were completed. The module also had no persisted operational settings screen. Final module certification therefore required real dashboard aggregation, schema-compatible settings, permission registration, App Shell registration, and cumulative regression checks.
 
-A second mismatch used `صباحية/مسائية` for revisit slots while installation requests use the canonical stored values `صباحي/مسائي`.
-
-## Fix
-- Replaced all invalid permission-schema references with the actual Phase 11 schema.
-- Registered the two M14.6 screens under `إدارة التركيبات`.
-- Granted only the intended Super Admin permissions.
-- Added `view` permission to the revisit SELECT RLS policy.
-- Standardized stored time-slot values to `صباحي/مسائي` while preserving the visible Arabic labels.
-- Kept the migration transactional and idempotent.
-
-## Execution
-Run `supabase/migrations/phase_m14_6_installation_exceptions_revisits_reports.sql` again in Supabase SQL Editor. The failed previous run rolled back because it was inside `begin/commit`.
+## Scope
+- Replace placeholder dashboard indicators with live installation data.
+- Add status distribution and upcoming-installations panels.
+- Add Installation Settings screen and persisted singleton settings table.
+- Register installationSettings in navigation and permission engine.
+- Preserve all M14.1–M14.6.1 functionality and existing offline boundaries.
 
 ## Version
-- Version: 18.29.1
-- Build: 182901
-- Cache Token: kyum-crm-pwa-18-29-1-m14-6-1-schema-hotfix
+- Version: 18.30.0
+- Build: 183000
+- Cache Token: kyum-crm-pwa-18-30-0-m14-7-final-certification
 
 ## Modified Files
-- supabase/migrations/phase_m14_6_installation_exceptions_revisits_reports.sql
-- supabase/verification/phase_m14_6_1_schema_compatibility_verification.sql
-- index.html
-- assets/js/installation-operations-reports.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- PHASE_REPORT.md
+index.html; assets/css/installation-dashboard-settings.css; assets/js/app.js; assets/js/installations-service.js; assets/js/installation-dashboard-settings.js; assets/js/permission-engine.js; assets/js/pwa.js; service-worker.js; package.json; version.json; migration and verification SQL; PHASE_REPORT.md.
+
+## Database Compatibility
+Uses actual project columns: app_screens.group_name/display_order and role_screen_permissions.role. No group_key, sort_order, role_id, roles table, or can_import dependency.
+
+## Offline Boundary
+The UI assets are App Shell cached. Dashboard reads and settings writes remain online-only, matching the declared installations module policy. Existing Offline Login, Smart Cache, Queue and Background Sync are unchanged.

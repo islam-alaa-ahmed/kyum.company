@@ -1,12 +1,12 @@
 {
-  "version": "18.29.1",
-  "build": 182901,
+  "version": "18.30.0",
+  "build": 183000,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "M14.6 Schema Compatibility Hotfix",
+  "title": "M14.7 Installation Dashboard Settings Final Certification",
   "notes": [
-    "إصلاح توافق app_screens وrole_screen_permissions مع Schema الفعلية",
-    "توحيد قيم الفترة إلى صباحي ومسائي",
-    "إعادة تشغيل Migration M14.6 بأمان"
+    "ربط لوحة التركيبات بالبيانات الفعلية",
+    "إضافة إعدادات التركيبات",
+    "اعتماد نهائي لوحدة إدارة التركيبات"
   ]
 }
