@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-33-0-m14-8-3-settings-navigation";
+const CACHE_VERSION = "kyum-crm-pwa-18-34-0-m14-8-4-settings-single-view";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
