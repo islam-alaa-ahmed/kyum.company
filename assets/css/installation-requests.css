@@ -6,3 +6,31 @@
 .installation-request-page-form{padding:clamp(16px,2vw,28px)}
 .installation-request-page-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px}
 @media (max-width:767px){.installation-request-page-actions{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));z-index:3;padding:12px;background:var(--surface,#fff);border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,.14)}.installation-request-page-actions>*{flex:1}}
+
+/* Phase M14.8.2 — installation request business workflow and multi-service form */
+.installation-request-workflow-form{display:grid;gap:18px}
+.installation-request-new-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.installation-request-step-card{padding:0;overflow:hidden}
+.installation-step-header{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border,#dbe2ea);background:var(--surface-soft,#f8fafc)}
+.installation-step-header h4{margin:0 0 4px;font-size:1.05rem}
+.installation-step-header p{margin:0;color:var(--text-muted,#64748b);font-size:.9rem}
+.installation-step-number{display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;height:34px;border-radius:10px;background:rgba(37,99,235,.12);color:#2563eb;font-weight:800}
+.installation-request-step-card>.installation-request-form-grid,.installation-request-step-card>.installation-notes-label{margin:20px}
+.installation-customer-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.installation-priority-grid{grid-template-columns:minmax(220px,360px);margin-top:16px!important}
+.required-mark{color:#dc2626}
+.installation-services-table-wrap{margin:20px 20px 0;overflow:auto;border:1px solid var(--border,#dbe2ea);border-radius:14px}
+.installation-services-table{width:100%;min-width:760px;border-collapse:collapse}
+.installation-services-table th,.installation-services-table td{padding:12px;border-bottom:1px solid var(--border,#e2e8f0);vertical-align:middle}
+.installation-services-table tbody tr:last-child td{border-bottom:0}
+.installation-services-table select,.installation-services-table input{width:100%;min-height:44px}
+.installation-service-line-total{font-weight:800;white-space:nowrap}
+.installation-services-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px}
+.installation-services-summary{display:grid;grid-template-columns:auto auto;gap:5px 14px;align-items:center;min-width:260px}
+.installation-services-summary span{color:var(--text-muted,#64748b);font-size:.85rem}
+.installation-services-summary strong{text-align:end;font-size:1rem}
+.installation-notes-label{display:grid;gap:8px}
+.installation-notes-label textarea{width:100%;resize:vertical;min-height:130px}
+.installation-status-badge[data-status="بانتظار المراجعة"]{background:#fef3c7;color:#92400e}
+@media(max-width:1023px){.installation-customer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-customer-grid label:last-child{grid-column:1/-1}}
+@media(max-width:767px){.installation-request-new-heading{display:block}.installation-step-header{padding:14px}.installation-request-step-card>.installation-request-form-grid,.installation-request-step-card>.installation-notes-label{margin:14px}.installation-customer-grid,.installation-priority-grid{grid-template-columns:1fr}.installation-customer-grid label:last-child{grid-column:auto}.installation-services-table-wrap{margin:14px 14px 0}.installation-services-footer{align-items:stretch;flex-direction:column;padding:14px}.installation-services-summary{min-width:0}.installation-services-footer .secondary-btn{width:100%}}
