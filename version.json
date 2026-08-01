@@ -1,12 +1,12 @@
 {
-  "version": "18.22.0",
-  "build": 182200,
+  "version": "18.23.0",
+  "build": 182300,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Tablet, Laptop & Wide Desktop Certification",
+  "title": "Final Enterprise Responsive Certification",
   "notes": [
-    "اعتماد تخطيطات Tablet وLaptop وDesktop وWide Desktop مع منع التمدد والـoverflow",
-    "تثبيت الجداول والفلاتر والنماذج والحوارات في شاشات الإدارة والنظام",
-    "الحفاظ الكامل على Mobile Shell وOffline Cache وSmart Sync والصلاحيات دون تغيير منطق الأعمال"
+    "الاعتماد النهائي لتكامل Responsive عبر Mobile وTablet وLaptop وDesktop وWide Desktop",
+    "اعتماد Portrait وLandscape وSafe Area وTouch وLight Mode وDark Mode دون تغيير منطق الأعمال",
+    "إغلاق سلسلة M13.23 بعد نجاح اختبارات Offline Cache وSmart Sync وQueue وRegression"
   ]
 }
