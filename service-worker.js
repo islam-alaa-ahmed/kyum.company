@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-32-0-m14-8-2-request-workflow-services";
+const CACHE_VERSION = "kyum-crm-pwa-18-33-0-m14-8-3-settings-navigation";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -50,6 +50,7 @@ const CORE_APP_SHELL = [
   "./assets/js/installation-completion.js",
   "./assets/js/installation-operations-reports.js",
   "./assets/js/installation-dashboard-settings.js",
+  "./assets/js/installation-settings-management.js",
   "./assets/js/mobile.js",
   "./assets/js/pwa.js"
 ];

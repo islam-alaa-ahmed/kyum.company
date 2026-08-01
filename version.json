@@ -1,12 +1,12 @@
 {
-  "version": "18.32.0",
-  "build": 183200,
+  "version": "18.33.0",
+  "build": 183300,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "M14.8.2 Installation Request Business Workflow & Multi-Service Form",
+  "title": "M14.8.3 Installation Settings Screen & Sidebar Navigation Recovery",
   "notes": [
-    "إعادة تنظيم شاشة طلب تركيب جديد وفق دورة العمل الفعلية",
-    "إضافة خدمات متعددة مع العدد والسعر والإجماليات",
-    "حفظ الطلب بحالة بانتظار المراجعة دون تحديد موعد أو فني"
+    "إصلاح ظهور وتنسيق إعدادات التركيبات داخل القائمة",
+    "إدارة الخدمات بالسعر والتكلفة والحالة",
+    "إدارة فرق التركيبات والأحياء المرجعية"
   ]
 }

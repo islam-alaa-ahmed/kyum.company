@@ -1,44 +1,32 @@
-# Phase M14.8.2 — Installation Request Business Workflow & Multi-Service Form
+# Phase M14.8.3 — Installation Settings Screen & Sidebar Navigation Recovery
 
 ## Root Cause
-The previous new-request screen collected scheduling and execution fields during request creation and stored only one free-text work description. This did not match the approved workflow, where the requester records the customer, neighborhood, services, quantities and prices, while the installation supervisor reviews and schedules the request later.
+- مجموعة إدارة التركيبات تحتوي تسعة عناصر، بينما `nav-group-content` كانت محددة بارتفاع ثابت، فتختفي العناصر الأخيرة وتتداخل المجموعة مع الأقسام التالية.
+- شاشة إعدادات التركيبات القديمة كانت نموذج إعدادات تشغيل عام، ولا تدير البيانات المرجعية الفعلية المطلوبة لإنشاء الطلب.
+- جدول الخدمات لم يحتوِ تكلفة، ولم يوجد كيان مستقل لفرق التركيبات، والأحياء لم تحتوِ المدينة والمنطقة.
 
 ## Scope
-- Reorganized the separate new installation request screen into customer, service details and notes sections.
-- Removed scheduling date, time slot and operational status from request creation.
-- Added optional quotation linkage.
-- Added reference-backed neighborhood and service type fields.
-- Added multiple service rows with quantity, unit price, line total, total quantity and grand total.
-- New requests are saved as `بانتظار المراجعة` and appear in Installation Requests.
-- Added a transactional database RPC so the request and all service lines are created atomically.
-- Added service summaries and total value to the requests table.
+- إصلاح تمرير وتنسيق مجموعة إدارة التركيبات وإظهار إعدادات التركيبات كآخر عنصر.
+- استبدال محتوى الشاشة بثلاث قوائم منسدلة: الخدمات، فرق التركيبات، الأحياء.
+- CRUD والصلاحيات للخدمات والفرق والأحياء.
+- إضافة السعر والتكلفة للخدمات، وبيانات الفريق، والمدينة والمنطقة للأحياء.
 
-## Database
-- `installation_neighborhoods`
-- `installation_service_types`
-- `installation_request_services`
-- New request columns: `neighborhood_id`, `total_services_count`, `total_services_amount`
-- Status constraint extended with `بانتظار المراجعة` and `وصل إلى العميل` for the approved workflow.
+## Version
+- Version: 18.33.0
+- Build: 183300
+- Cache Token: kyum-crm-pwa-18-33-0-m14-8-3-settings-navigation
 
-Existing customer districts are copied into the neighborhood reference table during migration. Service types remain controlled reference data and must be populated with the company's actual services.
-
-## Files Modified
+## Modified Files
 - index.html
-- assets/css/installation-requests.css
-- assets/js/installations-module.js
+- assets/css/installation-dashboard-settings.css
 - assets/js/installations-service.js
+- assets/js/installation-settings-management.js
 - assets/js/pwa.js
 - service-worker.js
 - package.json
 - version.json
-- supabase/migrations/phase_m14_8_2_installation_request_business_workflow_multi_service.sql
-- supabase/verification/phase_m14_8_2_installation_request_business_workflow_verification.sql
-- PHASE_REPORT.md
+- supabase/migrations/phase_m14_8_3_installation_settings_navigation_recovery.sql
+- supabase/verification/phase_m14_8_3_installation_settings_navigation_verification.sql
 
-## Release
-- Version: 18.32.0
-- Build: 183200
-- Cache Token: kyum-crm-pwa-18-32-0-m14-8-2-request-workflow-services
-
-## Boundaries
-No scheduling, technician assignment, execution, completion evidence, customer/follow-up/quotation business logic, or existing offline queue behavior was changed.
+## Regression Boundary
+No customer, quotation, scheduling, execution, completion, offline queue, smart sync, or RLS visibility logic was changed outside installation settings reference-data management.
