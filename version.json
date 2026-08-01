@@ -1,12 +1,12 @@
 {
-  "version": "18.27.0",
-  "build": 182700,
+  "version": "18.28.0",
+  "build": 182800,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Technician Mobile Execution & Installation Status Workflow",
+  "title": "Installation Completion Report, Photos & Customer Signature",
   "notes": [
-    "إضافة شاشة تنفيذ التركيبات للفنيين",
-    "إضافة دورة حالات الزيارة الميدانية",
-    "تسجيل أوقات الوصول والبدء والإكمال"
+    "إضافة محاضر إكمال التركيبات",
+    "رفع صور قبل وبعد التركيب",
+    "توقيع العميل وطباعة المحضر"
   ]
 }
