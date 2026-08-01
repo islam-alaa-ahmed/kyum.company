@@ -1,12 +1,12 @@
 {
-  "version": "18.21.0",
-  "build": 182100,
+  "version": "18.22.0",
+  "build": 182200,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Mobile Shell & Touch Certification",
+  "title": "Tablet, Laptop & Wide Desktop Certification",
   "notes": [
-    "اعتماد ثبات Mobile Shell في Portrait وLandscape مع الحفاظ على واجهة الموبايل",
-    "توحيد Safe Area وVisual Viewport واستعادة أقفال التمرير العالقة بأمان",
-    "اعتماد أهداف لمس لا تقل عن 44px وتحسين ملكية التمرير الأفقي والرأسي دون تغيير منطق الأعمال"
+    "اعتماد تخطيطات Tablet وLaptop وDesktop وWide Desktop مع منع التمدد والـoverflow",
+    "تثبيت الجداول والفلاتر والنماذج والحوارات في شاشات الإدارة والنظام",
+    "الحفاظ الكامل على Mobile Shell وOffline Cache وSmart Sync والصلاحيات دون تغيير منطق الأعمال"
   ]
 }
