@@ -27,6 +27,7 @@
     Object.freeze({ selector: "#installationTechnicianForm button[type=submit]", screen: "installationSchedule", action: "add" }),
     Object.freeze({ selector: "[data-technician-edit]", screen: "installationSchedule", action: "edit" }),
     Object.freeze({ selector: "[data-technician-delete]", screen: "installationSchedule", action: "delete" }),
+    Object.freeze({ selector: "[data-installation-execute],#saveInstallationExecution", screen: "installationExecution", action: "edit" }),
     Object.freeze({ selector: "[data-edit-quotation]", screen: "quotations", action: "edit" }),
     Object.freeze({ selector: "[data-delete-quotation]", screen: "quotations", action: "delete" }),
     Object.freeze({ selector: "#representativesImportBtn,#representativeImportChooseFileBtn,#representativeImportExecuteBtn", screen: "representatives", action: "import" }),
@@ -45,7 +46,7 @@
   const DEFAULT_NAVIGATION_GROUPS = Object.freeze({
     "main-navigation": Object.freeze(["dashboard", "dailyOperations"]),
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
-    "installations-management": Object.freeze(["installationsOverview", "installationRequests", "installationSchedule"]),
+    "installations-management": Object.freeze(["installationsOverview", "installationRequests", "installationSchedule", "installationExecution"]),
     "reports-analytics": Object.freeze(["reportsOverview", "dailyPerformanceReport"]),
     "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "systemSettings", "aboutApp"])
   });

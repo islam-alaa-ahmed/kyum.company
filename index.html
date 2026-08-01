@@ -30,16 +30,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.26.0" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.26.0" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.27.0" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.27.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -120,6 +121,7 @@
             <button class="nav-item" data-view="installationsOverview" type="button">لوحة التركيبات</button>
             <button class="nav-item" data-view="installationRequests" type="button">طلبات التركيبات</button>
             <button class="nav-item" data-view="installationSchedule" type="button">جدولة وتوزيع التركيبات</button>
+            <button class="nav-item" data-view="installationExecution" type="button">تنفيذ التركيبات</button>
           </div>
         </section>
 
@@ -1325,6 +1327,32 @@
           <div class="panel-heading"><div><h4>طلبات تحتاج جدولة أو إسناد</h4><p>الطلبات الجديدة أو غير المرتبطة بفني.</p></div></div>
           <div class="table-wrap"><table class="data-table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الموعد</th><th>الحالة</th><th>الفني</th><th>الإجراء</th></tr></thead><tbody id="installationUnscheduledBody"><tr><td colspan="6" class="empty-cell">جاري التحميل...</td></tr></tbody></table></div>
         </div>
+      </section>
+
+
+      <section id="installationExecutionView" class="view-section hidden installation-execution-view" aria-hidden="true">
+        <div class="actions-row installation-execution-header">
+          <div>
+            <h3 class="section-title">تنفيذ التركيبات</h3>
+            <p class="section-note">واجهة تشغيل ميداني للفني لتحديث حالة الزيارة وتوثيق وقت الوصول والتنفيذ.</p>
+          </div>
+          <button id="refreshInstallationExecutionBtn" class="primary-btn" type="button">تحديث المهام</button>
+        </div>
+        <div class="panel installation-execution-filters">
+          <label>بحث<input id="installationExecutionSearch" type="search" placeholder="رقم الطلب، العميل أو الهاتف"></label>
+          <label>الفني<select id="installationExecutionTechnicianFilter"><option value="">كل الفنيين</option></select></label>
+          <label>الحالة<select id="installationExecutionStatusFilter"><option value="">الحالات المفتوحة</option><option>مسند</option><option>في الطريق</option><option>قيد التنفيذ</option><option>مؤجل</option><option>متعذر</option><option>مكتمل</option></select></label>
+          <label>التاريخ<input id="installationExecutionDateFilter" type="date"></label>
+          <button id="resetInstallationExecutionFilters" class="secondary-btn" type="button">إعادة تعيين</button>
+        </div>
+        <div class="installation-execution-kpis">
+          <article class="panel"><span>مهام اليوم</span><strong id="installationExecutionKpiToday">0</strong></article>
+          <article class="panel"><span>في الطريق</span><strong id="installationExecutionKpiOnRoute">0</strong></article>
+          <article class="panel"><span>قيد التنفيذ</span><strong id="installationExecutionKpiInProgress">0</strong></article>
+          <article class="panel"><span>مكتملة اليوم</span><strong id="installationExecutionKpiCompleted">0</strong></article>
+        </div>
+        <div id="installationExecutionStatus" class="data-status hidden" aria-live="polite"></div>
+        <div id="installationExecutionCards" class="installation-execution-grid"></div>
       </section>
 
       <section id="reportsOverviewView" class="view-section hidden">
@@ -2868,10 +2896,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.26.0"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.26.0"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.26.0"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.26.0"></script>
+  <script src="assets/js/performance-monitor.js?v=18.27.0"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.27.0"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.27.0"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.27.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3088,48 +3116,75 @@
     </div>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.26.0"></script>
-  <script src="assets/js/offline-session-store.js?v=18.26.0"></script>
-  <script src="assets/js/supabase-client.js?v=18.26.0"></script>
-  <script src="assets/js/permissions.js?v=18.26.0"></script>
-  <script src="assets/js/permission-engine.js?v=18.26.0"></script>
-  <script src="assets/js/smart-cache.js?v=18.26.0"></script>
-  <script src="assets/js/sync-engine.js?v=18.26.0"></script>
-  <script src="assets/js/offline-queue.js?v=18.26.0"></script>
-  <script src="assets/js/permissions-service.js?v=18.26.0"></script>
-  <script src="assets/js/auth-session.js?v=18.26.0"></script>
-  <script src="assets/js/reference-data-service.js?v=18.26.0"></script>
-  <script src="assets/js/customers-service.js?v=18.26.0"></script>
-  <script src="assets/js/followups-service.js?v=18.26.0"></script>
-  <script src="assets/js/quotations-service.js?v=18.26.0"></script>
-  <script src="assets/js/users-service.js?v=18.26.0"></script>
-  <script src="assets/js/activity-service.js?v=18.26.0"></script>
-  <script src="assets/js/backup-service.js?v=18.26.0"></script>
-  <script src="assets/js/system-settings-service.js?v=18.26.0"></script>
-  <script src="assets/js/system-health-service.js?v=18.26.0"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.26.0"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.26.0"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.26.0"></script>
-  <script src="assets/js/installations-service.js?v=18.26.0"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.26.0"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.26.0"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.26.0"></script>
+
+  <dialog id="installationExecutionDialog" class="glass-dialog installation-execution-dialog">
+    <form id="installationExecutionForm" class="dialog-shell">
+      <div class="dialog-header"><div><h3>تنفيذ طلب التركيب</h3><p id="installationExecutionRequestLabel">—</p></div><button id="closeInstallationExecutionDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
+      <input id="installationExecutionRequestId" type="hidden">
+      <div class="installation-execution-summary">
+        <div><span>العميل</span><strong id="installationExecutionCustomer">—</strong></div>
+        <div><span>الجوال</span><strong id="installationExecutionPhone">—</strong></div>
+        <div><span>العنوان</span><strong id="installationExecutionAddress">—</strong></div>
+        <div><span>الفني</span><strong id="installationExecutionTechnician">—</strong></div>
+      </div>
+      <div class="installation-execution-quick-actions">
+        <a id="installationExecutionCall" class="secondary-btn" href="#">اتصال</a>
+        <a id="installationExecutionWhatsapp" class="secondary-btn" href="#" target="_blank" rel="noopener">واتساب</a>
+        <a id="installationExecutionMaps" class="secondary-btn" href="#" target="_blank" rel="noopener">فتح الموقع</a>
+      </div>
+      <div class="form-grid">
+        <label>الحالة<select id="installationExecutionNextStatus" required><option value="في الطريق">في الطريق</option><option value="قيد التنفيذ">قيد التنفيذ</option><option value="مكتمل">مكتمل</option><option value="مؤجل">مؤجل</option><option value="متعذر">متعذر</option></select></label>
+        <label>سبب التأجيل أو التعذر<select id="installationExecutionFailureReason"><option value="">غير محدد</option><option>العميل غير موجود</option><option>الموقع غير جاهز</option><option>نقص مواد</option><option>تأجيل العميل</option><option>تعذر الوصول</option><option>سبب آخر</option></select></label>
+        <label class="full-span">ملاحظات التنفيذ<textarea id="installationExecutionNotes" rows="4" maxlength="2000"></textarea></label>
+      </div>
+      <div id="installationExecutionFormStatus" class="data-status hidden" aria-live="polite"></div>
+      <div class="dialog-actions"><button id="cancelInstallationExecution" class="secondary-btn" type="button">إلغاء</button><button id="saveInstallationExecution" class="primary-btn" type="submit">حفظ تحديث التنفيذ</button></div>
+    </form>
+  </dialog>
+
+  <script src="assets/js/supabase-config.js?v=18.27.0"></script>
+  <script src="assets/js/offline-session-store.js?v=18.27.0"></script>
+  <script src="assets/js/supabase-client.js?v=18.27.0"></script>
+  <script src="assets/js/permissions.js?v=18.27.0"></script>
+  <script src="assets/js/permission-engine.js?v=18.27.0"></script>
+  <script src="assets/js/smart-cache.js?v=18.27.0"></script>
+  <script src="assets/js/sync-engine.js?v=18.27.0"></script>
+  <script src="assets/js/offline-queue.js?v=18.27.0"></script>
+  <script src="assets/js/permissions-service.js?v=18.27.0"></script>
+  <script src="assets/js/auth-session.js?v=18.27.0"></script>
+  <script src="assets/js/reference-data-service.js?v=18.27.0"></script>
+  <script src="assets/js/customers-service.js?v=18.27.0"></script>
+  <script src="assets/js/followups-service.js?v=18.27.0"></script>
+  <script src="assets/js/quotations-service.js?v=18.27.0"></script>
+  <script src="assets/js/users-service.js?v=18.27.0"></script>
+  <script src="assets/js/activity-service.js?v=18.27.0"></script>
+  <script src="assets/js/backup-service.js?v=18.27.0"></script>
+  <script src="assets/js/system-settings-service.js?v=18.27.0"></script>
+  <script src="assets/js/system-health-service.js?v=18.27.0"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.27.0"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.27.0"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.27.0"></script>
+  <script src="assets/js/installations-service.js?v=18.27.0"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.27.0"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.27.0"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.27.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.26.0"></script>
-  <script src="assets/js/export-center.js?v=18.26.0"></script>
-  <script src="assets/js/customer360-engine.js?v=18.26.0"></script>
-  <script src="assets/js/customer360-export.js?v=18.26.0"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.26.0"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.26.0"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.26.0"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.26.0"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.26.0"></script>
-  <script src="assets/js/app.js?v=18.26.0"></script>
-  <script src="assets/js/installations-module.js?v=18.26.0"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.26.0"></script>
-  <script src="assets/js/mobile.js?v=18.26.0"></script>
-  <script src="assets/js/pwa.js?v=18.26.0"></script>
-  <script src="assets/js/native.js?v=18.26.0"></script>
+  <script src="assets/js/reports-engine.js?v=18.27.0"></script>
+  <script src="assets/js/export-center.js?v=18.27.0"></script>
+  <script src="assets/js/customer360-engine.js?v=18.27.0"></script>
+  <script src="assets/js/customer360-export.js?v=18.27.0"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.27.0"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.27.0"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.27.0"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.27.0"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.27.0"></script>
+  <script src="assets/js/app.js?v=18.27.0"></script>
+  <script src="assets/js/installations-module.js?v=18.27.0"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.27.0"></script>
+  <script src="assets/js/installation-execution.js?v=18.27.0"></script>
+  <script src="assets/js/mobile.js?v=18.27.0"></script>
+  <script src="assets/js/pwa.js?v=18.27.0"></script>
+  <script src="assets/js/native.js?v=18.27.0"></script>
 </body>
 </html>

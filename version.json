@@ -1,12 +1,12 @@
 {
-  "version": "18.26.0",
-  "build": 182600,
+  "version": "18.27.0",
+  "build": 182700,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Installation Scheduling Calendar & Assignment Foundation",
+  "title": "Technician Mobile Execution & Installation Status Workflow",
   "notes": [
-    "إضافة تقويم شهري لجدولة طلبات التركيبات",
-    "إضافة إدارة الفنيين وإسناد الطلبات",
-    "إضافة مؤشرات الأحمال والطلبات غير المسندة"
+    "إضافة شاشة تنفيذ التركيبات للفنيين",
+    "إضافة دورة حالات الزيارة الميدانية",
+    "تسجيل أوقات الوصول والبدء والإكمال"
   ]
 }
