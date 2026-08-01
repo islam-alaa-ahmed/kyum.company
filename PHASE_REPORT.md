@@ -1,58 +1,31 @@
-# KYUM CRM Enterprise
-## Phase M14.8.4 — Installation Settings Single-View UX
+# Phase M14.8.4.1 — Installation Settings Empty View Hotfix
 
-### Baseline
-`kyum.company-main(6).zip`
+## Root Cause
+The `installationSettingsView` section was positioned after the closing `</main>` tag. Navigation and page metadata were updated correctly, but the view content remained outside the application content container, producing an empty page.
 
-### Root Cause
-1. شاشة إعدادات التركيبات كانت تستخدم ثلاثة عناصر `details`، لذلك بقيت الخدمات وفرق التركيبات والأحياء موجودة في الصفحة معًا، حتى عند الرغبة في التركيز على قسم واحد.
-2. قائمة إدارة التركيبات كانت تضيف صراحة `max-height: 520px` و`overflow-y: auto`، مما أنشأ شريط تمرير داخليًا مستقلًا داخل القائمة الجانبية.
+## Fix
+- Moved `installationSettingsView` inside `<main>` before its closing tag.
+- Preserved the M14.8.4 single-view filter behavior for Services, Installation Teams, and Neighborhoods.
+- Preserved sidebar internal-scroll removal.
+- No database, RLS, permissions, or business-logic changes.
 
-### Scope
-- إضافة فلتر علوي لاختيار: الخدمات، فرق التركيبات، الأحياء.
-- عرض قسم واحد فقط وإخفاء القسمين الآخرين فعليًا من التخطيط.
-- الاحتفاظ باختيار المستخدم أثناء الجلسة الحالية.
-- إزالة Accordion القديم.
-- إزالة التمرير الداخلي من قائمة إدارة التركيبات.
-- تحسين المسافات وترويسة القسم وأزرار الإضافة والجداول.
-- عدم تعديل قاعدة البيانات أو RLS أو Business Logic.
+## Version
+- Version: 18.34.1
+- Build: 183401
+- Cache Token: kyum-crm-pwa-18-34-1-m14-8-4-1-empty-view-hotfix
 
-### Files Modified
-- `index.html`
-- `assets/css/installation-dashboard-settings.css`
-- `assets/js/installation-settings-management.js`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
+## Modified Files
+- index.html
+- assets/css/installation-dashboard-settings.css
+- assets/js/installation-settings-management.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
 
-### Version
-- Version: `18.34.0`
-- Build: `183400`
-- Cache Token: `kyum-crm-pwa-18-34-0-m14-8-4-settings-single-view`
-
-### Impact Audit
-- لا تغيير في جداول Supabase.
-- لا تغيير في صلاحيات التركيبات.
-- لا تغيير في حفظ أو تعديل أو حذف الخدمات والفرق والأحياء.
-- لا تغيير في طلبات التركيبات أو الجدولة أو التنفيذ.
-- التمرير الأفقي داخل الجداول بقي متاحًا عند الحاجة.
-
-### Validation
-- جميع ملفات JavaScript: PASS
-- Service Worker syntax: PASS
-- CSS brace validation: PASS
-- Duplicate HTML IDs: 0
-- Dynamic single-section display: PASS
-- Sidebar internal vertical scroll removal: PASS
-- Version synchronization: PASS
-- App Shell registration: 64/64 PASS
-- Dashboard Offline Certification: PASS
-- Offline Runtime Reliability: PASS
-- Cache-first Connectivity: 15/15 PASS
-- Sync Queue Recovery: 13/13 PASS
-- Offline Write Completion: 10/10 PASS
-- Full Enterprise Offline Certification: PASS WITH 1 PREVIOUS DOCUMENTED WARNING
-
-### Previous Warning
-التحذير السابق في `assets/js/app.js` متعلق بمسارات مباشرة قديمة لمندوبي المبيعات والبيانات المرجعية، وهو خارج نطاق هذه المرحلة ولم يتم لمسه.
+## Validation
+- View exists exactly once.
+- View is located before `</main>`.
+- JavaScript syntax passed.
+- Service Worker syntax passed.
+- Release version synchronized.
