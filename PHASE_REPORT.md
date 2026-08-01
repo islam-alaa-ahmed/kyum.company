@@ -1,25 +1,23 @@
-# Phase M14.7 — Installation Dashboard Integration, Settings & Final Module Certification
+# Phase M14.8.1 — Separate New Installation Request Screen & Optional Quotation Support
 
 ## Root Cause
-The installations overview remained a static foundation placeholder after operational screens were completed. The module also had no persisted operational settings screen. Final module certification therefore required real dashboard aggregation, schema-compatible settings, permission registration, App Shell registration, and cumulative regression checks.
+إنشاء طلب التركيب كان مرتبطًا بزر داخل شاشة قائمة الطلبات، ما خلط بين الإنشاء والمتابعة. كما أن دورة العمل تتطلب السماح بطلب مباشر دون عرض سعر.
 
 ## Scope
-- Replace placeholder dashboard indicators with live installation data.
-- Add status distribution and upcoming-installations panels.
-- Add Installation Settings screen and persisted singleton settings table.
-- Register installationSettings in navigation and permission engine.
-- Preserve all M14.1–M14.6.1 functionality and existing offline boundaries.
+- إضافة شاشة مستقلة `installationRequestNew` داخل إدارة التركيبات.
+- نقل إنشاء الطلب إلى نموذج صفحة كاملة.
+- حذف زر الإنشاء من شاشة طلبات التركيبات.
+- إبقاء تعديل الطلبات الحالية داخل Dialog شاشة الطلبات.
+- دعم `quotation_id = null` وإظهار «بدون عرض سعر».
+- إضافة الشاشة إلى الصلاحيات والتنقل.
 
 ## Version
-- Version: 18.30.0
-- Build: 183000
-- Cache Token: kyum-crm-pwa-18-30-0-m14-7-final-certification
+- Version: 18.31.0
+- Build: 183100
+- Cache Token: kyum-crm-pwa-18-31-0-m14-8-1-new-request-screen
 
-## Modified Files
-index.html; assets/css/installation-dashboard-settings.css; assets/js/app.js; assets/js/installations-service.js; assets/js/installation-dashboard-settings.js; assets/js/permission-engine.js; assets/js/pwa.js; service-worker.js; package.json; version.json; migration and verification SQL; PHASE_REPORT.md.
+## Database
+`quotation_id` اختيارية، مع استمرار Trigger مطابقة العميل عند اختيار عرض سعر فقط.
 
-## Database Compatibility
-Uses actual project columns: app_screens.group_name/display_order and role_screen_permissions.role. No group_key, sort_order, role_id, roles table, or can_import dependency.
-
-## Offline Boundary
-The UI assets are App Shell cached. Dashboard reads and settings writes remain online-only, matching the declared installations module policy. Existing Offline Login, Smart Cache, Queue and Background Sync are unchanged.
+## Regression Boundary
+لم يتم تعديل العملاء أو عروض الأسعار أو الجدولة أو التنفيذ أو المحاضر أو Offline Queue أو Smart Sync.

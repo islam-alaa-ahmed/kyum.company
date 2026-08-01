@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-30-0-m14-7-final-certification";
+const CACHE_VERSION = "kyum-crm-pwa-18-31-0-m14-8-1-new-request-screen";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

@@ -20,7 +20,7 @@
     Object.freeze({ selector: "[data-edit-followup]", screen: "followups", action: "edit" }),
     Object.freeze({ selector: "[data-delete-followup]", screen: "followups", action: "delete" }),
     Object.freeze({ selector: "#addQuotationBtn", screen: "quotations", action: "add" }),
-    Object.freeze({ selector: "#addInstallationRequestBtn", screen: "installationRequests", action: "add" }),
+    Object.freeze({ selector: "#saveNewInstallationRequest", screen: "installationRequestNew", action: "add" }),
     Object.freeze({ selector: "[data-install-edit]", screen: "installationRequests", action: "edit" }),
     Object.freeze({ selector: "[data-install-delete]", screen: "installationRequests", action: "delete" }),
     Object.freeze({ selector: "#saveInstallationAssignment", screen: "installationSchedule", action: "edit" }),
@@ -50,7 +50,7 @@
   const DEFAULT_NAVIGATION_GROUPS = Object.freeze({
     "main-navigation": Object.freeze(["dashboard", "dailyOperations"]),
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
-    "installations-management": Object.freeze(["installationsOverview", "installationRequests", "installationSchedule", "installationExecution", "installationCompletion", "installationExceptions", "installationReports", "installationSettings"]),
+    "installations-management": Object.freeze(["installationsOverview", "installationRequestNew", "installationRequests", "installationSchedule", "installationExecution", "installationCompletion", "installationExceptions", "installationReports", "installationSettings"]),
     "reports-analytics": Object.freeze(["reportsOverview", "dailyPerformanceReport"]),
     "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "systemSettings", "aboutApp"])
   });

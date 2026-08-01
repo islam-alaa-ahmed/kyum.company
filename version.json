@@ -1,12 +1,12 @@
 {
-  "version": "18.30.0",
-  "build": 183000,
+  "version": "18.31.0",
+  "build": 183100,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "M14.7 Installation Dashboard Settings Final Certification",
+  "title": "M14.8.1 Separate New Installation Request Screen",
   "notes": [
-    "ربط لوحة التركيبات بالبيانات الفعلية",
-    "إضافة إعدادات التركيبات",
-    "اعتماد نهائي لوحدة إدارة التركيبات"
+    "إضافة شاشة مستقلة لطلب تركيب جديد",
+    "دعم إنشاء الطلب بدون عرض سعر",
+    "الإبقاء على شاشة الطلبات للعرض والمتابعة والتعديل"
   ]
 }
