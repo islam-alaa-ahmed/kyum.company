@@ -42,7 +42,7 @@
   function openRevisit(id){
     const r=state.exceptions.find(x=>String(x.id)===String(id));if(!r)return;
     $('installationRevisitRequestId').value=r.id;$('installationRevisitRequestLabel').textContent=`${r.requestNumber} — ${r.customerName}`;
-    $('installationRevisitDate').value=r.activeRevisit?.scheduledDate||'';$('installationRevisitTimeSlot').value=r.activeRevisit?.timeSlot||'صباحية';
+    $('installationRevisitDate').value=r.activeRevisit?.scheduledDate||'';$('installationRevisitTimeSlot').value=r.activeRevisit?.timeSlot||'صباحي';
     $('installationRevisitTechnician').value=r.activeRevisit?.technicianId||r.technicianId||'';$('installationRevisitAction').value=r.activeRevisit?.actionType||'إعادة زيارة';$('installationRevisitNotes').value=r.activeRevisit?.notes||'';
     status($('installationRevisitFormStatus'),'');$('installationRevisitDialog').showModal();
   }

@@ -1,12 +1,12 @@
 {
-  "version": "18.29.0",
-  "build": 182900,
+  "version": "18.29.1",
+  "build": 182901,
   "forceUpdate": true,
   "releaseDate": "2026-08-01",
-  "title": "Installation Exceptions, Revisit Workflow & Operational Reports",
+  "title": "M14.6 Schema Compatibility Hotfix",
   "notes": [
-    "إدارة الاستثناءات والطلبات المؤجلة والمتعذرة",
-    "جدولة إعادة الزيارة وربطها بالفني",
-    "تقارير تشغيلية وإنتاجية الفنيين"
+    "إصلاح توافق app_screens وrole_screen_permissions مع Schema الفعلية",
+    "توحيد قيم الفترة إلى صباحي ومسائي",
+    "إعادة تشغيل Migration M14.6 بأمان"
   ]
 }
