@@ -1,42 +1,46 @@
-# Phase M14.8.5 — Independent Installation Representative Visibility Scope
+# Phase M14.8.6 — Customer Google Maps Location Integration
 
 ## Root Cause
-كانت جميع جداول التركيبات تستخدم `can_access_representative()`، وهي نفس دالة نطاق بيانات إدارة العملاء. لذلك منح أو منع رؤية مندوب داخل إدارة العملاء كان يغيّر تلقائيًا بيانات التركيبات، ولم يكن ممكنًا منح مستخدم رؤية تركيبات مندوبيّن محددين بصورة مستقلة.
+The installation request stored the district/address text only. The field technician therefore had to search for the address manually, and the execution screen could not open the exact location shared by the customer.
 
 ## Scope
-- إضافة فلتر مندوب إلى شاشة طلبات التركيبات.
-- إنشاء نطاق مستقل للتركيبات: `own / selected / all`.
-- إضافة قائمة مستقلة للمندوبين المسموح بعرض تركيباتهم داخل نموذج المستخدم.
-- إنشاء `can_access_installation_representative(uuid)`.
-- تحويل RLS الخاصة بطلبات التركيبات والخدمات والمحاضر والمرفقات وإعادة الزيارات وسجل التنفيذ إلى النطاق الجديد.
-- إبقاء صلاحيات وداتا إدارة العملاء دون تغيير.
+- Add an optional Google Maps location field to the new installation request screen.
+- Store the link on the installation request itself.
+- Validate supported HTTPS Google Maps sharing links in both the browser and database.
+- Use the saved link in the technician execution screen, with the existing address search retained as a fallback.
+- No changes to scheduling, permissions, representative visibility, customer management, RLS scope, offline queue, or Smart Sync.
 
-## Default Behavior
-- Super Admin: جميع التركيبات.
-- المستخدم المرتبط بمندوب: يرى تركيبات مندوبه تلقائيًا.
-- `selected`: يرى مندوبه والمندوبين المحددين فقط.
-- `all`: يرى جميع التركيبات، بشرط امتلاك صلاحية الشاشة نفسها.
+## Supported links
+- `https://maps.app.goo.gl/...`
+- `https://www.google.com/maps/...`
+- `https://google.com/maps/...`
+- `https://maps.google.com/...`
+- `https://goo.gl/maps/...`
 
 ## Files Modified
 - `index.html`
+- `assets/css/installation-requests.css`
 - `assets/js/installations-module.js`
-- `assets/js/users-service.js`
-- `assets/js/app.js`
+- `assets/js/installations-service.js`
+- `assets/js/installation-execution.js`
 - `assets/js/pwa.js`
 - `service-worker.js`
 - `package.json`
 - `version.json`
-- `supabase/migrations/phase_m14_8_5_independent_installation_representative_visibility.sql`
-- `supabase/verification/phase_m14_8_5_independent_installation_representative_visibility_verification.sql`
+- `supabase/migrations/phase_m14_8_6_customer_google_maps_location.sql`
+- `supabase/verification/phase_m14_8_6_customer_google_maps_location_verification.sql`
 
 ## Release
-- Version: `18.35.0`
-- Build: `183500`
-- Cache Token: `kyum-crm-pwa-18-35-0-m14-8-5-installation-representative-scope`
+- Version: `18.36.0`
+- Build: `183600`
+- Cache Token: `kyum-crm-pwa-18-36-0-m14-8-6-customer-google-maps-location`
 
-## Database Execution
-1. Run `supabase/migrations/phase_m14_8_5_independent_installation_representative_visibility.sql`.
-2. Run `supabase/verification/phase_m14_8_5_independent_installation_representative_visibility_verification.sql`.
+## Database Application
+1. Run `supabase/migrations/phase_m14_8_6_customer_google_maps_location.sql`.
+2. Run `supabase/verification/phase_m14_8_6_customer_google_maps_location_verification.sql`.
 
-## Regression Boundary
-No customer-management data scope table, customer screen permission, business calculation, offline queue, or smart sync logic was modified.
+## Regression Boundaries
+- Existing requests remain valid because the new field is nullable.
+- Existing address-based map navigation remains available as fallback.
+- No customer table or customer permission scope was modified.
+- No installation representative visibility policy was modified.

@@ -272,6 +272,7 @@
         representativeId: customer?.representative_id || null,
         neighborhoodId: $("newInstallationNeighborhoodId").value,
         installationAddress: neighborhood?.name || "",
+        customerMapUrl: $("newInstallationCustomerMapUrl").value.trim(),
         priority: $("newInstallationPriority").value,
         notes: $("newInstallationNotes").value.trim(),
         services

@@ -34,3 +34,6 @@
 .installation-status-badge[data-status="بانتظار المراجعة"]{background:#fef3c7;color:#92400e}
 @media(max-width:1023px){.installation-customer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-customer-grid label:last-child{grid-column:1/-1}}
 @media(max-width:767px){.installation-request-new-heading{display:block}.installation-step-header{padding:14px}.installation-request-step-card>.installation-request-form-grid,.installation-request-step-card>.installation-notes-label{margin:14px}.installation-customer-grid,.installation-priority-grid{grid-template-columns:1fr}.installation-customer-grid label:last-child{grid-column:auto}.installation-services-table-wrap{margin:14px 14px 0}.installation-services-footer{align-items:stretch;flex-direction:column;padding:14px}.installation-services-summary{min-width:0}.installation-services-footer .secondary-btn{width:100%}}
+
+/* Phase M14.8.6 — customer Google Maps location */
+.installation-customer-grid .full-span{grid-column:1/-1}.field-hint{display:block;color:var(--text-muted,#64748b);font-size:.78rem;line-height:1.6}.optional-mark{color:var(--text-muted,#64748b);font-weight:500}
