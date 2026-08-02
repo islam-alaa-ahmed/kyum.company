@@ -22,17 +22,21 @@
     if (!users.length) return users;
 
     const userIds = users.map(user => user.id);
-    const [profilesResult, representativesResult] = await Promise.all([
+    const [profilesResult, representativesResult, installationProfilesResult, installationRepresentativesResult] = await Promise.all([
       client().from("user_data_access_profiles")
         .select("user_id,access_mode")
         .in("user_id", userIds),
       client().from("user_data_access_representatives")
         .select("user_id,representative_id,representative:sales_representatives(id,full_name)")
-        .in("user_id", userIds)
+        .in("user_id", userIds),
+      client().from("installation_data_access_profiles").select("user_id,access_mode").in("user_id", userIds),
+      client().from("installation_data_access_representatives").select("user_id,representative_id,representative:sales_representatives(id,full_name)").in("user_id", userIds)
     ]);
 
     if (profilesResult.error) throw new Error(`تعذر تحميل نطاقات البيانات: ${profilesResult.error.message}`);
     if (representativesResult.error) throw new Error(`تعذر تحميل المندوبين المسموحين: ${representativesResult.error.message}`);
+    if (installationProfilesResult.error) throw new Error(`تعذر تحميل نطاق التركيبات: ${installationProfilesResult.error.message}`);
+    if (installationRepresentativesResult.error) throw new Error(`تعذر تحميل مندوبي التركيبات المسموحين: ${installationRepresentativesResult.error.message}`);
 
     const modeByUser = new Map((profilesResult.data || []).map(row => [row.user_id, row.access_mode]));
     const repsByUser = new Map();
@@ -44,10 +48,18 @@
       });
     });
 
+    const installationModeByUser = new Map((installationProfilesResult.data || []).map(row => [row.user_id, row.access_mode]));
+    const installationRepsByUser = new Map();
+    (installationRepresentativesResult.data || []).forEach(row => {
+      if (!installationRepsByUser.has(row.user_id)) installationRepsByUser.set(row.user_id, []);
+      installationRepsByUser.get(row.user_id).push({ id: row.representative_id, full_name: row.representative?.full_name || "" });
+    });
     return users.map(user => ({
       ...user,
       data_access_mode: modeByUser.get(user.id) || defaultAccessMode(user),
-      data_access_representatives: repsByUser.get(user.id) || []
+      data_access_representatives: repsByUser.get(user.id) || [],
+      installation_access_mode: installationModeByUser.get(user.id) || (user.role === "super_admin" ? "all" : "own"),
+      installation_access_representatives: installationRepsByUser.get(user.id) || []
     }));
   }
 
@@ -94,6 +106,7 @@
     if (!data?.success) throw new Error(data?.error || "تعذر إنشاء المستخدم.");
     const user = data.user;
     if (!user?.id) throw new Error("تم إنشاء الحساب بدون معرف مستخدم صالح.");
+    await saveInstallationDataAccess(user.id, payload.installationAccessMode, payload.allowedInstallationRepresentativeIds);
     return user;
   }
 
@@ -113,6 +126,7 @@
       .single();
     if (error) throw new Error(`تعذر تعديل المستخدم: ${error.message}`);
     await saveUserDataAccess(payload.id, payload.accessMode, payload.allowedRepresentativeIds);
+    await saveInstallationDataAccess(payload.id, payload.installationAccessMode, payload.allowedInstallationRepresentativeIds);
     await audit("update", payload.id, payload);
     return data;
   }
@@ -160,6 +174,20 @@
     }
   }
 
+  async function saveInstallationDataAccess(userId, accessMode = "own", allowedRepresentativeIds = []) {
+    const normalizedMode = ["own", "selected", "all"].includes(accessMode) ? accessMode : "own";
+    const uniqueIds = [...new Set((allowedRepresentativeIds || []).filter(Boolean))];
+    const { data: authData } = await client().auth.getUser();
+    const { error: profileError } = await client().from("installation_data_access_profiles").upsert({ user_id:userId, access_mode:normalizedMode, updated_by:authData.user?.id||null, updated_at:new Date().toISOString() }, { onConflict:"user_id" });
+    if (profileError) throw new Error(`تعذر حفظ نطاق التركيبات: ${profileError.message}`);
+    const { error: deleteError } = await client().from("installation_data_access_representatives").delete().eq("user_id", userId);
+    if (deleteError) throw new Error(`تعذر تحديث مندوبي التركيبات: ${deleteError.message}`);
+    if (normalizedMode === "selected" && uniqueIds.length) {
+      const { error } = await client().from("installation_data_access_representatives").insert(uniqueIds.map(representativeId => ({user_id:userId,representative_id:representativeId})));
+      if (error) throw new Error(`تعذر حفظ مندوبي التركيبات: ${error.message}`);
+    }
+  }
+
   async function resetPassword(userId, password) {
     requirePermission("users", "edit");
     const data = await invokeManageUser({ action: "reset_password", user_id: userId, password });
@@ -187,6 +215,7 @@
     createUser,
     updateUser,
     saveUserDataAccess,
+    saveInstallationDataAccess,
     resetPassword
   });
 })();

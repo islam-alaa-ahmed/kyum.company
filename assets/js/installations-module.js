@@ -53,11 +53,13 @@
 
   function filtered() {
     const query = ($("installationRequestSearch")?.value || "").trim().toLowerCase();
+    const representative = $("installationRequestRepresentativeFilter")?.value || "";
     const state = $("installationRequestStatusFilter")?.value || "";
     const dateFrom = $("installationRequestDateFrom")?.value || "";
     const dateTo = $("installationRequestDateTo")?.value || "";
     return rows.filter(row =>
       (!query || [row.requestNumber, row.customerName, row.customerPhone, row.quotationNumber, row.services.map(service => service.serviceName).join(" ")].join(" ").toLowerCase().includes(query)) &&
+      (!representative || row.representativeId === representative) &&
       (!state || row.status === state) &&
       (!dateFrom || row.scheduledDate >= dateFrom) &&
       (!dateTo || row.scheduledDate <= dateTo)
@@ -109,6 +111,13 @@
       [rows, opts] = await Promise.all([window.InstallationsService.list(), window.InstallationsService.options()]);
       customerOptions("installationCustomerId");
       customerOptions("newInstallationCustomerId");
+      const repFilter = $("installationRequestRepresentativeFilter");
+      if (repFilter) {
+        const current = repFilter.value;
+        const reps = [...new Map(rows.filter(row => row.representativeId).map(row => [row.representativeId, row.representativeName || "مندوب بدون اسم"])).entries()];
+        repFilter.innerHTML = '<option value="">كل المندوبين المسموحين</option>' + reps.map(([id,name]) => `<option value="${esc(id)}">${esc(name)}</option>`).join('');
+        repFilter.value = reps.some(([id]) => id === current) ? current : "";
+      }
       render();
       clearStatus($("installationRequestsStatus"));
     } catch (error) {
@@ -211,9 +220,9 @@
     $("installationCustomerId")?.addEventListener("change", () => quotationOptions($("installationCustomerId").value, "installationQuotationId"));
     $("newInstallationCustomerId")?.addEventListener("change", () => quotationOptions($("newInstallationCustomerId").value, "newInstallationQuotationId"));
 
-    ["installationRequestSearch", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => $(id)?.addEventListener("input", render));
+    ["installationRequestSearch", "installationRequestRepresentativeFilter", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => $(id)?.addEventListener("input", render));
     $("resetInstallationRequestFilters")?.addEventListener("click", () => {
-      ["installationRequestSearch", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => { if ($(id)) $(id).value = ""; });
+      ["installationRequestSearch", "installationRequestRepresentativeFilter", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => { if ($(id)) $(id).value = ""; });
       render();
     });
 

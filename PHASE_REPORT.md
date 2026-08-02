@@ -1,29 +1,42 @@
-# Phase M14.8.4.3 — Scheduling Team & Modal Layout
+# Phase M14.8.5 — Independent Installation Representative Visibility Scope
 
 ## Root Cause
-The scheduling dialog did not include the installation team, and its visual field order did not match the approved workflow. Technician name and notes occupied full-width rows while the team stored in installation settings was not connected to scheduling.
+كانت جميع جداول التركيبات تستخدم `can_access_representative()`، وهي نفس دالة نطاق بيانات إدارة العملاء. لذلك منح أو منع رؤية مندوب داخل إدارة العملاء كان يغيّر تلقائيًا بيانات التركيبات، ولم يكن ممكنًا منح مستخدم رؤية تركيبات مندوبيّن محددين بصورة مستقلة.
 
 ## Scope
-- Keep installation date and hourly installation time on the first row.
-- Add an installation-team dropdown sourced from active `installation_teams` records.
-- Place technician name beside team name.
-- Move assignment notes to a full-width row below them.
-- Persist the selected team through `installation_requests.installation_team_id`.
-- Improve modal width, spacing, RTL alignment and responsive behavior.
+- إضافة فلتر مندوب إلى شاشة طلبات التركيبات.
+- إنشاء نطاق مستقل للتركيبات: `own / selected / all`.
+- إضافة قائمة مستقلة للمندوبين المسموح بعرض تركيباتهم داخل نموذج المستخدم.
+- إنشاء `can_access_installation_representative(uuid)`.
+- تحويل RLS الخاصة بطلبات التركيبات والخدمات والمحاضر والمرفقات وإعادة الزيارات وسجل التنفيذ إلى النطاق الجديد.
+- إبقاء صلاحيات وداتا إدارة العملاء دون تغيير.
 
-## Version
-- Version: 18.34.3
-- Build: 183403
-- Cache Token: kyum-crm-pwa-18-34-3-m14-8-4-3-scheduling-team-layout
+## Default Behavior
+- Super Admin: جميع التركيبات.
+- المستخدم المرتبط بمندوب: يرى تركيبات مندوبه تلقائيًا.
+- `selected`: يرى مندوبه والمندوبين المحددين فقط.
+- `all`: يرى جميع التركيبات، بشرط امتلاك صلاحية الشاشة نفسها.
 
-## Modified Files
-- index.html
-- assets/css/installation-scheduling.css
-- assets/js/installation-scheduling.js
-- assets/js/installations-service.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- supabase/migrations/phase_m14_8_4_3_scheduling_team_layout.sql
-- supabase/verification/phase_m14_8_4_3_scheduling_team_layout_verification.sql
+## Files Modified
+- `index.html`
+- `assets/js/installations-module.js`
+- `assets/js/users-service.js`
+- `assets/js/app.js`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `supabase/migrations/phase_m14_8_5_independent_installation_representative_visibility.sql`
+- `supabase/verification/phase_m14_8_5_independent_installation_representative_visibility_verification.sql`
+
+## Release
+- Version: `18.35.0`
+- Build: `183500`
+- Cache Token: `kyum-crm-pwa-18-35-0-m14-8-5-installation-representative-scope`
+
+## Database Execution
+1. Run `supabase/migrations/phase_m14_8_5_independent_installation_representative_visibility.sql`.
+2. Run `supabase/verification/phase_m14_8_5_independent_installation_representative_visibility_verification.sql`.
+
+## Regression Boundary
+No customer-management data scope table, customer screen permission, business calculation, offline queue, or smart sync logic was modified.
