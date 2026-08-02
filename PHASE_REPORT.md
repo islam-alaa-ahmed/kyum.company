@@ -1,26 +1,39 @@
-# Phase M14.9.0.1 — Daily Details Dialog Position & Light Mode Hotfix
+# Phase M14.9.1 — Team Daily Tasks & Active Installation Workflow
 
 ## Root Cause
-نافذة تفاصيل اليوم لم تكن تملك قواعد تمركز مستقلة، فتأثرت بقيود `dialog` العامة وظهرت كمساحة عريضة ممتدة مع انحياز محتوى الفرق. كما لم تكن هناك قواعد Light Mode صريحة للنافذة الجديدة وبطاقاتها.
+شاشة تنفيذ التركيبات السابقة كانت قائمة بطاقات عامة ونافذة تعديل حالة يدوية. لم تكن تفصل بين طلبات اليوم والطلب النشط، ولم تفرض تسلسل خطوات التشغيل، كما لم توفر مساحة تشغيل ثابتة لفتح الموقع والتوثيق.
 
 ## Scope
-- تثبيت النافذة في منتصف الشاشة داخل Top Layer.
-- منع امتداد الـDialog نفسه بعرض الصفحة.
-- الحفاظ على عرض ديناميكي حتى 1500px حسب مساحة الشاشة.
-- ضبط Light Mode للسطح والعناوين والبطاقات والحدود والأزرار.
-- الحفاظ على التقسيم الديناميكي حسب عدد الفرق.
-- عدم تعديل البيانات أو منطق التقويم أو الإجراءات.
+- تبويبان: طلبات اليوم / الطلب الحالي.
+- عرض الطلبات المجدولة ضمن البيانات التي تسمح بها RLS الحالية والفرقة المسندة للطلب.
+- طلب نشط واحد في الواجهة.
+- تسلسل إلزامي: بدء التحرك، فتح الموقع، وصل الموقع، بدء التركيب، تم الانتهاء.
+- توثيق اختياري بالصور والملاحظات داخل مربع التوثيق فقط.
+- انتقال الطلب المكتمل تلقائيًا إلى محاضر التركيبات عبر الحالة `مكتمل`.
+- تصميم أزرار كحلي بإطار ذهبي، وفي Light Mode سطح أبيض للأزرار الثانوية بإطار ذهبي.
+
+## Database
+- إضافة `installation_requests.arrived_at`.
+- إنشاء `installation_execution_files` لتسجيل صور التنفيذ.
+- تحديث Trigger تسجيل أوقات مراحل التنفيذ.
 
 ## Version
-- Version: 18.38.1
-- Build: 183801
-- Cache Token: `kyum-crm-pwa-18-38-1-m14-9-0-1-day-dialog-ui-hotfix`
+- Version: 18.39.0
+- Build: 183900
+- Cache Token: kyum-crm-pwa-18-39-0-m14-9-1-team-active-workflow
 
 ## Modified Files
-- `assets/css/installation-scheduling.css`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `PHASE_REPORT.md`
+- index.html
+- assets/css/installation-execution.css
+- assets/js/installation-execution.js
+- assets/js/installations-service.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_9_1_team_daily_active_installation_workflow.sql
+- supabase/verification/phase_m14_9_1_team_daily_active_installation_workflow_verification.sql
+- PHASE_REPORT.md
+
+## Regression Boundary
+لم يتم تعديل شاشات إنشاء الطلبات أو الجدولة أو التقويم أو محاضر التركيبات أو صلاحيات إدارة العملاء أو Offline Queue وSmart Sync.

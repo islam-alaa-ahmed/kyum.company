@@ -1,13 +1,14 @@
 {
-  "version": "18.38.1",
-  "build": 183801,
+  "version": "18.39.0",
+  "build": 183900,
   "forceUpdate": true,
   "releaseDate": "2026-08-02",
-  "title": "M14.9.0.1 Daily Details Dialog UI Hotfix",
+  "title": "M14.9.1 Team Daily Tasks & Active Installation Workflow",
   "notes": [
-    "تثبيت نافذة تفاصيل اليوم في منتصف الشاشة",
-    "إصلاح تنسيق Light Mode للنافذة والبطاقات",
-    "الحفاظ على التقسيم الديناميكي حسب عدد فرق التركيبات"
+    "إعادة تصميم شاشة تنفيذ التركيبات بتبويبي طلبات اليوم والطلب الحالي",
+    "تنفيذ مسار متتابع من بدء التحرك حتى إكمال التركيب",
+    "إضافة فتح موقع العميل والتوثيق الاختياري بالصور والملاحظات",
+    "اعتماد أزرار كحلية بإطار ذهبي ومعالجة مستقلة للوضع الفاتح"
   ],
-  "cacheToken": "kyum-crm-pwa-18-38-1-m14-9-0-1-day-dialog-ui-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-39-0-m14-9-1-team-active-workflow"
 }
