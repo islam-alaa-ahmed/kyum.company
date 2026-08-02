@@ -1,32 +1,32 @@
-# Phase M14.8.7 — Unified Installation Request Create/Edit Screen
+# Phase M14.8.7.1 — Scheduling Modal Light Mode UI Hotfix
 
 ## Root Cause
-زر التعديل كان يفتح Dialog قديمًا يحتوي حقولًا تشغيلية وجدولة لا تطابق نموذج الإدخال الحالي متعدد الخدمات. كما أن تحديث الخدمات لم يكن موحدًا مع تحديث رأس الطلب داخل Transaction واحدة.
+The scheduling dialog relied on inherited surface and text variables that were not resolving to a sufficiently light surface inside the native dialog in Light Mode. The modal body therefore appeared gray/dark while controls stayed white, producing weak contrast and an inconsistent footer.
 
 ## Scope
-- إلغاء مسار نافذة التعديل القديمة.
-- فتح شاشة `طلب تركيب جديد` نفسها في وضع التعديل.
-- تحميل العميل والحي ورابط Google Maps وعرض السعر والخدمات والكميات والأسعار والأولوية والملاحظات.
-- تغيير عنوان الشاشة وزر الحفظ في وضع التعديل.
-- تحديث الطلب وخدماته داخل Database RPC واحدة.
-- الحفاظ على رقم الطلب والحالة والموعد والوقت والفرقة والفني والتنفيذ والمحاضر دون تغيير.
-
-## Version
-- Version: 18.37.0
-- Build: 183700
-- Cache Token: kyum-crm-pwa-18-37-0-m14-8-7-unified-request-edit
+- Light Mode styling for `#installationAssignmentDialog` only.
+- Explicit white dialog surface, readable text, borders, placeholders, hover/focus states, close button, footer, and status message.
+- Dark Mode and scheduling behavior remain unchanged.
 
 ## Files Modified
-- index.html
-- assets/js/installations-module.js
-- assets/js/installations-service.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- supabase/migrations/phase_m14_8_7_unified_installation_request_create_edit.sql
-- supabase/verification/phase_m14_8_7_unified_installation_request_create_edit_verification.sql
-- PHASE_REPORT.md
+- `assets/css/installation-scheduling.css`
+- `index.html`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `PHASE_REPORT.md`
 
-## Regression Boundary
-لم يتم تعديل منطق الجدولة أو التنفيذ أو المحاضر أو نطاق رؤية المندوبين أو إدارة العملاء.
+## Release
+- Version: `18.37.1`
+- Build: `183701`
+- Cache Token: `kyum-crm-pwa-18-37-1-m14-8-7-1-scheduling-light-mode-hotfix`
+
+## Regression Boundaries
+No changes were made to scheduling data, teams, technician suggestions, permissions, Supabase, RLS, Offline Queue, or Smart Sync.
+
+## Validation
+- JavaScript syntax: PASS
+- Service Worker syntax: PASS
+- CSS brace balance: PASS
+- Release token synchronization: PASS

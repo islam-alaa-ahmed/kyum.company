@@ -12,3 +12,78 @@
 .installation-assignment-grid textarea{min-height:118px}
 .installation-assignment-dialog .dialog-actions{display:flex;justify-content:flex-start;gap:10px}
 @media(max-width:767px){.installation-assignment-dialog .dialog-shell{border-radius:18px}.installation-assignment-dialog .dialog-header{padding-bottom:12px}.installation-assignment-grid input,.installation-assignment-grid select{min-height:48px}}
+
+/* Phase M14.8.7.1 — Scheduling modal light-mode contrast hotfix */
+html[data-theme="light"] #installationAssignmentDialog.installation-assignment-dialog {
+  color-scheme: light;
+}
+html[data-theme="light"] #installationAssignmentDialog.installation-assignment-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(4px);
+}
+html[data-theme="light"] #installationAssignmentDialog .dialog-shell {
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #dbe3ee;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+}
+html[data-theme="light"] #installationAssignmentDialog .dialog-header {
+  border-bottom-color: #e2e8f0;
+}
+html[data-theme="light"] #installationAssignmentDialog .dialog-header h3,
+html[data-theme="light"] #installationAssignmentDialog label {
+  color: #172033;
+}
+html[data-theme="light"] #installationAssignmentDialog .dialog-header p,
+html[data-theme="light"] #installationAssignmentDialog .field-hint {
+  color: #64748b;
+}
+html[data-theme="light"] #installationAssignmentDialog input,
+html[data-theme="light"] #installationAssignmentDialog select,
+html[data-theme="light"] #installationAssignmentDialog textarea {
+  background: #ffffff;
+  color: #172033;
+  border: 1px solid #cbd5e1;
+  box-shadow: none;
+}
+html[data-theme="light"] #installationAssignmentDialog input::placeholder,
+html[data-theme="light"] #installationAssignmentDialog textarea::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+html[data-theme="light"] #installationAssignmentDialog input:hover,
+html[data-theme="light"] #installationAssignmentDialog select:hover,
+html[data-theme="light"] #installationAssignmentDialog textarea:hover {
+  border-color: #94a3b8;
+}
+html[data-theme="light"] #installationAssignmentDialog input:focus,
+html[data-theme="light"] #installationAssignmentDialog select:focus,
+html[data-theme="light"] #installationAssignmentDialog textarea:focus {
+  border-color: #2563eb;
+  outline: 3px solid rgba(37, 99, 235, 0.14);
+}
+html[data-theme="light"] #installationAssignmentDialog .icon-btn {
+  background: #f1f5f9;
+  color: #172033;
+  border-color: #e2e8f0;
+}
+html[data-theme="light"] #installationAssignmentDialog .icon-btn:hover {
+  background: #e2e8f0;
+}
+html[data-theme="light"] #installationAssignmentDialog .dialog-actions {
+  background: #ffffff;
+  border-top-color: #e2e8f0;
+}
+html[data-theme="light"] #installationAssignmentDialog .secondary-btn {
+  background: #eef2f7;
+  color: #172033;
+  border-color: #dbe3ee;
+}
+html[data-theme="light"] #installationAssignmentDialog .secondary-btn:hover {
+  background: #e2e8f0;
+}
+html[data-theme="light"] #installationAssignmentDialog .data-status:not(.hidden) {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}

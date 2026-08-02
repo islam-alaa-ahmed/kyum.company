@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-37-0-m14-8-7-unified-request-edit";
+const CACHE_VERSION = "kyum-crm-pwa-18-37-1-m14-8-7-1-scheduling-light-mode-hotfix";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
