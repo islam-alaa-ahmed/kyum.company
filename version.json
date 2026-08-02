@@ -1,14 +1,14 @@
 {
-  "version": "18.40.0",
-  "build": 184000,
+  "version": "18.40.1",
+  "build": 184001,
   "forceUpdate": true,
   "releaseDate": "2026-08-02",
-  "title": "M14.9.2 Completion Work Queue & Representative Scope",
+  "title": "M14.9.2.1 Completion Invoice & Delivery Authorization",
   "notes": [
-    "تحويل محاضر التركيبات إلى جدول تشغيلي",
-    "الحالة الافتراضية بانتظار التوثيق",
-    "إضافة البحث برقم الطلب واسم أو رقم العميل واسم الفني",
-    "إضافة فلتر المندوب وربط العرض بصلاحيات مندوبي التركيبات والفرق"
+    "حذف صفة المستلم وملاحظات العميل وتوقيع العميل",
+    "إضافة رقم الفاتورة وتاريخ الفاتورة كحقول إلزامية",
+    "إظهار رقم طلب العميل تلقائيًا",
+    "اعتماد صورة إذن تسليم العميل بدل التوقيع"
   ],
-  "cacheToken": "kyum-crm-pwa-18-40-0-m14-9-2-completion-work-queue"
+  "cacheToken": "kyum-crm-pwa-18-40-1-m14-9-2-1-completion-invoice-delivery"
 }
