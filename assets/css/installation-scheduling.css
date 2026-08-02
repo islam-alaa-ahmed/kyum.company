@@ -131,3 +131,135 @@ html[data-theme="light"] #installationAssignmentDialog .data-status:not(.hidden)
 @media(min-width:1200px){.installation-day-teams-grid[data-team-count="1"]{max-width:680px;margin-inline:auto;width:100%}.installation-day-teams-grid[data-team-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-day-teams-grid[data-team-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}.installation-day-teams-grid[data-team-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:1199px){.installation-day-teams-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.installation-day-details-dialog .dialog-shell{width:calc(100vw - 12px);max-height:95dvh;padding:14px}.installation-day-teams-grid{grid-template-columns:1fr}.installation-day-team-column{max-height:none}.installation-day-details-footer{margin:12px -14px -14px;padding:12px 14px}.installation-day-details-footer button{width:100%}.installation-calendar-day.has-appointments:hover{transform:none}}
+
+/* Phase M14.9.0.1 — Daily details dialog centering and light-mode recovery */
+#installationDayDetailsDialog.installation-day-details-dialog {
+  position: fixed;
+  inset: 0;
+  width: fit-content;
+  height: fit-content;
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+}
+#installationDayDetailsDialog.installation-day-details-dialog[open] {
+  display: block;
+}
+#installationDayDetailsDialog.installation-day-details-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(5px);
+}
+#installationDayDetailsDialog .dialog-shell {
+  width: min(1500px, calc(100vw - 48px));
+  max-width: min(1500px, calc(100vw - 48px));
+  max-height: min(90dvh, 920px);
+  margin: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.34);
+}
+#installationDayDetailsDialog .dialog-header {
+  flex: 0 0 auto;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+#installationDayDetailsDialog .installation-day-teams-grid {
+  flex: 1 1 auto;
+  width: 100%;
+  margin: 0;
+  padding: 14px 2px 12px;
+  scrollbar-gutter: stable;
+}
+#installationDayDetailsDialog .installation-day-details-footer {
+  width: auto;
+}
+
+html[data-theme="light"] #installationDayDetailsDialog.installation-day-details-dialog {
+  color-scheme: light;
+}
+html[data-theme="light"] #installationDayDetailsDialog.installation-day-details-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.46);
+}
+html[data-theme="light"] #installationDayDetailsDialog .dialog-shell {
+  background: #ffffff;
+  color: #172033;
+  border-color: #dbe3ee;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.25);
+}
+html[data-theme="light"] #installationDayDetailsDialog .dialog-header,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-details-footer {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+html[data-theme="light"] #installationDayDetailsDialog .dialog-header h3,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-customer strong,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-services h5,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-totals {
+  color: #172033;
+}
+html[data-theme="light"] #installationDayDetailsDialog .dialog-header p,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-customer span,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-meta,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-team-column > header strong {
+  color: #64748b;
+}
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-team-column {
+  background: #f8fafc;
+  border-color: #dbe3ee;
+}
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-team-column > header,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-appointment {
+  background: #ffffff;
+  border-color: #dbe3ee;
+}
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-appointment {
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+}
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-services,
+html[data-theme="light"] #installationDayDetailsDialog .installation-day-totals {
+  border-color: #e2e8f0;
+}
+html[data-theme="light"] #installationDayDetailsDialog .icon-btn,
+html[data-theme="light"] #installationDayDetailsDialog .secondary-btn {
+  background: #eef2f7;
+  color: #172033;
+  border-color: #dbe3ee;
+}
+html[data-theme="light"] #installationDayDetailsDialog .icon-btn:hover,
+html[data-theme="light"] #installationDayDetailsDialog .secondary-btn:hover {
+  background: #e2e8f0;
+}
+
+@media (min-width: 1200px) {
+  #installationDayDetailsDialog .installation-day-teams-grid[data-team-count="1"] {
+    width: min(720px, 100%);
+    max-width: 720px;
+    margin-inline: auto;
+  }
+}
+@media (max-width: 1199px) {
+  #installationDayDetailsDialog .dialog-shell {
+    width: calc(100vw - 28px);
+    max-width: calc(100vw - 28px);
+    max-height: 92dvh;
+  }
+}
+@media (max-width: 767px) {
+  #installationDayDetailsDialog.installation-day-details-dialog {
+    width: fit-content;
+    height: fit-content;
+  }
+  #installationDayDetailsDialog .dialog-shell {
+    width: calc(100vw - 12px);
+    max-width: calc(100vw - 12px);
+    max-height: 95dvh;
+    border-radius: 18px;
+  }
+}

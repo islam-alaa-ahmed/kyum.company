@@ -1,32 +1,26 @@
-# Phase M14.9.0 — Dynamic Team Split Calendar Dialog
+# Phase M14.9.0.1 — Daily Details Dialog Position & Light Mode Hotfix
 
 ## Root Cause
-تقويم التركيبات كان يعرض تفاصيل الطلبات كاملة داخل خلية اليوم، ما سبب ازدحامًا وصعوبة في مقارنة أحمال الفرق. لم تكن هناك نافذة يومية تجمع المواعيد حسب الفرقة أو تعرض تفاصيل الخدمات.
+نافذة تفاصيل اليوم لم تكن تملك قواعد تمركز مستقلة، فتأثرت بقيود `dialog` العامة وظهرت كمساحة عريضة ممتدة مع انحياز محتوى الفرق. كما لم تكن هناك قواعد Light Mode صريحة للنافذة الجديدة وبطاقاتها.
 
 ## Scope
-- تحويل خلية اليوم إلى ملخص حسب فرق التركيبات.
-- فتح نافذة تفاصيل في منتصف الصفحة عند الضغط على يوم يحتوي مواعيد.
-- تقسيم النافذة ديناميكيًا: فرقة واحدة = عمود، فرقتان = عمودان، 3 = ثلاثة، 4 = أربعة. عند زيادة الفرق عن أربعة يتم توزيعها على صفوف إضافية مع الحفاظ على القراءة.
-- عرض نوع كل خدمة وكميتها وإجمالي عدد وقيمة الخدمات لكل موعد.
-- توفير فتح الطلب وإعادة الجدولة من بطاقة الموعد.
-- عدم تغيير قاعدة البيانات أو RLS أو منطق الحفظ.
+- تثبيت النافذة في منتصف الشاشة داخل Top Layer.
+- منع امتداد الـDialog نفسه بعرض الصفحة.
+- الحفاظ على عرض ديناميكي حتى 1500px حسب مساحة الشاشة.
+- ضبط Light Mode للسطح والعناوين والبطاقات والحدود والأزرار.
+- الحفاظ على التقسيم الديناميكي حسب عدد الفرق.
+- عدم تعديل البيانات أو منطق التقويم أو الإجراءات.
 
 ## Version
-- Version: 18.38.0
-- Build: 183800
-- Cache Token: `kyum-crm-pwa-18-38-0-m14-9-0-dynamic-team-calendar-dialog`
+- Version: 18.38.1
+- Build: 183801
+- Cache Token: `kyum-crm-pwa-18-38-1-m14-9-0-1-day-dialog-ui-hotfix`
 
 ## Modified Files
-- `index.html`
 - `assets/css/installation-scheduling.css`
-- `assets/js/installation-scheduling.js`
-- `assets/js/installations-service.js`
-- `assets/js/installations-module.js`
+- `index.html`
 - `assets/js/pwa.js`
 - `service-worker.js`
 - `package.json`
 - `version.json`
 - `PHASE_REPORT.md`
-
-## Regression Boundary
-No SQL, Supabase schema, RLS, permissions, offline queue, or smart sync logic was changed.

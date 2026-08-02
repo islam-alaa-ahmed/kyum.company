@@ -1,13 +1,13 @@
 {
-  "version": "18.38.0",
-  "build": 183800,
+  "version": "18.38.1",
+  "build": 183801,
   "forceUpdate": true,
   "releaseDate": "2026-08-02",
-  "title": "M14.9.0 Dynamic Team Split Calendar Dialog",
+  "title": "M14.9.0.1 Daily Details Dialog UI Hotfix",
   "notes": [
-    "عرض ملخص فرق التركيبات داخل خلايا التقويم",
-    "إضافة نافذة تفاصيل يومية ديناميكية في منتصف الصفحة",
-    "عرض نوع الخدمات والعدد والإجمالي لكل موعد"
+    "تثبيت نافذة تفاصيل اليوم في منتصف الشاشة",
+    "إصلاح تنسيق Light Mode للنافذة والبطاقات",
+    "الحفاظ على التقسيم الديناميكي حسب عدد فرق التركيبات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-38-0-m14-9-0-dynamic-team-calendar-dialog"
+  "cacheToken": "kyum-crm-pwa-18-38-1-m14-9-0-1-day-dialog-ui-hotfix"
 }

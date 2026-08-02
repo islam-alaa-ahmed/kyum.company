@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-38-0-m14-9-0-dynamic-team-calendar-dialog";
+const CACHE_VERSION = "kyum-crm-pwa-18-38-1-m14-9-0-1-day-dialog-ui-hotfix";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
