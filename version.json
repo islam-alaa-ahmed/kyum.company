@@ -1,6 +1,6 @@
 {
-  "version": "18.37.1",
-  "build": 183701,
+  "version": "18.37.2",
+  "build": 183702,
   "forceUpdate": true,
   "releaseDate": "2026-08-02",
   "title": "M14.8.7.1 Scheduling Modal Light Mode UI Hotfix",
@@ -8,5 +8,6 @@
     "تصحيح خلفية وتباين نافذة جدولة التركيبات في الوضع الفاتح",
     "تحسين الحقول والنصوص وحالات التركيز والأزرار",
     "الحفاظ على الوضع الداكن ومنطق الجدولة دون تغيير"
-  ]
+  ],
+  "cacheToken": "kyum-crm-pwa-18-37-2-m14-8-7-2-remove-legacy-technician-management"
 }

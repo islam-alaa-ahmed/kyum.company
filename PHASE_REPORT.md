@@ -1,32 +1,29 @@
-# Phase M14.8.7.1 — Scheduling Modal Light Mode UI Hotfix
+# Phase M14.8.7.2 — Remove Legacy Technician Management from Scheduling
 
 ## Root Cause
-The scheduling dialog relied on inherited surface and text variables that were not resolving to a sufficiently light surface inside the native dialog in Light Mode. The modal body therefore appeared gray/dark while controls stayed white, producing weak contrast and an inconsistent footer.
+شاشة جدولة وتوزيع التركيبات ما زالت تعرض زرًا ونافذة قديمة لإدارة الفنيين، رغم أن دورة العمل الحالية تعتمد على فرق التركيبات من الإعدادات وأسماء الفنيين المحفوظة كمقترحات.
 
 ## Scope
-- Light Mode styling for `#installationAssignmentDialog` only.
-- Explicit white dialog surface, readable text, borders, placeholders, hover/focus states, close button, footer, and status message.
-- Dark Mode and scheduling behavior remain unchanged.
+- حذف زر «إدارة الفنيين» من شاشة الجدولة.
+- حذف نافذة إدارة الفنيين القديمة من واجهة التطبيق.
+- إزالة Event Handlers وعمليات التحميل الخاصة بالنافذة القديمة.
+- إزالة ربط الصلاحية الخاص بنموذج الفنيين القديم.
+- الإبقاء على جداول وبيانات الفنيين القديمة دون حذف لحماية السجلات السابقة.
+- عدم تغيير اختيار الفرقة أو اسم الفني أو منطق الجدولة.
 
-## Files Modified
-- `assets/css/installation-scheduling.css`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `PHASE_REPORT.md`
+## Version
+- Version: 18.37.2
+- Build: 183702
+- Cache Token: kyum-crm-pwa-18-37-2-m14-8-7-2-remove-legacy-technician-management
 
-## Release
-- Version: `18.37.1`
-- Build: `183701`
-- Cache Token: `kyum-crm-pwa-18-37-1-m14-8-7-1-scheduling-light-mode-hotfix`
+## Modified Files
+- index.html
+- assets/js/installation-scheduling.js
+- assets/js/permission-engine.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
 
-## Regression Boundaries
-No changes were made to scheduling data, teams, technician suggestions, permissions, Supabase, RLS, Offline Queue, or Smart Sync.
-
-## Validation
-- JavaScript syntax: PASS
-- Service Worker syntax: PASS
-- CSS brace balance: PASS
-- Release token synchronization: PASS
+## Regression Boundary
+No database, RLS, scheduling assignment, team selection, technician name suggestions, offline queue, or customer permissions were changed.

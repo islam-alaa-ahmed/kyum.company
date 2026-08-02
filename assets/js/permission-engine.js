@@ -24,7 +24,6 @@
     Object.freeze({ selector: "[data-install-edit]", screen: "installationRequests", action: "edit" }),
     Object.freeze({ selector: "[data-install-delete]", screen: "installationRequests", action: "delete" }),
     Object.freeze({ selector: "#saveInstallationAssignment", screen: "installationSchedule", action: "edit" }),
-    Object.freeze({ selector: "#installationTechnicianForm button[type=submit]", screen: "installationSchedule", action: "add" }),
     Object.freeze({ selector: "[data-technician-edit]", screen: "installationSchedule", action: "edit" }),
     Object.freeze({ selector: "[data-technician-delete]", screen: "installationSchedule", action: "delete" }),
     Object.freeze({ selector: "[data-installation-execute],#saveInstallationExecution", screen: "installationExecution", action: "edit" }),
