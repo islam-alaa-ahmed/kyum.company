@@ -236,6 +236,14 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("kyum-installation-edit-request", async event => {
+      const id = event.detail?.id;
+      if (!id) return;
+      if (!rows.length) await load();
+      const row = rows.find(item => item.id === id);
+      if (row) await openEdit(row);
+    });
+
     window.addEventListener("kyum-view-changed", event => {
       if (event.detail?.view === "installationRequests") load();
       if (event.detail?.view === "installationRequestNew") {

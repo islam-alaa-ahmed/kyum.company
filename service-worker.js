@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-37-2-m14-8-7-2-remove-legacy-technician-management";
+const CACHE_VERSION = "kyum-crm-pwa-18-38-0-m14-9-0-dynamic-team-calendar-dialog";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

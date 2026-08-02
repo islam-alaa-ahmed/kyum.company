@@ -1,29 +1,32 @@
-# Phase M14.8.7.2 — Remove Legacy Technician Management from Scheduling
+# Phase M14.9.0 — Dynamic Team Split Calendar Dialog
 
 ## Root Cause
-شاشة جدولة وتوزيع التركيبات ما زالت تعرض زرًا ونافذة قديمة لإدارة الفنيين، رغم أن دورة العمل الحالية تعتمد على فرق التركيبات من الإعدادات وأسماء الفنيين المحفوظة كمقترحات.
+تقويم التركيبات كان يعرض تفاصيل الطلبات كاملة داخل خلية اليوم، ما سبب ازدحامًا وصعوبة في مقارنة أحمال الفرق. لم تكن هناك نافذة يومية تجمع المواعيد حسب الفرقة أو تعرض تفاصيل الخدمات.
 
 ## Scope
-- حذف زر «إدارة الفنيين» من شاشة الجدولة.
-- حذف نافذة إدارة الفنيين القديمة من واجهة التطبيق.
-- إزالة Event Handlers وعمليات التحميل الخاصة بالنافذة القديمة.
-- إزالة ربط الصلاحية الخاص بنموذج الفنيين القديم.
-- الإبقاء على جداول وبيانات الفنيين القديمة دون حذف لحماية السجلات السابقة.
-- عدم تغيير اختيار الفرقة أو اسم الفني أو منطق الجدولة.
+- تحويل خلية اليوم إلى ملخص حسب فرق التركيبات.
+- فتح نافذة تفاصيل في منتصف الصفحة عند الضغط على يوم يحتوي مواعيد.
+- تقسيم النافذة ديناميكيًا: فرقة واحدة = عمود، فرقتان = عمودان، 3 = ثلاثة، 4 = أربعة. عند زيادة الفرق عن أربعة يتم توزيعها على صفوف إضافية مع الحفاظ على القراءة.
+- عرض نوع كل خدمة وكميتها وإجمالي عدد وقيمة الخدمات لكل موعد.
+- توفير فتح الطلب وإعادة الجدولة من بطاقة الموعد.
+- عدم تغيير قاعدة البيانات أو RLS أو منطق الحفظ.
 
 ## Version
-- Version: 18.37.2
-- Build: 183702
-- Cache Token: kyum-crm-pwa-18-37-2-m14-8-7-2-remove-legacy-technician-management
+- Version: 18.38.0
+- Build: 183800
+- Cache Token: `kyum-crm-pwa-18-38-0-m14-9-0-dynamic-team-calendar-dialog`
 
 ## Modified Files
-- index.html
-- assets/js/installation-scheduling.js
-- assets/js/permission-engine.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
+- `index.html`
+- `assets/css/installation-scheduling.css`
+- `assets/js/installation-scheduling.js`
+- `assets/js/installations-service.js`
+- `assets/js/installations-module.js`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `PHASE_REPORT.md`
 
 ## Regression Boundary
-No database, RLS, scheduling assignment, team selection, technician name suggestions, offline queue, or customer permissions were changed.
+No SQL, Supabase schema, RLS, permissions, offline queue, or smart sync logic was changed.

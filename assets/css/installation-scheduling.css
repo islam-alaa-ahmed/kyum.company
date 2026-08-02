@@ -87,3 +87,47 @@ html[data-theme="light"] #installationAssignmentDialog .data-status:not(.hidden)
   color: #1d4ed8;
   border-color: #bfdbfe;
 }
+
+
+/* Phase M14.9.0 — Calendar team summary and dynamic daily details */
+.installation-calendar-day{appearance:none;font:inherit;color:inherit;text-align:initial;cursor:default;display:flex;flex-direction:column;gap:8px;width:100%}
+.installation-calendar-day.has-appointments{cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.installation-calendar-day.has-appointments:hover{border-color:var(--primary);box-shadow:0 10px 24px rgba(15,23,42,.09);transform:translateY(-1px)}
+.installation-calendar-day-header{width:100%}
+.installation-calendar-day-header strong{font-size:.95rem}
+.installation-calendar-day-header small{font-size:.72rem;color:var(--primary);font-weight:800}
+.installation-calendar-day-summary{display:grid;gap:5px;min-width:0}
+.installation-calendar-team-summary{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:6px;font-size:.72rem;min-width:0}
+.installation-calendar-team-summary span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.installation-calendar-team-summary strong{font-size:.68rem;color:var(--muted);white-space:nowrap}
+.installation-team-dot{width:8px;height:8px;border-radius:999px;background:hsl(calc(var(--team-index,0)*67 + 215) 78% 52%);display:inline-block;flex:none}
+.installation-calendar-team-summary.is-unassigned .installation-team-dot,.installation-day-team-column.is-unassigned .installation-team-dot{background:#f59e0b}
+.installation-calendar-empty{font-size:.72rem;color:var(--muted);margin:auto 0}
+.installation-calendar-details-link{margin-top:auto;font-size:.73rem;color:var(--primary);font-weight:800;text-align:center}
+.installation-day-details-dialog{max-width:none;padding:0;border:0;background:transparent;overflow:visible}
+.installation-day-details-dialog .dialog-shell{box-sizing:border-box;width:min(1500px,calc(100vw - 32px));max-height:92dvh;overflow:hidden;padding:22px;display:flex;flex-direction:column}
+.installation-day-details-dialog .dialog-header{flex:none}
+.installation-day-teams-grid{--team-count:1;display:grid;grid-template-columns:repeat(var(--team-count),minmax(0,1fr));gap:14px;min-height:0;overflow-y:auto;overflow-x:hidden;padding:2px 2px 12px}
+.installation-day-team-column{min-width:0;border:1px solid var(--border);border-radius:16px;background:var(--surface-soft);overflow:hidden;display:flex;flex-direction:column;max-height:68dvh}
+.installation-day-team-column>header{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.installation-day-team-column>header h4{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--primary)}
+.installation-day-team-column>header strong{font-size:.75rem;color:var(--muted)}
+.installation-day-team-list{padding:10px;display:grid;gap:10px;overflow-y:auto;overscroll-behavior:contain}
+.installation-day-appointment{border:1px solid var(--border);border-radius:13px;background:var(--surface);padding:12px;display:grid;gap:10px;box-shadow:0 5px 16px rgba(15,23,42,.05)}
+.installation-day-appointment-head,.installation-day-meta,.installation-day-totals,.installation-day-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.installation-day-appointment-head time{color:var(--primary);font-weight:900}
+.installation-day-appointment-head strong{font-size:.82rem}
+.installation-day-customer{display:grid;gap:3px}
+.installation-day-customer span,.installation-day-meta{font-size:.78rem;color:var(--muted)}
+.installation-day-services{border-top:1px solid var(--border);padding-top:9px;display:grid;gap:7px}
+.installation-day-services h5{margin:0;font-size:.8rem}
+.installation-day-services ul{list-style:none;padding:0;margin:0;display:grid;gap:5px}
+.installation-day-services li{display:flex;justify-content:space-between;gap:10px;font-size:.77rem}
+.installation-day-services li strong{color:var(--primary);white-space:nowrap}
+.installation-day-totals{padding-top:7px;border-top:1px dashed var(--border);font-size:.78rem}
+.installation-day-actions button{flex:1;min-width:105px}
+.installation-day-details-footer{flex:none;margin:14px -22px -22px;padding:14px 22px;border-top:1px solid var(--border);background:var(--surface)}
+.installation-day-details-footer button{min-width:180px;margin:auto}
+@media(min-width:1200px){.installation-day-teams-grid[data-team-count="1"]{max-width:680px;margin-inline:auto;width:100%}.installation-day-teams-grid[data-team-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-day-teams-grid[data-team-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}.installation-day-teams-grid[data-team-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1199px){.installation-day-teams-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){.installation-day-details-dialog .dialog-shell{width:calc(100vw - 12px);max-height:95dvh;padding:14px}.installation-day-teams-grid{grid-template-columns:1fr}.installation-day-team-column{max-height:none}.installation-day-details-footer{margin:12px -14px -14px;padding:12px 14px}.installation-day-details-footer button{width:100%}.installation-calendar-day.has-appointments:hover{transform:none}}
