@@ -1,22 +1,31 @@
-# Phase M14.9.1.3 — Active Request Start Gate, Timeline Durations & Strict Team Scope
+# Phase M14.9.1.4 — Current Request Selection State Hotfix
 
 ## Root Cause
-زر بدء التنفيذ كان يغيّر الحالة مباشرة إلى «في الطريق»، لذلك كانت مرحلة بدء التحرك تعتبر منفذة قبل ضغط المستخدم عليها. كما أن شاشة التنفيذ كانت تعتمد على نطاق المندوب فقط ولم يكن هناك Team Scope صريح مستقل يمنع فرق التركيبات من قراءة طلبات فرق أخرى.
+The current-request RPC accepted only `مسند` and `مجدول`. Some valid scheduled requests retained legacy/pre-execution states such as `بانتظار المراجعة` or `جديد`, so the request appeared in Today Requests but the RPC rejected it.
 
-## Scope
-- اختيار الطلب الحالي بدون بدء أي مرحلة.
-- تسجيل وقت فتح خرائط Google كمرحلة مستقلة.
-- عرض وقت كل مرحلة والمدة بين المراحل.
-- نقل الطلب المكتمل إلى محاضر التركيبات.
-- Team Scope صارم عبر RLS وRPC.
+## Fix
+- Accept valid scheduled pre-execution states.
+- Normalise `بانتظار المراجعة`, `جديد`, and `مجدول` to `مسند` when selected.
+- Selection writes only `selected_for_execution_at/by`; it does not write `on_route_at`, `map_opened_at`, `arrived_at`, `started_at`, or `completed_at`.
+- Reject terminal, deferred, failed, or already-started requests.
+- Preserve strict `can_access_installation_team` enforcement.
+- Allow the first transition to `في الطريق` from all supported pre-execution states for compatibility.
 
 ## Version
-- Version: 18.39.3
-- Build: 183903
-- Cache Token: kyum-crm-pwa-18-39-3-m14-9-1-3-active-request-timeline-team-scope
+- Version: 18.39.4
+- Build: 183904
+- Cache Token: kyum-crm-pwa-18-39-4-m14-9-1-4-current-request-selection-state-hotfix
 
-## Database
-Run `supabase/migrations/phase_m14_9_1_3_active_request_timeline_team_scope.sql`, then the verification SQL.
+## Modified Files
+- assets/js/installations-service.js
+- assets/js/pwa.js
+- index.html
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_9_1_4_current_request_selection_state_hotfix.sql
+- supabase/verification/phase_m14_9_1_4_current_request_selection_state_hotfix_verification.sql
+- PHASE_REPORT.md
 
-## Regression
-No changes to customer-management permissions, representative scopes, scheduling data, offline queue, or Smart Sync.
+## Regression Scope
+No UI layout, customer permissions, representative visibility, offline queue, scheduling data, or execution timeline display was changed.

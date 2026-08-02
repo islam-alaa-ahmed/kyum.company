@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-39-3-m14-9-1-3-active-request-timeline-team-scope";
+const CACHE_VERSION = "kyum-crm-pwa-18-39-4-m14-9-1-4-current-request-selection-state-hotfix";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
