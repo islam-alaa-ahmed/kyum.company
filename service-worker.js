@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-39-0-m14-9-1-team-active-workflow";
+const CACHE_VERSION = "kyum-crm-pwa-18-39-1-m14-9-1-1-today-focused-layout";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
