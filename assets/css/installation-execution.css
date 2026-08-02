@@ -23,3 +23,40 @@ body:not(.dark-mode) .execution-primary-action{color:#fff!important;text-shadow:
 html:not([data-theme="dark"]) .execution-primary-action .execution-arrow,
 body:not(.dark-mode) .execution-primary-action .execution-arrow{color:var(--exec-navy)!important;text-shadow:none}
 @media(max-width:760px){.installation-execution-tabs{justify-self:stretch;width:100%}.installation-execution-tab{flex:1;padding-inline:10px}}
+
+/* Phase M14.9.1.2 — force readable white labels inside navy execution controls */
+.execution-refresh-btn,
+.execution-refresh-btn:link,
+.execution-refresh-btn:visited,
+.execution-refresh-btn:hover,
+.execution-refresh-btn:focus,
+.execution-refresh-btn:active,
+.execution-primary-action,
+.execution-primary-action:link,
+.execution-primary-action:visited,
+.execution-primary-action:hover,
+.execution-primary-action:focus,
+.execution-primary-action:active,
+.execution-primary-action:disabled,
+button.execution-refresh-btn,
+button.execution-primary-action,
+html:not([data-theme="dark"]) button.execution-refresh-btn,
+html:not([data-theme="dark"]) button.execution-primary-action,
+body:not(.dark-mode) button.execution-refresh-btn,
+body:not(.dark-mode) button.execution-primary-action {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .28) !important;
+}
+
+.execution-refresh-btn *,
+.execution-primary-action * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+.execution-primary-action .execution-arrow {
+  color: var(--exec-navy) !important;
+  -webkit-text-fill-color: var(--exec-navy) !important;
+  text-shadow: none !important;
+}

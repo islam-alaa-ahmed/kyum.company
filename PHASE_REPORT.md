@@ -1,31 +1,35 @@
-# Phase M14.9.1.1 — Today Requests Focused Layout Hotfix
+# Phase M14.9.1.2 — Execution Button White Text Hotfix
 
 ## Root Cause
-شاشة طلبات اليوم كانت تستخدم Workspace مقسومًا إلى قائمتين وتعرض معاينة الطلب الحالي بجانب قائمة اليوم، رغم وجود تبويب مستقل للطلب الحالي. كما أن قواعد ألوان عامة كانت تتغلب على لون نص زر بدء التنفيذ في Light Mode.
+قواعد ألوان عامة للأزرار في الواجهة كانت تتغلب بصريًا على لون النص داخل أزرار التنفيذ في Light Mode، وخصوصًا عبر خصائص النص الموروثة في المتصفح. لذلك ظهر نص **بدء التنفيذ** و**تحديث** بلون داكن رغم الخلفية الكحلية.
 
 ## Scope
-- تحويل تبويبي طلبات اليوم والطلب الحالي إلى زرين صغيرين بمحاذاة يمين الشاشة.
-- حذف قسم معاينة الطلب الحالي من تبويب طلبات اليوم.
-- جعل قائمة طلبات اليوم بعرض المساحة بالكامل.
-- الحفاظ على الانتقال التلقائي إلى تبويب الطلب الحالي بعد بدء التنفيذ.
-- تثبيت لون نص زر بدء التنفيذ بالأبيض في Light Mode.
+Hotfix تنسيقي محدود داخل شاشة تنفيذ التركيبات فقط.
 
-## Modified Files
-- index.html
-- assets/css/installation-execution.css
-- assets/js/installation-execution.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- PHASE_REPORT.md
+## التعديل
+- تثبيت لون نص زر **بدء التنفيذ** باللون الأبيض.
+- تثبيت لون نص زر **تحديث** باللون الأبيض.
+- تطبيق `-webkit-text-fill-color` لضمان عدم استبدال اللون في Chrome/WebKit.
+- الحفاظ على لون دائرة السهم الذهبية/الكحلية كما هو.
+- عدم تعديل منطق التنفيذ أو البيانات أو الصلاحيات.
 
 ## Version
-- Version: 18.39.1
-- Build: 183901
-- Cache Token: kyum-crm-pwa-18-39-1-m14-9-1-1-today-focused-layout
+- Version: `18.39.2`
+- Build: `183902`
+- Cache Token: `kyum-crm-pwa-18-39-2-m14-9-1-2-execution-button-white-text`
 
-## Regression
-- لم يتم تعديل SQL أو Supabase أو RLS.
-- لم يتم تعديل دورة حالات التنفيذ أو رفع الصور أو Google Maps.
-- الانتقال بعد بدء التنفيذ إلى الطلب الحالي ما زال فعالًا.
+## Modified Files
+- `assets/css/installation-execution.css`
+- `index.html`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `PHASE_REPORT.md`
+
+## Validation
+- CSS brace balance: PASS
+- JavaScript syntax: PASS
+- Service Worker syntax: PASS
+- Version synchronization: PASS
+- Business logic / Supabase / RLS: UNCHANGED
