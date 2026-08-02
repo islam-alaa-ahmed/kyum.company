@@ -63,3 +63,45 @@ body:not(.dark-mode) button.execution-primary-action {
 
 /* Phase M14.9.1.3 timeline timestamps and durations */
 .execution-step-wrap{display:contents}.execution-step-time{display:block;margin-top:6px;font-size:.75rem;font-weight:800;color:#a66f00}.execution-step-connector{display:flex;align-items:center;justify-content:center;min-width:52px;border-top:1px dashed #d7a41d;position:relative}.execution-step-connector span{position:absolute;top:-22px;white-space:nowrap;background:var(--surface,#fff);padding:2px 6px;border-radius:999px;font-size:.7rem;color:#8a6200;border:1px solid rgba(212,160,23,.35)}[data-theme="dark"] .execution-step-time{color:#f4c84c}[data-theme="dark"] .execution-step-connector span{background:#071a33;color:#f4c84c}
+
+
+/* Phase M14.9.1.6 — aligned execution timeline and active-stage association */
+.execution-stepper{overflow:hidden}
+.execution-steps{
+  display:grid;
+  grid-template-columns:minmax(92px,1fr) minmax(58px,.72fr) minmax(92px,1fr) minmax(58px,.72fr) minmax(92px,1fr) minmax(58px,.72fr) minmax(92px,1fr) minmax(58px,.72fr) minmax(92px,1fr);
+  align-items:start;
+  gap:0;
+  direction:rtl;
+}
+.execution-step{display:grid;grid-template-rows:58px auto 22px;justify-items:center;align-items:start;gap:7px;min-width:0;text-align:center;position:relative}
+.execution-step-circle{width:56px;height:56px;box-sizing:border-box;align-self:start}
+.execution-step-label{min-height:22px;display:flex;align-items:center;justify-content:center;line-height:1.35}
+.execution-step-time{min-height:20px;margin:0;font-size:.76rem;font-weight:850;color:#9a6700;direction:rtl;white-space:nowrap}
+.execution-step-time.is-empty{color:#94a3b8;font-weight:700}
+.execution-step-connector{align-self:start;height:56px;border:0;position:relative;display:flex;align-items:center;justify-content:center;min-width:0}
+.execution-step-connector::before{content:"";position:absolute;inset-inline:0;top:27px;border-top:1.5px dashed #d7a41d}
+.execution-step-connector span{top:10px;z-index:2;background:var(--exec-surface);box-shadow:0 0 0 5px var(--exec-surface);border-color:rgba(212,160,23,.45);font-weight:800}
+.execution-current-stage{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:22px 24px;border:1px solid rgba(215,154,19,.4);overflow:visible}
+.execution-current-stage::before{content:"";position:absolute;inset-inline-start:calc((100% / 5) * var(--active-stage) + (100% / 10) - 11px);top:-12px;width:22px;height:22px;background:var(--exec-surface);border-top:1px solid rgba(215,154,19,.55);border-inline-start:1px solid rgba(215,154,19,.55);transform:rotate(45deg);z-index:0}
+.execution-stage-pointer{display:none}
+.execution-stage-icon{position:relative;z-index:1;flex:0 0 auto}
+.execution-stage-copy{position:relative;z-index:1;display:grid;gap:4px}
+.execution-stage-copy small{color:#9a6700;font-weight:900}
+.execution-stage-action{position:relative;z-index:1;display:flex;justify-content:flex-end;align-items:center}
+.execution-stage-action .execution-map-btn,.execution-stage-action .execution-primary-action{min-width:190px}
+html[data-theme="dark"] .execution-current-stage::before,.dark-mode .execution-current-stage::before{background:#0d1b31}
+html[data-theme="dark"] .execution-step-time.is-empty,.dark-mode .execution-step-time.is-empty{color:#728198}
+@media(max-width:900px){
+  .execution-steps{grid-template-columns:repeat(5,minmax(128px,1fr));gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x proximity}
+  .execution-step{scroll-snap-align:center}
+  .execution-step-connector{display:none}
+  .execution-current-stage::before{display:none}
+  .execution-current-stage{grid-template-columns:auto minmax(0,1fr)}
+  .execution-stage-action{grid-column:1/-1;justify-content:stretch}
+  .execution-stage-action .execution-map-btn,.execution-stage-action .execution-primary-action{width:100%;min-width:0}
+}
+@media(max-width:560px){
+  .execution-current-stage{grid-template-columns:1fr;text-align:center;justify-items:center;padding:20px 16px}
+  .execution-stage-action{width:100%}
+}

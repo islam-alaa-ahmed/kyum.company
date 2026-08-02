@@ -1,34 +1,28 @@
-# Phase M14.9.1.5 — Execution History Classification Recovery
+# Phase M14.9.1.6 — Execution Timeline & Active Stage Alignment Hotfix
 
 ## Root Cause
-طلبات قديمة لها حركات تنفيذ فعلية عادت إلى قائمة طلبات اليوم لأن التصنيف اعتمد على selected_for_execution_at فقط، بينما السجلات القديمة قد تحتوي على on_route_at/map_opened_at/arrived_at/started_at أو حالة تشغيل بدون علامة الاختيار الجديدة.
+كان تركيب HTML الخاص بالـTimeline يستخدم wrapper بعرض عمود واحد لكل مرحلة مع connector داخله، بينما CSS الأساسي يفترض خمس خلايا فقط. نتج عن ذلك التفاف العناصر واختلاف خطوط الأساس وانفصال بطاقة المرحلة الحالية عن الدائرة النشطة.
 
-## Fix
-- أي طلب به حركة تنفيذ أو حالة تشغيل لا يظهر في طلبات اليوم.
-- الطلب غير المكتمل يظهر في الطلب الحالي ويستكمل من آخر مرحلة محفوظة.
-- الطلب المكتمل يظل في محاضر التركيبات.
-- لم يتم مسح أو إعادة تعيين أي Timestamp أو History.
-- المستخدم لا يرى إلا طلبات الفرق المسموح بها عبر RLS وcan_access_installation_team.
+## Scope
+- إعادة بناء عرض الخطوات كعناصر مرحلة وموصلات مستقلة على Grid ثابت.
+- تثبيت أحجام الدوائر والعناوين والأوقات.
+- عرض مدة الانتقال داخل الموصل بين المرحلتين.
+- إضافة مؤشر بصري يربط بطاقة المرحلة الحالية بالدائرة النشطة.
+- توحيد زر الإجراء مع المرحلة الحالية.
 
-## Version
-- Version: 18.39.5
-- Build: 183905
-- Cache Token: kyum-crm-pwa-18-39-5-m14-9-1-5-execution-history-recovery
-
-## Modified Files
+## Files Modified
+- assets/css/installation-execution.css
 - assets/js/installation-execution.js
-- assets/js/installations-service.js
 - assets/js/pwa.js
 - index.html
 - service-worker.js
 - package.json
 - version.json
-- supabase/migrations/phase_m14_9_1_5_execution_history_recovery.sql
-- supabase/verification/phase_m14_9_1_5_execution_history_recovery_verification.sql
+
+## Version
+- Version: 18.39.6
+- Build: 183906
+- Cache Token: kyum-crm-pwa-18-39-6-m14-9-1-6-timeline-stage-alignment
 
 ## Regression
-- Strict Team Scope preserved.
-- New request start gate preserved.
-- Timeline timestamps preserved.
-- Completion routing unchanged.
-- Offline queue and Smart Sync unchanged.
+لم يتم تعديل RPC أو SQL أو RLS أو انتقالات الحالات أو Team Scope أو سجل التنفيذ.
