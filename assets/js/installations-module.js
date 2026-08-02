@@ -7,6 +7,7 @@
 
   let rows = [];
   let opts = { customers: [], quotations: [], neighborhoods: [], serviceTypes: [] };
+  let editingRequestId = null;
 
   function status(node, message, type = "info") {
     if (!node) return;
@@ -126,23 +127,38 @@
     }
   }
 
-  function openEdit(row) {
+  async function openEdit(row) {
     if (!row) return;
-    $("installationRequestForm").reset();
-    clearStatus($("installationRequestFormStatus"));
-    $("installationRequestId").value = row.id;
-    $("installationRequestDialogTitle").textContent = "تعديل طلب التركيب";
-    $("installationCustomerId").value = row.customerId;
-    quotationOptions(row.customerId, "installationQuotationId");
-    $("installationQuotationId").value = row.quotationId || "";
-    $("installationScheduledDate").value = row.scheduledDate;
-    $("installationTimeSlot").value = row.timeSlot;
-    $("installationStatus").value = row.status;
-    $("installationPriority").value = row.priority;
-    $("installationAddress").value = row.installationAddress;
-    $("installationDescription").value = row.description;
-    $("installationNotes").value = row.notes;
-    $("installationRequestDialog").showModal();
+    try {
+      editingRequestId = row.id;
+      await ensureOptions(true);
+      const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
+      if (opened === false) throw new Error("ليس لديك صلاحية فتح شاشة بيانات طلب التركيب.");
+
+      customerOptions("newInstallationCustomerId");
+      quotationOptions(row.customerId, "newInstallationQuotationId");
+      neighborhoodOptions();
+
+      $("newInstallationRequestHeading").textContent = "تعديل طلب تركيب";
+      $("newInstallationRequestNote").textContent = `عدّل بيانات الطلب ${row.requestNumber} بنفس حقول الإدخال الأصلية دون تغيير بيانات الجدولة أو التنفيذ.`;
+      $("saveNewInstallationRequest").textContent = "حفظ التعديلات";
+      $("resetNewInstallationRequest").textContent = "استعادة البيانات";
+
+      $("newInstallationCustomerId").value = row.customerId || "";
+      quotationOptions(row.customerId, "newInstallationQuotationId");
+      $("newInstallationQuotationId").value = row.quotationId || "";
+      $("newInstallationNeighborhoodId").value = row.neighborhoodId || "";
+      $("newInstallationCustomerMapUrl").value = row.customerMapUrl || "";
+      $("newInstallationPriority").value = row.priority || "عادية";
+      $("newInstallationNotes").value = row.notes || "";
+      $("newInstallationServicesBody").innerHTML = "";
+      (row.services?.length ? row.services : [{}]).forEach(addServiceRow);
+      recalculateServices();
+      clearStatus($("newInstallationRequestFormStatus"));
+    } catch (error) {
+      editingRequestId = null;
+      status($("installationRequestsStatus"), error.message, "error");
+    }
   }
 
   function addServiceRow(initial = {}) {
@@ -184,14 +200,25 @@
     }));
   }
 
-  function resetNewForm() {
+  function restoreEditForm() {
+    const row = rows.find(item => item.id === editingRequestId);
+    if (row) return openEdit(row);
+  }
+
+  function resetNewForm(options = {}) {
     const form = $("newInstallationRequestForm");
     if (!form) return;
+    if (editingRequestId && !options.exitEdit) return restoreEditForm();
+    editingRequestId = null;
     form.reset();
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
     $("newInstallationServicesBody").innerHTML = "";
     addServiceRow();
+    $("newInstallationRequestHeading").textContent = "طلب تركيب جديد";
+    $("newInstallationRequestNote").textContent = "سجّل بيانات العميل والخدمات المطلوبة. ينتقل الطلب بعد الحفظ إلى طلبات التركيبات بحالة بانتظار المراجعة.";
+    $("saveNewInstallationRequest").textContent = "حفظ الطلب";
+    $("resetNewInstallationRequest").textContent = "إعادة تعيين";
     clearStatus($("newInstallationRequestFormStatus"));
   }
 
@@ -211,13 +238,12 @@
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("kyum-view-changed", event => {
       if (event.detail?.view === "installationRequests") load();
-      if (event.detail?.view === "installationRequestNew") initializeNewView();
+      if (event.detail?.view === "installationRequestNew") {
+        initializeNewView();
+        if (!editingRequestId) resetNewForm({ exitEdit: true });
+      }
     });
 
-    $("closeInstallationRequestDialog")?.addEventListener("click", () => $("installationRequestDialog").close());
-    $("cancelInstallationRequest")?.addEventListener("click", () => $("installationRequestDialog").close());
-
-    $("installationCustomerId")?.addEventListener("change", () => quotationOptions($("installationCustomerId").value, "installationQuotationId"));
     $("newInstallationCustomerId")?.addEventListener("change", () => quotationOptions($("newInstallationCustomerId").value, "newInstallationQuotationId"));
 
     ["installationRequestSearch", "installationRequestRepresentativeFilter", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => $(id)?.addEventListener("input", render));
@@ -285,9 +311,18 @@
       const button = $("saveNewInstallationRequest");
       button.disabled = true;
       try {
-        const created = await window.InstallationsService.createRequest(payload);
-        status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
-        resetNewForm();
+        if (editingRequestId) {
+          await window.InstallationsService.updateRequest({ ...payload, id: editingRequestId });
+          const requestNumber = rows.find(item => item.id === editingRequestId)?.requestNumber || "";
+          status($("newInstallationRequestFormStatus"), `تم حفظ تعديلات الطلب ${requestNumber}.`, "success");
+          editingRequestId = null;
+          await load();
+          window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
+        } else {
+          const created = await window.InstallationsService.createRequest(payload);
+          status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
+          resetNewForm({ exitEdit: true });
+        }
       } catch (error) {
         status($("newInstallationRequestFormStatus"), error.message, "error");
       } finally {
@@ -295,34 +330,6 @@
       }
     });
 
-    $("installationRequestForm")?.addEventListener("submit", async event => {
-      event.preventDefault();
-      const customer = opts.customers.find(item => item.id === $("installationCustomerId").value);
-      const payload = {
-        id: $("installationRequestId").value,
-        customerId: $("installationCustomerId").value,
-        quotationId: $("installationQuotationId").value || null,
-        representativeId: customer?.representative_id || null,
-        scheduledDate: $("installationScheduledDate").value,
-        timeSlot: $("installationTimeSlot").value,
-        status: $("installationStatus").value,
-        priority: $("installationPriority").value,
-        installationAddress: $("installationAddress").value.trim(),
-        description: $("installationDescription").value.trim(),
-        notes: $("installationNotes").value.trim()
-      };
-      if (!payload.customerId) return status($("installationRequestFormStatus"), "اختر العميل.", "error");
-      const button = $("saveInstallationRequest");
-      button.disabled = true;
-      try {
-        await window.InstallationsService.save(payload);
-        $("installationRequestDialog").close();
-        await load();
-      } catch (error) {
-        status($("installationRequestFormStatus"), error.message, "error");
-      } finally {
-        button.disabled = false;
-      }
-    });
+;
   });
 })();

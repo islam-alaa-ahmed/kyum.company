@@ -1,46 +1,32 @@
-# Phase M14.8.6 — Customer Google Maps Location Integration
+# Phase M14.8.7 — Unified Installation Request Create/Edit Screen
 
 ## Root Cause
-The installation request stored the district/address text only. The field technician therefore had to search for the address manually, and the execution screen could not open the exact location shared by the customer.
+زر التعديل كان يفتح Dialog قديمًا يحتوي حقولًا تشغيلية وجدولة لا تطابق نموذج الإدخال الحالي متعدد الخدمات. كما أن تحديث الخدمات لم يكن موحدًا مع تحديث رأس الطلب داخل Transaction واحدة.
 
 ## Scope
-- Add an optional Google Maps location field to the new installation request screen.
-- Store the link on the installation request itself.
-- Validate supported HTTPS Google Maps sharing links in both the browser and database.
-- Use the saved link in the technician execution screen, with the existing address search retained as a fallback.
-- No changes to scheduling, permissions, representative visibility, customer management, RLS scope, offline queue, or Smart Sync.
+- إلغاء مسار نافذة التعديل القديمة.
+- فتح شاشة `طلب تركيب جديد` نفسها في وضع التعديل.
+- تحميل العميل والحي ورابط Google Maps وعرض السعر والخدمات والكميات والأسعار والأولوية والملاحظات.
+- تغيير عنوان الشاشة وزر الحفظ في وضع التعديل.
+- تحديث الطلب وخدماته داخل Database RPC واحدة.
+- الحفاظ على رقم الطلب والحالة والموعد والوقت والفرقة والفني والتنفيذ والمحاضر دون تغيير.
 
-## Supported links
-- `https://maps.app.goo.gl/...`
-- `https://www.google.com/maps/...`
-- `https://google.com/maps/...`
-- `https://maps.google.com/...`
-- `https://goo.gl/maps/...`
+## Version
+- Version: 18.37.0
+- Build: 183700
+- Cache Token: kyum-crm-pwa-18-37-0-m14-8-7-unified-request-edit
 
 ## Files Modified
-- `index.html`
-- `assets/css/installation-requests.css`
-- `assets/js/installations-module.js`
-- `assets/js/installations-service.js`
-- `assets/js/installation-execution.js`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `supabase/migrations/phase_m14_8_6_customer_google_maps_location.sql`
-- `supabase/verification/phase_m14_8_6_customer_google_maps_location_verification.sql`
+- index.html
+- assets/js/installations-module.js
+- assets/js/installations-service.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_8_7_unified_installation_request_create_edit.sql
+- supabase/verification/phase_m14_8_7_unified_installation_request_create_edit_verification.sql
+- PHASE_REPORT.md
 
-## Release
-- Version: `18.36.0`
-- Build: `183600`
-- Cache Token: `kyum-crm-pwa-18-36-0-m14-8-6-customer-google-maps-location`
-
-## Database Application
-1. Run `supabase/migrations/phase_m14_8_6_customer_google_maps_location.sql`.
-2. Run `supabase/verification/phase_m14_8_6_customer_google_maps_location_verification.sql`.
-
-## Regression Boundaries
-- Existing requests remain valid because the new field is nullable.
-- Existing address-based map navigation remains available as fallback.
-- No customer table or customer permission scope was modified.
-- No installation representative visibility policy was modified.
+## Regression Boundary
+لم يتم تعديل منطق الجدولة أو التنفيذ أو المحاضر أو نطاق رؤية المندوبين أو إدارة العملاء.

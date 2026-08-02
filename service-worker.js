@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-36-0-m14-8-6-customer-google-maps-location";
+const CACHE_VERSION = "kyum-crm-pwa-18-37-0-m14-8-7-unified-request-edit";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

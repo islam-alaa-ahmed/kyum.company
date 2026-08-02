@@ -6,6 +6,29 @@
   async function options(){const results=await Promise.all([db().from('customers').select('id,customer_name,phone,address,city,district,representative_id').order('customer_name'),db().from('quotations').select('id,quotation_number,customer_id,status,amount').eq('status','مقبول').order('quotation_date',{ascending:false}),db().from('installation_neighborhoods').select('id,name').eq('is_active',true).order('name'),db().from('installation_service_types').select('id,name,default_price').eq('is_active',true).order('name')]);const [customers,quotes,neighborhoods,serviceTypes]=results;if(customers.error)throw customers.error;if(quotes.error)throw quotes.error;if(neighborhoods.error)throw neighborhoods.error;if(serviceTypes.error)throw serviceTypes.error;return {customers:customers.data||[],quotations:quotes.data||[],neighborhoods:neighborhoods.data||[],serviceTypes:serviceTypes.data||[]}}
   function normalizeGoogleMapsUrl(value){const url=String(value||'').trim();if(!url)return '';let parsed;try{parsed=new URL(url)}catch(_){throw new Error('رابط موقع العميل غير صحيح. استخدم رابط مشاركة من Google Maps.')}const host=parsed.hostname.toLowerCase();const valid=(host==='maps.app.goo.gl'||host==='maps.google.com'||host==='www.google.com'||host==='google.com'||host==='goo.gl')&&(host!=='goo.gl'||parsed.pathname.toLowerCase().startsWith('/maps'));if(parsed.protocol!=='https:'||!valid)throw new Error('استخدم رابط Google Maps آمن يبدأ بـ https.');return parsed.toString()}
   async function createRequest(payload){requireAction('add','installationRequestNew');if(!payload.customerId)throw new Error('اختر العميل.');if(!payload.neighborhoodId)throw new Error('اختر العنوان.');if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');const {data,error}=await db().rpc('create_installation_request_with_services',{p_customer_id:payload.customerId,p_quotation_id:payload.quotationId||null,p_representative_id:payload.representativeId||null,p_neighborhood_id:payload.neighborhoodId,p_priority:payload.priority||'عادية',p_installation_address:payload.installationAddress||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:payload.notes||null,p_services:services});if(error)throw new Error('تعذر إنشاء طلب التركيب: '+error.message);return Array.isArray(data)?data[0]:data}
+  async function updateRequest(payload){
+    requireAction('edit','installationRequests');
+    if(!payload.id)throw new Error('معرّف طلب التركيب مطلوب.');
+    if(!payload.customerId)throw new Error('اختر العميل.');
+    if(!payload.neighborhoodId)throw new Error('اختر العنوان.');
+    if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');
+    const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));
+    if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');
+    const {data,error}=await db().rpc('update_installation_request_with_services',{
+      p_request_id:payload.id,
+      p_customer_id:payload.customerId,
+      p_quotation_id:payload.quotationId||null,
+      p_representative_id:payload.representativeId||null,
+      p_neighborhood_id:payload.neighborhoodId,
+      p_priority:payload.priority||'عادية',
+      p_installation_address:payload.installationAddress||null,
+      p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,
+      p_notes:payload.notes||null,
+      p_services:services
+    });
+    if(error)throw new Error('تعذر حفظ تعديلات طلب التركيب: '+error.message);
+    return Array.isArray(data)?data[0]:data;
+  }
   async function save(payload){requireAction(payload.id?'edit':'add',payload.id?'installationRequests':'installationRequestNew');if(!payload.id)return createRequest(payload);const record={customer_id:payload.customerId,quotation_id:payload.quotationId||null,representative_id:payload.representativeId||null,scheduled_date:payload.scheduledDate||null,time_slot:payload.timeSlot||null,status:payload.status,priority:payload.priority,installation_address:payload.installationAddress||null,customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,description:payload.description||null,notes:payload.notes||null};const {data,error}=await db().from('installation_requests').update(record).eq('id',payload.id).select('id').single();if(error)throw new Error('تعذر حفظ طلب التركيب: '+error.message);return data}
   async function remove(id){requireAction('delete');const {error}=await db().from('installation_requests').delete().eq('id',id);if(error)throw new Error('تعذر حذف طلب التركيب: '+error.message)}
   async function technicians(){requireAction('view','installationSchedule');const {data,error}=await db().from('installation_technicians').select('*').order('full_name');if(error)throw new Error('تعذر تحميل الفنيين: '+error.message);return (data||[]).map(r=>({id:r.id,name:r.full_name,phone:r.phone||'',specialty:r.specialty||'',city:r.city||'',status:r.status||'متاح'}))}
@@ -33,5 +56,5 @@
 
   async function getSettings(){requireAction('view','installationSettings');const {data,error}=await db().from('installation_settings').select('*').eq('id',1).maybeSingle();if(error)throw new Error('تعذر تحميل إعدادات التركيبات: '+error.message);const r=data||{};return {morningLabel:r.morning_label||'صباحية',eveningLabel:r.evening_label||'مسائية',slaDays:Number(r.sla_days??1),defaultPriority:r.default_priority||'عادية',requireCompletionReport:r.require_completion_report!==false}}
   async function saveSettings(payload){requireAction('edit','installationSettings');const record={id:1,morning_label:payload.morningLabel,evening_label:payload.eveningLabel,sla_days:payload.slaDays,default_priority:payload.defaultPriority,require_completion_report:!!payload.requireCompletionReport,updated_at:new Date().toISOString()};const {error}=await db().from('installation_settings').upsert(record,{onConflict:'id'});if(error)throw new Error('تعذر حفظ إعدادات التركيبات: '+error.message)}
-  window.InstallationsService={list,options,createRequest,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,assign,saveTechnician,removeTechnician,executionList,updateExecution,completionList,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
+  window.InstallationsService={list,options,createRequest,updateRequest,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,assign,saveTechnician,removeTechnician,executionList,updateExecution,completionList,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
 })();
