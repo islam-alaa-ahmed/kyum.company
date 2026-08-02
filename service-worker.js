@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-34-2-m14-8-4-2-scheduling-hourly-technician-names";
+const CACHE_VERSION = "kyum-crm-pwa-18-34-3-m14-8-4-3-scheduling-team-layout";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
