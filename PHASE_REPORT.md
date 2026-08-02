@@ -1,35 +1,22 @@
-# Phase M14.9.1.2 — Execution Button White Text Hotfix
+# Phase M14.9.1.3 — Active Request Start Gate, Timeline Durations & Strict Team Scope
 
 ## Root Cause
-قواعد ألوان عامة للأزرار في الواجهة كانت تتغلب بصريًا على لون النص داخل أزرار التنفيذ في Light Mode، وخصوصًا عبر خصائص النص الموروثة في المتصفح. لذلك ظهر نص **بدء التنفيذ** و**تحديث** بلون داكن رغم الخلفية الكحلية.
+زر بدء التنفيذ كان يغيّر الحالة مباشرة إلى «في الطريق»، لذلك كانت مرحلة بدء التحرك تعتبر منفذة قبل ضغط المستخدم عليها. كما أن شاشة التنفيذ كانت تعتمد على نطاق المندوب فقط ولم يكن هناك Team Scope صريح مستقل يمنع فرق التركيبات من قراءة طلبات فرق أخرى.
 
 ## Scope
-Hotfix تنسيقي محدود داخل شاشة تنفيذ التركيبات فقط.
-
-## التعديل
-- تثبيت لون نص زر **بدء التنفيذ** باللون الأبيض.
-- تثبيت لون نص زر **تحديث** باللون الأبيض.
-- تطبيق `-webkit-text-fill-color` لضمان عدم استبدال اللون في Chrome/WebKit.
-- الحفاظ على لون دائرة السهم الذهبية/الكحلية كما هو.
-- عدم تعديل منطق التنفيذ أو البيانات أو الصلاحيات.
+- اختيار الطلب الحالي بدون بدء أي مرحلة.
+- تسجيل وقت فتح خرائط Google كمرحلة مستقلة.
+- عرض وقت كل مرحلة والمدة بين المراحل.
+- نقل الطلب المكتمل إلى محاضر التركيبات.
+- Team Scope صارم عبر RLS وRPC.
 
 ## Version
-- Version: `18.39.2`
-- Build: `183902`
-- Cache Token: `kyum-crm-pwa-18-39-2-m14-9-1-2-execution-button-white-text`
+- Version: 18.39.3
+- Build: 183903
+- Cache Token: kyum-crm-pwa-18-39-3-m14-9-1-3-active-request-timeline-team-scope
 
-## Modified Files
-- `assets/css/installation-execution.css`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `PHASE_REPORT.md`
+## Database
+Run `supabase/migrations/phase_m14_9_1_3_active_request_timeline_team_scope.sql`, then the verification SQL.
 
-## Validation
-- CSS brace balance: PASS
-- JavaScript syntax: PASS
-- Service Worker syntax: PASS
-- Version synchronization: PASS
-- Business logic / Supabase / RLS: UNCHANGED
+## Regression
+No changes to customer-management permissions, representative scopes, scheduling data, offline queue, or Smart Sync.

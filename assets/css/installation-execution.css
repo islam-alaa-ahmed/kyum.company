@@ -60,3 +60,6 @@ body:not(.dark-mode) button.execution-primary-action {
   -webkit-text-fill-color: var(--exec-navy) !important;
   text-shadow: none !important;
 }
+
+/* Phase M14.9.1.3 timeline timestamps and durations */
+.execution-step-wrap{display:contents}.execution-step-time{display:block;margin-top:6px;font-size:.75rem;font-weight:800;color:#a66f00}.execution-step-connector{display:flex;align-items:center;justify-content:center;min-width:52px;border-top:1px dashed #d7a41d;position:relative}.execution-step-connector span{position:absolute;top:-22px;white-space:nowrap;background:var(--surface,#fff);padding:2px 6px;border-radius:999px;font-size:.7rem;color:#8a6200;border:1px solid rgba(212,160,23,.35)}[data-theme="dark"] .execution-step-time{color:#f4c84c}[data-theme="dark"] .execution-step-connector span{background:#071a33;color:#f4c84c}
