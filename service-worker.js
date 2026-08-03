@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport";
+const CACHE_VERSION = "kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

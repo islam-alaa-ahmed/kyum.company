@@ -241,3 +241,48 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     padding-inline: 14px;
   }
 }
+
+/* Phase M14.9.7.2 — Mobile quotations filter/KPI stacking hotfix */
+@media (max-width: 767px),
+  (pointer: coarse) and (max-device-width: 1024px),
+  (hover: none) and (max-device-width: 1024px) {
+  #quotationsView .mobile-quotations-toolbar {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    z-index: 1 !important;
+    width: 100%;
+    min-height: 0;
+    margin: 14px 0 16px !important;
+    box-sizing: border-box;
+    align-self: stretch;
+    transform: none !important;
+  }
+
+  #quotationsView #quotationsStatus:not(.hidden) {
+    position: relative;
+    z-index: 0;
+    clear: both;
+    margin: 0 0 14px;
+  }
+
+  #quotationsView #quotationStats {
+    position: relative;
+    z-index: 0;
+    clear: both;
+    width: 100%;
+    margin: 0 0 18px !important;
+    padding-top: 0;
+  }
+
+  #quotationsView .mobile-quotations-toolbar + #quotationsStatus.hidden + #quotationStats,
+  #quotationsView .mobile-quotations-toolbar + #quotationsStatus:not(.hidden) + #quotationStats {
+    margin-top: 0 !important;
+  }
+
+  #quotationsView .mobile-quotations-toolbar,
+  #quotationsView #quotationStats,
+  #quotationsView #quotationStats > * {
+    max-width: 100%;
+  }
+}

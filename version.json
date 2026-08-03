@@ -1,13 +1,13 @@
 {
-  "version": "18.45.1",
-  "build": 184501,
+  "version": "18.45.2",
+  "build": 184502,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.1 Mobile Quotation Dialog Viewport & Footer Safe-Area Hotfix",
+  "title": "M14.9.7.2 Mobile Quotations Filter & KPI Stacking Hotfix",
   "notes": [
-    "فصل نافذة عرض السعر إلى Header وBody قابل للتمرير وFooter ثابت غير متداخل",
-    "دعم الارتفاع الديناميكي 100dvh وSafe Area على Android وiPhone",
-    "منع تغطية قيمة العرض أو حالة العرض أو تاريخ انتهاء العرض بواسطة أزرار الحفظ والإلغاء"
+    "إلغاء التموضع اللاصق لشريط فلاتر عروض الأسعار على الموبايل وإعادته إلى التدفق الطبيعي",
+    "منع تداخل شريط الفلاتر ورسالة التحميل مع كروت مؤشرات عروض الأسعار",
+    "تثبيت المسافات والتكديس في Light Mode وDark Mode على Android وiPhone"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport"
+  "cacheToken": "kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking"
 }

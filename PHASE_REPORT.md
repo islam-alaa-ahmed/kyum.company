@@ -1,28 +1,28 @@
-# Phase M14.9.7.1 — Mobile Quotation Dialog Viewport & Footer Safe-Area Hotfix
+# Phase M14.9.7.2 — Mobile Quotations Filter & KPI Stacking Hotfix
 
 ## Baseline
-- `kyum.company-main(7).zip`
-- Cumulative phases M14.9.3 through M14.9.7
+- KYUM Mobile baseline after Phase M14.9.7.1.
 
 ## Root Cause
-The quotation dialog used a sticky footer while both the dialog and its form allowed visible overflow. On mobile browsers, the visual viewport changes with browser chrome, safe areas, font scaling, and the software keyboard. The footer therefore overlaid a different final field depending on the device height.
+The mobile quotations toolbar used `position: sticky` with a fixed top offset. The actual mobile header height varies between iPhone Safari, Android Chrome, browser chrome states, safe areas, and font scaling. As the page scrolled, the toolbar floated over the KPI grid and, when the status/loading row was visible, the visual overlap became larger.
 
 ## Scope
-- Mobile quotation create/edit dialog only.
-- No quotation business logic, database, permissions, filters, or validation changes.
+- Mobile quotations screen only.
+- Layout/stacking rules only.
+- No data, filtering, permissions, RLS, quotation save logic, or desktop/tablet changes.
 
 ## Implementation
-- Dynamic viewport height using `100dvh` with `100vh` fallback.
-- Dialog split into fixed header, independently scrollable form body, and non-overlapping footer.
-- Safe-area padding added to the footer.
-- Horizontal overflow prevented for all controls, including date and number inputs.
-- Small-phone and coarse-pointer layouts covered.
-- Light and dark footer/header surfaces preserved.
+- Returned `.mobile-quotations-toolbar` to normal document flow on mobile.
+- Removed sticky offsets and transforms.
+- Added deterministic spacing between toolbar, status row, KPI grid, and quotation cards.
+- Normalized stacking contexts and widths.
+- Preserved filter bottom sheet behavior and floating add button.
+- Applied equally to Light Mode and Dark Mode.
 
 ## Version
-- Version: `18.45.1`
-- Build: `184501`
-- Cache Token: `kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport`
+- Version: 18.45.2
+- Build: 184502
+- Cache Token: `kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking`
 
 ## Modified Files
 - `assets/css/mobile-theme-canonical.css`
@@ -31,13 +31,12 @@ The quotation dialog used a sticky footer while both the dialog and its form all
 - `service-worker.js`
 - `package.json`
 - `version.json`
-- `scripts/mobile-final-enterprise-certification-check.mjs`
 - `PHASE_REPORT.md`
 
-## Regression Audit
-- Quotation fields and their order: unchanged.
-- Quotation save/edit handlers: unchanged.
-- Customer searchable select: unchanged.
-- Permissions and RLS: unchanged.
-- Offline Queue and Smart Sync: unchanged.
-- Desktop and tablet dialog behavior: unchanged.
+## Regression Guard
+- Quotation filters and filtering events unchanged.
+- Quotation KPI calculations unchanged.
+- Quotation table/mobile cards unchanged.
+- Add quotation floating action unchanged.
+- Bottom navigation and safe area unchanged.
+- Desktop/tablet layouts unchanged.
