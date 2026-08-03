@@ -47,6 +47,43 @@
   async function uploadExecutionFile(requestId,file){if(!file)return null;if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('صيغة الصورة غير مدعومة.');if(file.size>10485760)throw new Error('حجم الصورة يجب ألا يتجاوز 10 ميجابايت.');const ext=(file.name.split('.').pop()||'jpg').toLowerCase(),path=`${requestId}/execution/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const {error:up}=await db().storage.from('installation-evidence').upload(path,file,{contentType:file.type,upsert:false});if(up)throw new Error('تعذر رفع صورة التنفيذ: '+up.message);const {error}=await db().from('installation_execution_files').insert({installation_request_id:requestId,storage_path:path,original_name:file.name,mime_type:file.type,file_size:file.size});if(error)throw new Error('تعذر تسجيل صورة التنفيذ: '+error.message);return path}
   async function advanceExecution(payload){requireAction('edit','installationExecution');const allowed=['في الطريق','وصل إلى العميل','قيد التنفيذ','مكتمل'];if(!allowed.includes(payload.nextStatus))throw new Error('مرحلة التنفيذ غير مسموحة.');if(payload.nextStatus==='مكتمل'&&payload.photos?.length)for(const f of payload.photos)await uploadExecutionFile(payload.id,f);const {error}=await db().rpc('advance_installation_execution_stage',{p_request_id:payload.id,p_next_status:payload.nextStatus,p_notes:payload.notes||null});if(error)throw new Error('تعذر تحديث مرحلة التنفيذ: '+error.message)}
   async function completionList(){requireAction('view','installationCompletion');const [requests,reports,files]=await Promise.all([fetchPaged((from,to)=>db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),technician:installation_technicians(id,full_name),representative:sales_representatives(id,full_name),team:installation_teams(id,name)').eq('status','مكتمل').order('completed_at',{ascending:false,nullsFirst:false}).range(from,to)),fetchPaged((from,to)=>db().from('installation_completion_reports').select('*').range(from,to)),fetchPaged((from,to)=>db().from('installation_completion_files').select('*').range(from,to),1000)]);const reportMap=new Map(reports.map(x=>[x.installation_request_id,x]));const filesMap=new Map();files.forEach(f=>{const arr=filesMap.get(f.installation_request_id)||[];arr.push(f);filesMap.set(f.installation_request_id,arr)});return requests.map(r=>({id:r.id,requestNumber:r.request_number,customerOrderNumber:r.customer_order_number||'',customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',technicianName:r.assigned_technician_name||r.technician?.full_name||'',representativeId:r.representative_id||r.representative?.id||'',representativeName:r.representative?.full_name||'',teamName:r.team?.name||'',installationAddress:r.installation_address||'',completedAt:r.completed_at||'',report:reportMap.get(r.id)||null,files:filesMap.get(r.id)||[]}))}
+  async function uploadCompletionFile(requestId,fileKind,file){
+    if(!file)return null;
+    if(!['before','after','delivery_authorization'].includes(fileKind))throw new Error('نوع مرفق محضر التركيب غير مدعوم.');
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('صيغة الصورة غير مدعومة. استخدم JPG أو PNG أو WEBP.');
+    if(file.size<1||file.size>10485760)throw new Error('حجم الصورة يجب أن يكون بين 1 بايت و10 ميجابايت.');
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=`${requestId}/completion/${fileKind}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const {error:uploadError}=await db().storage.from('installation-evidence').upload(path,file,{contentType:file.type,upsert:false});
+    if(uploadError)throw new Error('تعذر رفع مرفق محضر التركيب: '+uploadError.message);
+    const {error:recordError}=await db().from('installation_completion_files').insert({installation_request_id:requestId,file_kind:fileKind,storage_path:path,original_name:file.name,mime_type:file.type,file_size:file.size});
+    if(recordError){
+      await db().storage.from('installation-evidence').remove([path]);
+      throw new Error('تعذر تسجيل مرفق محضر التركيب: '+recordError.message);
+    }
+    return path;
+  }
+  async function saveCompletion(payload){
+    requireAction('edit','installationCompletion');
+    if(!payload?.id)throw new Error('معرّف طلب التركيب مطلوب.');
+    const workSummary=String(payload.workSummary||'').trim();
+    const recipientName=String(payload.recipientName||'').trim();
+    const invoiceNumber=String(payload.invoiceNumber||'').trim();
+    const invoiceDate=String(payload.invoiceDate||'').trim();
+    if(!workSummary)throw new Error('ملخص الأعمال المنفذة مطلوب.');
+    if(!recipientName)throw new Error('اسم مستلم الأعمال مطلوب.');
+    if(!invoiceNumber)throw new Error('رقم الفاتورة مطلوب.');
+    if(!invoiceDate)throw new Error('تاريخ الفاتورة مطلوب.');
+    const report={installation_request_id:payload.id,work_summary:workSummary,recipient_name:recipientName,invoice_number:invoiceNumber,invoice_date:invoiceDate,recipient_role:null,customer_notes:null,signed_at:null};
+    const {error:reportError}=await db().from('installation_completion_reports').upsert(report,{onConflict:'installation_request_id'});
+    if(reportError)throw new Error('تعذر حفظ محضر إكمال التركيب: '+reportError.message);
+    const jobs=[];
+    for(const file of (payload.beforePhotos||[]))jobs.push(uploadCompletionFile(payload.id,'before',file));
+    for(const file of (payload.afterPhotos||[]))jobs.push(uploadCompletionFile(payload.id,'after',file));
+    if(payload.deliveryAuthorizationFile)jobs.push(uploadCompletionFile(payload.id,'delivery_authorization',payload.deliveryAuthorizationFile));
+    for(const job of jobs)await job;
+    return true;
+  }
   async function signedFileUrl(path,expiresIn=900){const {data,error}=await db().storage.from('installation-evidence').createSignedUrl(path,expiresIn);if(error)throw new Error('تعذر فتح المرفق: '+error.message);return data?.signedUrl||''}
   async function exceptionList(){requireAction('view','installationExceptions');const [{data:requests,error:re},{data:revisits,error:ve}]=await Promise.all([db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),technician:installation_technicians(id,full_name)').in('status',['مؤجل','متعذر']).order('last_status_changed_at',{ascending:false,nullsFirst:false}),db().from('installation_revisits').select('*').order('created_at',{ascending:false})]);if(re)throw new Error('تعذر تحميل استثناءات التركيبات: '+re.message);if(ve)throw new Error('تعذر تحميل إعادة الزيارات: '+ve.message);const map=new Map();(revisits||[]).forEach(v=>{if(!map.has(v.installation_request_id)||v.status==='مجدولة')map.set(v.installation_request_id,v)});return (requests||[]).map(r=>({id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',technicianId:r.technician_id||'',technicianName:r.assigned_technician_name||r.technician?.full_name||'',scheduledDate:r.scheduled_date||'',status:r.status||'',failureReason:r.execution_failure_reason||'',executionNotes:r.execution_notes||'',activeRevisit:(()=>{const v=map.get(r.id);return v?{id:v.id,scheduledDate:v.scheduled_date||'',timeSlot:v.time_slot||'',technicianId:v.technician_id||'',actionType:v.action_type||'إعادة زيارة',notes:v.notes||'',status:v.status||'مجدولة'}:null})()}))}
   async function saveRevisit(payload){requireAction('edit','installationExceptions');if(!payload.scheduledDate||!payload.technicianId)throw new Error('تاريخ إعادة الزيارة والفني مطلوبان.');const {data:existing,error:ee}=await db().from('installation_revisits').select('id').eq('installation_request_id',payload.requestId).eq('status','مجدولة').maybeSingle();if(ee)throw new Error('تعذر التحقق من إعادة الزيارة: '+ee.message);const record={installation_request_id:payload.requestId,scheduled_date:payload.scheduledDate,time_slot:payload.timeSlot,technician_id:payload.technicianId,action_type:payload.actionType||'إعادة زيارة',notes:payload.notes||null,status:'مجدولة'};let q=existing?.id?db().from('installation_revisits').update(record).eq('id',existing.id):db().from('installation_revisits').insert(record);const {error}=await q;if(error)throw new Error('تعذر حفظ إعادة الزيارة: '+error.message);const {error:ue}=await db().from('installation_requests').update({scheduled_date:payload.scheduledDate,time_slot:payload.timeSlot,technician_id:payload.technicianId,status:'مسند',assignment_notes:payload.notes||null}).eq('id',payload.requestId);if(ue)throw new Error('تم حفظ الزيارة لكن تعذر تحديث طلب التركيب: '+ue.message)}

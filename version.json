@@ -1,13 +1,13 @@
 {
-  "version": "18.45.3",
-  "build": 184503,
+  "version": "18.45.4",
+  "build": 184504,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.3 Installations Service Contract Recovery",
+  "title": "M14.9.7.4 Installations Runtime Root Cause Recovery",
   "notes": [
-    "استعادة عقد خدمة بيانات إدارة التركيبات ومنع تشغيل الشاشات قبل جاهزية الخدمة",
-    "إضافة تحميل استردادي Cache-busted لخدمة التركيبات عند فقدها أو عدم اكتمالها",
-    "إعادة تشغيل جميع شاشات التركيبات عبر Service Proxy موحد دون تغيير البيانات أو الصلاحيات"
+    "استعادة دالة حفظ محضر التركيبات المفقودة التي كانت توقف إنشاء خدمة التركيبات بالكامل",
+    "إعادة تشغيل جميع شاشات إدارة التركيبات من الخدمة الأصلية دون رسائل عقد بيانات مضللة",
+    "إضافة تحقق شامل من جميع وظائف الخدمة المستخدمة فعليًا قبل تشغيل الشاشات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-3-m14-9-7-3-installations-service-contract-recovery"
+  "cacheToken": "kyum-crm-pwa-18-45-4-m14-9-7-4-installations-runtime-root-cause-recovery"
 }

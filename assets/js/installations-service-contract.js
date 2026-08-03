@@ -2,9 +2,7 @@
   'use strict';
 
   const REQUIRED_METHODS = [
-    'list', 'options', 'createRequest', 'updateRequest', 'scheduleList',
-    'executionWorkspace', 'completionList', 'exceptionList',
-    'operationalReport', 'settingsCatalog'
+    'list', 'options', 'createRequest', 'updateRequest', 'remove', 'technicians', 'scheduleTeams', 'technicianNameSuggestions', 'scheduleList', 'assign', 'executionWorkspace', 'selectExecutionRequest', 'recordMapOpened', 'advanceExecution', 'completionList', 'saveCompletion', 'signedFileUrl', 'exceptionList', 'saveRevisit', 'operationalReport', 'settingsCatalog', 'saveSettingItem', 'toggleSettingItem', 'removeSettingItem'
   ];
 
   function isValid(service) {
@@ -21,7 +19,7 @@
       }
 
       const script = document.createElement('script');
-      script.src = 'assets/js/installations-service.js?v=18.45.3-recovery';
+      script.src = 'assets/js/installations-service.js?v=18.45.4-recovery';
       script.async = false;
       script.dataset.kyumInstallationsServiceRecovery = 'true';
       script.addEventListener('load', resolve, { once: true });
@@ -38,7 +36,7 @@
     if (!recoveryPromise) {
       recoveryPromise = loadFreshService().then(() => {
         if (!isValid(window.InstallationsService)) {
-          throw new Error('عقد بيانات إدارة التركيبات غير مكتمل. أعد تحميل التطبيق بعد مسح الكاش.');
+          throw new Error('تعذر تهيئة خدمة بيانات إدارة التركيبات.');
         }
         return window.InstallationsService;
       });
