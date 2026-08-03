@@ -5,3 +5,155 @@
 
 /* Phase M14.9.2.1 — simplified completion report, invoice and delivery authorization */
 .installation-invoice-section,.installation-evidence-section{border:1px solid var(--border);border-radius:16px;padding:16px;display:grid;gap:14px;background:var(--surface-soft,#f8fafc)}.installation-section-title{display:flex;align-items:center;gap:12px}.installation-section-title::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,#d6a323)}.installation-section-title h4{margin:0;white-space:nowrap}.installation-invoice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.installation-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-invoice-note{margin:0;padding:10px 12px;border:1px solid #f2b8b5;border-radius:10px;background:#fff3f2;color:#a12622;font-weight:700}.required-mark{color:#c62828}.installation-delivery-authorization{padding:14px;border:1px dashed #8da0b8;border-radius:14px;background:var(--surface,#fff)}.installation-delivery-authorization small{display:block;margin:4px 0 10px;color:var(--text-muted)}.installation-completion-dialog .dialog-shell{width:min(980px,calc(100vw - 32px))}.installation-completion-dialog input[readonly]{background:var(--surface-soft,#f5f7fa);color:var(--text-muted);cursor:not-allowed}@media(max-width:900px){.installation-invoice-grid,.installation-evidence-grid{grid-template-columns:1fr}}
+
+/* Phase M14.9.2.2 — completion report full layout hotfix */
+.installation-completion-dialog{
+  width:auto;
+  max-width:none;
+  padding:0;
+  border:0;
+  background:transparent;
+  overflow:visible;
+}
+.installation-completion-dialog[open]{
+  display:grid;
+  place-items:center;
+  inset:0;
+  margin:auto;
+}
+.installation-completion-dialog .dialog-shell{
+  width:min(1180px,calc(100vw - 40px));
+  max-width:1180px;
+  max-height:min(92dvh,980px);
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:0;
+  overflow:hidden;
+  border-radius:22px;
+}
+.installation-completion-dialog .dialog-header{
+  position:relative;
+  z-index:3;
+  margin:0;
+  padding:20px 24px 16px;
+  background:var(--surface,#fff);
+  border-bottom:1px solid var(--border);
+}
+.installation-completion-dialog .installation-completion-body{
+  min-width:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:20px 24px;
+  display:grid;
+  gap:18px;
+  align-content:start;
+  scrollbar-gutter:stable;
+}
+.installation-completion-dialog .installation-completion-summary,
+.installation-completion-dialog .installation-completion-form-grid,
+.installation-completion-dialog .installation-invoice-grid,
+.installation-completion-dialog .installation-evidence-grid,
+.installation-completion-dialog .installation-existing-files{
+  min-width:0;
+}
+.installation-completion-dialog .installation-completion-form-grid{
+  grid-template-columns:2fr 1fr;
+  gap:16px;
+}
+.installation-completion-dialog .installation-completion-form-grid .full-span{
+  grid-column:1/-1;
+}
+.installation-completion-dialog .installation-invoice-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.installation-completion-dialog .installation-evidence-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.installation-completion-dialog label,
+.installation-completion-dialog input,
+.installation-completion-dialog textarea,
+.installation-completion-dialog select{
+  min-width:0;
+  max-width:100%;
+}
+.installation-completion-dialog input[type="file"]{
+  width:100%;
+  white-space:normal;
+  overflow:hidden;
+}
+.installation-completion-dialog .installation-delivery-authorization{
+  grid-column:1/-1;
+}
+.installation-completion-dialog .installation-existing-files:empty{
+  display:none;
+}
+.installation-completion-dialog .installation-existing-files{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.installation-completion-dialog .dialog-actions{
+  position:relative;
+  z-index:3;
+  margin:0;
+  padding:14px 24px calc(14px + env(safe-area-inset-bottom));
+  display:flex;
+  justify-content:flex-start;
+  flex-wrap:wrap;
+  gap:10px;
+  background:var(--surface,#fff);
+  border-top:1px solid var(--border);
+}
+.installation-completion-dialog .dialog-actions button{
+  min-width:150px;
+}
+html[data-theme="dark"] .installation-completion-dialog .dialog-header,
+html[data-theme="dark"] .installation-completion-dialog .dialog-actions{
+  background:var(--surface,#101827);
+}
+@media(max-width:1023px){
+  .installation-completion-dialog .dialog-shell{
+    width:min(920px,calc(100vw - 24px));
+    max-height:calc(100dvh - 24px);
+  }
+  .installation-completion-dialog .installation-completion-form-grid,
+  .installation-completion-dialog .installation-invoice-grid,
+  .installation-completion-dialog .installation-evidence-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .installation-completion-dialog .installation-completion-form-grid .full-span,
+  .installation-completion-dialog .installation-delivery-authorization{
+    grid-column:1/-1;
+  }
+  .installation-completion-dialog .installation-existing-files{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:767px){
+  .installation-completion-dialog[open]{place-items:stretch center;}
+  .installation-completion-dialog .dialog-shell{
+    width:calc(100vw - 12px);
+    max-height:calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    border-radius:16px;
+  }
+  .installation-completion-dialog .dialog-header{padding:16px;}
+  .installation-completion-dialog .installation-completion-body{padding:14px;gap:14px;}
+  .installation-completion-dialog .installation-completion-summary,
+  .installation-completion-dialog .installation-completion-form-grid,
+  .installation-completion-dialog .installation-invoice-grid,
+  .installation-completion-dialog .installation-evidence-grid,
+  .installation-completion-dialog .installation-existing-files{
+    grid-template-columns:1fr;
+  }
+  .installation-completion-dialog .installation-completion-form-grid .full-span,
+  .installation-completion-dialog .installation-delivery-authorization{
+    grid-column:auto;
+  }
+  .installation-completion-dialog .dialog-actions{
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  }
+  .installation-completion-dialog .dialog-actions button{
+    flex:1 1 100%;
+    min-width:0;
+  }
+}

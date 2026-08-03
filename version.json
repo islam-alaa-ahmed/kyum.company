@@ -1,14 +1,14 @@
 {
-  "version": "18.40.1",
-  "build": 184001,
+  "version": "18.40.2",
+  "build": 184002,
   "forceUpdate": true,
-  "releaseDate": "2026-08-02",
-  "title": "M14.9.2.1 Completion Invoice & Delivery Authorization",
+  "releaseDate": "2026-08-03",
+  "title": "M14.9.2.2 Completion Report Full Layout Hotfix",
   "notes": [
-    "حذف صفة المستلم وملاحظات العميل وتوقيع العميل",
-    "إضافة رقم الفاتورة وتاريخ الفاتورة كحقول إلزامية",
-    "إظهار رقم طلب العميل تلقائيًا",
-    "اعتماد صورة إذن تسليم العميل بدل التوقيع"
+    "توسيع نافذة محضر الإكمال وإظهار جميع البيانات",
+    "إلغاء التمرير الأفقي وقصر التمرير على الاتجاه الرأسي",
+    "تثبيت شريط الإجراءات أسفل النافذة",
+    "تحسين Responsive للكمبيوتر والتابلت والموبايل"
   ],
-  "cacheToken": "kyum-crm-pwa-18-40-1-m14-9-2-1-completion-invoice-delivery"
+  "cacheToken": "kyum-crm-pwa-18-40-2-m14-9-2-2-completion-full-layout"
 }
