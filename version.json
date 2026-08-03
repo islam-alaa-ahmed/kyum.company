@@ -1,13 +1,13 @@
 {
-  "version": "18.44.0",
-  "build": 184400,
+  "version": "18.45.0",
+  "build": 184500,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.6 Mobile Data Accuracy, Filters & Scale Certification",
+  "title": "M14.9.7 Final Mobile Enterprise Certification",
   "notes": [
-    "فصل رقم طلب العميل الحقيقي عن رقم طلب التركيب الداخلي",
-    "تثبيت التقويم الميلادي في عروض التاريخ والوقت على الموبايل",
-    "منع القطع الصامت للبيانات المرجعية وطلبات التركيبات عبر التحميل المرحلي"
+    "اعتماد تكامل مراحل صلاحيات التركيبات وملكية الطلب الحالي",
+    "اعتماد تناسق Light/Dark Mode والواجهات المتجاوبة للموبايل",
+    "إضافة فحص آلي نهائي لدقة البيانات والفلاتر والـOffline والمعمارية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-44-0-m14-9-6-mobile-data-filters-scale"
+  "cacheToken": "kyum-crm-pwa-18-45-0-m14-9-7-final-mobile-enterprise-certification"
 }
