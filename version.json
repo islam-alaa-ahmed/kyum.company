@@ -1,14 +1,13 @@
 {
-  "version": "18.40.2",
-  "build": 184002,
+  "version": "18.40.3",
+  "build": 184003,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.2.2 Completion Report Full Layout Hotfix",
+  "title": "M14.9.2.3 Completion Modal Theme Surface Hotfix",
   "notes": [
-    "توسيع نافذة محضر الإكمال وإظهار جميع البيانات",
-    "إلغاء التمرير الأفقي وقصر التمرير على الاتجاه الرأسي",
-    "تثبيت شريط الإجراءات أسفل النافذة",
-    "تحسين Responsive للكمبيوتر والتابلت والموبايل"
+    "تثبيت خلفيات نافذة محضر الإكمال ومنع الشفافية في الوضع الفاتح",
+    "توحيد الأسطح والحقول والنصوص في الوضع الداكن",
+    "الحفاظ على حجم النافذة والتمرير الرأسي وشريط الإجراءات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-40-2-m14-9-2-2-completion-full-layout"
+  "cacheToken": "kyum-crm-pwa-18-40-3-m14-9-2-3-completion-theme-surfaces"
 }

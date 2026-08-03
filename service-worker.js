@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-40-2-m14-9-2-2-completion-full-layout";
+const CACHE_VERSION = "kyum-crm-pwa-18-40-3-m14-9-2-3-completion-theme-surfaces";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
