@@ -40,3 +40,18 @@
 
 /* Phase M14.9.7.5 — searchable installation customer combobox */
 .installation-customer-combobox{position:relative}.installation-customer-combobox>input[type="search"]{width:100%}.installation-customer-results{position:absolute;z-index:80;inset-inline:0;top:calc(100% + 6px);max-height:280px;overflow:auto;border:1px solid var(--border-color,#d9e0ea);border-radius:12px;background:var(--surface,#fff);box-shadow:0 16px 36px rgba(15,23,42,.16);padding:6px}.installation-customer-results.hidden{display:none}.installation-customer-result{display:grid;gap:3px;width:100%;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:inherit;text-align:right;cursor:pointer}.installation-customer-result:hover,.installation-customer-result.is-active{background:rgba(37,99,235,.10)}.installation-customer-result strong{font-weight:800}.installation-customer-result span{font-size:.82rem;color:var(--text-muted,#64748b)}html[data-theme="dark"] .installation-customer-results{background:#132238;border-color:#33445f;box-shadow:0 16px 40px rgba(0,0,0,.35)}@media(max-width:767px){.installation-customer-results{position:fixed;inset-inline:16px;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-height:min(52dvh,420px)}}
+
+
+/* Phase M14.9.7.5.1 — customer options resilience and balanced layout */
+@media (min-width:1024px){
+  .installation-customer-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .installation-customer-search-wide{grid-column:auto}
+  .installation-customer-grid .full-span{grid-column:1/-1}
+}
+.installation-customer-search-field{align-content:start}
+.installation-customer-combobox{min-width:0}
+.installation-customer-combobox>input[type="search"]{min-height:48px}
+.installation-customer-results{max-width:100%;box-sizing:border-box}
+@media(max-width:767px){
+  .installation-customer-results{position:absolute;inset-inline:0;top:calc(100% + 6px);bottom:auto;max-height:min(42dvh,360px)}
+}

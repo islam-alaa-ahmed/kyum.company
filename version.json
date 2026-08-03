@@ -1,12 +1,13 @@
 {
-  "version": "18.45.5",
-  "build": 184505,
+  "version": "18.45.6",
+  "build": 184506,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.5 Installation Customer Search",
+  "title": "M14.9.7.5.1 Installation Customer Options Recovery",
   "notes": [
-    "إضافة بحث العميل بالاسم أو رقم الجوال أو رقم العميل في طلب تركيب جديد",
-    "الحفاظ على نطاق العملاء المسموح به وربط عروض الأسعار بعد الاختيار"
+    "استعادة تحميل العملاء والأحياء والخدمات وعروض الأسعار بصورة مستقلة",
+    "الحفاظ على البحث بالاسم ورقم الجوال ورقم العميل مع مسار توافق لرقم العميل",
+    "إعادة تنظيم بيانات العميل داخل نموذج طلب التركيب"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-5-m14-9-7-5-installation-customer-search"
+  "cacheToken": "kyum-crm-pwa-18-45-6-m14-9-7-5-1-customer-options-recovery"
 }

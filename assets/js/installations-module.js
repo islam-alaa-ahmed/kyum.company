@@ -41,7 +41,7 @@
     const input = $("newInstallationCustomerSearch");
     if (!box || !input) return;
     const q = String(query || "").trim().toLowerCase();
-    const matches = opts.customers.filter(customer => !q || [customer.customer_name, customer.phone, customer.customer_number].join(" ").toLowerCase().includes(q)).slice(0, 50);
+    const matches = (opts.customers || []).filter(customer => !q || [customer.customer_name, customer.phone, customer.customer_number].join(" ").toLowerCase().includes(q)).slice(0, 50);
     box.innerHTML = matches.length ? matches.map(customer => `<button type="button" class="installation-customer-result" role="option" data-installation-customer-id="${esc(customer.id)}"><strong>${esc(customer.customer_name || "عميل بدون اسم")}</strong><span>${esc(customer.phone || "بدون هاتف")} — ${esc(customer.customer_number || "بدون رقم عميل")}</span></button>`).join("") : '<div class="empty-cell">لا توجد نتائج مطابقة.</div>';
     box.classList.remove("hidden");
     input.setAttribute("aria-expanded", "true");
@@ -50,6 +50,22 @@
   function closeCustomerResults() {
     $("newInstallationCustomerResults")?.classList.add("hidden");
     $("newInstallationCustomerSearch")?.setAttribute("aria-expanded", "false");
+  }
+
+  function reportOptionLoadWarnings(data) {
+    const errors = data?.errors || {};
+    const labels = { customers: "العملاء", quotations: "عروض الأسعار", neighborhoods: "الأحياء", serviceTypes: "الخدمات" };
+    const failed = Object.keys(errors).map(key => labels[key] || key);
+    const target = $("newInstallationRequestFormStatus");
+    if (!failed.length) {
+      if (target?.dataset.optionWarning === "true") clearStatus(target);
+      if (target) delete target.dataset.optionWarning;
+      return;
+    }
+    if (target) {
+      target.dataset.optionWarning = "true";
+      status(target, `تعذر تحميل: ${failed.join("، ")}. بقية القوائم متاحة ويمكن إعادة المحاولة.`, "warning");
+    }
   }
 
   function customerOptions(selectId) {
@@ -132,11 +148,11 @@
     if (!force && opts.customers.length) return;
     opts = await window.InstallationsServiceSafe.options();
     customerOptions("installationCustomerId");
-    customerOptions("newInstallationCustomerId");
     quotationOptions("", "installationQuotationId");
     syncCustomerSearch("");
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
+    reportOptionLoadWarnings(opts);
   }
 
   async function load() {
@@ -144,7 +160,7 @@
     try {
       [rows, opts] = await Promise.all([window.InstallationsServiceSafe.list(), window.InstallationsServiceSafe.options()]);
       customerOptions("installationCustomerId");
-      customerOptions("newInstallationCustomerId");
+      reportOptionLoadWarnings(opts);
       const repFilter = $("installationRequestRepresentativeFilter");
       if (repFilter) {
         const current = repFilter.value;
@@ -168,7 +184,6 @@
       const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
       if (opened === false) throw new Error("ليس لديك صلاحية فتح شاشة بيانات طلب التركيب.");
 
-      customerOptions("newInstallationCustomerId");
       quotationOptions(row.customerId, "newInstallationQuotationId");
       neighborhoodOptions();
 
@@ -259,7 +274,6 @@
   async function initializeNewView() {
     try {
       await ensureOptions();
-      customerOptions("newInstallationCustomerId");
       quotationOptions($("newInstallationCustomerId")?.value || "", "newInstallationQuotationId");
       neighborhoodOptions();
       if (!$("newInstallationServicesBody")?.children.length) addServiceRow();

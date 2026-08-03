@@ -4,7 +4,34 @@
   function requireAction(action,screen='installationRequests'){const p=window.CustomerPermissions;if(p?.requireAction && !p.requireAction(screen,action,{silent:true})) throw new Error('ليس لديك صلاحية لتنفيذ هذا الإجراء.');}
   function normalize(row){return {id:row.id,requestNumber:row.request_number,customerOrderNumber:row.customer_order_number||'',customerId:row.customer_id,customerName:row.customer?.customer_name||'',customerPhone:row.customer?.phone||'',quotationId:row.quotation_id,quotationNumber:row.quotation?.quotation_number||'',representativeId:row.representative_id,representativeName:row.representative?.full_name||'',scheduledDate:row.scheduled_date||'',scheduledTime:row.scheduled_time||'',timeSlot:row.time_slot||'',status:row.status||'بانتظار المراجعة',priority:row.priority||'عادية',installationAddress:row.installation_address||'',customerMapUrl:row.customer_map_url||'',neighborhoodId:row.neighborhood_id||'',city:row.customer?.city||'',district:row.customer?.district||'',description:row.description||'',notes:row.notes||'',totalServicesCount:Number(row.total_services_count||0),totalServicesAmount:Number(row.total_services_amount||0),services:row.services||[],createdAt:row.created_at||'',updatedAt:row.updated_at||''}}
   async function list(){requireAction('view');const [data,serviceRows]=await Promise.all([fetchPaged((from,to)=>db().from('installation_requests').select('*,customer:customers(id,customer_name,phone,address,city,district,representative_id),quotation:quotations(id,quotation_number),representative:sales_representatives(id,full_name)').order('created_at',{ascending:false}).range(from,to)),fetchPaged((from,to)=>db().from('installation_request_services').select('installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name)').range(from,to),1000)]);const byRequest=new Map();serviceRows.forEach(x=>{const arr=byRequest.get(x.installation_request_id)||[];arr.push({serviceTypeId:x.service?.id||'',serviceName:x.service?.name||'',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)});byRequest.set(x.installation_request_id,arr)});return data.map(row=>normalize({...row,services:byRequest.get(row.id)||[]}))}
-  async function options(){const [customers,quotes,neighborhoods,serviceTypes]=await Promise.all([fetchPaged((from,to)=>db().from('customers').select('id,customer_number,customer_name,phone,address,city,district,representative_id').order('customer_name').range(from,to)),fetchPaged((from,to)=>db().from('quotations').select('id,quotation_number,customer_id,status,amount').eq('status','مقبول').order('quotation_date',{ascending:false}).range(from,to)),fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,name').eq('is_active',true).order('name').range(from,to)),fetchPaged((from,to)=>db().from('installation_service_types').select('id,name,default_price').eq('is_active',true).order('name').range(from,to))]);return {customers,quotations:quotes,neighborhoods,serviceTypes}}
+  async function loadInstallationCustomers(){
+    try {
+      return await fetchPaged((from,to)=>db().from('customers').select('id,customer_number,customer_name,phone,address,city,district,representative_id').order('customer_name').range(from,to));
+    } catch (error) {
+      const message=String(error?.message||'').toLowerCase();
+      const schemaMismatch=message.includes('customer_number')&&(message.includes('column')||message.includes('schema cache')||message.includes('does not exist'));
+      if(!schemaMismatch) throw error;
+      const rows=await fetchPaged((from,to)=>db().from('customers').select('id,customer_name,phone,address,city,district,representative_id').order('customer_name').range(from,to));
+      return rows.map(row=>({...row,customer_number:''}));
+    }
+  }
+  async function options(){
+    const tasks={
+      customers:loadInstallationCustomers(),
+      quotations:fetchPaged((from,to)=>db().from('quotations').select('id,quotation_number,customer_id,status,amount').eq('status','مقبول').order('quotation_date',{ascending:false}).range(from,to)),
+      neighborhoods:fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,name').eq('is_active',true).order('name').range(from,to)),
+      serviceTypes:fetchPaged((from,to)=>db().from('installation_service_types').select('id,name,default_price').eq('is_active',true).order('name').range(from,to))
+    };
+    const keys=Object.keys(tasks);
+    const settled=await Promise.allSettled(keys.map(key=>tasks[key]));
+    const result={customers:[],quotations:[],neighborhoods:[],serviceTypes:[],errors:{}};
+    settled.forEach((entry,index)=>{
+      const key=keys[index];
+      if(entry.status==='fulfilled') result[key]=entry.value;
+      else result.errors[key]=entry.reason?.message||String(entry.reason||'تعذر تحميل البيانات.');
+    });
+    return result;
+  }
   function normalizeGoogleMapsUrl(value){const url=String(value||'').trim();if(!url)return '';let parsed;try{parsed=new URL(url)}catch(_){throw new Error('رابط موقع العميل غير صحيح. استخدم رابط مشاركة من Google Maps.')}const host=parsed.hostname.toLowerCase();const valid=(host==='maps.app.goo.gl'||host==='maps.google.com'||host==='www.google.com'||host==='google.com'||host==='goo.gl')&&(host!=='goo.gl'||parsed.pathname.toLowerCase().startsWith('/maps'));if(parsed.protocol!=='https:'||!valid)throw new Error('استخدم رابط Google Maps آمن يبدأ بـ https.');return parsed.toString()}
   async function createRequest(payload){requireAction('add','installationRequestNew');if(!payload.customerId)throw new Error('اختر العميل.');if(!payload.neighborhoodId)throw new Error('اختر العنوان.');if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');const {data,error}=await db().rpc('create_installation_request_with_services',{p_customer_id:payload.customerId,p_quotation_id:payload.quotationId||null,p_representative_id:payload.representativeId||null,p_neighborhood_id:payload.neighborhoodId,p_priority:payload.priority||'عادية',p_installation_address:payload.installationAddress||null,p_customer_order_number:payload.customerOrderNumber||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:payload.notes||null,p_services:services});if(error)throw new Error('تعذر إنشاء طلب التركيب: '+error.message);return Array.isArray(data)?data[0]:data}
   async function updateRequest(payload){
