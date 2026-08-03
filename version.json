@@ -1,13 +1,13 @@
 {
-  "version": "18.41.1",
-  "build": 184101,
+  "version": "18.42.0",
+  "build": 184200,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.3.1 Operational Reference Dropdown Scope Recovery",
+  "title": "M14.9.4 Mobile Installation Tables & Current Request Ownership Certification",
   "notes": [
-    "إتاحة مجالات الاهتمام وأسباب عدم البيع النشطة لمستخدمي العملاء والمتابعات وعروض الأسعار دون منح صلاحية الإعدادات",
-    "منع فشل مصدر مرجعي واحد من تعطيل جميع القوائم المنسدلة",
-    "مزامنة المندوب تلقائيًا مع العميل المحدد داخل المتابعات وعروض الأسعار"
+    "تحويل جدول محاضر التركيبات إلى بطاقات موبايل كاملة بدون قص أو تمرير أفقي",
+    "تحديد الطلب الحالي من الخادم وربطه حصريًا بالمستخدم الذي اختاره",
+    "منع تحديث مراحل أو رفع صور تنفيذ لطلب يملكه مستخدم آخر"
   ],
-  "cacheToken": "kyum-crm-pwa-18-41-1-m14-9-3-1-reference-dropdown-scope"
+  "cacheToken": "kyum-crm-pwa-18-42-0-m14-9-4-mobile-table-current-ownership"
 }

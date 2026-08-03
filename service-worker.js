@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-41-1-m14-9-3-1-reference-dropdown-scope";
+const CACHE_VERSION = "kyum-crm-pwa-18-42-0-m14-9-4-mobile-table-current-ownership";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
