@@ -521,6 +521,11 @@ function setQuotationCustomerSelection(customerId, { close = true } = {}) {
   input.value = customer ? quotationCustomerDisplay(customer) : "";
   input.dataset.selectedCustomerId = customer ? String(customer.id) : "";
   input.setCustomValidity(customer ? "" : "اختر العميل من نتائج البحث.");
+  if (customer) {
+    const representativeSelect = document.getElementById("quotationRepresentative");
+    const nextRepresentativeId = operationalDefaultRepresentativeId(customer.representativeId);
+    if (representativeSelect && nextRepresentativeId) representativeSelect.value = nextRepresentativeId;
+  }
   renderQuotationCustomerOptions("");
   if (close) closeQuotationCustomerOptions();
 }
@@ -1006,6 +1011,29 @@ window.addEventListener("kyum-cache-dependencies-invalidated", event => {
   }, 120);
 });
 
+function operationalDefaultRepresentativeId(preferredId = "") {
+  const profile = window.CustomerAuth?.getState?.().profile || {};
+  const allowedIds = new Set(representatives.map(rep => String(rep.uuid || "")).filter(Boolean));
+  const candidates = [preferredId, profile.representative_id, representatives[0]?.uuid]
+    .map(value => String(value || ""))
+    .filter(Boolean);
+  return candidates.find(value => allowedIds.has(value)) || "";
+}
+
+async function ensureOperationalReferenceData() {
+  try {
+    await loadReferenceDataFromSupabase(false);
+    refreshReferenceOptions();
+    return true;
+  } catch (error) {
+    console.error("Operational reference data unavailable:", error);
+    alert(error instanceof Error
+      ? error.message
+      : "تعذر تحميل القوائم المرجعية المطلوبة. أعد المحاولة بعد تحديث الصفحة.");
+    return false;
+  }
+}
+
 async function loadReferenceDataFromSupabase(force = false) {
   if (!window.ReferenceDataService) return;
 
@@ -1026,21 +1054,51 @@ async function loadReferenceDataFromSupabase(force = false) {
 
   referenceDataLoadPromise = (async () => {
     try {
-      const [loadedRepresentatives, loadedInterests, loadedReasons] = await Promise.all([
+      const results = await Promise.allSettled([
         window.ReferenceDataService.listRepresentatives(true),
         window.ReferenceDataService.listInterests(true),
         window.ReferenceDataService.listReasons(true)
       ]);
 
-      representativeRecords = loadedRepresentatives || [];
-      interestRecords = loadedInterests || [];
-      reasonRecords = loadedReasons || [];
-      referenceDataLoaded = true;
+      const [representativesResult, interestsResult, reasonsResult] = results;
+      const failures = [];
+
+      if (representativesResult.status === "fulfilled") {
+        representativeRecords = representativesResult.value || [];
+      } else {
+        failures.push("المندوبين");
+        console.error("Representatives reference load failed:", representativesResult.reason);
+      }
+
+      if (interestsResult.status === "fulfilled") {
+        interestRecords = interestsResult.value || [];
+      } else {
+        failures.push("مجالات الاهتمام");
+        console.error("Interest categories load failed:", interestsResult.reason);
+      }
+
+      if (reasonsResult.status === "fulfilled") {
+        reasonRecords = reasonsResult.value || [];
+      } else {
+        failures.push("أسباب عدم البيع");
+        console.error("No-sale reasons load failed:", reasonsResult.reason);
+      }
+
+      referenceDataLoaded = results.some(result => result.status === "fulfilled");
       referenceDataLoadedAt = Date.now();
       refreshReferenceOptions();
 
-      showDataStatus("referenceDataStatus", "");
-      showDataStatus("representativesStatus", "");
+      const failureMessage = failures.length
+        ? `تعذر تحميل: ${failures.join("، ")}. تحقق من صلاحيات البيانات المرجعية.`
+        : "";
+      showDataStatus("referenceDataStatus", failureMessage, failures.length ? "error" : "info");
+      showDataStatus("representativesStatus", representativesResult.status === "rejected"
+        ? "تعذر تحميل قائمة المندوبين المسموحين."
+        : "", representativesResult.status === "rejected" ? "error" : "info");
+
+      if (failures.length === results.length) {
+        throw new Error(failureMessage || "تعذر تحميل البيانات المرجعية.");
+      }
     } catch (error) {
       console.error("Reference data load failed:", error);
       const message = error instanceof Error ? error.message : "تعذر تحميل البيانات.";
@@ -3786,9 +3844,10 @@ function syncCustomerContactPersonField() {
   }
 }
 
-function openCustomerDialog(customer = null) {
+async function openCustomerDialog(customer = null) {
   const action = customer ? "edit" : "add";
   if (!requireScreenAction("customers", action, `لا توجد صلاحية ${customer ? "تعديل" : "إضافة"} العملاء.`)) return;
+  if (!(await ensureOperationalReferenceData())) return;
   editingId = customer?.id || null;
   document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
   document.getElementById("customerId").value = customer?.id || "";
@@ -3800,7 +3859,7 @@ function openCustomerDialog(customer = null) {
   document.getElementById("customerRegion").value = customer?.region || "";
   document.getElementById("customerCity").value = customer?.city || "";
   document.getElementById("customerDistrict").value = customer?.district || "";
-  document.getElementById("customerRepresentative").value = customer?.representativeId || representatives[0]?.uuid || "";
+  document.getElementById("customerRepresentative").value = operationalDefaultRepresentativeId(customer?.representativeId);
   document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
   document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
   document.getElementById("noSaleReason").value = customer?.noSaleReasonId || "";
@@ -4058,9 +4117,10 @@ function renderFollowups() {
   if (next) next.disabled = followupsPage >= pageCount;
 }
 
-function openFollowupDialog(customerId = null, followup = null) {
+async function openFollowupDialog(customerId = null, followup = null) {
   const action = followup ? "edit" : "add";
   if (!requireScreenAction("followups", action, `لا توجد صلاحية ${followup ? "تعديل" : "إضافة"} المتابعات.`)) return;
+  if (!(await ensureOperationalReferenceData())) return;
   editingFollowupId = followup?.id || null;
   document.getElementById("followupDialogTitle").textContent =
     followup ? "تعديل المتابعة" : "إضافة متابعة جديدة";
@@ -4068,11 +4128,9 @@ function openFollowupDialog(customerId = null, followup = null) {
   document.getElementById("followupCustomer").value = followup?.customerId || customerId || customers[0]?.id || "";
   document.getElementById("followupContactDate").value = followup?.contactDate || todayIso();
   document.getElementById("followupMethod").value = followup?.method || "اتصال";
-  document.getElementById("followupRepresentative").value =
-    followup?.representativeId
-    || customerById(customerId)?.representativeId
-    || representatives[0]?.uuid
-    || "";
+  document.getElementById("followupRepresentative").value = operationalDefaultRepresentativeId(
+    followup?.representativeId || customerById(customerId)?.representativeId
+  );
   document.getElementById("followupResult").value = followup?.result || "تم التواصل";
   document.getElementById("followupQuotationNumber").value = followup?.quotationNumber || "";
   document.getElementById("followupNoSaleReason").value = followup?.noSaleReasonId || "";
@@ -6325,9 +6383,10 @@ function renderQuotations() {
   if (next) next.disabled = quotationsPage >= pageCount;
 }
 
-function openQuotationDialog(quotation = null, customerId = null) {
+async function openQuotationDialog(quotation = null, customerId = null) {
   const action = quotation ? "edit" : "add";
   if (!requireScreenAction("quotations", action, `لا توجد صلاحية ${quotation ? "تعديل" : "إضافة"} عروض الأسعار.`)) return;
+  if (!(await ensureOperationalReferenceData())) return;
   editingQuotationId = quotation?.id || null;
   document.getElementById("quotationDialogTitle").textContent =
     quotation ? "تعديل عرض السعر" : "إضافة عرض سعر";
@@ -6337,11 +6396,9 @@ function openQuotationDialog(quotation = null, customerId = null) {
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";
   syncQuotationCustomerSearchFromSelect();
-  document.getElementById("quotationRepresentative").value =
-    quotation?.representativeId
-    || customerById(customerId)?.representativeId
-    || representatives[0]?.uuid
-    || "";
+  document.getElementById("quotationRepresentative").value = operationalDefaultRepresentativeId(
+    quotation?.representativeId || customerById(customerId)?.representativeId
+  );
   document.getElementById("quotationDate").value = quotation?.quotationDate || todayIso();
   document.getElementById("quotationAmount").value = quotation?.amount ?? "";
   document.getElementById("quotationStatus").value = quotation?.status || "تحت التجهيز";
@@ -8657,6 +8714,17 @@ document.getElementById("resetPerformanceMetricsBtn")?.addEventListener("click",
   });
 
   dialog?.addEventListener("close", closeQuotationCustomerOptions);
+})();
+
+
+(function setupOperationalCustomerRepresentativeSync() {
+  const followupCustomer = document.getElementById("followupCustomer");
+  const followupRepresentative = document.getElementById("followupRepresentative");
+  followupCustomer?.addEventListener("change", () => {
+    const customer = customerById(followupCustomer.value);
+    const representativeId = operationalDefaultRepresentativeId(customer?.representativeId);
+    if (followupRepresentative && representativeId) followupRepresentative.value = representativeId;
+  });
 })();
 
 setOptions();
