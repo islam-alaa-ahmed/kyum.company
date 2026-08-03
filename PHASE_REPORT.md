@@ -1,42 +1,82 @@
-# Phase M14.9.7.2 — Mobile Quotations Filter & KPI Stacking Hotfix
+# Phase M14.9.7.3 — Installations Service Contract Recovery
 
 ## Baseline
-- KYUM Mobile baseline after Phase M14.9.7.1.
+
+- kyum.company-main(7).zip
+- Cumulative merge through M14.9.7.2
 
 ## Root Cause
-The mobile quotations toolbar used `position: sticky` with a fixed top offset. The actual mobile header height varies between iPhone Safari, Android Chrome, browser chrome states, safe areas, and font scaling. As the page scrolled, the toolbar floated over the KPI grid and, when the status/loading row was visible, the visual overlap became larger.
+
+All installation screens failed with errors such as:
+
+- Cannot read properties of undefined (reading 'list')
+- Cannot read properties of undefined (reading 'scheduleList')
+- Cannot read properties of undefined (reading 'executionWorkspace')
+- Cannot read properties of undefined (reading 'completionList')
+- Cannot read properties of undefined (reading 'exceptionList')
+- Cannot read properties of undefined (reading 'operationalReport')
+- Cannot read properties of undefined (reading 'settingsCatalog')
+
+The installation UI modules were calling `window.InstallationsService` directly. A partial/stale runtime load could leave the shared service object unavailable while all screen modules continued to initialize. This broke every screen at the same contract boundary, even though the individual Supabase queries and RLS rules were unchanged.
 
 ## Scope
-- Mobile quotations screen only.
-- Layout/stacking rules only.
-- No data, filtering, permissions, RLS, quotation save logic, or desktop/tablet changes.
+
+- Restore one shared, verified service contract for every installation screen.
+- Prevent installation modules from calling the service before it is ready.
+- Add a cache-busted recovery load when the service file is missing or incomplete.
+- Preserve all data queries, filters, RLS, team scope, representative scope, execution workflow, and completion logic.
 
 ## Implementation
-- Returned `.mobile-quotations-toolbar` to normal document flow on mobile.
-- Removed sticky offsets and transforms.
-- Added deterministic spacing between toolbar, status row, KPI grid, and quotation cards.
-- Normalized stacking contexts and widths.
-- Preserved filter bottom sheet behavior and floating add button.
-- Applied equally to Light Mode and Dark Mode.
+
+- Added `installations-service-contract.js`.
+- Added `KYUMInstallationsServiceReady` and a validated safe proxy.
+- Added a fallback script load for `installations-service.js` using a recovery cache token.
+- Updated all installation UI consumers to call the safe proxy.
+- Added a ready event after the service publishes its complete method contract.
+- Registered the new contract file in the Service Worker App Shell.
+
+## Affected Screens
+
+- New installation request.
+- Installation requests.
+- Scheduling and distribution.
+- Installation execution.
+- Completion reports.
+- Exceptions and revisits.
+- Installation reports.
+- Installation dashboard.
+- Installation settings.
 
 ## Version
-- Version: 18.45.2
-- Build: 184502
-- Cache Token: `kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking`
 
-## Modified Files
-- `assets/css/mobile-theme-canonical.css`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `PHASE_REPORT.md`
+- Version: 18.45.3
+- Build: 184503
+- Cache Token: kyum-crm-pwa-18-45-3-m14-9-7-3-installations-service-contract-recovery
 
-## Regression Guard
-- Quotation filters and filtering events unchanged.
-- Quotation KPI calculations unchanged.
-- Quotation table/mobile cards unchanged.
-- Add quotation floating action unchanged.
-- Bottom navigation and safe area unchanged.
-- Desktop/tablet layouts unchanged.
+## Validation
+
+- JavaScript syntax: PASS
+- Service Worker syntax: PASS
+- Installation service contract registered: PASS
+- All installation consumers use safe proxy: PASS
+- Final mobile certification: 21/21 PASS
+- App Shell assets: 66/66 PASS
+- Dashboard offline certification: PASS
+- Offline runtime reliability: PASS
+- Cache-first connectivity: 15/15 PASS
+- Sync queue recovery: 13/13 PASS
+- Offline write completion: 10/10 PASS
+- Full enterprise offline certification: PASS WITH 1 PREVIOUS DOCUMENTED WARNING
+
+## Regression
+
+Unchanged:
+
+- Supabase schema and migrations.
+- RLS and team boundary rules.
+- Representative visibility.
+- Current request ownership.
+- Execution stage order and timestamps.
+- Completion report workflow.
+- Filters and KPI calculations.
+- Light and Dark Mode styling.

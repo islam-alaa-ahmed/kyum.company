@@ -1,13 +1,13 @@
 {
-  "version": "18.45.2",
-  "build": 184502,
+  "version": "18.45.3",
+  "build": 184503,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.2 Mobile Quotations Filter & KPI Stacking Hotfix",
+  "title": "M14.9.7.3 Installations Service Contract Recovery",
   "notes": [
-    "إلغاء التموضع اللاصق لشريط فلاتر عروض الأسعار على الموبايل وإعادته إلى التدفق الطبيعي",
-    "منع تداخل شريط الفلاتر ورسالة التحميل مع كروت مؤشرات عروض الأسعار",
-    "تثبيت المسافات والتكديس في Light Mode وDark Mode على Android وiPhone"
+    "استعادة عقد خدمة بيانات إدارة التركيبات ومنع تشغيل الشاشات قبل جاهزية الخدمة",
+    "إضافة تحميل استردادي Cache-busted لخدمة التركيبات عند فقدها أو عدم اكتمالها",
+    "إعادة تشغيل جميع شاشات التركيبات عبر Service Proxy موحد دون تغيير البيانات أو الصلاحيات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking"
+  "cacheToken": "kyum-crm-pwa-18-45-3-m14-9-7-3-installations-service-contract-recovery"
 }

@@ -99,7 +99,7 @@
 
   async function ensureOptions(force = false) {
     if (!force && opts.customers.length) return;
-    opts = await window.InstallationsService.options();
+    opts = await window.InstallationsServiceSafe.options();
     customerOptions("installationCustomerId");
     customerOptions("newInstallationCustomerId");
     quotationOptions("", "installationQuotationId");
@@ -110,7 +110,7 @@
   async function load() {
     status($("installationRequestsStatus"), "جاري تحميل طلبات التركيبات...");
     try {
-      [rows, opts] = await Promise.all([window.InstallationsService.list(), window.InstallationsService.options()]);
+      [rows, opts] = await Promise.all([window.InstallationsServiceSafe.list(), window.InstallationsServiceSafe.options()]);
       customerOptions("installationCustomerId");
       customerOptions("newInstallationCustomerId");
       const repFilter = $("installationRequestRepresentativeFilter");
@@ -288,7 +288,7 @@
       if (editButton) openEdit(rows.find(row => row.id === editButton.dataset.installEdit));
       if (deleteButton && confirm("هل تريد حذف طلب التركيب؟")) {
         try {
-          await window.InstallationsService.remove(deleteButton.dataset.installDelete);
+          await window.InstallationsServiceSafe.remove(deleteButton.dataset.installDelete);
           await load();
         } catch (error) {
           status($("installationRequestsStatus"), error.message, "error");
@@ -323,14 +323,14 @@
       button.disabled = true;
       try {
         if (editingRequestId) {
-          await window.InstallationsService.updateRequest({ ...payload, id: editingRequestId });
+          await window.InstallationsServiceSafe.updateRequest({ ...payload, id: editingRequestId });
           const requestNumber = rows.find(item => item.id === editingRequestId)?.requestNumber || "";
           status($("newInstallationRequestFormStatus"), `تم حفظ تعديلات الطلب ${requestNumber}.`, "success");
           editingRequestId = null;
           await load();
           window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
         } else {
-          const created = await window.InstallationsService.createRequest(payload);
+          const created = await window.InstallationsServiceSafe.createRequest(payload);
           status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
           resetNewForm({ exitEdit: true });
         }

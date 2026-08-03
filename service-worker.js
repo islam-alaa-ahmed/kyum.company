@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-2-m14-9-7-2-quotations-filter-kpi-stacking";
+const CACHE_VERSION = "kyum-crm-pwa-18-45-3-m14-9-7-3-installations-service-contract-recovery";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -44,6 +44,7 @@ const CORE_APP_SHELL = [
   "./assets/js/followups-service.js",
   "./assets/js/quotations-service.js",
   "./assets/js/installations-service.js",
+  "./assets/js/installations-service-contract.js",
   "./assets/js/app.js",
   "./assets/js/installations-module.js",
   "./assets/js/installation-scheduling.js",

@@ -10,7 +10,7 @@
   async function loadExceptions(){
     const box=$('installationExceptionsStatus'); status(box,'جاري تحميل الاستثناءات...');
     try{
-      const [rows,techs]=await Promise.all([window.InstallationsService.exceptionList(),window.InstallationsService.technicians()]);
+      const [rows,techs]=await Promise.all([window.InstallationsServiceSafe.exceptionList(),window.InstallationsServiceSafe.technicians()]);
       state.exceptions=rows;state.technicians=techs;fillTechs();renderExceptions();status(box,'');
     }catch(e){status(box,e.message||'تعذر تحميل الاستثناءات.','error');}
   }
@@ -48,13 +48,13 @@
   }
   async function saveRevisit(e){
     e.preventDefault();const box=$('installationRevisitFormStatus');status(box,'جاري الحفظ...');
-    try{await window.InstallationsService.saveRevisit({requestId:$('installationRevisitRequestId').value,scheduledDate:$('installationRevisitDate').value,timeSlot:$('installationRevisitTimeSlot').value,technicianId:$('installationRevisitTechnician').value,actionType:$('installationRevisitAction').value,notes:$('installationRevisitNotes').value.trim()});$('installationRevisitDialog').close();await loadExceptions();}
+    try{await window.InstallationsServiceSafe.saveRevisit({requestId:$('installationRevisitRequestId').value,scheduledDate:$('installationRevisitDate').value,timeSlot:$('installationRevisitTimeSlot').value,technicianId:$('installationRevisitTechnician').value,actionType:$('installationRevisitAction').value,notes:$('installationRevisitNotes').value.trim()});$('installationRevisitDialog').close();await loadExceptions();}
     catch(err){status(box,err.message||'تعذر حفظ إعادة الزيارة.','error');}
   }
 
   async function loadReports(){
     const box=$('installationReportsStatus');status(box,'جاري إعداد التقرير...');
-    try{const data=await window.InstallationsService.operationalReport({dateFrom:$('installationReportsDateFrom')?.value||'',dateTo:$('installationReportsDateTo')?.value||'',technicianId:$('installationReportsTechnicianFilter')?.value||''});state.reportRows=data.rows;state.technicians=data.technicians;fillTechs();renderReport(data);status(box,'');}
+    try{const data=await window.InstallationsServiceSafe.operationalReport({dateFrom:$('installationReportsDateFrom')?.value||'',dateTo:$('installationReportsDateTo')?.value||'',technicianId:$('installationReportsTechnicianFilter')?.value||''});state.reportRows=data.rows;state.technicians=data.technicians;fillTechs();renderReport(data);status(box,'');}
     catch(e){status(box,e.message||'تعذر إعداد تقرير التركيبات.','error');}
   }
   function renderReport(data){
