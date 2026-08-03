@@ -1,13 +1,13 @@
 {
-  "version": "18.42.0",
-  "build": 184200,
+  "version": "18.43.0",
+  "build": 184300,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.4 Mobile Installation Tables & Current Request Ownership Certification",
+  "title": "M14.9.5 Mobile Theme Canonicalization & Visual Regression Certification",
   "notes": [
-    "تحويل جدول محاضر التركيبات إلى بطاقات موبايل كاملة بدون قص أو تمرير أفقي",
-    "تحديد الطلب الحالي من الخادم وربطه حصريًا بالمستخدم الذي اختاره",
-    "منع تحديث مراحل أو رفع صور تنفيذ لطلب يملكه مستخدم آخر"
+    "توحيد مصدر حالة Light/Dark Mode ومزامنة محددات الثيم القديمة",
+    "تثبيت أسطح البطاقات والنوافذ والحقول بدون شفافية على الموبايل",
+    "اعتماد تباين موحد للأزرار والجداول وشاشات التركيبات في الوضعين"
   ],
-  "cacheToken": "kyum-crm-pwa-18-42-0-m14-9-4-mobile-table-current-ownership"
+  "cacheToken": "kyum-crm-pwa-18-43-0-m14-9-5-mobile-theme-canonicalization"
 }

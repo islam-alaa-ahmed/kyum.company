@@ -6736,6 +6736,8 @@ function applyKyumTheme(theme, persist = true) {
 
   root.dataset.theme = safeTheme;
   root.style.colorScheme = safeTheme;
+  document.body?.classList.toggle("dark-mode", safeTheme === "dark");
+  document.body?.setAttribute("data-theme", safeTheme);
 
   if (themeColor) {
     themeColor.setAttribute("content", safeTheme === "dark" ? "#0b1220" : "#f4f7fb");

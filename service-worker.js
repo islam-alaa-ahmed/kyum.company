@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-42-0-m14-9-4-mobile-table-current-ownership";
+const CACHE_VERSION = "kyum-crm-pwa-18-43-0-m14-9-5-mobile-theme-canonicalization";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -26,6 +26,7 @@ const CORE_APP_SHELL = [
   "./assets/css/installation-completion.css",
   "./assets/css/installation-operations-reports.css",
   "./assets/css/installation-dashboard-settings.css",
+  "./assets/css/mobile-theme-canonical.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/permissions.js",
