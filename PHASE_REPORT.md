@@ -1,43 +1,26 @@
-# Phase M14.9.7.6 — Quotation Customer Order Number & Status Simplification
-
-## Baseline
-Built cumulatively on the latest stable Phase M14.9.7.5.1 baseline.
-
-## Root Cause
-The quotation form did not provide a separate customer-issued order/reference number. Quotation status was also distributed across six legacy values, while the required operational workflow now uses only three states.
+# Phase M14.9.7.7 — Daily Performance Professional PDF Export
 
 ## Scope
-- Add optional customer order number to quotation create/edit.
-- Persist, reload, cache and search the value.
-- Limit quotation status UI to: قيد التنفيذ، مقبول، مرفوض.
-- Normalize legacy values while preserving their original value in `legacy_status`.
-- Keep permissions, RLS, customers, follow-ups, installations and offline queue behavior unchanged.
+إضافة زر تصدير PDF احترافي إلى شاشة تقرير الأداء اليومي فقط، دون تعديل حسابات التقرير أو البيانات أو الصلاحيات.
 
-## Data Migration
-- Added `quotations.customer_order_number`.
-- Added `quotations.legacy_status` for historical preservation.
-- Converted `تحت التجهيز`, `تم الإرسال`, `تحت المراجعة` to `قيد التنفيذ`.
-- Converted historical `ملغي` to `مرفوض`, while retaining `ملغي` in `legacy_status`.
-- Enforced the three-state database constraint.
+## Implemented
+- زر `تصدير PDF` بجوار تحديث التقرير وتصدير CSV.
+- التصدير يعتمد على تاريخ التقرير والموظف/المندوب المحدد حاليًا.
+- هيدر KYUM احترافي يتضمن الشعار والعنوان وبيانات التقرير ووقت التصدير.
+- تخطيط A4 أفقي مع RTL وخلفية طباعة بيضاء.
+- تضمين ملاحظة المدير، مؤشرات الأداء، الترتيب اليومي، الجداول والتفاصيل الظاهرة.
+- تكرار رؤوس الجداول عند امتداد التقرير لأكثر من صفحة.
+- منع قص الصفوف والكروت الرئيسية بين الصفحات قدر الإمكان.
+- فتح نافذة الطباعة مباشرة لاختيار `Save as PDF` من المتصفح.
+
+## Unchanged
+- Daily Performance calculations.
+- Filters and representative scope.
+- Supabase, SQL and RLS.
+- CSV export.
+- Desktop/mobile screen rendering.
 
 ## Version
-- Version: 18.45.7
-- Build: 184507
-- Cache Token: kyum-crm-pwa-18-45-7-m14-9-7-6-quotation-customer-order-status
-
-## Modified Files
-- index.html
-- assets/js/app.js
-- assets/js/quotations-service.js
-- assets/js/reports-engine.js
-- assets/js/customer360-engine.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- supabase/migrations/phase_m14_9_7_6_quotation_customer_order_status_simplification.sql
-- supabase/verification/phase_m14_9_7_6_quotation_customer_order_status_simplification_verification.sql
-- PHASE_REPORT.md
-
-## Regression Boundaries
-No changes to customer/follow-up permissions, installation workflows, RLS policies, offline queue registration, Smart Sync, or quotation number uniqueness.
+- Version: 18.45.8
+- Build: 184508
+- Cache: kyum-crm-pwa-18-45-8-m14-9-7-7-daily-performance-pdf-export

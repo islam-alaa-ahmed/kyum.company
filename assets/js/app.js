@@ -5153,6 +5153,130 @@ function exportDailyPerformanceCsv() {
   );
 }
 
+function dailyPerformancePdfEscape(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function dailyPerformancePdfClone() {
+  const source = document.getElementById("dailyPerformanceReportView");
+  if (!source) throw new Error("تعذر الوصول إلى محتوى تقرير الأداء اليومي.");
+
+  const clone = source.cloneNode(true);
+  clone.classList.remove("hidden");
+  clone.removeAttribute("id");
+
+  clone.querySelectorAll(
+    ".daily-performance-header, .daily-performance-filters, #dailyPerformanceStatus, button, .daily-report-show-btn"
+  ).forEach(element => element.remove());
+
+  clone.querySelectorAll("select, input").forEach(control => {
+    const replacement = document.createElement("span");
+    replacement.className = "pdf-control-value";
+    replacement.textContent = control.tagName === "SELECT"
+      ? control.options?.[control.selectedIndex]?.textContent || "—"
+      : control.value || "—";
+    control.replaceWith(replacement);
+  });
+
+  clone.querySelectorAll(".hidden").forEach(element => element.remove());
+  clone.querySelectorAll(".empty-state").forEach(element => {
+    if (!element.textContent?.trim()) element.remove();
+  });
+
+  return clone.innerHTML;
+}
+
+function exportDailyPerformancePdf() {
+  if (!dailyPerformanceSnapshot) {
+    showDataStatus(
+      "dailyPerformanceStatus",
+      "حمّل تقرير الأداء اليومي أولًا قبل تصدير PDF.",
+      "error"
+    );
+    return;
+  }
+
+  const popup = window.open("", "_blank");
+  if (!popup) {
+    alert("اسمح بالنوافذ المنبثقة لتصدير تقرير PDF.");
+    return;
+  }
+
+  const selectedDate = document.getElementById("dailyPerformanceDate")?.value
+    || dailyPerformanceSnapshot.workDate
+    || dailyLocalDate();
+  const employeeSelect = document.getElementById("dailyPerformanceRepresentativeFilter");
+  const employeeLabel = employeeSelect?.options?.[employeeSelect.selectedIndex]?.textContent
+    || "كل الموظفين";
+  const generatedAt = new Date().toLocaleString("ar-SA-u-ca-gregory", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  const logoUrl = new URL("assets/images/kyum-header-logo.png", document.baseURI).href;
+  const reportHtml = dailyPerformancePdfClone();
+
+  popup.document.open();
+  popup.document.write(`<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تقرير الأداء اليومي - ${dailyPerformancePdfEscape(selectedDate)}</title>
+<style>
+@page{size:A4 landscape;margin:11mm 10mm 13mm}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#fff;color:#111827;font-family:Tahoma,Arial,sans-serif;direction:rtl}
+body{font-size:11px;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pdf-report-header{display:grid;grid-template-columns:170px 1fr 230px;align-items:center;gap:18px;padding:14px 18px;border:1px solid #0c3857;border-radius:18px;background:linear-gradient(135deg,#06192c,#0a3651);color:#fff;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,19,35,.16)}
+.pdf-report-header img{width:150px;max-height:72px;object-fit:contain;border-radius:10px}
+.pdf-report-title{text-align:center}.pdf-report-title h1{font-size:26px;margin:0 0 4px}.pdf-report-title p{margin:0;color:#c9d8e5;font-size:12px}
+.pdf-report-meta{font-size:10px;line-height:1.9;border-right:1px solid rgba(255,255,255,.25);padding-right:14px}.pdf-report-meta strong{color:#f4bd3c}
+.pdf-report-body{width:100%}
+.pdf-report-body>.view-section{display:block!important}
+.daily-performance-manager-note,.daily-performance-kpis article,.panel{background:#fff!important;border:1px solid #d8e1ea!important;border-radius:12px!important;box-shadow:none!important;color:#111827!important}
+.daily-performance-manager-note{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 14px;margin:0 0 12px;border-right:4px solid #16a3d8!important}
+.daily-performance-manager-note span,.daily-performance-manager-note small,.panel p{color:#667085!important}
+.daily-performance-manager-note strong{display:block;font-size:14px;margin:3px 0}.daily-performance-manager-note p{margin:0}
+.daily-performance-kpis{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important;margin:0 0 12px!important}
+.daily-performance-kpis article{padding:10px!important;min-height:74px!important;break-inside:avoid}.daily-performance-kpis span{display:block;color:#667085!important;font-size:9px}.daily-performance-kpis strong{display:block;font-size:19px;margin:5px 0}.daily-performance-kpis small{color:#667085!important;font-size:8px}.daily-performance-kpis .attention{border-right:4px solid #e11d48!important}
+.panel{padding:12px!important;margin:0 0 12px!important;break-inside:auto}.panel-header{display:flex;justify-content:space-between;align-items:flex-start;margin:0 0 9px;padding:0 0 7px;border-bottom:1px solid #e5e7eb}.panel-header h3{font-size:14px;margin:0}.panel-header p{margin:2px 0 0;font-size:9px}
+.daily-performance-leaderboard{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}.daily-performance-leaderboard>*{break-inside:avoid;background:#f8fafc!important;border:1px solid #dde5ed!important;border-radius:9px!important;padding:8px!important}
+.table-wrap{overflow:visible!important;width:100%!important}
+table{width:100%!important;border-collapse:collapse!important;table-layout:auto!important;min-width:0!important;background:#fff!important}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #dbe3ea!important;padding:5px 6px!important;text-align:right!important;vertical-align:middle!important;color:#111827!important;font-size:8.2px!important;white-space:normal!important}th{background:#eaf1f6!important;font-weight:700!important;color:#0b2940!important}
+.daily-activity-timeline{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.daily-activity-timeline>*{break-inside:avoid;border:1px solid #dbe3ea!important;border-radius:8px!important;background:#f8fafc!important;padding:8px!important}
+.daily-activity-filters,.daily-performance-detail-controls,.daily-tasks-report-controls{display:none!important}
+.pdf-control-value{display:inline-block;padding:3px 7px;border:1px solid #dbe3ea;border-radius:6px;background:#f8fafc}
+.badge,.status-badge{border:1px solid #cbd5e1!important;background:#f8fafc!important;color:#111827!important}
+.pdf-report-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:7px;border-top:1px solid #cbd5e1;color:#64748b;font-size:8px}
+@media print{.panel{page-break-inside:auto}.daily-performance-manager-note,.daily-performance-kpis article,.daily-performance-leaderboard>*{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="pdf-report-header">
+  <img src="${dailyPerformancePdfEscape(logoUrl)}" alt="KYUM">
+  <div class="pdf-report-title"><h1>تقرير الأداء اليومي</h1><p>متابعة تنفيذ المهام والنشاط اليومي للموظفين</p></div>
+  <div class="pdf-report-meta">
+    <div><strong>تاريخ التقرير:</strong> ${dailyPerformancePdfEscape(selectedDate)}</div>
+    <div><strong>الموظف / المندوب:</strong> ${dailyPerformancePdfEscape(employeeLabel)}</div>
+    <div><strong>وقت التصدير:</strong> ${dailyPerformancePdfEscape(generatedAt)}</div>
+  </div>
+</header>
+<main class="pdf-report-body">${reportHtml}</main>
+<footer class="pdf-report-footer"><span>KYUM Company CRM — Enterprise Daily Performance Report</span><span>نسخة مخصصة للطباعة والحفظ بصيغة PDF</span></footer>
+<script>window.addEventListener("load",()=>setTimeout(()=>window.print(),350));<\/script>
+</body>
+</html>`);
+  popup.document.close();
+}
+
 function dailyLocalDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -8220,6 +8344,10 @@ document.getElementById("quotationsNextPage")?.addEventListener("click", () => {
 document.getElementById("refreshDailyPerformanceBtn")?.addEventListener(
   "click",
   () => loadDailyPerformanceReport(true)
+);
+document.getElementById("exportDailyPerformancePdfBtn")?.addEventListener(
+  "click",
+  exportDailyPerformancePdf
 );
 document.getElementById("exportDailyPerformanceCsvBtn")?.addEventListener(
   "click",

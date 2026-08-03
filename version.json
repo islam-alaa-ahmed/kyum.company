@@ -1,13 +1,13 @@
 {
-  "version": "18.45.7",
-  "build": 184507,
+  "version": "18.45.8",
+  "build": 184508,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.6 Quotation Customer Order Number & Status Simplification",
+  "title": "M14.9.7.7 Daily Performance Professional PDF Export",
   "notes": [
-    "إضافة رقم طلب العميل إلى عروض الأسعار",
-    "توحيد حالات عرض السعر إلى قيد التنفيذ ومقبول ومرفوض",
-    "الحفاظ على الحالات القديمة داخل legacy_status أثناء التحويل"
+    "إضافة تصدير PDF احترافي لتقرير الأداء اليومي",
+    "الحفاظ على هوية KYUM والهيدر والفلاتر الحالية",
+    "دعم RTL وجداول متعددة الصفحات وتخطيط A4 أفقي"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-7-m14-9-7-6-quotation-customer-order-status"
+  "cacheToken": "kyum-crm-pwa-18-45-8-m14-9-7-7-daily-performance-pdf-export"
 }
