@@ -1,31 +1,43 @@
-# Phase M14.9.7.5.1 — Installation Customer Options & Layout Recovery
+# Phase M14.9.7.6 — Quotation Customer Order Number & Status Simplification
+
+## Baseline
+Built cumulatively on the latest stable Phase M14.9.7.5.1 baseline.
 
 ## Root Cause
-Phase M14.9.7.5 added `customer_number` to the customers query while `options()` loaded customers, quotations, neighborhoods, and service types through one `Promise.all`. Any customers-query failure therefore rejected the complete options request and cleared all dependent lists, including neighborhoods and services. The new combobox was also inserted into the previous three-column form without rebalancing the remaining customer fields.
+The quotation form did not provide a separate customer-issued order/reference number. Quotation status was also distributed across six legacy values, while the required operational workflow now uses only three states.
 
-## Fix
-- Customers, quotations, neighborhoods, and service types now load independently through `Promise.allSettled`.
-- A compatibility fallback retries the customers query without `customer_number` only when the backend reports that the column/schema cache is unavailable.
-- One failed list no longer removes successful lists.
-- Removed legacy attempts to populate the hidden customer-id input as a `<select>`.
-- Preserved customer search by name, phone, and customer number.
-- Rebalanced the customer section to two columns on desktop and one column on mobile.
-- Customer results remain anchored to the search field on mobile instead of covering unrelated form content.
+## Scope
+- Add optional customer order number to quotation create/edit.
+- Persist, reload, cache and search the value.
+- Limit quotation status UI to: قيد التنفيذ، مقبول، مرفوض.
+- Normalize legacy values while preserving their original value in `legacy_status`.
+- Keep permissions, RLS, customers, follow-ups, installations and offline queue behavior unchanged.
 
-## Modified Files
-- `assets/js/installations-service.js`
-- `assets/js/installations-module.js`
-- `assets/css/installation-requests.css`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
+## Data Migration
+- Added `quotations.customer_order_number`.
+- Added `quotations.legacy_status` for historical preservation.
+- Converted `تحت التجهيز`, `تم الإرسال`, `تحت المراجعة` to `قيد التنفيذ`.
+- Converted historical `ملغي` to `مرفوض`, while retaining `ملغي` in `legacy_status`.
+- Enforced the three-state database constraint.
 
 ## Version
-- Version: 18.45.6
-- Build: 184506
-- Cache Token: `kyum-crm-pwa-18-45-6-m14-9-7-5-1-customer-options-recovery`
+- Version: 18.45.7
+- Build: 184507
+- Cache Token: kyum-crm-pwa-18-45-7-m14-9-7-6-quotation-customer-order-status
 
-## Regression Scope
-No SQL, RLS, request-save logic, quotation filtering, installation workflow, execution timeline, completion reports, or offline queue logic was changed.
+## Modified Files
+- index.html
+- assets/js/app.js
+- assets/js/quotations-service.js
+- assets/js/reports-engine.js
+- assets/js/customer360-engine.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_9_7_6_quotation_customer_order_status_simplification.sql
+- supabase/verification/phase_m14_9_7_6_quotation_customer_order_status_simplification_verification.sql
+- PHASE_REPORT.md
+
+## Regression Boundaries
+No changes to customer/follow-up permissions, installation workflows, RLS policies, offline queue registration, Smart Sync, or quotation number uniqueness.

@@ -286,15 +286,20 @@ function nextQuotationCode() {
   return `Q-${year}-${String(max + 1).padStart(3, "0")}`;
 }
 
+function canonicalQuotationStatus(status) {
+  const value = String(status || "").trim();
+  if (["قيد التنفيذ", "مقبول", "مرفوض"].includes(value)) return value;
+  if (["تحت التجهيز", "تم الإرسال", "تحت المراجعة"].includes(value)) return "قيد التنفيذ";
+  if (value === "ملغي") return "مرفوض";
+  return "قيد التنفيذ";
+}
+
 function quotationStatusClass(status) {
   return {
-    "تحت التجهيز": "draft",
-    "تم الإرسال": "sent",
-    "تحت المراجعة": "review",
+    "قيد التنفيذ": "review",
     "مقبول": "accepted",
-    "مرفوض": "rejected",
-    "ملغي": "cancelled"
-  }[status] || "draft";
+    "مرفوض": "rejected"
+  }[canonicalQuotationStatus(status)] || "review";
 }
 
 function formatCurrency(value) {
@@ -1517,10 +1522,10 @@ function renderInterestAnalytics(filteredCustomers) {
 }
 
 function renderQuotationStatusAnalytics(filteredQuotations) {
-  const statuses = ["تحت التجهيز", "تم الإرسال", "تحت المراجعة", "مقبول", "مرفوض", "ملغي"];
+  const statuses = ["قيد التنفيذ", "مقبول", "مرفوض"];
   const rows = statuses.map(status => ({
     label: status,
-    value: filteredQuotations.filter(q => q.status === status).length
+    value: filteredQuotations.filter(q => canonicalQuotationStatus(q.status) === status).length
   })).filter(row => row.value > 0);
 
   renderBarChart("quotationStatusAnalytics", rows);
@@ -2082,7 +2087,7 @@ function renderBackupHistory() {
         <td>${escapeHtml(item.file_name || "—")}</td>
         <td>${Number(item.total_records || 0)}</td>
         <td>${escapeHtml(item.user?.full_name || item.user?.email || "—")}</td>
-        <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(item.status)}</span></td>
+        <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(canonicalStatus)}</span></td>
         <td>${new Date(item.created_at).toLocaleString("ar-SA-u-ca-gregory")}</td>
       </tr>
     `).join("")
@@ -6296,6 +6301,7 @@ function filteredQuotations() {
       if (!customer) return false;
       const searchable = [
         item.code,
+        item.customerOrderNumber,
         customer.name,
         customer.phone,
         item.representative,
@@ -6303,7 +6309,7 @@ function filteredQuotations() {
       ].join(" ").toLowerCase();
 
       return (!query || searchable.includes(query))
-        && (!status || item.status === status)
+        && (!status || canonicalQuotationStatus(item.status) === status)
         && (!rep || item.representative === rep);
     })
     .sort((a, b) => String(b.quotationDate).localeCompare(String(a.quotationDate)));
@@ -6349,7 +6355,8 @@ function renderQuotations() {
       const customer = customerById(item.customerId);
       const customerName = customer?.name || item.customerName || "عميل غير معروف";
       const customerPhone = customer?.phone || item.customerPhone || "—";
-      const statusClass = quotationStatusClass(item.status);
+      const canonicalStatus = canonicalQuotationStatus(item.status);
+      const statusClass = quotationStatusClass(canonicalStatus);
 
       return `
         <tr>
@@ -6359,7 +6366,7 @@ function renderQuotations() {
           <td>${escapeHtml(item.representative || "—")}</td>
           <td>${formatDate(item.quotationDate)}</td>
           <td class="quotation-value">${formatCurrency(item.amount)}</td>
-          <td><span class="quotation-status quotation-status-${statusClass}">${escapeHtml(item.status)}</span></td>
+          <td><span class="quotation-status quotation-status-${statusClass}">${escapeHtml(canonicalStatus)}</span></td>
           <td>${formatDate(item.expiryDate)}</td>
           <td>${escapeHtml(item.rejectionReason || "—")}</td>
           <td>
@@ -6393,6 +6400,7 @@ async function openQuotationDialog(quotation = null, customerId = null) {
 
   document.getElementById("quotationId").value = quotation?.id || "";
   document.getElementById("quotationCode").value = quotation?.code || nextQuotationCode();
+  document.getElementById("quotationCustomerOrderNumber").value = quotation?.customerOrderNumber || "";
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";
   syncQuotationCustomerSearchFromSelect();
@@ -6401,7 +6409,7 @@ async function openQuotationDialog(quotation = null, customerId = null) {
   );
   document.getElementById("quotationDate").value = quotation?.quotationDate || todayIso();
   document.getElementById("quotationAmount").value = quotation?.amount ?? "";
-  document.getElementById("quotationStatus").value = quotation?.status || "تحت التجهيز";
+  document.getElementById("quotationStatus").value = canonicalQuotationStatus(quotation?.status);
   document.getElementById("quotationExpiryDate").value = quotation?.expiryDate || "";
   document.getElementById("quotationRejectionReason").value =
     quotation?.rejectionReasonId || "";
@@ -6431,7 +6439,7 @@ async function handleQuotationSubmit(event) {
   const code = document.getElementById("quotationCode").value.trim();
   const customerId = document.getElementById("quotationCustomer").value;
   const representativeId = document.getElementById("quotationRepresentative").value;
-  const status = document.getElementById("quotationStatus").value;
+  const status = canonicalQuotationStatus(document.getElementById("quotationStatus").value);
   const rejectionReasonId = document.getElementById("quotationRejectionReason").value || null;
   const amount = Number(document.getElementById("quotationAmount").value || 0);
 
@@ -6484,6 +6492,7 @@ async function handleQuotationSubmit(event) {
       id: editingQuotationId,
       updatedAt: editingQuotationId ? (quotations.find(item => String(item.id) === String(editingQuotationId))?.updatedAt || "") : "",
       code,
+      customerOrderNumber: document.getElementById("quotationCustomerOrderNumber").value.trim(),
       customerId,
       representativeId,
       quotationDate: document.getElementById("quotationDate").value,

@@ -15,7 +15,7 @@
 
   const QUOTATIONS_CACHE_TTL_MS = 10 * 60 * 1000;
   const QUOTATIONS_CACHE_STALE_MAX_MS = 10 * 365 * 24 * 60 * 60 * 1000;
-  const QUOTATIONS_CACHE_SCHEMA_VERSION = 1;
+  const QUOTATIONS_CACHE_SCHEMA_VERSION = 2;
   const quotationRefreshes = new Map();
   let lastReadStatus = null;
 
@@ -78,10 +78,20 @@
     return data;
   }
 
+
+  function canonicalQuotationStatus(status) {
+    const value = String(status || "").trim();
+    if (["مقبول", "مرفوض", "قيد التنفيذ"].includes(value)) return value;
+    if (["تحت التجهيز", "تم الإرسال", "تحت المراجعة"].includes(value)) return "قيد التنفيذ";
+    if (value === "ملغي") return "مرفوض";
+    return "قيد التنفيذ";
+  }
+
   function normalizeQuotation(row) {
     return {
       id: row.id,
       code: row.quotation_number || "",
+      customerOrderNumber: row.customer_order_number || "",
       customerId: row.customer_id,
       customerName: row.customer?.customer_name || "",
       customerPhone: row.customer?.phone || "",
@@ -89,7 +99,7 @@
       representativeId: row.representative_id || row.representative?.id || null,
       quotationDate: row.quotation_date || "",
       amount: Number(row.amount || 0),
-      status: row.status || "تحت التجهيز",
+      status: canonicalQuotationStatus(row.status),
       expiryDate: row.expiry_date || "",
       rejectionReason: row.rejection_reason?.name || "",
       rejectionReasonId: row.rejection_reason_id || row.rejection_reason?.id || null,
@@ -152,6 +162,7 @@
       .select(`
           id,
           quotation_number,
+          customer_order_number,
           customer_id,
           representative_id,
           quotation_date,
@@ -239,7 +250,7 @@
     let request = client()
       .from("quotations")
       .select(`
-        id, quotation_number, customer_id, representative_id, quotation_date,
+        id, quotation_number, customer_order_number, customer_id, representative_id, quotation_date,
         amount, status, expiry_date, rejection_reason_id, description, notes,
         created_at, updated_at,
         customer:customers (id, customer_name, phone),
@@ -284,7 +295,7 @@
           console.warn("Quotation cache background refresh skipped:", error);
         });
       }
-      return cached.data;
+      return cached.data.map(row => ({ ...row, status: canonicalQuotationStatus(row?.status) }));
     }
 
     try {
@@ -381,11 +392,12 @@
 
     const payload = {
       quotation_number: record.code.trim(),
+      customer_order_number: record.customerOrderNumber?.trim() || null,
       customer_id: record.customerId,
       representative_id: record.representativeId || null,
       quotation_date: record.quotationDate,
       amount: Number(record.amount || 0),
-      status: record.status,
+      status: canonicalQuotationStatus(record.status),
       expiry_date: record.expiryDate || null,
       rejection_reason_id:
         record.status === "مرفوض" ? (record.rejectionReasonId || null) : null,
@@ -423,6 +435,7 @@
 
     await audit(record.id ? "update" : "insert", saved.id, {
       quotation_number: payload.quotation_number,
+      customer_order_number: payload.customer_order_number,
       customer_id: payload.customer_id,
       representative_id: payload.representative_id,
       quotation_date: payload.quotation_date,

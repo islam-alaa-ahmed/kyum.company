@@ -136,7 +136,7 @@
 
     const accepted = quotations.filter(item => item.status === "مقبول");
     const negotiation = quotations.filter(item =>
-      ["تم الإرسال", "تحت المراجعة", "تحت التجهيز"].includes(item.status)
+      ["قيد التنفيذ", "تم الإرسال", "تحت المراجعة", "تحت التجهيز"].includes(item.status)
     );
 
     const customerIdsWithFollowup = uniqueCustomerIds(followups);

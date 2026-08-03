@@ -1,13 +1,13 @@
 {
-  "version": "18.45.6",
-  "build": 184506,
+  "version": "18.45.7",
+  "build": 184507,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.5.1 Installation Customer Options Recovery",
+  "title": "M14.9.7.6 Quotation Customer Order Number & Status Simplification",
   "notes": [
-    "استعادة تحميل العملاء والأحياء والخدمات وعروض الأسعار بصورة مستقلة",
-    "الحفاظ على البحث بالاسم ورقم الجوال ورقم العميل مع مسار توافق لرقم العميل",
-    "إعادة تنظيم بيانات العميل داخل نموذج طلب التركيب"
+    "إضافة رقم طلب العميل إلى عروض الأسعار",
+    "توحيد حالات عرض السعر إلى قيد التنفيذ ومقبول ومرفوض",
+    "الحفاظ على الحالات القديمة داخل legacy_status أثناء التحويل"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-6-m14-9-7-5-1-customer-options-recovery"
+  "cacheToken": "kyum-crm-pwa-18-45-7-m14-9-7-6-quotation-customer-order-status"
 }
