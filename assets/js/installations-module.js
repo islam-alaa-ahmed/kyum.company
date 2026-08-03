@@ -59,7 +59,7 @@
     const dateFrom = $("installationRequestDateFrom")?.value || "";
     const dateTo = $("installationRequestDateTo")?.value || "";
     return rows.filter(row =>
-      (!query || [row.requestNumber, row.customerName, row.customerPhone, row.quotationNumber, row.services.map(service => service.serviceName).join(" ")].join(" ").toLowerCase().includes(query)) &&
+      (!query || [row.requestNumber, row.customerOrderNumber, row.customerName, row.customerPhone, row.quotationNumber, row.services.map(service => service.serviceName).join(" ")].join(" ").toLowerCase().includes(query)) &&
       (!representative || row.representativeId === representative) &&
       (!state || row.status === state) &&
       (!dateFrom || row.scheduledDate >= dateFrom) &&
@@ -81,6 +81,7 @@
         : "—";
       return `<tr>
         <td>${esc(row.requestNumber)}</td>
+        <td>${esc(row.customerOrderNumber || "—")}</td>
         <td><strong>${esc(row.customerName)}</strong><br><small>${esc(row.customerPhone)}</small></td>
         <td>${esc(row.quotationNumber || "بدون عرض سعر")}</td>
         <td>${serviceSummary}</td>
@@ -93,7 +94,7 @@
         <td>${esc(row.representativeName || "—")}</td>
         <td><div class="installation-row-actions"><button class="secondary-btn" data-install-edit="${row.id}" type="button">تعديل</button><button class="danger-btn" data-install-delete="${row.id}" type="button">حذف</button></div></td>
       </tr>`;
-    }).join("") : '<tr><td colspan="12" class="empty-cell">لا توجد طلبات مطابقة.</td></tr>';
+    }).join("") : '<tr><td colspan="13" class="empty-cell">لا توجد طلبات مطابقة.</td></tr>';
   }
 
   async function ensureOptions(force = false) {
@@ -123,7 +124,7 @@
       clearStatus($("installationRequestsStatus"));
     } catch (error) {
       status($("installationRequestsStatus"), error.message, "error");
-      $("installationRequestsBody").innerHTML = '<tr><td colspan="12" class="empty-cell">تعذر تحميل البيانات.</td></tr>';
+      $("installationRequestsBody").innerHTML = '<tr><td colspan="13" class="empty-cell">تعذر تحميل البيانات.</td></tr>';
     }
   }
 
@@ -147,6 +148,7 @@
       $("newInstallationCustomerId").value = row.customerId || "";
       quotationOptions(row.customerId, "newInstallationQuotationId");
       $("newInstallationQuotationId").value = row.quotationId || "";
+      $("newInstallationCustomerOrderNumber").value = row.customerOrderNumber || "";
       $("newInstallationNeighborhoodId").value = row.neighborhoodId || "";
       $("newInstallationCustomerMapUrl").value = row.customerMapUrl || "";
       $("newInstallationPriority").value = row.priority || "عادية";
@@ -306,6 +308,7 @@
         representativeId: customer?.representative_id || null,
         neighborhoodId: $("newInstallationNeighborhoodId").value,
         installationAddress: neighborhood?.name || "",
+        customerOrderNumber: $("newInstallationCustomerOrderNumber").value.trim(),
         customerMapUrl: $("newInstallationCustomerMapUrl").value.trim(),
         priority: $("newInstallationPriority").value,
         notes: $("newInstallationNotes").value.trim(),

@@ -1,13 +1,13 @@
 {
-  "version": "18.43.0",
-  "build": 184300,
+  "version": "18.44.0",
+  "build": 184400,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.5 Mobile Theme Canonicalization & Visual Regression Certification",
+  "title": "M14.9.6 Mobile Data Accuracy, Filters & Scale Certification",
   "notes": [
-    "توحيد مصدر حالة Light/Dark Mode ومزامنة محددات الثيم القديمة",
-    "تثبيت أسطح البطاقات والنوافذ والحقول بدون شفافية على الموبايل",
-    "اعتماد تباين موحد للأزرار والجداول وشاشات التركيبات في الوضعين"
+    "فصل رقم طلب العميل الحقيقي عن رقم طلب التركيب الداخلي",
+    "تثبيت التقويم الميلادي في عروض التاريخ والوقت على الموبايل",
+    "منع القطع الصامت للبيانات المرجعية وطلبات التركيبات عبر التحميل المرحلي"
   ],
-  "cacheToken": "kyum-crm-pwa-18-43-0-m14-9-5-mobile-theme-canonicalization"
+  "cacheToken": "kyum-crm-pwa-18-44-0-m14-9-6-mobile-data-filters-scale"
 }

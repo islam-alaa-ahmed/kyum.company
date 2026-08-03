@@ -1735,7 +1735,7 @@ function renderUsers() {
       <td>${escapeHtml(user.representative?.full_name || "—")}</td>
       <td><span class="data-access-badge" title="${escapeHtml(dataAccessLabel(user))}">${escapeHtml(dataAccessLabel(user))}</span></td>
       <td><span class="record-status ${user.is_active ? "active" : "inactive"}">${user.is_active ? "نشط" : "غير نشط"}</span></td>
-      <td>${user.last_login_at ? new Date(user.last_login_at).toLocaleString("ar-SA") : "لم يسجل الدخول"}</td>
+      <td>${user.last_login_at ? new Date(user.last_login_at).toLocaleString("ar-SA-u-ca-gregory") : "لم يسجل الدخول"}</td>
       <td><div class="row-actions"><button class="edit-btn" data-edit-user="${user.id}">تعديل</button><button class="secondary-btn compact-btn" data-reset-password="${user.id}">كلمة مرور مؤقتة</button></div></td>
     </tr>`).join("") : `<tr><td colspan="8" class="empty-state">لا توجد نتائج.</td></tr>`;
 }
@@ -1906,7 +1906,7 @@ function renderActivity() {
     const text = `${item.user?.full_name || ""} ${item.user?.email || ""} ${item.action} ${item.entity_type} ${JSON.stringify(item.new_data || {})}`.toLowerCase();
     return (!search || text.includes(search)) && (!action || item.action === action);
   });
-  body.innerHTML = rows.length ? rows.map(item => `<tr><td>${escapeHtml(item.user?.full_name || item.user?.email || "مستخدم محذوف")}</td><td><span class="badge">${escapeHtml(item.action)}</span></td><td>${escapeHtml(item.entity_type)}</td><td class="activity-details">${escapeHtml(JSON.stringify(item.new_data || {}))}</td><td>${new Date(item.created_at).toLocaleString("ar-SA")}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-state">لا توجد عمليات مطابقة.</td></tr>`;
+  body.innerHTML = rows.length ? rows.map(item => `<tr><td>${escapeHtml(item.user?.full_name || item.user?.email || "مستخدم محذوف")}</td><td><span class="badge">${escapeHtml(item.action)}</span></td><td>${escapeHtml(item.entity_type)}</td><td class="activity-details">${escapeHtml(JSON.stringify(item.new_data || {}))}</td><td>${new Date(item.created_at).toLocaleString("ar-SA-u-ca-gregory")}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-state">لا توجد عمليات مطابقة.</td></tr>`;
 }
 
 function canManageBackupAndSettings() {
@@ -2083,7 +2083,7 @@ function renderBackupHistory() {
         <td>${Number(item.total_records || 0)}</td>
         <td>${escapeHtml(item.user?.full_name || item.user?.email || "—")}</td>
         <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(item.status)}</span></td>
-        <td>${new Date(item.created_at).toLocaleString("ar-SA")}</td>
+        <td>${new Date(item.created_at).toLocaleString("ar-SA-u-ca-gregory")}</td>
       </tr>
     `).join("")
     : `<tr><td colspan="6" class="empty-state">لا توجد عمليات نسخ أو استعادة مسجلة.</td></tr>`;
@@ -2259,7 +2259,7 @@ function renderPerformanceMonitor() {
 
   setText(
     "performanceLastUpdated",
-    new Date(summary.lastUpdatedAt).toLocaleTimeString("ar-SA")
+    new Date(summary.lastUpdatedAt).toLocaleTimeString("ar-SA-u-ca-gregory")
   );
   setText(
     "performanceSessionDuration",
@@ -2273,7 +2273,7 @@ function renderPerformanceMonitor() {
         <div class="performance-request-item">
           <div>
             <strong>${escapeHtml(item.method)} ${escapeHtml(shortRequestName(item.url))}</strong>
-            <small>${item.status || "Network Error"} — ${new Date(item.timestamp).toLocaleTimeString("ar-SA")}</small>
+            <small>${item.status || "Network Error"} — ${new Date(item.timestamp).toLocaleTimeString("ar-SA-u-ca-gregory")}</small>
           </div>
           <b class="${item.ok ? "" : "performance-failed"}">${formatDuration(item.durationMs)}</b>
         </div>
@@ -2355,7 +2355,7 @@ function renderSystemHealth() {
   document.getElementById("healthScoreValue").textContent = `${score}%`;
   document.getElementById("healthScoreRing").style.setProperty("--health-score", `${score * 3.6}deg`);
   document.getElementById("healthOverallLabel").textContent = `حالة النظام: ${label}`;
-  document.getElementById("healthLastChecked").textContent = `آخر فحص: ${new Date().toLocaleString("ar-SA")}`;
+  document.getElementById("healthLastChecked").textContent = `آخر فحص: ${new Date().toLocaleString("ar-SA-u-ca-gregory")}`;
   document.getElementById("healthDatabaseStatus").textContent = s.database_online ? "متصل" : "غير متصل";
   document.getElementById("healthDatabaseLatency").textContent = `زمن الاستجابة: ${s.latency_ms} ms`;
   document.getElementById("healthUsersTotal").textContent = Number(s.users_total || 0);
@@ -2382,7 +2382,7 @@ function renderSystemHealth() {
   ].join("");
 
   document.getElementById("healthVersionMetrics").innerHTML = [
-    ["النظام", "KYUM Enterprise CRM"], ["الإصدار", s.version || "1.0"], ["البيئة", "Production"], ["وقت الخادم", new Date(s.server_time).toLocaleString("ar-SA")]
+    ["النظام", "KYUM Enterprise CRM"], ["الإصدار", s.version || "1.0"], ["البيئة", "Production"], ["وقت الخادم", new Date(s.server_time).toLocaleString("ar-SA-u-ca-gregory")]
   ].map(([a,b]) => `<article><span>${a}</span><strong>${escapeHtml(String(b))}</strong></article>`).join("");
 
   document.getElementById("healthTablesBody").innerHTML = (s.tables || []).map(t => `<tr><td><strong>${escapeHtml(t.table_name)}</strong></td><td>${Number(t.row_count || 0)}</td><td>${formatBytes(t.total_bytes)}</td><td>${t.rls_enabled ? '<span class="record-status active">مفعّل</span>' : '<span class="record-status inactive">غير مفعّل</span>'}</td><td>${Number(t.policies_count || 0)}</td></tr>`).join("") || '<tr><td colspan="5" class="empty-state">لا توجد بيانات.</td></tr>';
@@ -2391,7 +2391,7 @@ function renderSystemHealth() {
     b.operation_type === "restore" ? "استعادة" : "تصدير",
     b.status,
     b.status === "completed",
-    `${b.total_records || 0} سجل — ${new Date(b.created_at).toLocaleString("ar-SA")}`
+    `${b.total_records || 0} سجل — ${new Date(b.created_at).toLocaleString("ar-SA-u-ca-gregory")}`
   )).join("") || '<div class="empty-state">لا توجد عمليات نسخ مسجلة.</div>';
 
   document.getElementById("healthAlertsList").innerHTML = (s.alerts || []).map(a => healthStatusItem(
@@ -2843,7 +2843,7 @@ function renderReportsOverview() {
 
   showDataStatus(
     "reportsStatus",
-    `تم تحديث التقرير في ${new Date(report.generatedAt).toLocaleTimeString("ar-SA")}.`,
+    `تم تحديث التقرير في ${new Date(report.generatedAt).toLocaleTimeString("ar-SA-u-ca-gregory")}.`,
     "success"
   );
 }
@@ -2957,7 +2957,7 @@ function renderDiagnosticsReport(report) {
   document.getElementById("diagnosticsCritical").textContent =
     report.evaluation.critical;
   document.getElementById("diagnosticsFinishedAt").textContent =
-    new Date(report.finished_at).toLocaleTimeString("ar-SA");
+    new Date(report.finished_at).toLocaleTimeString("ar-SA-u-ca-gregory");
   document.getElementById("diagnosticsEnvironment").textContent =
     `البيئة: ${report.environment}`;
 
@@ -3017,7 +3017,7 @@ footer{margin-top:24px;color:#667085;font-size:12px}
 </head>
 <body>
 <h1>تقرير التشخيص الشامل — KYUM CRM</h1>
-<p>وقت الفحص: ${escapeHtml(new Date(report.finished_at).toLocaleString("ar-SA"))}</p>
+<p>وقت الفحص: ${escapeHtml(new Date(report.finished_at).toLocaleString("ar-SA-u-ca-gregory"))}</p>
 <div class="summary">
 <div><b>النتيجة</b><br>${report.evaluation.score}%</div>
 <div><b>Passed</b><br>${report.evaluation.passed}</div>
@@ -3138,7 +3138,7 @@ function renderHealthTrend(history) {
       <polyline points="${polyline}" class="trend-line"/>
       ${points.map(point => `
         <circle cx="${point.x}" cy="${point.y}" r="4" class="trend-point">
-          <title>${point.score}% — ${new Date(point.timestamp).toLocaleTimeString("ar-SA")}</title>
+          <title>${point.score}% — ${new Date(point.timestamp).toLocaleTimeString("ar-SA-u-ca-gregory")}</title>
         </circle>
       `).join("")}
     </svg>
@@ -5088,7 +5088,7 @@ async function loadDailyPerformanceReport(force = false) {
     await loadDailyActivityReport();
     showDataStatus(
       "dailyPerformanceStatus",
-      `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA")}.`,
+      `تم تحديث التقرير في ${new Date().toLocaleTimeString("ar-SA-u-ca-gregory")}.`,
       "success"
     );
   } catch (error) {
@@ -5158,7 +5158,7 @@ function dailyLocalDate(value = new Date()) {
 function kyumDisplayDateLocale() {
   return window.matchMedia?.("(max-width: 767px)")?.matches
     ? "ar-EG-u-ca-gregory"
-    : "ar-SA";
+    : "ar-SA-u-ca-gregory";
 }
 
 function dailyDateTime(value) {
@@ -5215,7 +5215,7 @@ function dailyActivityDuration(session) {
 
 function dailyActivityTime(value) {
   if (!value) return "—";
-  return new Date(value).toLocaleTimeString("ar-SA", {
+  return new Date(value).toLocaleTimeString("ar-SA-u-ca-gregory", {
     hour: "2-digit",
     minute: "2-digit"
   });

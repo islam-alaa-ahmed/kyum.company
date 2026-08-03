@@ -3,7 +3,7 @@
   const $=id=>document.getElementById(id);
   const state={exceptions:[],technicians:[],reportRows:[]};
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt=d=>d?new Intl.DateTimeFormat('ar-EG',{year:'numeric',month:'short',day:'numeric'}).format(new Date(d)):'—';
+  const fmt=d=>d?new Intl.DateTimeFormat('ar-EG-u-ca-gregory',{year:'numeric',month:'short',day:'numeric'}).format(new Date(d)):'—';
   function status(el,msg,type=''){if(!el)return;el.textContent=msg||'';el.classList.toggle('hidden',!msg);el.dataset.type=type;}
   function can(screen,action='view'){const p=window.CustomerPermissions;return !p?.can || p.can(screen,action)!==false;}
 
