@@ -21,7 +21,8 @@ const appJs = read('assets/js/app.js');
 
 check('Version package/version.json', pkg.version === version.version, `${pkg.version} / ${version.version}`);
 check('Version pwa.js', pwa.includes(`CURRENT_VERSION = "${version.version}"`));
-check('Version index query tokens', !index.match(/\?v=(?!18\.45\.0)[0-9]+\.[0-9]+\.[0-9]+/));
+const escapedVersion = version.version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+check('Version index query tokens', !index.match(new RegExp(`\\?v=(?!${escapedVersion})(?:[0-9]+\\.){2}[0-9]+`)));
 check('Cache token service worker', sw.includes(version.cacheToken));
 check('Canonical mobile theme registered', index.includes('assets/css/mobile-theme-canonical.css') && sw.includes('assets/css/mobile-theme-canonical.css'));
 check('Theme runtime synchronizes html/body', appJs.includes('document.body?.dataset.theme') || (appJs.includes('root.dataset.theme') && appJs.includes('classList.toggle("dark-mode"')));

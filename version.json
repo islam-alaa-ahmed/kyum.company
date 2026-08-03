@@ -1,13 +1,13 @@
 {
-  "version": "18.45.0",
-  "build": 184500,
+  "version": "18.45.1",
+  "build": 184501,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7 Final Mobile Enterprise Certification",
+  "title": "M14.9.7.1 Mobile Quotation Dialog Viewport & Footer Safe-Area Hotfix",
   "notes": [
-    "اعتماد تكامل مراحل صلاحيات التركيبات وملكية الطلب الحالي",
-    "اعتماد تناسق Light/Dark Mode والواجهات المتجاوبة للموبايل",
-    "إضافة فحص آلي نهائي لدقة البيانات والفلاتر والـOffline والمعمارية"
+    "فصل نافذة عرض السعر إلى Header وBody قابل للتمرير وFooter ثابت غير متداخل",
+    "دعم الارتفاع الديناميكي 100dvh وSafe Area على Android وiPhone",
+    "منع تغطية قيمة العرض أو حالة العرض أو تاريخ انتهاء العرض بواسطة أزرار الحفظ والإلغاء"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-0-m14-9-7-final-mobile-enterprise-certification"
+  "cacheToken": "kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport"
 }

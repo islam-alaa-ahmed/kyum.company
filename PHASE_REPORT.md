@@ -1,67 +1,31 @@
-# KYUM CRM Enterprise Mobile — Phase M14.9.7
+# Phase M14.9.7.1 — Mobile Quotation Dialog Viewport & Footer Safe-Area Hotfix
 
-## Final Mobile Enterprise Certification
-
-### Baseline
+## Baseline
 - `kyum.company-main(7).zip`
-- Merged cumulatively with M14.9.3, M14.9.3.1, M14.9.4, M14.9.5 and M14.9.6.
+- Cumulative phases M14.9.3 through M14.9.7
 
-### Scope
-Final static and automated certification of mobile architecture, data contracts, filters, permissions boundaries, current-request ownership, responsive completion records, theme canonicalization, version/cache synchronization and offline runtime.
+## Root Cause
+The quotation dialog used a sticky footer while both the dialog and its form allowed visible overflow. On mobile browsers, the visual viewport changes with browser chrome, safe areas, font scaling, and the software keyboard. The footer therefore overlaid a different final field depending on the device height.
 
-### Result
-**PASS WITH CONTROLLED LIVE-DATA VALIDATION REQUIRED**
+## Scope
+- Mobile quotation create/edit dialog only.
+- No quotation business logic, database, permissions, filters, or validation changes.
 
-The codebase passed all available static and automated checks. Final production sign-off still requires running the documented role matrix against the live Supabase environment because this package cannot independently verify production data contents, live RLS grants or device-specific browser rendering without authenticated test accounts.
+## Implementation
+- Dynamic viewport height using `100dvh` with `100vh` fallback.
+- Dialog split into fixed header, independently scrollable form body, and non-overlapping footer.
+- Safe-area padding added to the footer.
+- Horizontal overflow prevented for all controls, including date and number inputs.
+- Small-phone and coarse-pointer layouts covered.
+- Light and dark footer/header surfaces preserved.
 
-### Automated validation
-- JavaScript syntax: PASS — 65 files.
-- Service Worker syntax: PASS.
-- Final mobile certification: PASS — 21/21.
-- CSS brace validation: PASS — 15 files.
-- HTML IDs: 823; duplicates: 0.
-- Local CSS/JS references: 67; missing: 0.
-- App Shell assets: 65/65.
-- Dashboard Offline Certification: PASS.
-- Offline Runtime Reliability: PASS.
-- Cache-first Connectivity: 15/15.
-- Sync Queue Recovery: 13/13.
-- Offline Write Completion: 10/10.
-- Full Enterprise Offline Certification: PASS with declared online-only exclusions.
+## Version
+- Version: `18.45.1`
+- Build: `184501`
+- Cache Token: `kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport`
 
-### Certified controls
-- Installation representative and team scope migrations are present.
-- Current installation request is server-owned by the selecting user.
-- Execution stages use the ownership-protected RPC.
-- Completion records use mobile cards below 768px.
-- Completion default filter remains `بانتظار التوثيق`.
-- Customer order number is separated from the internal installation request number.
-- Gregorian calendar locking is present in reviewed mobile date paths.
-- Operational reference dropdown loading uses resilient settled loading.
-- Canonical mobile theme is registered in HTML and App Shell.
-- Light/Dark runtime state synchronizes the canonical theme with legacy compatibility classes.
-
-### Documented warning retained
-`assets/js/app.js` still contains the previously documented temporary direct UI data paths for sales representative update/delete and generic reference deletion. The enterprise offline checker reports this as one known warning; it is not introduced by this phase.
-
-### Required live acceptance matrix
-Before production approval, manually validate with authenticated accounts:
-1. Super Admin.
-2. Representative restricted to own data.
-3. User allowed selected installation representatives only.
-4. User allowed one installation team only.
-5. User allowed multiple installation teams.
-6. Completion-report user without customer-management access.
-7. Execution user without settings access.
-
-For each account, validate customers, follow-ups, quotations, installation requests, scheduling, execution, completion reports, dropdowns, filters, Light/Dark Mode, portrait, landscape and offline recovery.
-
-### Release
-- Version: `18.45.0`
-- Build: `184500`
-- Cache Token: `kyum-crm-pwa-18-45-0-m14-9-7-final-mobile-enterprise-certification`
-
-### Modified files
+## Modified Files
+- `assets/css/mobile-theme-canonical.css`
 - `index.html`
 - `assets/js/pwa.js`
 - `service-worker.js`
@@ -69,3 +33,11 @@ For each account, validate customers, follow-ups, quotations, installation reque
 - `version.json`
 - `scripts/mobile-final-enterprise-certification-check.mjs`
 - `PHASE_REPORT.md`
+
+## Regression Audit
+- Quotation fields and their order: unchanged.
+- Quotation save/edit handlers: unchanged.
+- Customer searchable select: unchanged.
+- Permissions and RLS: unchanged.
+- Offline Queue and Smart Sync: unchanged.
+- Desktop and tablet dialog behavior: unchanged.

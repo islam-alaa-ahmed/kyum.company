@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-0-m14-9-7-final-mobile-enterprise-certification";
+const CACHE_VERSION = "kyum-crm-pwa-18-45-1-m14-9-7-1-quotation-dialog-safe-viewport";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
