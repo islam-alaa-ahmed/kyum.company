@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-40-3-m14-9-2-3-completion-theme-surfaces";
+const CACHE_VERSION = "kyum-crm-pwa-18-41-0-m14-9-3-installation-rls-team-boundary";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
