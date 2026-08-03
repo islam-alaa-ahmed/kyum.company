@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-4-m14-9-7-4-installations-runtime-root-cause-recovery";
+const CACHE_VERSION = "kyum-crm-pwa-18-45-5-m14-9-7-5-installation-customer-search";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

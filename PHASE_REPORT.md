@@ -1,41 +1,34 @@
-# Phase M14.9.7.4 — Installations Runtime Root Cause Recovery
+# Phase M14.9.7.5 — Installation Customer Search by Name, Phone & Code
 
 ## Root Cause
+حقل العميل في شاشة طلب تركيب جديد كان قائمة Select تقليدية، لذلك لا يدعم البحث داخل العملاء عند زيادة العدد، ولا يمكن الوصول السريع باستخدام رقم الجوال أو رقم العميل.
 
-`assets/js/installations-service.js` exported `saveCompletion` inside `window.InstallationsService` although the function definition had been lost during the cumulative merge. At runtime this caused a `ReferenceError` before `window.InstallationsService` was assigned. Every installation screen then failed because the shared service object did not exist.
+## Scope
+- تحويل اختيار العميل في شاشة طلب تركيب جديد إلى Combobox قابل للبحث.
+- البحث بالاسم أو رقم الجوال أو رقم العميل.
+- عرض الاسم والجوال ورقم العميل داخل كل نتيجة.
+- الحفاظ على نطاق العملاء الذي تعيده RLS دون توسيع الصلاحيات.
+- استمرار ربط عروض الأسعار بالعميل المختار.
 
-## Fix
-
-- Restored `saveCompletion` with completion report upsert and before/after/delivery authorization uploads.
-- Added rollback of uploaded storage object when its database metadata insert fails.
-- Expanded the runtime contract to validate every method actually consumed by installation screens.
-- Removed the misleading visible cache-contract message.
-- Preserved queries, RLS, team scope, representative scope, execution flow, and UI layouts.
+## Files Modified
+- index.html
+- assets/css/installation-requests.css
+- assets/js/installations-module.js
+- assets/js/installations-service.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
 
 ## Version
+- Version: 18.45.5
+- Build: 184505
+- Cache Token: kyum-crm-pwa-18-45-5-m14-9-7-5-installation-customer-search
 
-- Version: 18.45.4
-- Build: 184504
-- Cache Token: `kyum-crm-pwa-18-45-4-m14-9-7-4-installations-runtime-root-cause-recovery`
-
-## Modified Files
-
-- `assets/js/installations-service.js`
-- `assets/js/installations-service-contract.js`
-- `assets/js/pwa.js`
-- `index.html`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-- `PHASE_REPORT.md`
-
-## Regression Scope
-
-- New installation request and edit flow
-- Installation requests list
-- Scheduling and distribution
-- Execution workspace
-- Completion reports and attachments
-- Exceptions and revisits
-- Operational reports
-- Installation settings catalog
+## Validation
+- JavaScript syntax: PASS
+- Service worker syntax: PASS
+- Customer query includes customer_number: PASS
+- Search supports name, phone, customer number: PASS
+- Quotation filtering after customer selection: PASS
+- SQL / RLS / business workflow: UNCHANGED

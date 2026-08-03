@@ -21,6 +21,37 @@
     node.className = "data-status hidden";
   }
 
+
+  function customerLabel(customer) {
+    return [customer.customer_name, customer.phone, customer.customer_number].filter(Boolean).join(" — ");
+  }
+
+  function syncCustomerSearch(customerId = "") {
+    const hidden = $("newInstallationCustomerId");
+    const input = $("newInstallationCustomerSearch");
+    if (!hidden || !input) return;
+    const customer = opts.customers.find(item => item.id === customerId);
+    hidden.value = customer?.id || "";
+    input.value = customer ? customerLabel(customer) : "";
+    input.setCustomValidity(customer ? "" : (input.value ? "اختر العميل من نتائج البحث." : ""));
+  }
+
+  function renderCustomerResults(query = "") {
+    const box = $("newInstallationCustomerResults");
+    const input = $("newInstallationCustomerSearch");
+    if (!box || !input) return;
+    const q = String(query || "").trim().toLowerCase();
+    const matches = opts.customers.filter(customer => !q || [customer.customer_name, customer.phone, customer.customer_number].join(" ").toLowerCase().includes(q)).slice(0, 50);
+    box.innerHTML = matches.length ? matches.map(customer => `<button type="button" class="installation-customer-result" role="option" data-installation-customer-id="${esc(customer.id)}"><strong>${esc(customer.customer_name || "عميل بدون اسم")}</strong><span>${esc(customer.phone || "بدون هاتف")} — ${esc(customer.customer_number || "بدون رقم عميل")}</span></button>`).join("") : '<div class="empty-cell">لا توجد نتائج مطابقة.</div>';
+    box.classList.remove("hidden");
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  function closeCustomerResults() {
+    $("newInstallationCustomerResults")?.classList.add("hidden");
+    $("newInstallationCustomerSearch")?.setAttribute("aria-expanded", "false");
+  }
+
   function customerOptions(selectId) {
     const node = $(selectId);
     if (!node) return;
@@ -103,6 +134,7 @@
     customerOptions("installationCustomerId");
     customerOptions("newInstallationCustomerId");
     quotationOptions("", "installationQuotationId");
+    syncCustomerSearch("");
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
   }
@@ -145,7 +177,7 @@
       $("saveNewInstallationRequest").textContent = "حفظ التعديلات";
       $("resetNewInstallationRequest").textContent = "استعادة البيانات";
 
-      $("newInstallationCustomerId").value = row.customerId || "";
+      syncCustomerSearch(row.customerId || "");
       quotationOptions(row.customerId, "newInstallationQuotationId");
       $("newInstallationQuotationId").value = row.quotationId || "";
       $("newInstallationCustomerOrderNumber").value = row.customerOrderNumber || "";
@@ -254,7 +286,23 @@
       }
     });
 
-    $("newInstallationCustomerId")?.addEventListener("change", () => quotationOptions($("newInstallationCustomerId").value, "newInstallationQuotationId"));
+    $("newInstallationCustomerSearch")?.addEventListener("focus", event => renderCustomerResults(event.target.value));
+    $("newInstallationCustomerSearch")?.addEventListener("input", event => {
+      $("newInstallationCustomerId").value = "";
+      event.target.setCustomValidity("");
+      renderCustomerResults(event.target.value);
+      quotationOptions("", "newInstallationQuotationId");
+    });
+    $("newInstallationCustomerResults")?.addEventListener("click", event => {
+      const option = event.target.closest("[data-installation-customer-id]");
+      if (!option) return;
+      syncCustomerSearch(option.dataset.installationCustomerId);
+      quotationOptions(option.dataset.installationCustomerId, "newInstallationQuotationId");
+      closeCustomerResults();
+    });
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".installation-customer-combobox")) closeCustomerResults();
+    });
 
     ["installationRequestSearch", "installationRequestRepresentativeFilter", "installationRequestStatusFilter", "installationRequestDateFrom", "installationRequestDateTo"].forEach(id => $(id)?.addEventListener("input", render));
     $("resetInstallationRequestFilters")?.addEventListener("click", () => {

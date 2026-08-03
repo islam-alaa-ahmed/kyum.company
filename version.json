@@ -1,13 +1,12 @@
 {
-  "version": "18.45.4",
-  "build": 184504,
+  "version": "18.45.5",
+  "build": 184505,
   "forceUpdate": true,
   "releaseDate": "2026-08-03",
-  "title": "M14.9.7.4 Installations Runtime Root Cause Recovery",
+  "title": "M14.9.7.5 Installation Customer Search",
   "notes": [
-    "استعادة دالة حفظ محضر التركيبات المفقودة التي كانت توقف إنشاء خدمة التركيبات بالكامل",
-    "إعادة تشغيل جميع شاشات إدارة التركيبات من الخدمة الأصلية دون رسائل عقد بيانات مضللة",
-    "إضافة تحقق شامل من جميع وظائف الخدمة المستخدمة فعليًا قبل تشغيل الشاشات"
+    "إضافة بحث العميل بالاسم أو رقم الجوال أو رقم العميل في طلب تركيب جديد",
+    "الحفاظ على نطاق العملاء المسموح به وربط عروض الأسعار بعد الاختيار"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-4-m14-9-7-4-installations-runtime-root-cause-recovery"
+  "cacheToken": "kyum-crm-pwa-18-45-5-m14-9-7-5-installation-customer-search"
 }
