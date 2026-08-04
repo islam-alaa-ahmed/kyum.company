@@ -92,6 +92,8 @@
       id: row.id,
       code: row.quotation_number || "",
       customerOrderNumber: row.customer_order_number || "",
+      installationRequestId: row.installation_request_id || "",
+      installationConvertedAt: row.installation_converted_at || "",
       customerId: row.customer_id,
       customerName: row.customer?.customer_name || "",
       customerPhone: row.customer?.phone || "",
@@ -125,6 +127,8 @@
           id,
           quotation_number,
           customer_order_number,
+          installation_request_id,
+          installation_converted_at,
           customer_id,
           representative_id,
           quotation_date,
@@ -212,7 +216,7 @@
     let request = client()
       .from("quotations")
       .select(`
-        id, quotation_number, customer_order_number, customer_id, representative_id, quotation_date,
+        id, quotation_number, customer_order_number, installation_request_id, installation_converted_at, customer_id, representative_id, quotation_date,
         amount, status, expiry_date, rejection_reason_id, description, notes,
         created_at, updated_at,
         customer:customers (id, customer_name, phone),

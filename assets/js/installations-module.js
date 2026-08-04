@@ -77,10 +77,10 @@
     ).join("");
   }
 
-  function quotationOptions(customerId, selectId) {
+  function quotationOptions(customerId, selectId, includeQuotationId = "") {
     const node = $(selectId);
     if (!node) return;
-    const quotes = opts.quotations.filter(quotation => !customerId || quotation.customer_id === customerId);
+    const quotes = opts.quotations.filter(quotation => (!customerId || quotation.customer_id === customerId) && quotation.status === 'مقبول' && (!quotation.installation_request_id || String(quotation.id) === String(includeQuotationId)));
     node.innerHTML = '<option value="">بدون عرض سعر</option>' + quotes.map(quotation =>
       `<option value="${esc(quotation.id)}">${esc(quotation.quotation_number)}</option>`
     ).join("");
@@ -207,7 +207,7 @@
       const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
       if (opened === false) throw new Error("ليس لديك صلاحية فتح شاشة بيانات طلب التركيب.");
 
-      quotationOptions(row.customerId, "newInstallationQuotationId");
+      quotationOptions(row.customerId, "newInstallationQuotationId", row.quotationId || "");
       neighborhoodOptions();
 
       $("newInstallationRequestHeading").textContent = "تعديل طلب تركيب";
@@ -216,7 +216,7 @@
       $("resetNewInstallationRequest").textContent = "استعادة البيانات";
 
       syncCustomerSearch(row.customerId || "");
-      quotationOptions(row.customerId, "newInstallationQuotationId");
+      quotationOptions(row.customerId, "newInstallationQuotationId", row.quotationId || "");
       $("newInstallationQuotationId").value = row.quotationId || "";
       $("newInstallationCustomerOrderNumber").value = row.customerOrderNumber || "";
       $("newInstallationNeighborhoodId").value = row.neighborhoodId || "";
@@ -338,6 +338,18 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("kyum-installation-create-from-quotation", async event => {
+      const detail = event.detail || {};
+      editingRequestId = null;
+      await initializeNewView();
+      if (!detail.customerId || !detail.quotationId) return;
+      syncCustomerSearch(detail.customerId);
+      quotationOptions(detail.customerId, "newInstallationQuotationId");
+      const quotationSelect = $("newInstallationQuotationId");
+      if (quotationSelect && [...quotationSelect.options].some(option => option.value === detail.quotationId)) quotationSelect.value = detail.quotationId;
+      if ($("newInstallationCustomerOrderNumber") && detail.customerOrderNumber) $("newInstallationCustomerOrderNumber").value = detail.customerOrderNumber;
+    });
+
     window.addEventListener("kyum-installation-edit-request", async event => {
       const id = event.detail?.id;
       if (!id) return;

@@ -1,13 +1,13 @@
 {
-  "version": "18.46.5",
-  "build": 184605,
+  "version": "18.46.6",
+  "build": 184606,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.6 Installation Day Details Customer Number & Representative Display",
+  "title": "M14.9.8.7 Accepted Quotation to Installation Workflow Enforcement",
   "notes": [
-    "إظهار رقم العميل أسفل اسم العميل في تفاصيل مواعيد التركيبات",
-    "إظهار اسم المندوب ضمن بيانات كل طلب في نافذة تفاصيل اليوم",
-    "الحفاظ على الجدولة وإعادة الجدولة وفتح الطلب دون تغيير"
+    "إنشاء طلب تركيب فقط من عرض سعر مقبول",
+    "إخفاء العروض المحولة من القائمة الافتراضية ومنع تكرار تحويل العرض",
+    "عرض عروض العميل المقبولة غير المستخدمة فقط في طلب تركيب جديد"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-5-m14-9-8-6-day-details-customer-representative"
+  "cacheToken": "kyum-crm-pwa-18-46-6-m14-9-8-7-accepted-quotation-installation-workflow"
 }

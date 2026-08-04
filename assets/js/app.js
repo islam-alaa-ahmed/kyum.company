@@ -6535,6 +6535,7 @@ function filteredQuotations() {
   const query = document.getElementById("quotationSearch").value.trim().toLowerCase();
   const status = document.getElementById("quotationStatusFilter").value;
   const rep = document.getElementById("quotationRepFilter").value;
+  const workflow = document.getElementById("quotationWorkflowFilter")?.value || "";
 
   return [...quotations]
     .filter(item => {
@@ -6551,22 +6552,25 @@ function filteredQuotations() {
 
       return (!query || searchable.includes(query))
         && (!status || canonicalQuotationStatus(item.status) === status)
+        && (!workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId))
         && (!rep || item.representative === rep);
     })
     .sort((a, b) => String(b.quotationDate).localeCompare(String(a.quotationDate)));
 }
 
 function renderQuotations() {
-  const totalValue = quotations.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const accepted = quotations.filter(item => item.status === "مقبول");
+  const workflow = document.getElementById("quotationWorkflowFilter")?.value || "";
+  const workflowRows = quotations.filter(item => !workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId));
+  const totalValue = workflowRows.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const accepted = workflowRows.filter(item => item.status === "مقبول");
   const acceptedValue = accepted.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const rejected = quotations.filter(item => item.status === "مرفوض").length;
-  const conversionRate = quotations.length
-    ? (accepted.length / quotations.length) * 100
+  const rejected = workflowRows.filter(item => item.status === "مرفوض").length;
+  const conversionRate = workflowRows.length
+    ? (accepted.length / workflowRows.length) * 100
     : 0;
 
   document.getElementById("quotationStats").innerHTML = [
-    ["إجمالي العروض", quotations.length],
+    ["إجمالي العروض", workflowRows.length],
     ["إجمالي القيمة", formatCurrency(totalValue)],
     ["العروض المقبولة", accepted.length],
     ["قيمة العروض المقبولة", formatCurrency(acceptedValue)],
@@ -6609,6 +6613,8 @@ function renderQuotations() {
           <td>${escapeHtml(item.rejectionReason || "—")}</td>
           <td>
             <div class="row-actions">
+              ${canonicalStatus === "مقبول" && !item.installationRequestId && canScreenAction("installationRequestNew", "add") ? `<button class="primary-btn compact-btn" data-create-installation-from-quotation="${item.id}">إنشاء طلب تركيب</button>` : ""}
+              ${item.installationRequestId && canScreenAction("installationRequests", "view") ? `<button class="secondary-btn compact-btn" data-open-installation-request="${item.installationRequestId}">فتح طلب التركيب</button>` : ""}
               ${canManageQuotations("edit") ? `<button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>` : ""}
               ${canManageQuotations("delete") ? `<button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>` : ""}
             </div>
@@ -7454,7 +7460,7 @@ document.getElementById("customerForm").addEventListener("submit", handleCustome
   });
 });
 
-["quotationSearch", "quotationStatusFilter", "quotationRepFilter"].forEach(id => {
+["quotationSearch", "quotationStatusFilter", "quotationWorkflowFilter", "quotationRepFilter"].forEach(id => {
   document.getElementById(id).addEventListener("input", () => {
     if (document.body.classList.contains("mobile-quotations-sheet-open")) return;
     quotationsPage = 1;
@@ -7504,6 +7510,8 @@ document.getElementById("followupsTableBody").addEventListener("click", event =>
 document.getElementById("quotationsTableBody").addEventListener("click", event => {
   const editId = event.target.dataset.editQuotation;
   const deleteId = event.target.dataset.deleteQuotation;
+  const createInstallationId = event.target.dataset.createInstallationFromQuotation;
+  const openInstallationRequestId = event.target.dataset.openInstallationRequest;
 
   if (editId) {
     const item = quotations.find(quotation => quotation.id === editId);
@@ -7511,6 +7519,18 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   }
 
   if (deleteId) deleteQuotation(deleteId);
+
+  if (createInstallationId) {
+    const item = quotations.find(quotation => quotation.id === createInstallationId);
+    if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId) return;
+    const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
+    if (opened !== false) setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-create-from-quotation", { detail: { quotationId: item.id, customerId: item.customerId, customerOrderNumber: item.customerOrderNumber || "" } })), 0);
+  }
+
+  if (openInstallationRequestId) {
+    const opened = window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
+    if (opened !== false) setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-edit-request", { detail: { id: openInstallationRequestId } })), 0);
+  }
 });
 
 
