@@ -1,26 +1,27 @@
-# Phase M14.9.8.7.4 — Quotation-to-Installation Instant Prefill Performance Recovery
+# Phase M14.9.8.10 — Role-Agnostic Representative RLS Scope Recovery
 
 ## Root Cause
-The existing full-prefill flow waited for all installation reference options and then performed a second Supabase quotation/customer read before writing any visible values. On slower devices this left the destination form visibly empty even though the source quotation and customer were already loaded in the quotations screen.
+`public.can_access_representative(uuid)` still rejected every non-super-admin/non-manager/non-viewer role unless its role code was exactly `sales_representative`. Therefore a customer-service or custom-role user could have screen permission, a linked representative, and `own` scope, while Supabase RLS silently returned zero customer/follow-up/quotation rows.
 
-## Changes
-- Pass a safe source snapshot with quotation/customer identifiers and visible fields when the action is clicked.
-- Render customer, quotation, customer order number and notes immediately before navigation completes.
-- Preserve the instant values while installation reference lists load.
-- Run quotation verification and installation options loading in parallel.
-- Reconcile the instant snapshot with authoritative Supabase data before allowing normal save validation.
-- Keep the 30-minute session recovery from Phase M14.9.8.7.3.
+## Fix
+- Removed ordinary role-name authorization from the canonical representative scope function.
+- `own` now means the linked representative for any active role.
+- `selected` means linked representative plus explicitly selected representatives.
+- `all` works only when explicitly stored, except for the immutable `super_admin` override.
+- Missing configurations now use restrictive defaults.
+- No table data, customer data, or business records are modified.
 
-## Security and data integrity
-The snapshot improves perceived speed only. The authoritative Supabase verification remains active, and save still validates the selected customer, accepted quotation state, duplicate conversion, neighborhood and services.
+## Impact
+Every RLS policy/RPC that calls `can_access_representative(uuid)` receives the corrected behavior, including customers, follow-ups, quotations, daily operations, installation requests, completion records and related reports.
 
-## Modified files
-- assets/js/app.js
-- assets/js/installations-module.js
-- assets/js/pwa.js
-- index.html
-- service-worker.js
-- package.json
-- version.json
-- scripts/phase-m14-9-8-7-4-check.mjs
-- PHASE_REPORT.md
+## Apply
+1. Run `supabase/migrations/phase_m14_9_8_10_role_agnostic_representative_rls_scope_recovery.sql` as postgres.
+2. Run the verification file.
+3. Sign out and sign in with the affected customer-service account.
+4. Verify customers, follow-ups, quotations and scoped reports.
+
+## Regression constraints
+- No permission is granted merely by role name.
+- Screen action permissions remain enforced independently by `has_screen_permission`.
+- Installation-specific representative/team scopes remain independent.
+- `all` is never inferred for ordinary roles.
