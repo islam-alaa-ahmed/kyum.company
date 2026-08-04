@@ -1,13 +1,13 @@
 {
-  "version": "18.46.7",
-  "build": 184607,
+  "version": "18.46.8",
+  "build": 184608,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.8 Scheduling Global Read-Only Visibility Exception",
+  "title": "M14.9.8.7.1 Quotation Installation Relationship Ambiguity Recovery",
   "notes": [
-    "إظهار جميع مواعيد وطلبات الجدولة لكل مستخدم يملك صلاحية عرض شاشة الجدولة",
-    "الإبقاء على فتح الطلب وإعادة الجدولة والإسناد داخل نطاق المندوب المسموح فقط",
-    "تمييز طلبات المندوبين الآخرين كبيانات للعرض والمعرفة فقط"
+    "إزالة التباس علاقات عروض الأسعار وطلبات التركيبات في PostgREST",
+    "اعتماد installation_requests.quotation_id كالعلاقة الرسمية",
+    "الحفاظ على بيانات الربط ودورة عرض السعر إلى التركيب"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-7-m14-9-8-8-scheduling-global-readonly-visibility"
+  "cacheToken": "kyum-crm-pwa-18-46-8-m14-9-8-7-1-quotation-installation-relationship-recovery"
 }

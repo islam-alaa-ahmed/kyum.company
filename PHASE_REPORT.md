@@ -1,26 +1,13 @@
-# Phase M14.9.8.8 — Scheduling Global Read-Only Visibility Exception
+# Phase M14.9.8.7.1 — Quotation Installation Relationship Ambiguity Recovery
 
 ## Root Cause
-The scheduling screen consumed `installation_requests` through the normal RLS-scoped table query. That correctly protected operational data, but it also prevented sales representatives from seeing the full company installation calendar for coordination purposes.
+Phase M14.9.8.7 introduced a reverse foreign key from `quotations.installation_request_id` to `installation_requests.id` while the existing canonical foreign key `installation_requests.quotation_id` already linked the same tables. PostgREST therefore found two possible relationships when embedding `quotations` from `installation_requests`.
 
-## Change
-- Added a dedicated `SECURITY DEFINER` RPC requiring `installationSchedule.view`.
-- The RPC returns the full scheduling calendar and pending queue for read-only coordination.
-- Every row includes `can_operate`, calculated from the caller's existing installation representative scope.
-- Open, reschedule and assign actions remain enabled only when the row is within that scope and the user has the required action permission.
-- Out-of-scope rows are visibly marked as read-only.
-- Other installation screens keep their existing RLS and representative/team scopes.
+## Fix
+- Kept `installation_requests.quotation_id -> quotations.id` as the canonical relationship.
+- Removed only the reverse foreign-key constraint while preserving `quotations.installation_request_id` and its values as a workflow pointer.
+- Changed the installation request query to use the explicit PostgREST relationship `quotations!installation_requests_quotation_id_fkey`.
+- Added migration and verification scripts.
 
-## Files Modified
-- `assets/js/installations-service.js`
-- `assets/js/installation-scheduling.js`
-- `assets/css/installation-scheduling.css`
-- `supabase/migrations/phase_m14_9_8_8_scheduling_global_readonly_visibility.sql`
-- `supabase/verification/phase_m14_9_8_8_scheduling_global_readonly_visibility_verification.sql`
-- version/cache files
-- certification script
-
-## Version
-- Version: 18.46.7
-- Build: 184607
-- Cache: `kyum-crm-pwa-18-46-7-m14-9-8-8-scheduling-global-readonly-visibility`
+## Regression Boundaries
+No requests, quotations, services, permissions, scheduling data, or workflow pointers are deleted. The accepted quotation conversion workflow and duplicate-prevention index remain unchanged.
