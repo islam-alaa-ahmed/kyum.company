@@ -462,6 +462,16 @@
           window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
         } else {
           const created = await window.InstallationsServiceSafe.createRequest(payload);
+          if (payload.quotationId) {
+            await window.QuotationsService?.invalidateQuotationCache?.();
+            window.dispatchEvent(new CustomEvent("kyum-quotation-workflow-updated", {
+              detail: {
+                quotationId: payload.quotationId,
+                installationRequestId: created.id || "",
+                source: "installation-request-create"
+              }
+            }));
+          }
           status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
           resetNewForm({ exitEdit: true });
         }

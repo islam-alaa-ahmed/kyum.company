@@ -15,7 +15,7 @@
 
   const QUOTATIONS_CACHE_TTL_MS = 10 * 60 * 1000;
   const QUOTATIONS_CACHE_STALE_MAX_MS = 10 * 365 * 24 * 60 * 60 * 1000;
-  const QUOTATIONS_CACHE_SCHEMA_VERSION = 2;
+  const QUOTATIONS_CACHE_SCHEMA_VERSION = 3;
   const quotationRefreshes = new Map();
   let lastReadStatus = null;
 
@@ -92,8 +92,8 @@
       id: row.id,
       code: row.quotation_number || "",
       customerOrderNumber: row.customer_order_number || "",
-      installationRequestId: row.installation_request_id || "",
-      installationConvertedAt: row.installation_converted_at || "",
+      installationRequestId: row.installation_request_id || row.installation_requests?.[0]?.id || "",
+      installationConvertedAt: row.installation_converted_at || row.installation_requests?.[0]?.created_at || "",
       customerId: row.customer_id,
       customerName: row.customer?.customer_name || "",
       customerPhone: row.customer?.phone || "",
@@ -152,6 +152,10 @@
           rejection_reason:no_sale_reasons (
             id,
             name
+          ),
+          installation_requests:installation_requests!installation_requests_quotation_id_fkey (
+            id,
+            created_at
           )
         `)
       .order("quotation_date", { ascending: false })
@@ -221,7 +225,8 @@
         created_at, updated_at,
         customer:customers (id, customer_name, phone),
         representative:sales_representatives (id, full_name),
-        rejection_reason:no_sale_reasons (id, name)
+        rejection_reason:no_sale_reasons (id, name),
+        installation_requests:installation_requests!installation_requests_quotation_id_fkey (id, created_at)
       `)
       .eq("quotation_date", workDate)
       .order("quotation_date", { ascending: false });

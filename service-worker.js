@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-46-8-m14-9-8-7-1-quotation-installation-relationship-recovery";
+const CACHE_VERSION = "kyum-crm-pwa-18-46-9-m14-9-8-7-2-quotation-conversion-visibility-consistency";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

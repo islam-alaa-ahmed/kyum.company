@@ -8430,6 +8430,27 @@ window.addEventListener("customer-auth-ready", async () => {
   }
 });
 
+window.addEventListener("kyum-quotation-workflow-updated", async event => {
+  const quotationId = event.detail?.quotationId || "";
+  const installationRequestId = event.detail?.installationRequestId || "";
+  if (quotationId) {
+    quotations = quotations.map(item => String(item.id) === String(quotationId)
+      ? {
+          ...item,
+          installationRequestId: installationRequestId || item.installationRequestId || "pending-sync",
+          installationConvertedAt: item.installationConvertedAt || new Date().toISOString()
+        }
+      : item);
+    renderQuotations();
+  }
+  quotationsLoaded = false;
+  try {
+    await loadQuotationsFromSupabase(true);
+  } catch (error) {
+    console.warn("Quotation workflow refresh deferred:", error);
+  }
+});
+
 
 document.getElementById("customersPrevPage")?.addEventListener("click", () => {
   if (customersPage > 1) {
