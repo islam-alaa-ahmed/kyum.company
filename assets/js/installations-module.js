@@ -7,6 +7,7 @@
 
   let rows = [];
   let opts = { customers: [], quotations: [], neighborhoods: [], serviceTypes: [] };
+  let optionsLoaded = false;
   let editingRequestId = null;
 
   function status(node, message, type = "info") {
@@ -95,8 +96,25 @@
 
   function serviceTypeOptions(selectedId = "") {
     return '<option value="">اختر نوع الخدمة</option>' + opts.serviceTypes.map(item =>
-      `<option value="${esc(item.id)}" ${item.id === selectedId ? "selected" : ""}>${esc(item.name)}</option>`
+      `<option value="${esc(item.id)}" ${String(item.id) === String(selectedId) ? "selected" : ""}>${esc(item.name)}</option>`
     ).join("");
+  }
+
+  function hydrateServiceRows() {
+    document.querySelectorAll("#newInstallationServicesBody .installation-service-entry").forEach(row => {
+      const select = row.querySelector(".installation-service-type");
+      if (!select) return;
+      const currentValue = select.value || select.dataset.pendingServiceTypeId || "";
+      select.innerHTML = serviceTypeOptions(currentValue);
+      if (currentValue && !opts.serviceTypes.some(item => String(item.id) === String(currentValue))) {
+        const legacyOption = document.createElement("option");
+        legacyOption.value = currentValue;
+        legacyOption.textContent = "خدمة محفوظة غير نشطة";
+        select.appendChild(legacyOption);
+      }
+      select.value = currentValue;
+      delete select.dataset.pendingServiceTypeId;
+    });
   }
 
   function filtered() {
@@ -145,13 +163,18 @@
   }
 
   async function ensureOptions(force = false) {
-    if (!force && opts.customers.length) return;
+    if (!force && optionsLoaded) {
+      hydrateServiceRows();
+      return;
+    }
     opts = await window.InstallationsServiceSafe.options();
+    optionsLoaded = true;
     customerOptions("installationCustomerId");
     quotationOptions("", "installationQuotationId");
     syncCustomerSearch("");
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
+    hydrateServiceRows();
     reportOptionLoadWarnings(opts);
   }
 
@@ -216,12 +239,13 @@
     const row = document.createElement("tr");
     row.className = "installation-service-entry";
     row.innerHTML = `
-      <td><select class="installation-service-type" required>${serviceTypeOptions(initial.serviceTypeId || "")}</select></td>
+      <td><select class="installation-service-type" required data-pending-service-type-id="${esc(initial.serviceTypeId || "")}">${serviceTypeOptions(initial.serviceTypeId || "")}</select></td>
       <td><input class="installation-service-quantity" type="number" min="1" step="1" value="${esc(initial.quantity || 1)}" required></td>
       <td><input class="installation-service-price" type="number" min="0" step="0.01" value="${esc(initial.unitPrice ?? 0)}" required></td>
       <td><output class="installation-service-line-total">${money((initial.quantity || 1) * (initial.unitPrice || 0))}</output></td>
       <td><button type="button" class="danger-btn installation-service-remove">حذف</button></td>`;
     body.appendChild(row);
+    if (optionsLoaded) hydrateServiceRows();
     recalculateServices();
   }
 
@@ -299,9 +323,13 @@
   async function initializeNewView() {
     try {
       await ensureOptions();
-      quotationOptions($("newInstallationCustomerId")?.value || "", "newInstallationQuotationId");
-      neighborhoodOptions();
-      if (!$("newInstallationServicesBody")?.children.length) addServiceRow();
+      if (!editingRequestId) {
+        resetNewForm({ exitEdit: true });
+      } else {
+        quotationOptions($("newInstallationCustomerId")?.value || "", "newInstallationQuotationId");
+        neighborhoodOptions();
+        hydrateServiceRows();
+      }
       if (!opts.serviceTypes.length) status($("newInstallationRequestFormStatus"), "لا توجد خدمات نشطة في البيانات المرجعية. أضف أنواع الخدمات أولًا قبل إنشاء الطلب.", "warning");
       syncNewRequestPermissionState();
     } catch (error) {
@@ -325,7 +353,6 @@
       if (event.detail?.view === "installationRequests") load();
       if (event.detail?.view === "installationRequestNew") {
         initializeNewView();
-        if (!editingRequestId) resetNewForm({ exitEdit: true });
       }
     });
 

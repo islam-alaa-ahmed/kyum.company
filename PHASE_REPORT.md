@@ -1,22 +1,33 @@
-# Phase M14.9.8.3 — Enterprise Permission & Visibility Consistency Recovery
+# Phase M14.9.8.4 — Installation Service Hydration & Customer District Dropdown Recovery
 
-## Root causes
+## Baseline
+- Full baseline: `kyum.company-main (2)(4).zip`
+- Merged cumulative phase: M14.9.8.3
 
-1. `auth-session.js` loaded the authoritative permission rows, then refreshed navigation only. Action controls had already been hidden during the earlier pre-load apply, so the quotation add button could remain hidden until another unrelated refresh occurred.
-2. The canonical installation RLS combined representative scope and installation-team scope for every screen. A sales representative could therefore lose their own request from `installationRequests` after it was assigned to a team they were not granted.
-3. Legacy requests could hold a null or stale `representative_id` that differed from the current representative attached to the customer.
+## Root Cause
+1. The installation new-view event started `initializeNewView()` asynchronously, then immediately reset the form and created the first service row before service options finished loading. Existing rows were never rehydrated after the catalog arrived.
+2. Customer district remained a free-text input and did not consume the active `installation_neighborhoods` reference catalog.
 
-## Corrections
+## Fix
+- Added deterministic option-loaded state and service-row rehydration.
+- New view reset now occurs only after options finish loading.
+- Existing/edit rows preserve their selected service, including inactive legacy services.
+- Customer district is now a select populated from active installation neighborhoods.
+- Existing legacy district values remain selectable during edit.
+- District catalog failure does not block the rest of the customer form.
+- Selecting a district can fill blank city/region fields from reference data.
 
-- Full navigation + action permission refresh immediately after permissions finish loading.
-- Declarative `quotations.add` binding on the add quotation button; removed render-time visibility race.
-- Repaired legacy installation request ownership from the linked customer.
-- Added a trigger that keeps request ownership aligned on future inserts/customer changes.
-- Requests view now requires representative access but is not hidden by team scope. Operational screens retain their own team/action policies.
-- Added SQL diagnostics for unresolved own-scope users and quotation role permissions.
+## Files Modified
+- `index.html`
+- `assets/js/installations-module.js`
+- `assets/js/app.js`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `scripts/phase-m14-9-8-4-check.mjs`
+- `PHASE_REPORT.md`
 
 ## Version
-
-- Version: 18.46.2
-- Build: 184602
-- Cache: kyum-crm-pwa-18-46-2-m14-9-8-3-permission-visibility-consistency
+- Version: 18.46.3
+- Build: 184603

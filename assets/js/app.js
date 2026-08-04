@@ -1013,6 +1013,54 @@ window.addEventListener("kyum-cache-dependencies-invalidated", event => {
   }, 120);
 });
 
+let customerDistrictCatalog = [];
+let customerDistrictCatalogLoaded = false;
+let customerDistrictCatalogPromise = null;
+
+function renderCustomerDistrictOptions(currentValue = "") {
+  const select = document.getElementById("customerDistrict");
+  if (!select) return;
+  const normalizedCurrent = String(currentValue || "").trim();
+  const names = new Set(customerDistrictCatalog.map(item => String(item.name || "").trim()).filter(Boolean));
+  select.innerHTML = '<option value="">اختر الحي</option>' + customerDistrictCatalog.map(item =>
+    `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`
+  ).join("");
+  if (normalizedCurrent && !names.has(normalizedCurrent)) {
+    const legacy = document.createElement("option");
+    legacy.value = normalizedCurrent;
+    legacy.textContent = `${normalizedCurrent} (قيمة محفوظة)`;
+    select.appendChild(legacy);
+  }
+  select.value = normalizedCurrent;
+}
+
+async function loadCustomerDistrictCatalog(force = false) {
+  if (!force && customerDistrictCatalogLoaded) return customerDistrictCatalog;
+  if (customerDistrictCatalogPromise) return customerDistrictCatalogPromise;
+  if (!window.customerSupabase) {
+    renderCustomerDistrictOptions(document.getElementById("customerDistrict")?.value || "");
+    return customerDistrictCatalog;
+  }
+
+  customerDistrictCatalogPromise = (async () => {
+    const { data, error } = await window.customerSupabase
+      .from("installation_neighborhoods")
+      .select("id,name,city,region")
+      .eq("is_active", true)
+      .order("name");
+    if (error) throw new Error(`تعذر تحميل قائمة الأحياء: ${error.message}`);
+    customerDistrictCatalog = Array.isArray(data) ? data : [];
+    customerDistrictCatalogLoaded = true;
+    return customerDistrictCatalog;
+  })();
+
+  try {
+    return await customerDistrictCatalogPromise;
+  } finally {
+    customerDistrictCatalogPromise = null;
+  }
+}
+
 function operationalDefaultRepresentativeId(preferredId = "") {
   const profile = window.CustomerAuth?.getState?.().profile || {};
   const allowedIds = new Set(representatives.map(rep => String(rep.uuid || "")).filter(Boolean));
@@ -3920,6 +3968,11 @@ async function openCustomerDialog(customer = null) {
   const action = customer ? "edit" : "add";
   if (!requireScreenAction("customers", action, `لا توجد صلاحية ${customer ? "تعديل" : "إضافة"} العملاء.`)) return;
   if (!(await ensureOperationalReferenceData())) return;
+  try {
+    await loadCustomerDistrictCatalog();
+  } catch (error) {
+    console.warn("Customer district catalog unavailable:", error);
+  }
   editingId = customer?.id || null;
   document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
   document.getElementById("customerId").value = customer?.id || "";
@@ -3930,7 +3983,7 @@ async function openCustomerDialog(customer = null) {
   document.getElementById("customerPhone").value = customer?.phone || "";
   document.getElementById("customerRegion").value = customer?.region || "";
   document.getElementById("customerCity").value = customer?.city || "";
-  document.getElementById("customerDistrict").value = customer?.district || "";
+  renderCustomerDistrictOptions(customer?.district || "");
   document.getElementById("customerRepresentative").value = operationalDefaultRepresentativeId(customer?.representativeId);
   document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
   document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
@@ -7275,6 +7328,14 @@ document.querySelector("[data-open-followups]").addEventListener("click", () => 
 
 document.getElementById("addCustomerBtn").addEventListener("click", () => openCustomerDialog());
 document.getElementById("customerType")?.addEventListener("change", syncCustomerContactPersonField);
+document.getElementById("customerDistrict")?.addEventListener("change", event => {
+  const selected = customerDistrictCatalog.find(item => String(item.name || "") === String(event.target.value || ""));
+  if (!selected) return;
+  const cityInput = document.getElementById("customerCity");
+  const regionInput = document.getElementById("customerRegion");
+  if (cityInput && !cityInput.value.trim() && selected.city) cityInput.value = selected.city;
+  if (regionInput && !regionInput.value.trim() && selected.region) regionInput.value = selected.region;
+});
 document.getElementById("addFollowupBtn").addEventListener("click", () => openFollowupDialog());
 document.getElementById("addQuotationBtn").addEventListener("click", () => openQuotationDialog());
 document.getElementById("closeQuotationDialogBtn").addEventListener("click", closeQuotationDialog);
