@@ -1,13 +1,13 @@
 {
-  "version": "18.46.9",
-  "build": 184609,
+  "version": "18.46.10",
+  "build": 184610,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.7.2 Quotation Conversion Visibility Consistency Recovery",
+  "title": "M14.9.8.7.3 Quotation-to-Installation Full Data Prefill Recovery",
   "notes": [
-    "إصلاح بقاء عرض السعر ظاهرًا بعد إنشاء طلب تركيب مرتبط به",
-    "تحديث فوري لكاش عروض الأسعار بعد إنشاء طلب التركيب",
-    "استعادة الروابط القديمة المطابقة بصورة حتمية دون حذف البيانات"
+    "تحميل بيانات العميل وعرض السعر من Supabase عند إنشاء طلب تركيب",
+    "استمرار النقل بعد Refresh أو تأخر تحميل الشاشة",
+    "تعبئة رقم طلب العميل والحي والملاحظات المتاحة تلقائيًا"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-9-m14-9-8-7-2-quotation-conversion-visibility-consistency"
+  "cacheToken": "kyum-crm-pwa-18-46-10-m14-9-8-7-3-quotation-installation-full-prefill"
 }

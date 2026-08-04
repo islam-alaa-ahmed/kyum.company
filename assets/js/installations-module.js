@@ -9,6 +9,8 @@
   let opts = { customers: [], quotations: [], neighborhoods: [], serviceTypes: [] };
   let optionsLoaded = false;
   let editingRequestId = null;
+  const QUOTATION_PREFILL_KEY = "kyum:installation:quotation-prefill";
+  let quotationPrefillPromise = null;
 
   function status(node, message, type = "info") {
     if (!node) return;
@@ -20,6 +22,105 @@
     if (!node) return;
     node.textContent = "";
     node.className = "data-status hidden";
+  }
+
+  function saveQuotationPrefillIntent(detail = {}) {
+    if (!detail.quotationId) return;
+    const payload = {
+      quotationId: String(detail.quotationId),
+      customerId: detail.customerId ? String(detail.customerId) : "",
+      customerOrderNumber: String(detail.customerOrderNumber || ""),
+      createdAt: Date.now()
+    };
+    try { sessionStorage.setItem(QUOTATION_PREFILL_KEY, JSON.stringify(payload)); } catch (_) {}
+  }
+
+  function readQuotationPrefillIntent() {
+    try {
+      const raw = sessionStorage.getItem(QUOTATION_PREFILL_KEY);
+      if (!raw) return null;
+      const payload = JSON.parse(raw);
+      if (!payload?.quotationId || Date.now() - Number(payload.createdAt || 0) > 30 * 60 * 1000) {
+        sessionStorage.removeItem(QUOTATION_PREFILL_KEY);
+        return null;
+      }
+      return payload;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function clearQuotationPrefillIntent() {
+    try { sessionStorage.removeItem(QUOTATION_PREFILL_KEY); } catch (_) {}
+  }
+
+  function normalizeArabicText(value) {
+    return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
+  function matchNeighborhoodId(customer) {
+    const candidates = [customer?.district, customer?.city].map(normalizeArabicText).filter(Boolean);
+    if (!candidates.length) return "";
+    const exact = opts.neighborhoods.find(item => candidates.includes(normalizeArabicText(item.name)));
+    if (exact) return exact.id;
+    const partial = opts.neighborhoods.find(item => candidates.some(value => value.includes(normalizeArabicText(item.name)) || normalizeArabicText(item.name).includes(value)));
+    return partial?.id || "";
+  }
+
+  async function fetchQuotationPrefill(quotationId) {
+    if (!window.customerSupabase) throw new Error("اتصال Supabase غير جاهز.");
+    const { data, error } = await window.customerSupabase
+      .from("quotations")
+      .select(`
+        id, quotation_number, customer_order_number, customer_id, representative_id,
+        status, amount, description, notes, installation_request_id,
+        customer:customers(id, customer_number, customer_name, phone, city, district, representative_id)
+      `)
+      .eq("id", quotationId)
+      .maybeSingle();
+    if (error) throw new Error(`تعذر تحميل بيانات عرض السعر: ${error.message}`);
+    if (!data) throw new Error("عرض السعر غير موجود أو غير متاح لهذا المستخدم.");
+    if (data.status !== "مقبول") throw new Error("لا يمكن إنشاء طلب تركيب إلا من عرض سعر مقبول.");
+    if (data.installation_request_id) throw new Error("تم إنشاء طلب تركيب لهذا العرض بالفعل.");
+    return data;
+  }
+
+  async function applyQuotationPrefill(detail = null) {
+    const intent = detail?.quotationId ? detail : readQuotationPrefillIntent();
+    if (!intent?.quotationId || editingRequestId) return false;
+    if (quotationPrefillPromise) return quotationPrefillPromise;
+    quotationPrefillPromise = (async () => {
+      saveQuotationPrefillIntent(intent);
+      await ensureOptions();
+      const quotation = await fetchQuotationPrefill(intent.quotationId);
+      const customer = quotation.customer || opts.customers.find(item => item.id === quotation.customer_id);
+      if (!customer?.id) throw new Error("تعذر تحميل بيانات العميل المرتبط بعرض السعر.");
+
+      if (!opts.customers.some(item => item.id === customer.id)) opts.customers.push(customer);
+      if (!opts.quotations.some(item => item.id === quotation.id)) opts.quotations.push(quotation);
+
+      syncCustomerSearch(customer.id);
+      quotationOptions(customer.id, "newInstallationQuotationId", quotation.id);
+      const quotationSelect = $("newInstallationQuotationId");
+      if (quotationSelect) quotationSelect.value = quotation.id;
+
+      const orderInput = $("newInstallationCustomerOrderNumber");
+      if (orderInput) orderInput.value = quotation.customer_order_number || intent.customerOrderNumber || "";
+
+      neighborhoodOptions();
+      const neighborhoodId = matchNeighborhoodId(customer);
+      if (neighborhoodId && $("newInstallationNeighborhoodId")) $("newInstallationNeighborhoodId").value = neighborhoodId;
+
+      const notes = [quotation.description, quotation.notes].map(value => String(value || "").trim()).filter(Boolean).join("\n");
+      if (notes && $("newInstallationNotes") && !$("newInstallationNotes").value.trim()) $("newInstallationNotes").value = notes;
+
+      $("newInstallationRequestHeading").textContent = `طلب تركيب من عرض السعر ${quotation.quotation_number || ""}`.trim();
+      $("newInstallationRequestNote").textContent = "تم تحميل بيانات العميل وعرض السعر من Supabase. اختر الحي والخدمات المطلوبة ثم احفظ الطلب.";
+      status($("newInstallationRequestFormStatus"), "تم تحميل بيانات العميل وعرض السعر تلقائيًا.", "success");
+      clearQuotationPrefillIntent();
+      return true;
+    })().finally(() => { quotationPrefillPromise = null; });
+    return quotationPrefillPromise;
   }
 
 
@@ -341,13 +442,9 @@
     window.addEventListener("kyum-installation-create-from-quotation", async event => {
       const detail = event.detail || {};
       editingRequestId = null;
+      saveQuotationPrefillIntent(detail);
       await initializeNewView();
-      if (!detail.customerId || !detail.quotationId) return;
-      syncCustomerSearch(detail.customerId);
-      quotationOptions(detail.customerId, "newInstallationQuotationId");
-      const quotationSelect = $("newInstallationQuotationId");
-      if (quotationSelect && [...quotationSelect.options].some(option => option.value === detail.quotationId)) quotationSelect.value = detail.quotationId;
-      if ($("newInstallationCustomerOrderNumber") && detail.customerOrderNumber) $("newInstallationCustomerOrderNumber").value = detail.customerOrderNumber;
+      try { await applyQuotationPrefill(detail); } catch (error) { status($("newInstallationRequestFormStatus"), error.message, "error"); }
     });
 
     window.addEventListener("kyum-installation-edit-request", async event => {
@@ -364,7 +461,7 @@
     window.addEventListener("kyum-view-changed", event => {
       if (event.detail?.view === "installationRequests") load();
       if (event.detail?.view === "installationRequestNew") {
-        initializeNewView();
+        initializeNewView().then(() => applyQuotationPrefill()).catch(error => status($("newInstallationRequestFormStatus"), error.message, "error"));
       }
     });
 
@@ -462,16 +559,6 @@
           window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
         } else {
           const created = await window.InstallationsServiceSafe.createRequest(payload);
-          if (payload.quotationId) {
-            await window.QuotationsService?.invalidateQuotationCache?.();
-            window.dispatchEvent(new CustomEvent("kyum-quotation-workflow-updated", {
-              detail: {
-                quotationId: payload.quotationId,
-                installationRequestId: created.id || "",
-                source: "installation-request-create"
-              }
-            }));
-          }
           status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
           resetNewForm({ exitEdit: true });
         }
@@ -480,6 +567,18 @@
       } finally {
         syncNewRequestPermissionState();
       }
+    });
+
+    window.KYUMInstallationsModule = Object.freeze({
+      openFromQuotation(detail = {}) {
+        saveQuotationPrefillIntent(detail);
+        const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
+        if (opened !== false) {
+          setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-create-from-quotation", { detail })), 0);
+        }
+        return opened;
+      },
+      applyQuotationPrefill
     });
 
 ;

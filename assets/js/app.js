@@ -7523,8 +7523,14 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   if (createInstallationId) {
     const item = quotations.find(quotation => quotation.id === createInstallationId);
     if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId) return;
-    const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
-    if (opened !== false) setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-create-from-quotation", { detail: { quotationId: item.id, customerId: item.customerId, customerOrderNumber: item.customerOrderNumber || "" } })), 0);
+    const detail = { quotationId: item.id, customerId: item.customerId, customerOrderNumber: item.customerOrderNumber || "" };
+    if (window.KYUMInstallationsModule?.openFromQuotation) {
+      window.KYUMInstallationsModule.openFromQuotation(detail);
+    } else {
+      try { sessionStorage.setItem("kyum:installation:quotation-prefill", JSON.stringify({ ...detail, createdAt: Date.now() })); } catch (_) {}
+      const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
+      if (opened !== false) setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-create-from-quotation", { detail })), 0);
+    }
   }
 
   if (openInstallationRequestId) {
@@ -8427,27 +8433,6 @@ window.addEventListener("customer-auth-ready", async () => {
   if (window.CustomerPermissions?.canScreen?.("dailyOperations", "view")
       && !window.CustomerPermissions?.canScreen?.("dashboard", "view")) {
     switchView("dailyOperations");
-  }
-});
-
-window.addEventListener("kyum-quotation-workflow-updated", async event => {
-  const quotationId = event.detail?.quotationId || "";
-  const installationRequestId = event.detail?.installationRequestId || "";
-  if (quotationId) {
-    quotations = quotations.map(item => String(item.id) === String(quotationId)
-      ? {
-          ...item,
-          installationRequestId: installationRequestId || item.installationRequestId || "pending-sync",
-          installationConvertedAt: item.installationConvertedAt || new Date().toISOString()
-        }
-      : item);
-    renderQuotations();
-  }
-  quotationsLoaded = false;
-  try {
-    await loadQuotationsFromSupabase(true);
-  } catch (error) {
-    console.warn("Quotation workflow refresh deferred:", error);
   }
 });
 
