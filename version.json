@@ -1,13 +1,13 @@
 {
-  "version": "18.46.6",
-  "build": 184606,
+  "version": "18.46.7",
+  "build": 184607,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.7 Accepted Quotation to Installation Workflow Enforcement",
+  "title": "M14.9.8.8 Scheduling Global Read-Only Visibility Exception",
   "notes": [
-    "إنشاء طلب تركيب فقط من عرض سعر مقبول",
-    "إخفاء العروض المحولة من القائمة الافتراضية ومنع تكرار تحويل العرض",
-    "عرض عروض العميل المقبولة غير المستخدمة فقط في طلب تركيب جديد"
+    "إظهار جميع مواعيد وطلبات الجدولة لكل مستخدم يملك صلاحية عرض شاشة الجدولة",
+    "الإبقاء على فتح الطلب وإعادة الجدولة والإسناد داخل نطاق المندوب المسموح فقط",
+    "تمييز طلبات المندوبين الآخرين كبيانات للعرض والمعرفة فقط"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-6-m14-9-8-7-accepted-quotation-installation-workflow"
+  "cacheToken": "kyum-crm-pwa-18-46-7-m14-9-8-8-scheduling-global-readonly-visibility"
 }

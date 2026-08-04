@@ -263,3 +263,11 @@ html[data-theme="light"] #installationDayDetailsDialog .secondary-btn:hover {
     border-radius: 18px;
   }
 }
+
+/* Phase M14.9.8.8 — global read-only scheduling visibility */
+.installation-day-appointment.is-readonly,
+#installationUnscheduledBody tr.is-readonly{opacity:.86}
+.installation-readonly-note{margin:0;padding:8px 10px;border:1px dashed var(--border);border-radius:10px;background:color-mix(in srgb,var(--surface) 88%,var(--warning) 12%);font-size:.78rem;font-weight:700;color:var(--muted)}
+.installation-day-actions button:disabled,
+#installationUnscheduledBody button:disabled{cursor:not-allowed;opacity:.62;filter:saturate(.7)}
+html[data-theme="dark"] .installation-readonly-note{background:rgba(148,163,184,.08)}
