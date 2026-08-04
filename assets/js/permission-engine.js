@@ -22,7 +22,7 @@
     Object.freeze({ selector: "#addQuotationBtn", screen: "quotations", action: "add" }),
     Object.freeze({ selector: "[data-install-edit]", screen: "installationRequests", action: "edit" }),
     Object.freeze({ selector: "[data-install-delete]", screen: "installationRequests", action: "delete" }),
-    Object.freeze({ selector: "#saveInstallationAssignment", screen: "installationSchedule", action: "edit" }),
+    Object.freeze({ selector: "#saveInstallationAssignment", screen: "installationSchedule", action: "edit", deniedMode: "disable", deniedMessage: "ليس لديك صلاحية جدولة وإسناد طلبات التركيبات." }),
     Object.freeze({ selector: "[data-technician-edit]", screen: "installationSchedule", action: "edit" }),
     Object.freeze({ selector: "[data-technician-delete]", screen: "installationSchedule", action: "delete" }),
     Object.freeze({ selector: "[data-installation-execute],#saveInstallationExecution", screen: "installationExecution", action: "edit" }),
@@ -142,6 +142,8 @@
         root.querySelectorAll?.(binding.selector).forEach(element => {
           element.dataset.permissionScreen = binding.screen;
           element.dataset.permissionAction = binding.action;
+          if (binding.deniedMode) element.dataset.permissionDeniedMode = binding.deniedMode;
+          if (binding.deniedMessage) element.dataset.permissionDeniedMessage = binding.deniedMessage;
         });
       });
     },
@@ -150,11 +152,19 @@
       this.applyActionBindings(root);
       root.querySelectorAll?.("[data-permission-screen][data-permission-action]").forEach(element => {
         const allowed = this.can(element.dataset.permissionScreen, element.dataset.permissionAction);
-        element.classList.toggle("hidden", !allowed);
-        element.hidden = !allowed;
-        element.setAttribute("aria-hidden", String(!allowed));
+        const deniedMode = element.dataset.permissionDeniedMode || "hide";
+        const keepVisibleDisabled = !allowed && deniedMode === "disable";
+        element.classList.toggle("hidden", !allowed && !keepVisibleDisabled);
+        element.hidden = !allowed && !keepVisibleDisabled;
+        element.setAttribute("aria-hidden", String(!allowed && !keepVisibleDisabled));
         if ("disabled" in element) element.disabled = !allowed;
-        element.setAttribute("tabindex", allowed ? "0" : "-1");
+        element.setAttribute("aria-disabled", String(!allowed));
+        element.setAttribute("tabindex", allowed ? "0" : keepVisibleDisabled ? "0" : "-1");
+        if (keepVisibleDisabled) {
+          element.title = element.dataset.permissionDeniedMessage || "لا توجد صلاحية لتنفيذ هذا الإجراء.";
+        } else if (allowed && element.dataset.permissionDeniedMessage) {
+          element.removeAttribute("title");
+        }
       });
     },
 
@@ -169,13 +179,17 @@
             target = event.target.closest(binding.selector);
             target.dataset.permissionScreen = binding.screen;
             target.dataset.permissionAction = binding.action;
+            if (binding.deniedMode) target.dataset.permissionDeniedMode = binding.deniedMode;
+            if (binding.deniedMessage) target.dataset.permissionDeniedMessage = binding.deniedMessage;
           }
         }
         if (!target) return;
         if (this.can(target.dataset.permissionScreen, target.dataset.permissionAction)) return;
         event.preventDefault();
         event.stopImmediatePropagation();
-        this.requireAction(target.dataset.permissionScreen, target.dataset.permissionAction);
+        this.requireAction(target.dataset.permissionScreen, target.dataset.permissionAction, {
+          message: target.dataset.permissionDeniedMessage || undefined
+        });
       }, true);
     },
 

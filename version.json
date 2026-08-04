@@ -1,14 +1,13 @@
 {
-  "version": "18.46.0",
-  "build": 184600,
+  "version": "18.46.1",
+  "build": 184601,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8 Enterprise Permissions Role-Agnostic Certification",
+  "title": "M14.9.8.1 Installation Scheduling Action Permission UX Recovery",
   "notes": [
-    "إلغاء الاعتماد التشغيلي على أسماء الأدوار",
-    "توحيد نطاق بيانات العملاء والمتابعات والعروض والمهام اليومية",
-    "تقييد القوائم المنسدلة حسب النطاق المحفوظ",
-    "توحيد صلاحية الاستيراد مع صلاحية الإضافة الحالية"
+    "إظهار زر حفظ الجدولة بشكل معطل بدل إخفائه عند غياب صلاحية التعديل",
+    "عرض رسالة واضحة عند عدم امتلاك صلاحية جدولة وإسناد التركيبات",
+    "الإبقاء على نطاق رؤية التركيبات مستقلًا عن صلاحية التعديل"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-0-m14-9-8-role-agnostic-permissions"
+  "cacheToken": "kyum-crm-pwa-18-46-1-m14-9-8-1-installation-scheduling-permission-ux"
 }
