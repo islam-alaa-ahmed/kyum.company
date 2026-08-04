@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-48-0-m15-0-sales-invoices-registry";
+const CACHE_VERSION = "kyum-crm-pwa-18-48-1-m15-0-1-unified-invoice-conversion";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

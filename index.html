@@ -34,22 +34,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.48.0" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.48.0" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.48.1" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -133,7 +133,7 @@
             <button class="nav-item" data-view="installationRequests" type="button">طلبات التركيبات</button>
             <button class="nav-item" data-view="installationSchedule" type="button">جدولة وتوزيع التركيبات</button>
             <button class="nav-item" data-view="installationExecution" type="button">تنفيذ التركيبات</button>
-            <button class="nav-item" data-view="installationCompletion" type="button">محاضر التركيبات</button>
+            <button class="nav-item" data-view="installationCompletion" type="button">تأكيد الانتهاء من التركيبات</button>
             <button class="nav-item" data-view="installationExceptions" type="button">الاستثناءات وإعادة الزيارة</button>
             <button class="nav-item" data-view="installationReports" type="button">تقارير التركيبات</button>
             <button class="nav-item" data-view="installationSettings" type="button">إعدادات التركيبات</button>
@@ -836,7 +836,7 @@
         <div class="actions-row">
           <div>
             <h3 class="section-title">فواتير المبيعات</h3>
-            <p class="section-note">سجل موحد للفواتير الناتجة من عروض الأسعار ومحاضر التركيبات.</p>
+            <p class="section-note">سجل موحد للفواتير الناتجة من عروض الأسعار وتأكيد انتهاء التركيبات.</p>
           </div>
           <button id="refreshSalesInvoicesBtn" class="secondary-btn" type="button">تحديث</button>
         </div>
@@ -1418,12 +1418,12 @@
 
       <section id="installationCompletionView" class="view-section hidden installation-completion-view" aria-hidden="true">
         <div class="actions-row installation-completion-header">
-          <div><h2>محاضر إكمال التركيبات</h2><p>توثيق الأعمال المنفذة وبيانات الفاتورة وإذن تسليم العميل.</p></div>
+          <div><h2>تأكيد الانتهاء من التركيبات</h2><p>مراجعة واعتماد انتهاء التركيب وتحويل الطلب إلى فاتورة.</p></div>
           <button id="refreshInstallationCompletionBtn" class="secondary-btn" type="button">تحديث</button>
         </div>
         <div class="panel installation-completion-filters">
           <label>بحث<input id="installationCompletionSearch" type="search" placeholder="رقم الطلب، اسم العميل، رقم العميل أو اسم الفني"></label>
-          <label>حالة التوثيق<select id="installationCompletionReportFilter"><option value="missing" selected>بانتظار التوثيق</option><option value="complete">موثق</option><option value="">الكل</option></select></label>
+          <label>حالة التحويل<select id="installationCompletionReportFilter"><option value="" selected>بانتظار التحويل إلى فاتورة</option></select></label>
           <label>المندوب<select id="installationCompletionRepresentativeFilter"><option value="">كل المندوبين المسموحين</option></select></label>
           <label>من تاريخ<input id="installationCompletionDateFrom" type="date"></label>
           <label>إلى تاريخ<input id="installationCompletionDateTo" type="date"></label>
@@ -1431,12 +1431,12 @@
         </div>
         <div class="installation-completion-kpis">
           <article class="panel"><span>تركيبات مكتملة</span><strong id="installationCompletionKpiCompleted">0</strong></article>
-          <article class="panel"><span>محاضر موثقة</span><strong id="installationCompletionKpiReports">0</strong></article>
-          <article class="panel"><span>بانتظار التوثيق</span><strong id="installationCompletionKpiPending">0</strong></article>
+          <article class="panel"><span>بيانات موثقة</span><strong id="installationCompletionKpiReports">0</strong></article>
+          <article class="panel"><span>بانتظار التحويل</span><strong id="installationCompletionKpiPending">0</strong></article>
           <article class="panel"><span>صور مرفوعة</span><strong id="installationCompletionKpiPhotos">0</strong></article>
         </div>
         <div id="installationCompletionStatus" class="data-status hidden" aria-live="polite"></div>
-        <div class="panel installation-completion-table-panel"><div class="table-scroll"><table class="installation-completion-table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>رقم العميل</th><th>المندوب</th><th>الفني</th><th>الفرقة</th><th>تاريخ الإكمال</th><th>حالة التوثيق</th><th>الإجراءات</th></tr></thead><tbody id="installationCompletionTableBody"></tbody></table></div></div>
+        <div class="panel installation-completion-table-panel"><div class="table-scroll"><table class="installation-completion-table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>رقم العميل</th><th>المندوب</th><th>الفني</th><th>الفرقة</th><th>تاريخ الإكمال</th><th>حالة التحويل</th><th>الإجراءات</th></tr></thead><tbody id="installationCompletionTableBody"></tbody></table></div></div>
       </section>
 
 
@@ -3098,10 +3098,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.48.0"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.48.0"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.48.0"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.48.0"></script>
+  <script src="assets/js/performance-monitor.js?v=18.48.1"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.48.1"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.48.1"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.48.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3316,7 +3316,7 @@
 
   <dialog id="installationCompletionDialog" class="glass-dialog installation-completion-dialog">
     <form id="installationCompletionForm" class="dialog-shell">
-      <div class="dialog-header"><div><h3>محضر إكمال التركيب</h3><p id="installationCompletionRequestLabel">—</p></div><button id="closeInstallationCompletionDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
+      <div class="dialog-header"><div><h3 id="installationCompletionDialogTitle">تحويل إلى فاتورة</h3><p id="installationCompletionRequestLabel">—</p></div><button id="closeInstallationCompletionDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
       <input id="installationCompletionRequestId" type="hidden">
       <div class="installation-completion-body">
       <div class="installation-completion-summary">
@@ -3325,20 +3325,22 @@
         <div><span>تاريخ الإكمال</span><strong id="installationCompletionDate">—</strong></div>
         <div><span>العنوان</span><strong id="installationCompletionAddress">—</strong></div>
       </div>
-      <div class="form-grid installation-completion-form-grid">
+      <section id="installationCompletionWorkSection"><div class="form-grid installation-completion-form-grid">
         <label class="full-span">ملخص الأعمال المنفذة<textarea id="installationCompletionWorkSummary" rows="4" maxlength="3000" required></textarea></label>
         <label>اسم مستلم الأعمال<input id="installationCompletionRecipientName" type="text" maxlength="200" required></label>
-      </div>
+      </div></section>
       <section class="installation-invoice-section" aria-labelledby="installationInvoiceSectionTitle">
         <div class="installation-section-title"><h4 id="installationInvoiceSectionTitle">بيانات الفاتورة</h4></div>
         <div class="form-grid installation-invoice-grid">
           <label>رقم طلب العميل<input id="installationCompletionCustomerOrderNumber" type="text" readonly aria-readonly="true" placeholder="غير مسجل"></label>
-          <label>رقم الفاتورة <span class="required-mark">*</span><input id="installationCompletionInvoiceNumber" type="text" maxlength="120" required autocomplete="off" placeholder="اكتب رقم الفاتورة"></label>
+          <label>رقم الفاتورة <span class="required-mark">*</span><input id="installationCompletionInvoiceNumber" type="text" inputmode="numeric" pattern="[0-9]{9}" minlength="9" maxlength="9" required autocomplete="off" placeholder="9 أرقام"></label>
           <label>تاريخ الفاتورة <span class="required-mark">*</span><input id="installationCompletionInvoiceDate" type="date" required></label>
+          <label>قيمة الفاتورة<input id="installationCompletionInvoiceAmount" type="number" step="0.01" min="0" readonly aria-readonly="true"></label>
+          <label>مصاريف التركيب<input id="installationCompletionInstallationExpenses" type="number" step="0.01" min="0" readonly aria-readonly="true"></label>
         </div>
-        <p class="installation-invoice-note">لا يمكن حفظ محضر الإكمال بدون رقم الفاتورة وتاريخها.</p>
+        <p class="installation-invoice-note">لا يمكن التحويل بدون رقم فاتورة مكوّن من 9 أرقام وتاريخ الفاتورة.</p>
       </section>
-      <section class="installation-evidence-section" aria-labelledby="installationEvidenceSectionTitle">
+      <section id="installationEvidenceSection" class="installation-evidence-section" aria-labelledby="installationEvidenceSectionTitle">
         <div class="installation-section-title"><h4 id="installationEvidenceSectionTitle">صور التركيب</h4></div>
         <div class="form-grid installation-evidence-grid">
           <label>صور قبل التركيب<input id="installationCompletionBeforePhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
@@ -3349,7 +3351,7 @@
       <div id="installationCompletionExistingFiles" class="installation-existing-files"></div>
       <div id="installationCompletionFormStatus" class="data-status hidden" aria-live="polite"></div>
       </div>
-      <div class="dialog-actions"><button id="printInstallationCompletion" class="secondary-btn" type="button">طباعة / حفظ PDF</button><button id="cancelInstallationCompletion" class="secondary-btn" type="button">إلغاء</button><button id="saveInstallationCompletion" class="primary-btn" type="submit">حفظ المحضر</button></div>
+      <div class="dialog-actions"><button id="printInstallationCompletion" class="secondary-btn" type="button">طباعة / حفظ PDF</button><button id="cancelInstallationCompletion" class="secondary-btn" type="button">إلغاء</button><button id="saveInstallationCompletion" class="primary-btn" type="submit">حفظ وتحويل إلى فاتورة</button></div>
     </form>
   </dialog>
 
@@ -3380,57 +3382,57 @@
         </form>
       </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.48.0"></script>
-  <script src="assets/js/offline-session-store.js?v=18.48.0"></script>
-  <script src="assets/js/supabase-client.js?v=18.48.0"></script>
-  <script src="assets/js/permissions.js?v=18.48.0"></script>
-  <script src="assets/js/permission-engine.js?v=18.48.0"></script>
-  <script src="assets/js/data-access-scope.js?v=18.48.0"></script>
-  <script src="assets/js/smart-cache.js?v=18.48.0"></script>
-  <script src="assets/js/sync-engine.js?v=18.48.0"></script>
-  <script src="assets/js/offline-queue.js?v=18.48.0"></script>
-  <script src="assets/js/permissions-service.js?v=18.48.0"></script>
-  <script src="assets/js/auth-session.js?v=18.48.0"></script>
-  <script src="assets/js/reference-data-service.js?v=18.48.0"></script>
-  <script src="assets/js/customers-service.js?v=18.48.0"></script>
-  <script src="assets/js/followups-service.js?v=18.48.0"></script>
-  <script src="assets/js/quotations-service.js?v=18.48.0"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.48.0"></script>
-  <script src="assets/js/users-service.js?v=18.48.0"></script>
-  <script src="assets/js/activity-service.js?v=18.48.0"></script>
-  <script src="assets/js/backup-service.js?v=18.48.0"></script>
-  <script src="assets/js/system-settings-service.js?v=18.48.0"></script>
-  <script src="assets/js/system-health-service.js?v=18.48.0"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.48.0"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.48.0"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.48.0"></script>
-  <script src="assets/js/installations-service.js?v=18.48.0"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.48.0"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.48.0"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.48.0"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.48.0"></script>
+  <script src="assets/js/supabase-config.js?v=18.48.1"></script>
+  <script src="assets/js/offline-session-store.js?v=18.48.1"></script>
+  <script src="assets/js/supabase-client.js?v=18.48.1"></script>
+  <script src="assets/js/permissions.js?v=18.48.1"></script>
+  <script src="assets/js/permission-engine.js?v=18.48.1"></script>
+  <script src="assets/js/data-access-scope.js?v=18.48.1"></script>
+  <script src="assets/js/smart-cache.js?v=18.48.1"></script>
+  <script src="assets/js/sync-engine.js?v=18.48.1"></script>
+  <script src="assets/js/offline-queue.js?v=18.48.1"></script>
+  <script src="assets/js/permissions-service.js?v=18.48.1"></script>
+  <script src="assets/js/auth-session.js?v=18.48.1"></script>
+  <script src="assets/js/reference-data-service.js?v=18.48.1"></script>
+  <script src="assets/js/customers-service.js?v=18.48.1"></script>
+  <script src="assets/js/followups-service.js?v=18.48.1"></script>
+  <script src="assets/js/quotations-service.js?v=18.48.1"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.48.1"></script>
+  <script src="assets/js/users-service.js?v=18.48.1"></script>
+  <script src="assets/js/activity-service.js?v=18.48.1"></script>
+  <script src="assets/js/backup-service.js?v=18.48.1"></script>
+  <script src="assets/js/system-settings-service.js?v=18.48.1"></script>
+  <script src="assets/js/system-health-service.js?v=18.48.1"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.48.1"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.48.1"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.48.1"></script>
+  <script src="assets/js/installations-service.js?v=18.48.1"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.48.1"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.48.1"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.48.1"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.48.1"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.48.0"></script>
-  <script src="assets/js/export-center.js?v=18.48.0"></script>
-  <script src="assets/js/customer360-engine.js?v=18.48.0"></script>
-  <script src="assets/js/customer360-export.js?v=18.48.0"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.48.0"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.48.0"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.48.0"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.48.0"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.48.0"></script>
-  <script src="assets/js/app.js?v=18.48.0"></script>
-  <script src="assets/js/sales-invoices.js?v=18.48.0"></script>
-  <script src="assets/js/installations-module.js?v=18.48.0"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.48.0"></script>
-  <script src="assets/js/installation-execution.js?v=18.48.0"></script>
-  <script src="assets/js/installation-completion.js?v=18.48.0"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.48.0"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.48.0"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.48.0"></script>
-  <script src="assets/js/mobile.js?v=18.48.0"></script>
-  <script src="assets/js/pwa.js?v=18.48.0"></script>
-  <script src="assets/js/native.js?v=18.48.0"></script>
+  <script src="assets/js/reports-engine.js?v=18.48.1"></script>
+  <script src="assets/js/export-center.js?v=18.48.1"></script>
+  <script src="assets/js/customer360-engine.js?v=18.48.1"></script>
+  <script src="assets/js/customer360-export.js?v=18.48.1"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.48.1"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.48.1"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.48.1"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.48.1"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.48.1"></script>
+  <script src="assets/js/app.js?v=18.48.1"></script>
+  <script src="assets/js/sales-invoices.js?v=18.48.1"></script>
+  <script src="assets/js/installations-module.js?v=18.48.1"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.48.1"></script>
+  <script src="assets/js/installation-execution.js?v=18.48.1"></script>
+  <script src="assets/js/installation-completion.js?v=18.48.1"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.48.1"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.48.1"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.48.1"></script>
+  <script src="assets/js/mobile.js?v=18.48.1"></script>
+  <script src="assets/js/pwa.js?v=18.48.1"></script>
+  <script src="assets/js/native.js?v=18.48.1"></script>
 </body>
 </html>

@@ -1,13 +1,13 @@
 {
-  "version": "18.48.0",
-  "build": 184800,
+  "version": "18.48.1",
+  "build": 184801,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M15.0 Sales Invoices Registry",
+  "title": "M15.0.1 Unified Invoice Conversion Form",
   "notes": [
-    "إضافة شاشة فواتير المبيعات داخل إدارة العملاء",
-    "إنشاء سجل موحد للفواتير من العروض المقبولة ومحاضر التركيبات",
-    "منع تكرار الفاتورة وتطبيق نطاق المندوب والصلاحيات"
+    "توحيد تحويل عروض الأسعار والتركيبات إلى فاتورة من شاشة واحدة",
+    "تقييد رقم الفاتورة إلى 9 أرقام ومنع التكرار",
+    "إخفاء العروض والتركيبات من قوائم العمل بعد الحفظ"
   ],
-  "cacheToken": "kyum-crm-pwa-18-48-0-m15-0-sales-invoices-registry"
+  "cacheToken": "kyum-crm-pwa-18-48-1-m15-0-1-unified-invoice-conversion"
 }

@@ -251,7 +251,7 @@ const pageMeta = {
   installationRequests: ["طلبات التركيبات", "عرض ومتابعة وتعديل طلبات التركيب"],
   installationSchedule: ["جدولة وتوزيع التركيبات", "تقويم التشغيل وإسناد الطلبات إلى الفنيين"],
   installationExecution: ["تنفيذ التركيبات", "تحديث حالات الزيارات الميدانية وتوثيق التنفيذ"],
-  installationCompletion: ["محاضر التركيبات", "توثيق الإكمال والفاتورة وإذن تسليم العميل"],
+  installationCompletion: ["تأكيد الانتهاء من التركيبات", "مراجعة واعتماد انتهاء التركيب وتحويل الطلب إلى فاتورة"],
   installationExceptions: ["الاستثناءات وإعادة الزيارة", "متابعة التعثر وجدولة الزيارات اللاحقة"],
   installationReports: ["تقارير التركيبات", "تحليل الإنتاجية والالتزام وأسباب التعثر"],
   users: ["المستخدمون", "إدارة حسابات مستخدمي النظام"],
@@ -7546,6 +7546,16 @@ document.getElementById("followupsTableBody").addEventListener("click", event =>
   if (deleteId) deleteFollowup(deleteId);
 });
 
+window.addEventListener("kyum-sales-invoice-created", async () => {
+  try {
+    await window.QuotationsService?.invalidateCache?.();
+    quotationsLoaded = false;
+    await loadQuotationsFromSupabase(true);
+  } catch (error) {
+    console.error("Quotation invoice workflow refresh failed:", error);
+  }
+});
+
 document.getElementById("quotationsTableBody").addEventListener("click", event => {
   const editId = event.target.dataset.editQuotation;
   const deleteId = event.target.dataset.deleteQuotation;
@@ -7577,17 +7587,18 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   if (createInvoiceQuotationId) {
     const item = quotations.find(quotation => quotation.id === createInvoiceQuotationId);
     if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId || item.salesInvoiceId) return;
-    if (!confirm(`تحويل عرض السعر ${item.code} إلى فاتورة مبيعات؟`)) return;
-    event.target.disabled = true;
-    window.SalesInvoicesService?.createFromQuotation(item.id)
-      .then(async invoice => {
-        await window.QuotationsService?.invalidateCache?.();
-        await loadQuotationsFromSupabase(true);
-        alert(`تم إنشاء الفاتورة ${invoice?.invoice_number || ""} بنجاح.`);
-        window.KYUMNavigation?.open?.("salesInvoices", { trustedNavigation: true });
-      })
-      .catch(error => alert(error.message || "تعذر إنشاء الفاتورة."))
-      .finally(() => { event.target.disabled = false; });
+    const customer = customerById(item.customerId);
+    window.dispatchEvent(new CustomEvent("kyum-open-unified-invoice-conversion", { detail: {
+      sourceType: "quotation",
+      quotationId: item.id,
+      requestNumber: item.customerOrderNumber || item.code,
+      customerName: customer?.name || item.customerName || "—",
+      customerPhone: customer?.phone || item.customerPhone || "—",
+      representativeName: item.representative || "—",
+      invoiceAmount: Number(item.amount || 0),
+      installationExpenses: 0,
+      quotationCode: item.code || ""
+    }}));
   }
 
   if (openSalesInvoiceId) {

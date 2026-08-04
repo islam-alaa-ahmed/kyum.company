@@ -26,7 +26,7 @@
     Object.freeze({ selector: "[data-technician-edit]", screen: "installationSchedule", action: "edit" }),
     Object.freeze({ selector: "[data-technician-delete]", screen: "installationSchedule", action: "delete" }),
     Object.freeze({ selector: "[data-installation-execute],#saveInstallationExecution", screen: "installationExecution", action: "edit" }),
-    Object.freeze({ selector: "[data-installation-completion],#saveInstallationCompletion", screen: "installationCompletion", action: "edit" }),
+    Object.freeze({ selector: "[data-installation-completion]", screen: "installationCompletion", action: "edit" }),
     Object.freeze({ selector: "#printInstallationCompletion", screen: "installationCompletion", action: "export" }),
     Object.freeze({ selector: "[data-installation-revisit],#saveInstallationRevisit", screen: "installationExceptions", action: "edit" }),
     Object.freeze({ selector: "#exportInstallationReportsBtn", screen: "installationReports", action: "export" }),
