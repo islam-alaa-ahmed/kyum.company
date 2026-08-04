@@ -186,6 +186,20 @@
       const { error } = await client().from("installation_data_access_representatives").insert(uniqueIds.map(representativeId => ({user_id:userId,representative_id:representativeId})));
       if (error) throw new Error(`تعذر حفظ مندوبي التركيبات: ${error.message}`);
     }
+
+    const [{ data: savedProfile, error: verifyProfileError }, { data: savedRepresentatives, error: verifyRepsError }] = await Promise.all([
+      client().from("installation_data_access_profiles").select("access_mode").eq("user_id", userId).single(),
+      client().from("installation_data_access_representatives").select("representative_id").eq("user_id", userId)
+    ]);
+    if (verifyProfileError || savedProfile?.access_mode !== normalizedMode) {
+      throw new Error("تم إرسال نطاق التركيبات لكن تعذر التحقق من حفظه.");
+    }
+    if (verifyRepsError) throw new Error(`تعذر التحقق من مندوبي التركيبات: ${verifyRepsError.message}`);
+    const savedIds = (savedRepresentatives || []).map(row => row.representative_id).sort();
+    const expectedIds = normalizedMode === "selected" ? [...uniqueIds].sort() : [];
+    if (JSON.stringify(savedIds) !== JSON.stringify(expectedIds)) {
+      throw new Error("لم تُحفظ قائمة مندوبي التركيبات المسموحين بالكامل.");
+    }
   }
 
   async function resetPassword(userId, password) {

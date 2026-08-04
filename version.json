@@ -1,13 +1,13 @@
 {
-  "version": "18.45.10",
-  "build": 184510,
+  "version": "18.45.11",
+  "build": 184511,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.7.8.1 Installation Request RLS Create Recovery",
+  "title": "M14.9.7.9 Customer Service Follow-up & Installation Scope Persistence Recovery",
   "notes": [
-    "إصلاح رفض RLS عند إنشاء طلب تركيب بواسطة مندوب مبيعات مصرح له",
-    "اشتقاق مندوب الطلب من مالك العميل والتحقق من نطاق التركيبات",
-    "تثبيت إنشاء الطلب والخدمات داخل معاملة آمنة دون توسيع صلاحيات الرؤية"
+    "إتاحة عملاء المندوب المرتبط لمستخدمي خدمة العملاء داخل المتابعات",
+    "حفظ واستعادة نطاق رؤية مندوبي التركيبات بصورة مستقلة",
+    "التحقق بعد الحفظ من نطاق التركيبات والمندوبين المحددين"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-10-m14-9-7-8-1-installation-request-rls-create-recovery"
+  "cacheToken": "kyum-crm-pwa-18-45-11-m14-9-7-9-followup-installation-scope-recovery"
 }

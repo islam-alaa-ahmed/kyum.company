@@ -1655,6 +1655,65 @@ function updateAllowedRepresentativesCount() {
   if (element) element.textContent = `تم اختيار ${count}`;
 }
 
+function selectedInstallationRepresentativeIds() {
+  return [...document.querySelectorAll('#userInstallationRepresentativesList input[type="checkbox"]:checked')]
+    .map(input => input.value)
+    .filter(Boolean);
+}
+
+function updateInstallationRepresentativesCount() {
+  const count = selectedInstallationRepresentativeIds().length;
+  const element = document.getElementById("userInstallationRepresentativesCount");
+  if (element) element.textContent = `تم اختيار ${count}`;
+}
+
+function filterInstallationRepresentativesList() {
+  const query = (document.getElementById("userInstallationRepresentativesSearch")?.value || "").trim().toLowerCase();
+  document.querySelectorAll("#userInstallationRepresentativesList .representative-check-item").forEach(item => {
+    item.classList.toggle("hidden", Boolean(query) && !String(item.dataset.representativeName || "").includes(query));
+  });
+}
+
+function renderInstallationRepresentativesChecklist(selectedIds = null) {
+  const list = document.getElementById("userInstallationRepresentativesList");
+  if (!list) return;
+  const currentIds = selectedIds instanceof Set
+    ? selectedIds
+    : new Set(selectedInstallationRepresentativeIds());
+  list.innerHTML = representativeRecords.length
+    ? representativeRecords.map(rep => `
+      <label class="representative-check-item" data-representative-name="${escapeHtml(String(rep.full_name || '').toLowerCase())}">
+        <input class="representative-check-input" type="checkbox" value="${escapeHtml(rep.id)}" ${currentIds.has(rep.id) ? "checked" : ""}>
+        <span class="representative-check-name">${escapeHtml(rep.full_name)}</span>
+      </label>`).join("")
+    : '<div class="representatives-checklist-empty">لا يوجد مندوبون متاحون.</div>';
+  filterInstallationRepresentativesList();
+  updateInstallationRepresentativesCount();
+}
+
+function syncUserInstallationAccessFields() {
+  const mode = document.getElementById("userInstallationAccessMode")?.value || "own";
+  const tools = document.getElementById("userInstallationRepresentativesTools");
+  const list = document.getElementById("userInstallationRepresentativesList");
+  const showSelected = mode === "selected";
+  tools?.classList.toggle("hidden", !showSelected);
+  list?.classList.toggle("hidden", !showSelected);
+  if (showSelected) {
+    filterInstallationRepresentativesList();
+    updateInstallationRepresentativesCount();
+  }
+}
+
+function setInstallationRepresentativesSelection(mode) {
+  const linkedRepresentativeId = document.getElementById("userRepresentative")?.value || "";
+  document.querySelectorAll('#userInstallationRepresentativesList input[type="checkbox"]').forEach(input => {
+    if (mode === "all") input.checked = true;
+    else if (mode === "none") input.checked = false;
+    else input.checked = Boolean(linkedRepresentativeId) && input.value === linkedRepresentativeId;
+  });
+  updateInstallationRepresentativesCount();
+}
+
 function renderAllowedRepresentativesChecklist(selectedIds = null) {
   const list = document.getElementById("userAllowedRepresentativesList");
   if (!list) return;
@@ -1701,6 +1760,7 @@ function populateSecurityOptions() {
     document.getElementById("userRepresentative")?.value || ""
   );
   renderAllowedRepresentativesChecklist();
+  renderInstallationRepresentativesChecklist();
 }
 
 async function loadUsersFromSupabase(force = false) {
@@ -1763,6 +1823,11 @@ function openUserDialog(user = null) {
   document.getElementById("userAllowedRepresentativesSearch").value = "";
   renderAllowedRepresentativesChecklist(allowedIds);
   syncUserDataAccessFields();
+  document.getElementById("userInstallationAccessMode").value = user?.installation_access_mode || (user?.role === "super_admin" ? "all" : "own");
+  const installationAllowedIds = new Set((user?.installation_access_representatives || []).map(item => item.id));
+  document.getElementById("userInstallationRepresentativesSearch").value = "";
+  renderInstallationRepresentativesChecklist(installationAllowedIds);
+  syncUserInstallationAccessFields();
   document.getElementById("userActive").value = String(user?.is_active ?? true);
   document.getElementById("userMustChangePassword").value = String(user?.must_change_password ?? true);
   document.getElementById("userDialog").showModal();
@@ -1791,11 +1856,16 @@ async function saveUserForm(event) {
       representativeId: document.getElementById("userRepresentative").value || null,
       accessMode: document.getElementById("userDataAccessMode").value,
       allowedRepresentativeIds: selectedAllowedRepresentativeIds(),
+      installationAccessMode: document.getElementById("userInstallationAccessMode").value,
+      allowedInstallationRepresentativeIds: selectedInstallationRepresentativeIds(),
       isActive: document.getElementById("userActive").value === "true",
       mustChangePassword: document.getElementById("userMustChangePassword").value === "true"
     };
     if (payload.accessMode === "selected" && !payload.representativeId && payload.allowedRepresentativeIds.length === 0) {
       throw new Error("اختر مندوبًا مرتبطًا أو مندوبًا واحدًا على الأقل ضمن نطاق البيانات.");
+    }
+    if (payload.installationAccessMode === "selected" && !payload.representativeId && payload.allowedInstallationRepresentativeIds.length === 0) {
+      throw new Error("اختر مندوبًا مرتبطًا أو مندوب تركيبات واحدًا على الأقل.");
     }
     if (editingUserId) await window.UsersService.updateUser(payload);
     else await window.UsersService.createUser(payload);
@@ -8677,6 +8747,17 @@ document.getElementById("clearAllowedRepresentativesBtn")?.addEventListener("cli
 document.getElementById("selectOwnRepresentativeBtn")?.addEventListener("click", () => setAllowedRepresentativesSelection("own"));
 document.getElementById("userRepresentative")?.addEventListener("change", () => {
   if ((document.getElementById("userDataAccessMode")?.value || "") === "selected") updateAllowedRepresentativesCount();
+});
+document.getElementById("userInstallationAccessMode")?.addEventListener("change", syncUserInstallationAccessFields);
+document.getElementById("userInstallationRepresentativesSearch")?.addEventListener("input", filterInstallationRepresentativesList);
+document.getElementById("userInstallationRepresentativesList")?.addEventListener("change", event => {
+  if (event.target.matches('input[type="checkbox"]')) updateInstallationRepresentativesCount();
+});
+document.getElementById("selectAllInstallationRepresentativesBtn")?.addEventListener("click", () => setInstallationRepresentativesSelection("all"));
+document.getElementById("clearInstallationRepresentativesBtn")?.addEventListener("click", () => setInstallationRepresentativesSelection("none"));
+document.getElementById("selectOwnInstallationRepresentativeBtn")?.addEventListener("click", () => setInstallationRepresentativesSelection("own"));
+document.getElementById("userRepresentative")?.addEventListener("change", () => {
+  if ((document.getElementById("userInstallationAccessMode")?.value || "") === "selected") updateInstallationRepresentativesCount();
 });
 
 document.getElementById("usersTableBody")?.addEventListener("click", event => {

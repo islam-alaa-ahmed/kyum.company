@@ -153,7 +153,11 @@
     if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
       return { mode: "all", representativeIds: [] };
     }
-    if (profile.role !== "sales_representative" || !profile.representative_id) {
+    // Any operational user linked to a sales representative may load the customers
+    // permitted by the canonical customer data-access scope. This includes customer
+    // service users; restricting this path to the sales_representative role made
+    // follow-up customer selectors empty for otherwise authorized users.
+    if (!profile.representative_id) {
       return { mode: "none", representativeIds: [] };
     }
 
