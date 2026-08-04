@@ -1,13 +1,13 @@
 {
-  "version": "18.46.4",
-  "build": 184604,
+  "version": "18.46.5",
+  "build": 184605,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.5 Installation Scheduling Pending Table Data Expansion",
+  "title": "M14.9.8.6 Installation Day Details Customer Number & Representative Display",
   "notes": [
-    "إضافة الخدمات وإجمالي الخدمات والموقع والمندوب إلى جدول الطلبات المعلقة",
-    "حذف عمود الفني من جدول الطلبات التي لم تُسند بعد",
-    "استخدام نفس بيانات طلبات التركيبات دون تغيير منطق الجدولة"
+    "إظهار رقم العميل أسفل اسم العميل في تفاصيل مواعيد التركيبات",
+    "إظهار اسم المندوب ضمن بيانات كل طلب في نافذة تفاصيل اليوم",
+    "الحفاظ على الجدولة وإعادة الجدولة وفتح الطلب دون تغيير"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-4-m14-9-8-5-scheduling-pending-table-expansion"
+  "cacheToken": "kyum-crm-pwa-18-46-5-m14-9-8-6-day-details-customer-representative"
 }

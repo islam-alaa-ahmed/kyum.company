@@ -1,27 +1,23 @@
-# Phase M14.9.8.5 — Installation Scheduling Pending Table Data Expansion
+# Phase M14.9.8.6 — Installation Day Details Customer Number & Representative Display
 
 ## Root Cause
-The pending scheduling table used a minimal six-column projection and did not display the operational context already available in `scheduleList`. The technician column was also misleading because these rows have not completed assignment yet.
+The day-details appointment cards already received `customerPhone` and `representativeName` from the shared scheduling service, but the card renderer did not display them. No database or query expansion was required.
 
 ## Changes
-- Added services with quantities.
-- Added total services amount.
-- Added installation location.
-- Added sales representative.
-- Removed technician from the pending table.
-- Preserved request number, customer, appointment, status and scheduling action.
-- Kept the existing rule that a fully scheduled/assigned request leaves the pending table and appears in the calendar.
+- Added the customer number directly below the customer name.
+- Added the sales representative name to each appointment card.
+- Preserved address, technician, status, services, totals and actions.
+- Kept the dynamic team-column layout and calendar workflow unchanged.
 
 ## Modified files
-- index.html
-- assets/js/installations-service.js
 - assets/js/installation-scheduling.js
 - assets/js/pwa.js
+- index.html
 - service-worker.js
 - package.json
 - version.json
-- scripts/phase-m14-9-8-5-check.mjs
+- scripts/phase-m14-9-8-6-check.mjs
 - PHASE_REPORT.md
 
 ## Version
-18.46.4 / 184604
+18.46.5 / 184605
