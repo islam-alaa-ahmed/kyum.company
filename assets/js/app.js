@@ -777,25 +777,22 @@ function refreshReferenceOptions() {
   );
 
   const authProfile = window.CustomerAuth?.getState?.().profile;
-  const customerRepresentativeOptions = authProfile?.role === "sales_representative"
-    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
+  const canonicalDataScope = window.KYUMDataAccessScope?.current?.(authProfile?.id);
+  const customerRepresentativeOptions = window.KYUMDataAccessScope?.filterRepresentatives
+    ? window.KYUMDataAccessScope.filterRepresentatives(representatives, canonicalDataScope)
     : representatives;
 
   replaceSelectOptions(
     document.getElementById("customerRepresentative"),
     customerRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
-  const followupRepresentativeOptions = authProfile?.role === "sales_representative"
-    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
-    : representatives;
+  const followupRepresentativeOptions = [...customerRepresentativeOptions];
 
   replaceSelectOptions(
     document.getElementById("followupRepresentative"),
     followupRepresentativeOptions.map(rep => ({ label: rep.name, value: rep.uuid }))
   );
-  const quotationRepresentativeOptions = authProfile?.role === "sales_representative"
-    ? representatives.filter(rep => rep.uuid === authProfile.representative_id)
-    : representatives;
+  const quotationRepresentativeOptions = [...customerRepresentativeOptions];
 
   replaceSelectOptions(
     document.getElementById("quotationRepresentative"),
@@ -5370,13 +5367,10 @@ function dailyDateTime(value) {
 
 function dailyScopedRows(rows) {
   const profile = window.CustomerAuth?.getState?.().profile;
-  if (profile?.role !== "sales_representative") return rows;
-
-  // customers, followups and quotations are now server-scoped and explicitly
-  // filtered by their services. Keep this final UI guard to prevent stale
-  // cross-account data from surviving a user switch or partial refresh.
-  const allowedIds = new Set([profile.representative_id].filter(Boolean));
-  return (rows || []).filter(item => allowedIds.has(item.representativeId));
+  const scope = window.KYUMDataAccessScope?.current?.(profile?.id);
+  return window.KYUMDataAccessScope?.filterRows
+    ? window.KYUMDataAccessScope.filterRows(rows, scope, "representativeId")
+    : (rows || []);
 }
 
 function dailyEmptyRow(columns, text) {
@@ -8352,8 +8346,8 @@ window.addEventListener("customer-auth-ready", async () => {
   await loadDailyOperations(false);
 
   const profile = window.CustomerAuth?.getState?.().profile;
-  if (profile?.role === "sales_representative"
-      && window.CustomerPermissions?.canScreen?.("dailyOperations", "view")) {
+  if (window.CustomerPermissions?.canScreen?.("dailyOperations", "view")
+      && !window.CustomerPermissions?.canScreen?.("dashboard", "view")) {
     switchView("dailyOperations");
   }
 });

@@ -146,53 +146,9 @@
   }
 
   async function resolveCustomerRepresentativeScope() {
-    const profile = window.CustomerAuth?.getState?.().profile || null;
-    if (!profile) return { mode: "none", representativeIds: [] };
-    const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "customers");
-
-    if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
-      return { mode: "all", representativeIds: [] };
-    }
-    // Any operational user linked to a sales representative may load the customers
-    // permitted by the canonical customer data-access scope. This includes customer
-    // service users; restricting this path to the sales_representative role made
-    // follow-up customer selectors empty for otherwise authorized users.
-    if (!profile.representative_id) {
-      return { mode: "none", representativeIds: [] };
-    }
-
-    const ownRepresentativeId = profile.representative_id;
-    const fallbackScope = cachedScope || { mode: "selected", representativeIds: [ownRepresentativeId] };
-    if (!window.customerSupabase) return fallbackScope;
-
-    try {
-      const { data: accessProfile, error: accessProfileError } = await client()
-        .from("user_data_access_profiles")
-        .select("access_mode")
-        .eq("user_id", profile.id)
-        .maybeSingle();
-      if (accessProfileError) throw accessProfileError;
-
-      const accessMode = accessProfile?.access_mode || "own";
-      if (accessMode !== "selected") return { mode: "selected", representativeIds: [ownRepresentativeId] };
-
-      const { data: allowedRows, error: allowedError } = await client()
-        .from("user_data_access_representatives")
-        .select("representative_id")
-        .eq("user_id", profile.id);
-      if (allowedError) throw allowedError;
-
-      return {
-        mode: "selected",
-        representativeIds: Array.from(new Set([
-          ownRepresentativeId,
-          ...(allowedRows || []).map(row => row.representative_id).filter(Boolean)
-        ]))
-      };
-    } catch (error) {
-      console.warn("Customer scope network refresh failed; cached scope retained.", error);
-      return fallbackScope;
-    }
+    // Canonical resolver keeps the cached scope retained when the network is unavailable.
+    if (!window.KYUMDataAccessScope?.resolve) return { mode: "none", representativeIds: [] };
+    return window.KYUMDataAccessScope.resolve({ domain: "customers" });
   }
 
   async function fetchCustomersFromNetwork(scope, options = {}) {

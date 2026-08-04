@@ -95,47 +95,9 @@
   }
 
   async function resolveRepresentativeScope() {
-    const profile = window.CustomerAuth?.getState?.().profile || null;
-    if (!profile) return { mode: "none", representativeIds: [] };
-    const cachedScope = window.KYUMOfflineSessionStore?.loadScope?.(profile.id, "followups");
-
-    if (["super_admin", "sales_manager", "viewer"].includes(profile.role)) {
-      return { mode: "all", representativeIds: [] };
-    }
-    if (profile.role !== "sales_representative" || !profile.representative_id) {
-      return { mode: "none", representativeIds: [] };
-    }
-
-    const ownId = profile.representative_id;
-    const fallbackScope = cachedScope || { mode: "selected", representativeIds: [ownId] };
-    if (!window.customerSupabase) return fallbackScope;
-
-    try {
-      const { data: accessProfile, error: profileError } = await client()
-        .from("user_data_access_profiles")
-        .select("access_mode")
-        .eq("user_id", profile.id)
-        .maybeSingle();
-      if (profileError) throw profileError;
-      if ((accessProfile?.access_mode || "own") !== "selected") return { mode: "selected", representativeIds: [ownId] };
-
-      const { data: allowed, error: allowedError } = await client()
-        .from("user_data_access_representatives")
-        .select("representative_id")
-        .eq("user_id", profile.id);
-      if (allowedError) throw allowedError;
-
-      return {
-        mode: "selected",
-        representativeIds: Array.from(new Set([
-          ownId,
-          ...(allowed || []).map(row => row.representative_id).filter(Boolean)
-        ]))
-      };
-    } catch (error) {
-      console.warn("Follow-up scope network refresh failed; cached scope retained.", error);
-      return fallbackScope;
-    }
+    // Canonical resolver keeps the cached scope retained when the network is unavailable.
+    if (!window.KYUMDataAccessScope?.resolve) return { mode: "none", representativeIds: [] };
+    return window.KYUMDataAccessScope.resolve({ domain: "followups" });
   }
 
   async function fetchFollowupsFromNetwork(scope, options = {}) {

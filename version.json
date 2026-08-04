@@ -1,13 +1,14 @@
 {
-  "version": "18.45.11",
-  "build": 184511,
+  "version": "18.46.0",
+  "build": 184600,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.7.9 Customer Service Follow-up & Installation Scope Persistence Recovery",
+  "title": "M14.9.8 Enterprise Permissions Role-Agnostic Certification",
   "notes": [
-    "إتاحة عملاء المندوب المرتبط لمستخدمي خدمة العملاء داخل المتابعات",
-    "حفظ واستعادة نطاق رؤية مندوبي التركيبات بصورة مستقلة",
-    "التحقق بعد الحفظ من نطاق التركيبات والمندوبين المحددين"
+    "إلغاء الاعتماد التشغيلي على أسماء الأدوار",
+    "توحيد نطاق بيانات العملاء والمتابعات والعروض والمهام اليومية",
+    "تقييد القوائم المنسدلة حسب النطاق المحفوظ",
+    "توحيد صلاحية الاستيراد مع صلاحية الإضافة الحالية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-11-m14-9-7-9-followup-installation-scope-recovery"
+  "cacheToken": "kyum-crm-pwa-18-46-0-m14-9-8-role-agnostic-permissions"
 }

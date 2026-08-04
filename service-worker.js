@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-11-m14-9-7-9-followup-installation-scope-recovery";
+const CACHE_VERSION = "kyum-crm-pwa-18-46-0-m14-9-8-role-agnostic-permissions";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -31,6 +31,7 @@ const CORE_APP_SHELL = [
   "./assets/js/supabase-client.js",
   "./assets/js/permissions.js",
   "./assets/js/permission-engine.js",
+  "./assets/js/data-access-scope.js",
   "./assets/js/smart-cache.js",
   "./assets/js/offline-read-cache.js",
   "./assets/js/cache-dependency-engine.js",

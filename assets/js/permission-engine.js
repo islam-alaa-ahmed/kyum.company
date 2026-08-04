@@ -7,7 +7,7 @@
     edit: "can_edit",
     delete: "can_delete",
     export: "can_export",
-    import: "can_import"
+    import: "can_add"
   });
 
   const ACTION_BINDINGS = Object.freeze([

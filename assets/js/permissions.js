@@ -11,18 +11,6 @@ window.CustomerPermissions = {
   screenPermissions: new Map(),
   permissionsLoaded: false,
 
-  can(role, action) {
-    const matrix = {
-      super_admin: new Set(["view_all","manage_customers","delete_customers","manage_followups","manage_quotations","manage_settings","manage_users"]),
-      sales_manager: new Set(["view_all","manage_customers","delete_customers","manage_followups","manage_quotations","manage_settings"]),
-      sales_supervisor: new Set(["view_all","manage_customers","manage_followups","manage_quotations"]),
-      sales_representative: new Set(["manage_customers","manage_followups","manage_quotations"]),
-      customer_service: new Set(["manage_customers","manage_followups"]),
-      viewer: new Set()
-    };
-    return matrix[role]?.has(action) || false;
-  },
-
 
   actionLabels: Object.freeze({
     view: "عرض",
@@ -73,16 +61,6 @@ window.CustomerPermissions = {
     return String(screenKey || "").trim();
   },
 
-  roleActionBaseline(role, screenKey, action) {
-    // Product rule: active sales representatives must always be able to create
-    // customers and quotations. This baseline protects the runtime from stale
-    // or incomplete cached permission rows while server-side RLS remains the
-    // final authorization boundary.
-    return role === "sales_representative"
-      && action === "add"
-      && (screenKey === "customers" || screenKey === "quotations");
-  },
-
   canScreen(screenKey, action = "view") {
     screenKey = this.normalizeScreenKey(screenKey);
     action = String(action || "view").trim().toLowerCase();
@@ -90,7 +68,6 @@ window.CustomerPermissions = {
     if (screenKey === "aboutApp" && action === "view") return true;
     const role = this.currentRole();
     if (role === "super_admin") return true;
-    if (this.roleActionBaseline(role, screenKey, action)) return true;
     if (!this.permissionsLoaded) return false;
     const row = this.screenPermissions.get(screenKey);
     const field = { view:"can_view", add:"can_add", edit:"can_edit", delete:"can_delete", export:"can_export", import:"can_add" }[action] || "can_view";
@@ -175,13 +152,9 @@ window.CustomerPermissions = {
   },
 
   apply(profile) {
-    const role = profile?.role || "viewer";
-    document.body.dataset.userRole = role;
-    document.querySelectorAll(".reference-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_settings")));
-    document.querySelectorAll(".customer-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_customers")));
-    document.querySelectorAll(".followup-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_followups")));
-    document.querySelectorAll(".quotation-manage-action").forEach(b => b.classList.toggle("hidden", !this.can(role,"manage_quotations")));
-    document.querySelectorAll(".users-manage-action,.permissions-manage-action,.backup-manage-action,.system-settings-manage-action").forEach(b => b.classList.toggle("hidden", role !== "super_admin"));
+    document.body.dataset.userRole = profile?.role || "viewer";
+    // Runtime visibility is permission-driven. Role labels are descriptive only.
+    this.applyScreenVisibility();
     this.applyActionVisibility();
   },
 

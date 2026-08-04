@@ -1,29 +1,19 @@
-# Phase M14.9.7.9 — Customer Service Follow-up & Installation Scope Persistence Recovery
+# Phase M14.9.8 — Enterprise Permissions Role-Agnostic Certification
 
-## Root Cause
+## Scope
+Runtime screen/action authorization and customer-domain data scopes were changed to depend on granted permissions and persisted scopes rather than ordinary role labels.
 
-1. `CustomersService.resolveCustomerRepresentativeScope()` allowed scoped customer loading only when the profile role was exactly `sales_representative`. A customer-service user linked to a representative therefore received `mode: none`, so the customer selector in the follow-up dialog was empty.
-2. The user dialog rendered installation scope controls, but `openUserDialog()` did not restore their values and `saveUserForm()` did not include them in the payload. `UsersService.updateUser()` consequently received undefined installation scope values and normalized them back to `own`.
+## Key changes
+- Added `KYUMDataAccessScope` as the canonical resolver for customers, follow-ups, quotations and daily operations.
+- Removed the sales-representative runtime permission baseline.
+- Removed legacy role-matrix action visibility from `CustomerPermissions.apply`.
+- Restricted representative dropdowns using the persisted canonical scope.
+- Made missing scope rows restrictive for every non-super-admin user.
+- Unified import visibility with `can_add`, matching the current database schema.
+- Added an automated role-agnostic permissions certification check.
 
-## Fix
+## Intentional immutable exception
+`super_admin` remains the only explicit role override. All other roles are descriptive labels and do not determine ordinary screen/action/data access.
 
-- Allow every non-privileged operational user linked to a representative to resolve the canonical customer data-access scope.
-- Preserve RLS and selected-representative restrictions; no global customer visibility was granted.
-- Implement complete installation-scope UI state management: render, search, select, restore, submit, and count.
-- Send `installationAccessMode` and `allowedInstallationRepresentativeIds` on create/update.
-- Verify the persisted installation profile and selected representatives after every save.
-
-## Modified Files
-
-- `assets/js/customers-service.js`
-- `assets/js/app.js`
-- `assets/js/users-service.js`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
-
-## Regression Scope
-
-Customer visibility remains controlled by `user_data_access_profiles`, `user_data_access_representatives`, and database RLS. Installation visibility remains independent and controlled by `installation_data_access_profiles` and `installation_data_access_representatives`.
+## Regression constraints
+Installation customer scope and installation scope remain independent. Existing installation RLS/RPC policies were not widened or replaced.

@@ -58,13 +58,13 @@
       ...user,
       data_access_mode: modeByUser.get(user.id) || defaultAccessMode(user),
       data_access_representatives: repsByUser.get(user.id) || [],
-      installation_access_mode: installationModeByUser.get(user.id) || (user.role === "super_admin" ? "all" : "own"),
+      installation_access_mode: installationModeByUser.get(user.id) || (user.role === "super_admin" ? "all" : (user.representative_id ? "own" : "selected")),
       installation_access_representatives: installationRepsByUser.get(user.id) || []
     }));
   }
 
   function defaultAccessMode(user) {
-    if (["super_admin", "sales_manager", "viewer"].includes(user?.role)) return "all";
+    if (user?.role === "super_admin") return "all";
     return user?.representative_id ? "own" : "selected";
   }
 
