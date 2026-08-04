@@ -1,13 +1,13 @@
 {
-  "version": "18.45.8",
-  "build": 184508,
+  "version": "18.45.9",
+  "build": 184509,
   "forceUpdate": true,
-  "releaseDate": "2026-08-03",
-  "title": "M14.9.7.7 Daily Performance Professional PDF Export",
+  "releaseDate": "2026-08-04",
+  "title": "M14.9.7.8 Installation Request Create Permission Recovery",
   "notes": [
-    "إضافة تصدير PDF احترافي لتقرير الأداء اليومي",
-    "الحفاظ على هوية KYUM والهيدر والفلاتر الحالية",
-    "دعم RTL وجداول متعددة الصفحات وتخطيط A4 أفقي"
+    "استعادة زر حفظ طلب التركيب للمندوبين المصرح لهم",
+    "فصل صلاحية إنشاء طلب التركيب عن صلاحيات إدارة العملاء العامة",
+    "إظهار حالة الصلاحية بوضوح بدل إخفاء زر الحفظ بصمت"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-8-m14-9-7-7-daily-performance-pdf-export"
+  "cacheToken": "kyum-crm-pwa-18-45-9-m14-9-7-8-installation-request-create-permission"
 }

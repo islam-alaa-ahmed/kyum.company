@@ -271,6 +271,31 @@
     clearStatus($("newInstallationRequestFormStatus"));
   }
 
+  function syncNewRequestPermissionState() {
+    const button = $("saveNewInstallationRequest");
+    if (!button) return false;
+    const isEditing = Boolean(editingRequestId);
+    const screenKey = isEditing ? "installationRequests" : "installationRequestNew";
+    const action = isEditing ? "edit" : "add";
+    const engine = window.PermissionEngine;
+    const loaded = engine?.isLoaded?.() === true || window.CustomerPermissions?.permissionsLoaded === true || window.CustomerPermissions?.currentRole?.() === "super_admin";
+    const allowed = loaded && (engine?.can?.(screenKey, action) === true || window.CustomerPermissions?.canScreen?.(screenKey, action) === true);
+
+    button.hidden = false;
+    button.classList.remove("hidden");
+    button.setAttribute("aria-hidden", "false");
+    button.disabled = !allowed;
+    button.setAttribute("aria-disabled", String(!allowed));
+    button.title = allowed ? "" : (loaded ? "لا توجد صلاحية حفظ طلب تركيب." : "جارٍ تحميل الصلاحيات...");
+
+    if (loaded && !allowed) {
+      status($("newInstallationRequestFormStatus"), isEditing
+        ? "لا توجد صلاحية تعديل طلبات التركيبات."
+        : "لا توجد صلاحية إضافة طلب تركيب. راجع صلاحيات شاشة طلب تركيب جديد.", "warning");
+    }
+    return allowed;
+  }
+
   async function initializeNewView() {
     try {
       await ensureOptions();
@@ -278,6 +303,7 @@
       neighborhoodOptions();
       if (!$("newInstallationServicesBody")?.children.length) addServiceRow();
       if (!opts.serviceTypes.length) status($("newInstallationRequestFormStatus"), "لا توجد خدمات نشطة في البيانات المرجعية. أضف أنواع الخدمات أولًا قبل إنشاء الطلب.", "warning");
+      syncNewRequestPermissionState();
     } catch (error) {
       status($("newInstallationRequestFormStatus"), error.message, "error");
     }
@@ -291,6 +317,9 @@
       const row = rows.find(item => item.id === id);
       if (row) await openEdit(row);
     });
+
+    window.addEventListener("kyum-permissions-refreshed", () => syncNewRequestPermissionState());
+    window.addEventListener("kyum-permission-engine-ready", () => syncNewRequestPermissionState());
 
     window.addEventListener("kyum-view-changed", event => {
       if (event.detail?.view === "installationRequests") load();
@@ -361,6 +390,7 @@
     $("newInstallationRequestForm")?.addEventListener("submit", async event => {
       event.preventDefault();
       clearStatus($("newInstallationRequestFormStatus"));
+      if (!syncNewRequestPermissionState()) return;
       const customer = opts.customers.find(item => item.id === $("newInstallationCustomerId").value);
       const neighborhood = opts.neighborhoods.find(item => item.id === $("newInstallationNeighborhoodId").value);
       const services = collectServices();
@@ -399,7 +429,7 @@
       } catch (error) {
         status($("newInstallationRequestFormStatus"), error.message, "error");
       } finally {
-        button.disabled = false;
+        syncNewRequestPermissionState();
       }
     });
 

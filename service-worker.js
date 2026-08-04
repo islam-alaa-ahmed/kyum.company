@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-45-8-m14-9-7-7-daily-performance-pdf-export";
+const CACHE_VERSION = "kyum-crm-pwa-18-45-9-m14-9-7-8-installation-request-create-permission";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

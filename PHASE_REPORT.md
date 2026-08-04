@@ -1,26 +1,14 @@
-# Phase M14.9.7.7 — Daily Performance Professional PDF Export
+# Phase M14.9.7.8 — Installation Request Create Permission Recovery
 
-## Scope
-إضافة زر تصدير PDF احترافي إلى شاشة تقرير الأداء اليومي فقط، دون تعديل حسابات التقرير أو البيانات أو الصلاحيات.
+## Root Cause
+The dedicated `installationRequestNew` screen was granted `can_view` to operational roles during the unified create/edit phase, but `can_add` remained false. The permission engine correctly hid `#saveNewInstallationRequest`, leaving only the reset action visible.
 
-## Implemented
-- زر `تصدير PDF` بجوار تحديث التقرير وتصدير CSV.
-- التصدير يعتمد على تاريخ التقرير والموظف/المندوب المحدد حاليًا.
-- هيدر KYUM احترافي يتضمن الشعار والعنوان وبيانات التقرير ووقت التصدير.
-- تخطيط A4 أفقي مع RTL وخلفية طباعة بيضاء.
-- تضمين ملاحظة المدير، مؤشرات الأداء، الترتيب اليومي، الجداول والتفاصيل الظاهرة.
-- تكرار رؤوس الجداول عند امتداد التقرير لأكثر من صفحة.
-- منع قص الصفوف والكروت الرئيسية بين الصفحات قدر الإمكان.
-- فتح نافذة الطباعة مباشرة لاختيار `Save as PDF` من المتصفح.
-
-## Unchanged
-- Daily Performance calculations.
-- Filters and representative scope.
-- Supabase, SQL and RLS.
-- CSV export.
-- Desktop/mobile screen rendering.
+## Fix
+- Recover `can_add` for sales representatives and operational roles already allowed to add customers and view the dedicated screen.
+- Keep backend RPC/RLS enforcement on `installationRequestNew.add`.
+- Keep the save button visible with a clear disabled state/message when permission is genuinely missing, instead of silently removing it.
+- Preserve representative and installation scope restrictions.
 
 ## Version
-- Version: 18.45.8
-- Build: 184508
-- Cache: kyum-crm-pwa-18-45-8-m14-9-7-7-daily-performance-pdf-export
+- Version: 18.45.9
+- Build: 184509
