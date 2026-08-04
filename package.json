@@ -1,6 +1,6 @@
 {
   "name": "kyum-company-crm-mobile",
-  "version": "18.46.1",
+  "version": "18.46.2",
   "private": true,
   "description": "Native Android/iOS packaging layer for KYUM Company CRM.",
   "scripts": {
@@ -20,7 +20,8 @@
     "enterprise:full-offline:check": "node scripts/full-enterprise-offline-certification-check.mjs",
     "offline:write-completion:check": "node scripts/offline-write-completion-check.mjs",
     "mobile:final-certification:check": "node scripts/mobile-final-enterprise-certification-check.mjs",
-    "permissions:role-agnostic:check": "node scripts/role-agnostic-permissions-check.mjs"
+    "permissions:role-agnostic:check": "node scripts/role-agnostic-permissions-check.mjs",
+    "permissions:visibility-consistency:check": "node scripts/permission-visibility-consistency-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

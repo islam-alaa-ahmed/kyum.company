@@ -6531,9 +6531,6 @@ function renderQuotations() {
   const start = (quotationsPage - 1) * QUOTATIONS_PAGE_SIZE;
   const rows = allRows.slice(start, start + QUOTATIONS_PAGE_SIZE);
 
-  document.getElementById("addQuotationBtn")
-    ?.classList.toggle("hidden", !canManageQuotations("add"));
-
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="10" class="empty-state">${
       quotationsLoaded ? "لا توجد عروض أسعار مطابقة." : "جاري تحميل عروض الأسعار..."

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-46-1-m14-9-8-1-installation-scheduling-permission-ux";
+const CACHE_VERSION = "kyum-crm-pwa-18-46-2-m14-9-8-3-permission-visibility-consistency";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

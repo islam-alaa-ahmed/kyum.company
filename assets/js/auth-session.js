@@ -48,7 +48,12 @@
     if (!offline) store?.saveProfile(profile, session.user);
     applyIdentity(session, profile, offline);
     await window.CustomerPermissions?.loadCurrentPermissions?.({ offline });
-    window.CustomerPermissions?.applyScreenVisibility?.();
+    if (window.PermissionEngine?.refresh) {
+      window.PermissionEngine.refresh({ validateCurrentView: false });
+    } else {
+      window.CustomerPermissions?.applyScreenVisibility?.();
+      window.CustomerPermissions?.applyActionVisibility?.();
+    }
     showApp();
     window.dispatchEvent(new CustomEvent("customer-auth-ready", { detail: { session, user: session.user, profile, offline } }));
   }

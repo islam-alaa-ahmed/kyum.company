@@ -1,13 +1,13 @@
 {
-  "version": "18.46.1",
-  "build": 184601,
+  "version": "18.46.2",
+  "build": 184602,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.1 Installation Scheduling Action Permission UX Recovery",
+  "title": "M14.9.8.3 Permission & Visibility Consistency Recovery",
   "notes": [
-    "إظهار زر حفظ الجدولة بشكل معطل بدل إخفائه عند غياب صلاحية التعديل",
-    "عرض رسالة واضحة عند عدم امتلاك صلاحية جدولة وإسناد التركيبات",
-    "الإبقاء على نطاق رؤية التركيبات مستقلًا عن صلاحية التعديل"
+    "تطبيق صلاحيات الإجراءات بعد اكتمال تحميلها لمنع اختلاف ظهور زر إضافة عرض السعر",
+    "فصل رؤية طلبات التركيبات عن نطاق فرق التنفيذ",
+    "توحيد مندوب طلب التركيب مع مندوب العميل وإصلاح السجلات القديمة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-1-m14-9-8-1-installation-scheduling-permission-ux"
+  "cacheToken": "kyum-crm-pwa-18-46-2-m14-9-8-3-permission-visibility-consistency"
 }
