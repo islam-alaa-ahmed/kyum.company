@@ -136,6 +136,8 @@
     const report={installation_request_id:payload.id,work_summary:workSummary,recipient_name:recipientName,invoice_number:invoiceNumber,invoice_date:invoiceDate,recipient_role:null,customer_notes:null,signed_at:null};
     const {error:reportError}=await db().from('installation_completion_reports').upsert(report,{onConflict:'installation_request_id'});
     if(reportError)throw new Error('تعذر حفظ محضر إكمال التركيب: '+reportError.message);
+    const {error:invoiceSyncError}=await db().rpc('sync_sales_invoice_from_installation',{p_installation_request_id:payload.id});
+    if(invoiceSyncError)throw new Error('تم حفظ المحضر لكن تعذر تسجيل فاتورة المبيعات: '+invoiceSyncError.message);
     const jobs=[];
     for(const file of (payload.beforePhotos||[]))jobs.push(uploadCompletionFile(payload.id,'before',file));
     for(const file of (payload.afterPhotos||[]))jobs.push(uploadCompletionFile(payload.id,'after',file));

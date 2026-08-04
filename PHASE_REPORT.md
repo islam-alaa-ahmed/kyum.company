@@ -1,17 +1,44 @@
-# Phase M14.9.8.11.1 — Technician Execution Default Date & Locked Identity Filter
+# Phase M15.0 — Sales Invoices Registry
 
-## Root Cause
-- تاريخ شاشة التنفيذ كان يُحسب باستخدام `toISOString()` بتوقيت UTC، ولذلك بعد منتصف الليل بالتوقيت المحلي قد يظهر تاريخ اليوم السابق.
-- فلتر الفني والفرقة كان يُبنى من الطلبات المحملة فقط ولا يستخدم ربط فني التركيبات المحفوظ للمستخدم.
+## Baseline
+`kyum.company-main(10).zip`
 
-## Changes
-- استخدام التاريخ المحلي الحالي بدل UTC.
-- تحميل ربط فني التركيبات الحالي من `installation_user_technician_bindings`.
-- اختيار الفني والفرقة المرتبطين تلقائيًا وقفل الفلترين للمستخدم الفني.
-- إبقاء الفلاتر المعتادة للمستخدمين غير المرتبطين كفنيين.
-- إعادة ضبط التاريخ لليوم الحالي عند كل دخول إلى شاشة التنفيذ، مع السماح بتغييره يدويًا بعد الفتح.
+## Scope
+- إضافة شاشة **فواتير المبيعات** داخل قسم **إدارة العملاء**.
+- عرض سجل الفواتير في جدول موحد.
+- إنشاء فاتورة مباشرة من عرض سعر مقبول غير مرتبط بتركيب.
+- إنشاء/تحديث فاتورة تلقائيًا عند حفظ محضر تركيب مكتمل.
+- منع تكرار الفاتورة لنفس عرض السعر أو طلب التركيب.
+- تطبيق صلاحيات الشاشة ونطاق المندوب الحالي.
 
-## Regression Boundaries
-- لا تعديل على RLS أو SQL.
-- لا تغيير في منطق مراحل التنفيذ أو الطلب الحالي.
-- لا توسيع لصلاحيات الفرق أو الفنيين.
+## Table columns
+رقم الطلب، اسم العميل، رقم الفاتورة، قيمة الفاتورة، مصاريف التركيب، اسم المندوب، تاريخ الفاتورة، المصدر، الحالة.
+
+## Data rules
+- الفاتورة المباشرة من العرض تستخدم قيمة العرض ومصاريف تركيب صفرية.
+- فاتورة التركيب تستخدم إجمالي خدمات الطلب، وتُحسب مصاريف التركيب من `quantity × default_cost` للخدمات.
+- العرض المرتبط بتركيب لا يمكن فوترته مباشرة؛ تتم فوترته من محضر التركيب.
+- لا يتم إنشاء تصميم فاتورة أو PDF أو تحصيل ضمن هذه المرحلة.
+
+## Version
+- Version: `18.48.0`
+- Build: `184800`
+- Cache Token: `kyum-crm-pwa-18-48-0-m15-0-sales-invoices-registry`
+
+## Modified files
+- `index.html`
+- `assets/css/sales-invoices.css`
+- `assets/js/app.js`
+- `assets/js/quotations-service.js`
+- `assets/js/installations-service.js`
+- `assets/js/sales-invoices-service.js`
+- `assets/js/sales-invoices.js`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `supabase/migrations/phase_m15_0_sales_invoices_registry.sql`
+- `supabase/verification/phase_m15_0_sales_invoices_registry_verification.sql`
+
+## Regression boundaries
+لم يتم تغيير منطق العملاء أو المتابعات أو الجدولة أو التنفيذ أو صلاحيات الفرق. تم فقط إضافة سجل الفواتير وربطه بمصادره الحالية.

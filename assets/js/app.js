@@ -213,6 +213,7 @@ const views = {
   customers: document.getElementById("customersView"),
   followups: document.getElementById("followupsView"),
   quotations: document.getElementById("quotationsView"),
+  salesInvoices: document.getElementById("salesInvoicesView"),
   representatives: document.getElementById("representativesView"),
   settings: document.getElementById("settingsView"),
   installationsOverview: document.getElementById("installationsOverviewView"),
@@ -241,6 +242,7 @@ const pageMeta = {
   customers: ["العملاء", "إدارة بيانات العملاء والبحث والتصفية"],
   followups: ["المتابعات", "سجل التواصل والمتابعات القادمة لكل عميل"],
   quotations: ["عروض الأسعار", "إدارة عروض الأسعار وحالتها وقيمتها"],
+  salesInvoices: ["فواتير المبيعات", "سجل الفواتير المرتبطة بالعروض والتركيبات"],
   representatives: ["مندوبو المبيعات", "قائمة مسؤولي متابعة العملاء"],
   settings: ["البيانات المرجعية", "مجالات الاهتمام وأسباب عدم البيع"],
   installationsOverview: ["إدارة التركيبات", "طلبات التركيب والجدولة والتنفيذ الميداني"],
@@ -6587,7 +6589,7 @@ function filteredQuotations() {
 
       return (!query || searchable.includes(query))
         && (!status || canonicalQuotationStatus(item.status) === status)
-        && (!workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId))
+        && (!workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId && !item.salesInvoiceId))
         && (!rep || item.representative === rep);
     })
     .sort((a, b) => String(b.quotationDate).localeCompare(String(a.quotationDate)));
@@ -6595,7 +6597,7 @@ function filteredQuotations() {
 
 function renderQuotations() {
   const workflow = document.getElementById("quotationWorkflowFilter")?.value || "";
-  const workflowRows = quotations.filter(item => !workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId));
+  const workflowRows = quotations.filter(item => !workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId && !item.salesInvoiceId));
   const totalValue = workflowRows.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const accepted = workflowRows.filter(item => item.status === "مقبول");
   const acceptedValue = accepted.reduce((sum, item) => sum + Number(item.amount || 0), 0);
@@ -6648,7 +6650,9 @@ function renderQuotations() {
           <td>${escapeHtml(item.rejectionReason || "—")}</td>
           <td>
             <div class="row-actions">
-              ${canonicalStatus === "مقبول" && !item.installationRequestId && canScreenAction("installationRequestNew", "add") ? `<button class="primary-btn compact-btn" data-create-installation-from-quotation="${item.id}">إنشاء طلب تركيب</button>` : ""}
+              ${canonicalStatus === "مقبول" && !item.installationRequestId && !item.salesInvoiceId && canScreenAction("installationRequestNew", "add") ? `<button class="primary-btn compact-btn" data-create-installation-from-quotation="${item.id}">إنشاء طلب تركيب</button>` : ""}
+              ${canonicalStatus === "مقبول" && !item.installationRequestId && !item.salesInvoiceId && canScreenAction("salesInvoices", "add") ? `<button class="secondary-btn compact-btn" data-create-invoice-from-quotation="${item.id}">تحويل إلى فاتورة</button>` : ""}
+              ${item.salesInvoiceId && canScreenAction("salesInvoices", "view") ? `<button class="secondary-btn compact-btn" data-open-sales-invoice="${item.salesInvoiceId}">فتح الفاتورة</button>` : ""}
               ${item.installationRequestId && canScreenAction("installationRequests", "view") ? `<button class="secondary-btn compact-btn" data-open-installation-request="${item.installationRequestId}">فتح طلب التركيب</button>` : ""}
               ${canManageQuotations("edit") ? `<button class="edit-btn" data-edit-quotation="${item.id}">تعديل</button>` : ""}
               ${canManageQuotations("delete") ? `<button class="delete-btn" data-delete-quotation="${item.id}">حذف</button>` : ""}
@@ -7547,6 +7551,8 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   const deleteId = event.target.dataset.deleteQuotation;
   const createInstallationId = event.target.dataset.createInstallationFromQuotation;
   const openInstallationRequestId = event.target.dataset.openInstallationRequest;
+  const createInvoiceQuotationId = event.target.dataset.createInvoiceFromQuotation;
+  const openSalesInvoiceId = event.target.dataset.openSalesInvoice;
 
   if (editId) {
     const item = quotations.find(quotation => quotation.id === editId);
@@ -7566,6 +7572,26 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
       const opened = window.KYUMNavigation?.open?.("installationRequestNew", { trustedNavigation: true });
       if (opened !== false) setTimeout(() => window.dispatchEvent(new CustomEvent("kyum-installation-create-from-quotation", { detail })), 0);
     }
+  }
+
+  if (createInvoiceQuotationId) {
+    const item = quotations.find(quotation => quotation.id === createInvoiceQuotationId);
+    if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId || item.salesInvoiceId) return;
+    if (!confirm(`تحويل عرض السعر ${item.code} إلى فاتورة مبيعات؟`)) return;
+    event.target.disabled = true;
+    window.SalesInvoicesService?.createFromQuotation(item.id)
+      .then(async invoice => {
+        await window.QuotationsService?.invalidateCache?.();
+        await loadQuotationsFromSupabase(true);
+        alert(`تم إنشاء الفاتورة ${invoice?.invoice_number || ""} بنجاح.`);
+        window.KYUMNavigation?.open?.("salesInvoices", { trustedNavigation: true });
+      })
+      .catch(error => alert(error.message || "تعذر إنشاء الفاتورة."))
+      .finally(() => { event.target.disabled = false; });
+  }
+
+  if (openSalesInvoiceId) {
+    window.KYUMNavigation?.open?.("salesInvoices", { trustedNavigation: true });
   }
 
   if (openInstallationRequestId) {

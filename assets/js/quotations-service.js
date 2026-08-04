@@ -15,7 +15,7 @@
 
   const QUOTATIONS_CACHE_TTL_MS = 10 * 60 * 1000;
   const QUOTATIONS_CACHE_STALE_MAX_MS = 10 * 365 * 24 * 60 * 60 * 1000;
-  const QUOTATIONS_CACHE_SCHEMA_VERSION = 3;
+  const QUOTATIONS_CACHE_SCHEMA_VERSION = 4;
   const quotationRefreshes = new Map();
   let lastReadStatus = null;
 
@@ -94,6 +94,7 @@
       customerOrderNumber: row.customer_order_number || "",
       installationRequestId: row.installation_request_id || row.installation_requests?.[0]?.id || "",
       installationConvertedAt: row.installation_converted_at || row.installation_requests?.[0]?.created_at || "",
+      salesInvoiceId: row.sales_invoices?.[0]?.id || "",
       customerId: row.customer_id,
       customerName: row.customer?.customer_name || "",
       customerPhone: row.customer?.phone || "",
@@ -156,6 +157,9 @@
           installation_requests:installation_requests!installation_requests_quotation_id_fkey (
             id,
             created_at
+          ),
+          sales_invoices:sales_invoices!sales_invoices_quotation_id_fkey (
+            id
           )
         `)
       .order("quotation_date", { ascending: false })
@@ -546,6 +550,7 @@
     findByNumber,
     saveQuotation,
     deleteQuotation,
-    invalidateQuotationCache
+    invalidateQuotationCache,
+    invalidateCache: invalidateQuotationCache
   });
 })();

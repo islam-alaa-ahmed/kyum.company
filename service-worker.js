@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-47-1-m14-9-8-11-1-technician-execution-default-identity";
+const CACHE_VERSION = "kyum-crm-pwa-18-48-0-m15-0-sales-invoices-registry";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -27,6 +27,7 @@ const CORE_APP_SHELL = [
   "./assets/css/installation-operations-reports.css",
   "./assets/css/installation-dashboard-settings.css",
   "./assets/css/mobile-theme-canonical.css",
+  "./assets/css/sales-invoices.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/permissions.js",
@@ -45,6 +46,8 @@ const CORE_APP_SHELL = [
   "./assets/js/followups-service.js",
   "./assets/js/quotations-service.js",
   "./assets/js/installations-service.js",
+  "./assets/js/sales-invoices.js",
+  "./assets/js/sales-invoices-service.js",
   "./assets/js/installations-service-contract.js",
   "./assets/js/app.js",
   "./assets/js/installations-module.js",

@@ -1,13 +1,13 @@
 {
-  "version": "18.47.1",
-  "build": 184701,
+  "version": "18.48.0",
+  "build": 184800,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.11.1 Technician Execution Default Date & Locked Identity Filter",
+  "title": "M15.0 Sales Invoices Registry",
   "notes": [
-    "ضبط التاريخ الافتراضي في تنفيذ التركيبات على التاريخ المحلي الحالي",
-    "اختيار الفني والفرقة المرتبطين بحساب فني التركيبات تلقائيًا",
-    "قفل فلتر الفني والفرقة للمستخدم الفني مع بقاء الفلاتر مرنة للمستخدمين الإداريين"
+    "إضافة شاشة فواتير المبيعات داخل إدارة العملاء",
+    "إنشاء سجل موحد للفواتير من العروض المقبولة ومحاضر التركيبات",
+    "منع تكرار الفاتورة وتطبيق نطاق المندوب والصلاحيات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-47-1-m14-9-8-11-1-technician-execution-default-identity"
+  "cacheToken": "kyum-crm-pwa-18-48-0-m15-0-sales-invoices-registry"
 }
