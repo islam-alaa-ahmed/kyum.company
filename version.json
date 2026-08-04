@@ -1,13 +1,13 @@
 {
-  "version": "18.45.9",
-  "build": 184509,
+  "version": "18.45.10",
+  "build": 184510,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.7.8 Installation Request Create Permission Recovery",
+  "title": "M14.9.7.8.1 Installation Request RLS Create Recovery",
   "notes": [
-    "استعادة زر حفظ طلب التركيب للمندوبين المصرح لهم",
-    "فصل صلاحية إنشاء طلب التركيب عن صلاحيات إدارة العملاء العامة",
-    "إظهار حالة الصلاحية بوضوح بدل إخفاء زر الحفظ بصمت"
+    "إصلاح رفض RLS عند إنشاء طلب تركيب بواسطة مندوب مبيعات مصرح له",
+    "اشتقاق مندوب الطلب من مالك العميل والتحقق من نطاق التركيبات",
+    "تثبيت إنشاء الطلب والخدمات داخل معاملة آمنة دون توسيع صلاحيات الرؤية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-45-9-m14-9-7-8-installation-request-create-permission"
+  "cacheToken": "kyum-crm-pwa-18-45-10-m14-9-7-8-1-installation-request-rls-create-recovery"
 }
