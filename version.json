@@ -1,13 +1,13 @@
 {
-  "version": "18.46.10",
-  "build": 184610,
+  "version": "18.46.11",
+  "build": 184611,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.7.3 Quotation-to-Installation Full Data Prefill Recovery",
+  "title": "M14.9.8.8.1 Scheduling Cross-Representative Customer Privacy Masking",
   "notes": [
-    "تحميل بيانات العميل وعرض السعر من Supabase عند إنشاء طلب تركيب",
-    "استمرار النقل بعد Refresh أو تأخر تحميل الشاشة",
-    "تعبئة رقم طلب العميل والحي والملاحظات المتاحة تلقائيًا"
+    "إخفاء اسم ورقم العميل في تفاصيل الجدولة للطلبات خارج نطاق المندوب",
+    "استمرار عرض بيانات الموعد التشغيلية العامة دون كشف هوية العميل",
+    "تطبيق الحجب داخل Supabase قبل وصول البيانات إلى المتصفح"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-10-m14-9-8-7-3-quotation-installation-full-prefill"
+  "cacheToken": "kyum-crm-pwa-18-46-11-m14-9-8-8-1-scheduling-customer-privacy-masking"
 }

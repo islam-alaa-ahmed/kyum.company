@@ -74,6 +74,7 @@
       customerOrderNumber:r.customer_order_number||'',
       customerName:r.customer_name||'',
       customerPhone:r.customer_phone||'',
+      customerMasked:r.customer_masked===true,
       representativeId:r.representative_id||'',
       representativeName:r.representative_name||'',
       scheduledDate:r.scheduled_date||'',

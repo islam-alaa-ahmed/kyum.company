@@ -1,15 +1,25 @@
-# Phase M14.9.8.7.3 — Quotation-to-Installation Full Data Prefill Recovery
+# Phase M14.9.8.8.1 — Scheduling Cross-Representative Customer Privacy Masking
 
 ## Root Cause
-The quotation action depended on a zero-delay custom event after navigation. On slower devices the installation module or view initialization could miss or overwrite the event values. The transfer also trusted in-memory quotation data and did not re-read the canonical record from Supabase.
+The global scheduling RPC intentionally returned every appointment for coordination, but it also returned customer name and phone for rows outside the caller representative scope. Disabling the open action did not prevent sensitive identity data from reaching the browser.
 
 ## Fix
-- Persist a short-lived quotation prefill intent in sessionStorage.
-- Re-read the accepted quotation and customer from Supabase.
-- Apply prefill after options and view initialization complete.
-- Restore prefill after refresh within 30 minutes.
-- Transfer customer, quotation, customer order number, matching district, and available quotation notes.
-- Preserve service selection as an explicit installation step because quotation lines are not stored as structured installation service rows in the current schema.
+- The RPC now computes `can_operate` once per request.
+- Customer name and phone are blanked server-side when `can_operate = false`.
+- A `customer_masked` flag tells the UI to display `بيانات العميل محجوبة`.
+- Appointment, representative, team, technician, services, totals and general location remain visible for coordination.
+- Open/reschedule restrictions remain unchanged.
 
-## Version
-18.46.10 / 184610
+## Modified Files
+- assets/js/installations-service.js
+- assets/js/installation-scheduling.js
+- assets/js/pwa.js
+- index.html
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_9_8_8_1_scheduling_cross_representative_customer_privacy_masking.sql
+- supabase/verification/phase_m14_9_8_8_1_scheduling_cross_representative_customer_privacy_masking_verification.sql
+
+## Regression Scope
+No change to representative scopes, installation RLS, scheduling edit permissions, teams, execution, completion reports, quotations or customer records.
