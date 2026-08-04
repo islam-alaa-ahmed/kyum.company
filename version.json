@@ -1,13 +1,13 @@
 {
-  "version": "18.46.3",
-  "build": 184603,
+  "version": "18.46.4",
+  "build": 184604,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.4 Installation Service Hydration & Customer District Dropdown Recovery",
+  "title": "M14.9.8.5 Installation Scheduling Pending Table Data Expansion",
   "notes": [
-    "إعادة تعبئة أول صف خدمة بعد اكتمال تحميل كتالوج الخدمات",
-    "تحويل حي العميل إلى قائمة منسدلة من أحياء إعدادات التركيبات",
-    "الحفاظ على القيم القديمة عند تعديل العملاء"
+    "إضافة الخدمات وإجمالي الخدمات والموقع والمندوب إلى جدول الطلبات المعلقة",
+    "حذف عمود الفني من جدول الطلبات التي لم تُسند بعد",
+    "استخدام نفس بيانات طلبات التركيبات دون تغيير منطق الجدولة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-3-m14-9-8-4-service-hydration-district-dropdown"
+  "cacheToken": "kyum-crm-pwa-18-46-4-m14-9-8-5-scheduling-pending-table-expansion"
 }
