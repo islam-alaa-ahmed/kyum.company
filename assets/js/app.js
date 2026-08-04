@@ -7532,7 +7532,20 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   if (createInstallationId) {
     const item = quotations.find(quotation => quotation.id === createInstallationId);
     if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId) return;
-    const detail = { quotationId: item.id, customerId: item.customerId, customerOrderNumber: item.customerOrderNumber || "" };
+    const customer = customers.find(record => String(record.id) === String(item.customerId));
+    const detail = {
+      quotationId: item.id,
+      quotationNumber: item.code || "",
+      customerId: item.customerId,
+      customerName: item.customerName || customer?.name || "",
+      customerPhone: item.customerPhone || customer?.phone || "",
+      customerNumber: customer?.customerNumber || "",
+      customerCity: customer?.city || "",
+      customerDistrict: customer?.district || "",
+      customerOrderNumber: item.customerOrderNumber || "",
+      description: item.description || "",
+      notes: item.notes || ""
+    };
     if (window.KYUMInstallationsModule?.openFromQuotation) {
       window.KYUMInstallationsModule.openFromQuotation(detail);
     } else {

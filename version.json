@@ -1,13 +1,13 @@
 {
-  "version": "18.46.12",
-  "build": 184612,
+  "version": "18.46.13",
+  "build": 184613,
   "forceUpdate": true,
   "releaseDate": "2026-08-04",
-  "title": "M14.9.8.9 Daily Suggested Customers Contact Completion Sync",
+  "title": "M14.9.8.7.4 Quotation-to-Installation Instant Prefill Performance Recovery",
   "notes": [
-    "إخفاء العميل المقترح فور حفظ أي متابعة له خلال اليوم",
-    "استبعاد العميل بصورة دائمة من قائمة المقترحين بعد إعادة التحميل",
-    "تحديث عدادات الشركات والأفراد وإبطال كاش التقرير بعد الحفظ"
+    "عرض بيانات العميل وعرض السعر فور الضغط على إنشاء طلب تركيب دون انتظار تحميل جميع القوائم",
+    "تشغيل التحقق من Supabase وتحميل البيانات المرجعية بالتوازي في الخلفية",
+    "منع إعادة ضبط نموذج طلب التركيب بعد ظهور البيانات الأولية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-12-m14-9-8-9-daily-suggestion-contact-sync"
+  "cacheToken": "kyum-crm-pwa-18-46-13-m14-9-8-7-4-instant-quotation-prefill"
 }
