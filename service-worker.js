@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-46-11-m14-9-8-8-1-scheduling-customer-privacy-masking";
+const CACHE_VERSION = "kyum-crm-pwa-18-46-12-m14-9-8-9-daily-suggestion-contact-sync";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

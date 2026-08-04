@@ -129,5 +129,35 @@
     return Number(data || 0);
   }
 
-  window.DailySuggestionsService = { load, loadTeamSummary, complete, riyadhDate };
+  async function completeForCustomer(options = {}) {
+    const supabase = client();
+    const followupId = options.followupId;
+    const customerId = options.customerId;
+    const suggestionDate = options.date || riyadhDate();
+    const userId = await resolveAuthenticatedUserId(options.userId || null);
+
+    if (!supabase) throw new Error("Supabase client is not available.");
+    if (!followupId) throw new Error("Follow-up id is required.");
+    if (!customerId) throw new Error("Customer id is required.");
+    if (!userId) throw new Error("Authenticated user is required.");
+
+    let suggestionId = options.suggestionId || null;
+    if (!suggestionId) {
+      const { data, error } = await supabase
+        .from("daily_customer_suggestions")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("customer_id", customerId)
+        .eq("suggestion_date", suggestionDate)
+        .eq("status", "active")
+        .maybeSingle();
+      if (error) throw error;
+      suggestionId = data?.id || null;
+    }
+
+    if (!suggestionId) return 0;
+    return complete({ suggestionId, followupId, date: suggestionDate });
+  }
+
+  window.DailySuggestionsService = { load, loadTeamSummary, complete, completeForCustomer, riyadhDate };
 })();

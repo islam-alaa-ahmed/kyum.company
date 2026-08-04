@@ -4320,20 +4320,29 @@ async function handleFollowupSubmit(event) {
     const savedFollowupId = await window.FollowupsService.saveFollowup(followupPayload);
     let suggestionCompletionError = null;
     const pendingSuggestion = pendingDailySuggestionCompletion;
-    const shouldCompleteSuggestion = Boolean(
-      pendingSuggestion
-      && String(pendingSuggestion.customerId) === String(customerId)
-      && followupPayload.completed
-      && followupPayload.result === "تم التواصل"
-      && savedFollowupId
-    );
+    const matchingSuggestion = dailySuggestedSuggestionRows.find(item =>
+      String(item.customer_id) === String(customerId)
+      && (!pendingSuggestion?.suggestionId || String(item.suggestion_id) === String(pendingSuggestion.suggestionId))
+    ) || dailySuggestedSuggestionRows.find(item => String(item.customer_id) === String(customerId));
 
-    if (shouldCompleteSuggestion) {
+    if (savedFollowupId) {
       try {
-        await window.DailySuggestionsService?.complete?.({
-          suggestionId: pendingSuggestion.suggestionId,
+        const completedCount = await window.DailySuggestionsService?.completeForCustomer?.({
+          customerId,
+          suggestionId: pendingSuggestion?.suggestionId || matchingSuggestion?.suggestion_id || null,
           followupId: savedFollowupId
         });
+        if (completedCount || matchingSuggestion) {
+          const completedType = matchingSuggestion?.customer_type === "فردي" ? "فردي" : "شركة";
+          dailySuggestedSuggestionRows = dailySuggestedSuggestionRows.filter(item => String(item.customer_id) !== String(customerId));
+          const progress = dailySuggestedSuggestionProgress[completedType] || { active: 0, completed: 0, total: 0 };
+          dailySuggestedSuggestionProgress[completedType] = {
+            ...progress,
+            active: Math.max(0, Number(progress.active || 0) - 1),
+            completed: Number(progress.completed || 0) + 1
+          };
+          renderDailySuggestedCustomers();
+        }
       } catch (error) {
         suggestionCompletionError = error;
         console.error("Daily suggestion completion failed", error);
