@@ -1,27 +1,34 @@
-# Phase M14.9.8.10 — Role-Agnostic Representative RLS Scope Recovery
+# Phase M14.9.8.11 — Installation Technician Role, Team Binding & Own Assignment Scope
 
 ## Root Cause
-`public.can_access_representative(uuid)` still rejected every non-super-admin/non-manager/non-viewer role unless its role code was exactly `sales_representative`. Therefore a customer-service or custom-role user could have screen permission, a linked representative, and `own` scope, while Supabase RLS silently returned zero customer/follow-up/quotation rows.
+دور `viewer` كان ظاهرًا باسم «مشاهد» بدون ربط تشغيلي بفرقة أو فني، بينما نطاق التنفيذ كان يعتمد على الفرقة فقط. لذلك لم يكن ممكنًا ضمان أن مستخدم الفني يرى طلباته المسندة لاسمه فقط.
 
-## Fix
-- Removed ordinary role-name authorization from the canonical representative scope function.
-- `own` now means the linked representative for any active role.
-- `selected` means linked representative plus explicitly selected representatives.
-- `all` works only when explicitly stored, except for the immutable `super_admin` override.
-- Missing configurations now use restrictive defaults.
-- No table data, customer data, or business records are modified.
+## Changes
+- تغيير الاسم الظاهر للدور `viewer` إلى «فني تركيبات» مع بقاء الصلاحيات من شاشة الصلاحيات.
+- إضافة ربط المستخدم بفرقة تركيب واسم فني.
+- حفظ الربط بمعرّف الفرقة واسم فني normalized.
+- مزامنة فرقة المستخدم تلقائيًا مع `installation_team_access`.
+- تقييد طلبات التنفيذ وفتح الطلب الحالي وتحديث المراحل على الفرقة واسم الفني معًا.
+- الحفاظ على جميع الأدوار الأخرى بدون تضييق إضافي إذا لم يكن لها Technician Binding.
 
-## Impact
-Every RLS policy/RPC that calls `can_access_representative(uuid)` receives the corrected behavior, including customers, follow-ups, quotations, daily operations, installation requests, completion records and related reports.
+## Version
+- 18.47.0
+- Build 184700
 
-## Apply
-1. Run `supabase/migrations/phase_m14_9_8_10_role_agnostic_representative_rls_scope_recovery.sql` as postgres.
-2. Run the verification file.
-3. Sign out and sign in with the affected customer-service account.
-4. Verify customers, follow-ups, quotations and scoped reports.
+## Modified Files
+- index.html
+- assets/js/permissions.js
+- assets/js/users-service.js
+- assets/js/app.js
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- supabase/migrations/phase_m14_9_8_11_installation_technician_role_team_binding_scope.sql
+- supabase/verification/phase_m14_9_8_11_installation_technician_role_team_binding_scope_verification.sql
+- scripts/phase-m14-9-8-11-check.mjs
 
-## Regression constraints
-- No permission is granted merely by role name.
-- Screen action permissions remain enforced independently by `has_screen_permission`.
-- Installation-specific representative/team scopes remain independent.
-- `all` is never inferred for ordinary roles.
+## Validation
+- JavaScript syntax: PASS
+- Service Worker syntax: PASS
+- Feature certification: 8/8 PASS

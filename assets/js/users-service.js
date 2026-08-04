@@ -22,7 +22,7 @@
     if (!users.length) return users;
 
     const userIds = users.map(user => user.id);
-    const [profilesResult, representativesResult, installationProfilesResult, installationRepresentativesResult] = await Promise.all([
+    const [profilesResult, representativesResult, installationProfilesResult, installationRepresentativesResult, technicianBindingsResult] = await Promise.all([
       client().from("user_data_access_profiles")
         .select("user_id,access_mode")
         .in("user_id", userIds),
@@ -30,13 +30,15 @@
         .select("user_id,representative_id,representative:sales_representatives(id,full_name)")
         .in("user_id", userIds),
       client().from("installation_data_access_profiles").select("user_id,access_mode").in("user_id", userIds),
-      client().from("installation_data_access_representatives").select("user_id,representative_id,representative:sales_representatives(id,full_name)").in("user_id", userIds)
+      client().from("installation_data_access_representatives").select("user_id,representative_id,representative:sales_representatives(id,full_name)").in("user_id", userIds),
+      client().from("installation_user_technician_bindings").select("user_id,installation_team_id,technician_name,team:installation_teams(id,name)").in("user_id", userIds)
     ]);
 
     if (profilesResult.error) throw new Error(`تعذر تحميل نطاقات البيانات: ${profilesResult.error.message}`);
     if (representativesResult.error) throw new Error(`تعذر تحميل المندوبين المسموحين: ${representativesResult.error.message}`);
     if (installationProfilesResult.error) throw new Error(`تعذر تحميل نطاق التركيبات: ${installationProfilesResult.error.message}`);
     if (installationRepresentativesResult.error) throw new Error(`تعذر تحميل مندوبي التركيبات المسموحين: ${installationRepresentativesResult.error.message}`);
+    if (technicianBindingsResult.error && technicianBindingsResult.error.code !== "42P01") throw new Error(`تعذر تحميل ربط فني التركيبات: ${technicianBindingsResult.error.message}`);
 
     const modeByUser = new Map((profilesResult.data || []).map(row => [row.user_id, row.access_mode]));
     const repsByUser = new Map();
@@ -54,12 +56,18 @@
       if (!installationRepsByUser.has(row.user_id)) installationRepsByUser.set(row.user_id, []);
       installationRepsByUser.get(row.user_id).push({ id: row.representative_id, full_name: row.representative?.full_name || "" });
     });
+    const technicianBindingByUser = new Map((technicianBindingsResult.data || []).map(row => [row.user_id, {
+      installation_team_id: row.installation_team_id || "",
+      technician_name: row.technician_name || "",
+      team: row.team || null
+    }]));
     return users.map(user => ({
       ...user,
       data_access_mode: modeByUser.get(user.id) || defaultAccessMode(user),
       data_access_representatives: repsByUser.get(user.id) || [],
       installation_access_mode: installationModeByUser.get(user.id) || (user.role === "super_admin" ? "all" : (user.representative_id ? "own" : "selected")),
-      installation_access_representatives: installationRepsByUser.get(user.id) || []
+      installation_access_representatives: installationRepsByUser.get(user.id) || [],
+      installation_technician_binding: technicianBindingByUser.get(user.id) || null
     }));
   }
 
@@ -107,6 +115,7 @@
     const user = data.user;
     if (!user?.id) throw new Error("تم إنشاء الحساب بدون معرف مستخدم صالح.");
     await saveInstallationDataAccess(user.id, payload.installationAccessMode, payload.allowedInstallationRepresentativeIds);
+    await saveInstallationTechnicianBinding(user.id, payload.role, payload.installationTeamId, payload.installationTechnicianName);
     return user;
   }
 
@@ -127,6 +136,7 @@
     if (error) throw new Error(`تعذر تعديل المستخدم: ${error.message}`);
     await saveUserDataAccess(payload.id, payload.accessMode, payload.allowedRepresentativeIds);
     await saveInstallationDataAccess(payload.id, payload.installationAccessMode, payload.allowedInstallationRepresentativeIds);
+    await saveInstallationTechnicianBinding(payload.id, payload.role, payload.installationTeamId, payload.installationTechnicianName);
     await audit("update", payload.id, payload);
     return data;
   }
@@ -208,6 +218,35 @@
     if (!data?.success) throw new Error(data?.error || "تعذر إعادة التعيين.");
   }
 
+  async function listInstallationTeams() {
+    const { data, error } = await client().from("installation_teams").select("id,name,status").neq("status","غير نشطة").order("name");
+    if (error) throw new Error(`تعذر تحميل فرق التركيبات: ${error.message}`);
+    return data || [];
+  }
+
+  async function saveInstallationTechnicianBinding(userId, role, teamId, technicianName) {
+    const normalizedName = String(technicianName || "").trim().replace(/\s+/g, " ");
+    const isTechnicianRole = role === "viewer";
+    if (!isTechnicianRole) {
+      const { error } = await client().from("installation_user_technician_bindings").delete().eq("user_id", userId);
+      if (error && error.code !== "42P01") throw new Error(`تعذر حذف ربط فني التركيبات: ${error.message}`);
+      return;
+    }
+    if (!teamId || !normalizedName) throw new Error("اختر فرقة التركيبات واكتب اسم الفني المرتبط.");
+    const { error } = await client().from("installation_user_technician_bindings").upsert({
+      user_id: userId,
+      installation_team_id: teamId,
+      technician_name: normalizedName,
+      normalized_technician_name: normalizedName.toLocaleLowerCase("ar").replace(/\s+/g, " "),
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id" });
+    if (error) throw new Error(`تعذر حفظ ربط فني التركيبات: ${error.message}`);
+    const { error: accessDeleteError } = await client().from("installation_team_access").delete().eq("user_id", userId);
+    if (accessDeleteError) throw new Error(`تعذر تحديث نطاق فرقة الفني: ${accessDeleteError.message}`);
+    const { error: accessInsertError } = await client().from("installation_team_access").insert({ user_id: userId, installation_team_id: teamId });
+    if (accessInsertError) throw new Error(`تعذر ربط المستخدم بفرقة التركيبات: ${accessInsertError.message}`);
+  }
+
   async function audit(action, entityId, newData) {
     try {
       const { data } = await client().auth.getUser();
@@ -230,6 +269,8 @@
     updateUser,
     saveUserDataAccess,
     saveInstallationDataAccess,
+    saveInstallationTechnicianBinding,
+    listInstallationTeams,
     resetPassword
   });
 })();

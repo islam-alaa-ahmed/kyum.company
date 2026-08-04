@@ -1,13 +1,13 @@
 {
-  "version": "18.46.13",
-  "build": 184613,
+  "version": "18.47.0",
+  "build": 184700,
   "forceUpdate": true,
-  "releaseDate": "2026-08-04",
-  "title": "M14.9.8.7.4 Quotation-to-Installation Instant Prefill Performance Recovery",
+  "releaseDate": "2026-08-05",
+  "title": "M14.9.8.11 Installation Technician Role Team Binding Scope",
   "notes": [
-    "عرض بيانات العميل وعرض السعر فور الضغط على إنشاء طلب تركيب دون انتظار تحميل جميع القوائم",
-    "تشغيل التحقق من Supabase وتحميل البيانات المرجعية بالتوازي في الخلفية",
-    "منع إعادة ضبط نموذج طلب التركيب بعد ظهور البيانات الأولية"
+    "تغيير الاسم الظاهر لدور مشاهد إلى فني تركيبات مع بقاء الصلاحيات قابلة للتحكم من شاشة الصلاحيات",
+    "إضافة ربط مستخدم فني التركيبات بفرقة واسم فني محددين",
+    "تقييد طلبات التنفيذ ومراحلها على الفرقة واسم الفني المرتبطين بالمستخدم فقط"
   ],
-  "cacheToken": "kyum-crm-pwa-18-46-13-m14-9-8-7-4-instant-quotation-prefill"
+  "cacheToken": "kyum-crm-pwa-18-47-0-m14-9-8-11-installation-technician-role-team-binding"
 }

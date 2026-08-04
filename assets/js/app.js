@@ -145,6 +145,7 @@ let quotationsLoading = false;
 let quotationsPage = 1;
 const QUOTATIONS_PAGE_SIZE = 10;
 let userRecords = [];
+let installationTeamRecords = [];
 let usersLoaded = false;
 let usersLoading = false;
 let editingUserId = null;
@@ -1804,6 +1805,12 @@ function populateSecurityOptions() {
     "بدون ربط",
     document.getElementById("userRepresentative")?.value || ""
   );
+  replaceSelectOptions(
+    document.getElementById("userInstallationTeam"),
+    installationTeamRecords.map(team => ({ label: team.name, value: team.id })),
+    "اختر الفرقة",
+    document.getElementById("userInstallationTeam")?.value || ""
+  );
   renderAllowedRepresentativesChecklist();
   renderInstallationRepresentativesChecklist();
 }
@@ -1813,7 +1820,11 @@ async function loadUsersFromSupabase(force = false) {
   usersLoading = true;
   showDataStatus("usersStatus", "جاري تحميل المستخدمين...", "info");
   try {
-    userRecords = await window.UsersService.listUsers();
+    [userRecords, installationTeamRecords] = await Promise.all([
+      window.UsersService.listUsers(),
+      window.UsersService.listInstallationTeams()
+    ]);
+    populateSecurityOptions();
     usersLoaded = true;
     showDataStatus("usersStatus", "");
     renderUsers();
@@ -1850,6 +1861,16 @@ function renderUsers() {
     </tr>`).join("") : `<tr><td colspan="8" class="empty-state">لا توجد نتائج.</td></tr>`;
 }
 
+function syncInstallationTechnicianBindingFields() {
+  const isTechnicianRole = (document.getElementById("userRole")?.value || "") === "viewer";
+  const shell = document.getElementById("userInstallationTechnicianBinding");
+  shell?.classList.toggle("hidden", !isTechnicianRole);
+  const team = document.getElementById("userInstallationTeam");
+  const name = document.getElementById("userInstallationTechnicianName");
+  if (team) team.required = isTechnicianRole;
+  if (name) name.required = isTechnicianRole;
+}
+
 function openUserDialog(user = null) {
   const action = user ? "edit" : "add";
   if (!requireScreenAction("users", action, `لا توجد صلاحية ${user ? "تعديل" : "إضافة"} المستخدمين.`)) return;
@@ -1862,6 +1883,9 @@ function openUserDialog(user = null) {
   document.getElementById("userPassword").required = !user;
   document.getElementById("userPasswordLabel").classList.toggle("hidden", Boolean(user));
   document.getElementById("userRole").value = user?.role || "viewer";
+  document.getElementById("userInstallationTeam").value = user?.installation_technician_binding?.installation_team_id || "";
+  document.getElementById("userInstallationTechnicianName").value = user?.installation_technician_binding?.technician_name || "";
+  syncInstallationTechnicianBindingFields();
   document.getElementById("userRepresentative").value = user?.representative_id || "";
   document.getElementById("userDataAccessMode").value = user?.data_access_mode || (user?.representative_id ? "own" : "selected");
   const allowedIds = new Set((user?.data_access_representatives || []).map(item => item.id));
@@ -1903,6 +1927,8 @@ async function saveUserForm(event) {
       allowedRepresentativeIds: selectedAllowedRepresentativeIds(),
       installationAccessMode: document.getElementById("userInstallationAccessMode").value,
       allowedInstallationRepresentativeIds: selectedInstallationRepresentativeIds(),
+      installationTeamId: document.getElementById("userInstallationTeam").value || null,
+      installationTechnicianName: document.getElementById("userInstallationTechnicianName").value.trim(),
       isActive: document.getElementById("userActive").value === "true",
       mustChangePassword: document.getElementById("userMustChangePassword").value === "true"
     };
@@ -7532,20 +7558,7 @@ document.getElementById("quotationsTableBody").addEventListener("click", event =
   if (createInstallationId) {
     const item = quotations.find(quotation => quotation.id === createInstallationId);
     if (!item || canonicalQuotationStatus(item.status) !== "مقبول" || item.installationRequestId) return;
-    const customer = customers.find(record => String(record.id) === String(item.customerId));
-    const detail = {
-      quotationId: item.id,
-      quotationNumber: item.code || "",
-      customerId: item.customerId,
-      customerName: item.customerName || customer?.name || "",
-      customerPhone: item.customerPhone || customer?.phone || "",
-      customerNumber: customer?.customerNumber || "",
-      customerCity: customer?.city || "",
-      customerDistrict: customer?.district || "",
-      customerOrderNumber: item.customerOrderNumber || "",
-      description: item.description || "",
-      notes: item.notes || ""
-    };
+    const detail = { quotationId: item.id, customerId: item.customerId, customerOrderNumber: item.customerOrderNumber || "" };
     if (window.KYUMInstallationsModule?.openFromQuotation) {
       window.KYUMInstallationsModule.openFromQuotation(detail);
     } else {
@@ -8837,6 +8850,7 @@ document.getElementById("addUserBtn")?.addEventListener("click", () => openUserD
 document.getElementById("closeUserDialogBtn")?.addEventListener("click", closeUserDialog);
 document.getElementById("cancelUserDialogBtn")?.addEventListener("click", closeUserDialog);
 document.getElementById("userForm")?.addEventListener("submit", saveUserForm);
+document.getElementById("userRole")?.addEventListener("change", syncInstallationTechnicianBindingFields);
 document.getElementById("userDataAccessMode")?.addEventListener("change", syncUserDataAccessFields);
 document.getElementById("userAllowedRepresentativesSearch")?.addEventListener("input", filterAllowedRepresentativesList);
 document.getElementById("userAllowedRepresentativesList")?.addEventListener("change", event => {
