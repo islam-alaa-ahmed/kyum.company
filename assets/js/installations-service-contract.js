@@ -2,7 +2,7 @@
   'use strict';
 
   const REQUIRED_METHODS = [
-    'list', 'options', 'createRequest', 'updateRequest', 'remove', 'technicians', 'scheduleTeams', 'technicianNameSuggestions', 'scheduleList', 'assign', 'executionWorkspace', 'selectExecutionRequest', 'recordMapOpened', 'advanceExecution', 'completionList', 'saveCompletion', 'signedFileUrl', 'exceptionList', 'saveRevisit', 'operationalReport', 'settingsCatalog', 'saveSettingItem', 'toggleSettingItem', 'removeSettingItem'
+    'list', 'options', 'createRequest', 'updateRequest', 'remove', 'technicians', 'scheduleTeams', 'technicianNameSuggestions', 'scheduleList', 'assign', 'executionWorkspace', 'executionIdentity', 'selectExecutionRequest', 'recordMapOpened', 'advanceExecution', 'completionList', 'saveCompletion', 'signedFileUrl', 'exceptionList', 'saveRevisit', 'operationalReport', 'settingsCatalog', 'saveSettingItem', 'toggleSettingItem', 'removeSettingItem'
   ];
 
   function isValid(service) {

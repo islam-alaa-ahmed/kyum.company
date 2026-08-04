@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-47-0-m14-9-8-11-installation-technician-role-team-binding";
+const CACHE_VERSION = "kyum-crm-pwa-18-47-1-m14-9-8-11-1-technician-execution-default-identity";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

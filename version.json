@@ -1,13 +1,13 @@
 {
-  "version": "18.47.0",
-  "build": 184700,
+  "version": "18.47.1",
+  "build": 184701,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.11 Installation Technician Role Team Binding Scope",
+  "title": "M14.9.8.11.1 Technician Execution Default Date & Locked Identity Filter",
   "notes": [
-    "تغيير الاسم الظاهر لدور مشاهد إلى فني تركيبات مع بقاء الصلاحيات قابلة للتحكم من شاشة الصلاحيات",
-    "إضافة ربط مستخدم فني التركيبات بفرقة واسم فني محددين",
-    "تقييد طلبات التنفيذ ومراحلها على الفرقة واسم الفني المرتبطين بالمستخدم فقط"
+    "ضبط التاريخ الافتراضي في تنفيذ التركيبات على التاريخ المحلي الحالي",
+    "اختيار الفني والفرقة المرتبطين بحساب فني التركيبات تلقائيًا",
+    "قفل فلتر الفني والفرقة للمستخدم الفني مع بقاء الفلاتر مرنة للمستخدمين الإداريين"
   ],
-  "cacheToken": "kyum-crm-pwa-18-47-0-m14-9-8-11-installation-technician-role-team-binding"
+  "cacheToken": "kyum-crm-pwa-18-47-1-m14-9-8-11-1-technician-execution-default-identity"
 }
