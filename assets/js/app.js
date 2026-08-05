@@ -3995,40 +3995,79 @@ function syncCustomerContactPersonField() {
 async function openCustomerDialog(customer = null) {
   const action = customer ? "edit" : "add";
   if (!requireScreenAction("customers", action, `لا توجد صلاحية ${customer ? "تعديل" : "إضافة"} العملاء.`)) return;
-  if (!(await ensureOperationalReferenceData())) return;
-  try {
-    await loadCustomerDistrictCatalog();
-  } catch (error) {
-    console.warn("Customer district catalog unavailable:", error);
-  }
+
+  const dialog = document.getElementById("customerDialog");
+  const form = document.getElementById("customerForm");
+  const submitButton = form?.querySelector('button[type="submit"]');
+  const title = document.getElementById("dialogTitle");
   editingId = customer?.id || null;
-  document.getElementById("dialogTitle").textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
-  document.getElementById("customerId").value = customer?.id || "";
-  document.getElementById("customerName").value = customer?.name || "";
-  document.getElementById("customerType").value = customer?.type || "شركة";
-  document.getElementById("customerContactPerson").value = customer?.contactPersonName || "";
-  syncCustomerContactPersonField();
-  document.getElementById("customerPhone").value = customer?.phone || "";
-  document.getElementById("customerRegion").value = customer?.region || "";
-  document.getElementById("customerCity").value = customer?.city || "";
-  renderCustomerDistrictOptions(customer?.district || "");
-  document.getElementById("customerRepresentative").value = operationalDefaultRepresentativeId(customer?.representativeId);
-  document.getElementById("contactDate").value = customer?.contactDate || new Date().toISOString().slice(0, 10);
-  document.getElementById("quotationNumber").value = customer?.quotationNumber || "";
-  document.getElementById("noSaleReason").value = customer?.noSaleReasonId || "";
-  document.getElementById("customerNotes").value = customer?.notes || "";
+  title.textContent = customer ? "تعديل بيانات العميل" : "إضافة عميل جديد";
+  dialog?.showModal();
+  dialog?.classList.add("is-loading");
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "جاري تحميل البيانات...";
+  }
 
-  [...document.getElementById("customerInterest").options].forEach(option => {
-    option.selected = customer ? customer.interestIds.includes(option.value) : false;
-  });
+  try {
+    const [referencesReady, districtResult, freshCustomer] = await Promise.all([
+      ensureOperationalReferenceData(),
+      loadCustomerDistrictCatalog().catch(error => {
+        console.warn("Customer district catalog unavailable:", error);
+        return [];
+      }),
+      customer?.id && window.CustomersService?.getCustomerById
+        ? window.CustomersService.getCustomerById(customer.id).catch(error => {
+            console.warn("Fresh customer hydration failed; using current row:", error);
+            return customer;
+          })
+        : Promise.resolve(customer)
+    ]);
+    if (!referencesReady) throw new Error("تعذر تحميل القوائم المرجعية المطلوبة.");
 
-  const customerInterestSearch = document.getElementById("customerInterestSearch");
-  if (customerInterestSearch) customerInterestSearch.value = "";
-  setCustomerInterestDropdownOpen(false);
-  renderCustomerInterestDropdownOptions();
-  syncCustomerInterestCheckboxes();
+    const record = freshCustomer || customer || null;
+    editingId = record?.id || null;
+    document.getElementById("customerId").value = record?.id || "";
+    document.getElementById("customerName").value = record?.name || "";
+    document.getElementById("customerType").value = record?.type || "شركة";
+    document.getElementById("customerContactPerson").value = record?.contactPersonName || "";
+    syncCustomerContactPersonField();
+    document.getElementById("customerPhone").value = record?.phone || "";
+    document.getElementById("customerRegion").value = record?.region || "";
+    document.getElementById("customerCity").value = record?.city || "";
+    renderCustomerDistrictOptions(record?.district || "");
+    document.getElementById("customerRepresentative").value = operationalDefaultRepresentativeId(record?.representativeId);
+    document.getElementById("contactDate").value = record?.contactDate || new Date().toISOString().slice(0, 10);
+    document.getElementById("quotationNumber").value = record?.quotationNumber || "";
+    document.getElementById("noSaleReason").value = record?.noSaleReasonId || "";
+    document.getElementById("customerNotes").value = record?.notes || "";
 
-  document.getElementById("customerDialog").showModal();
+    const selectedIds = new Set((record?.interestIds || []).map(String));
+    const selectedNames = new Set((record?.interests || []).map(name => String(name || "").trim().toLowerCase()));
+    const interestSelect = document.getElementById("customerInterest");
+    [...interestSelect.options].forEach(option => {
+      option.selected = selectedIds.has(String(option.value))
+        || selectedNames.has(String(option.textContent || "").trim().toLowerCase());
+    });
+    interestSelect.setCustomValidity("");
+
+    const customerInterestSearch = document.getElementById("customerInterestSearch");
+    if (customerInterestSearch) customerInterestSearch.value = "";
+    setCustomerInterestDropdownOpen(false);
+    renderCustomerInterestDropdownOptions();
+    syncCustomerInterestCheckboxes();
+  } catch (error) {
+    console.error("Customer edit hydration failed:", error);
+    alert(error instanceof Error ? error.message : "تعذر تحميل بيانات العميل.");
+    dialog?.close();
+    editingId = null;
+  } finally {
+    dialog?.classList.remove("is-loading");
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "حفظ العميل";
+    }
+  }
 }
 
 function closeCustomerDialog() {
@@ -4052,10 +4091,14 @@ async function handleCustomerSubmit(event) {
   const selectedInterestIds = [...document.getElementById("customerInterest").selectedOptions]
     .map(option => option.value);
 
+  const interestSelect = document.getElementById("customerInterest");
   if (!selectedInterestIds.length) {
-    alert("اختر مجال اهتمام واحدًا على الأقل.");
+    interestSelect.setCustomValidity("اختر مجال اهتمام واحدًا على الأقل.");
+    setCustomerInterestDropdownOpen(true);
+    document.getElementById("customerInterestDropdownButton")?.focus();
     return;
   }
+  interestSelect.setCustomValidity("");
 
   const customerType = document.getElementById("customerType").value;
   const contactPersonInput = document.getElementById("customerContactPerson");

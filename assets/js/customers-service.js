@@ -217,6 +217,20 @@
     }
   }
 
+
+  async function getCustomerById(customerId) {
+    if (!customerId) return null;
+    const row = await unwrap(
+      client()
+        .from("customers")
+        .select(customersSelectQuery())
+        .eq("id", customerId)
+        .maybeSingle(),
+      "تعذر تحميل بيانات العميل"
+    );
+    return row ? normalizeCustomer(row) : null;
+  }
+
   async function listCustomers(options = {}) {
     const scope = await resolveCustomerRepresentativeScope();
     const scopeUserId = window.CustomerAuth?.getState?.().profile?.id;
@@ -803,6 +817,7 @@
 
   window.CustomersService = Object.freeze({
     listCustomers,
+    getCustomerById,
     listDailyPerformanceCustomers,
     getLastReadStatus: () => lastReadStatus,
     findByPhone,
