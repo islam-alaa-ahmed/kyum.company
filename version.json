@@ -1,13 +1,13 @@
 {
-  "version": "18.50.1",
-  "build": 185001,
+  "version": "18.50.2",
+  "build": 185002,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15 Installation Day Lock & Smart Availability",
+  "title": "M14.9.8.15.1 Installation Inline Edit Dialog Layout & Request Context Recovery",
   "notes": [
-    "قفل وفتح أيام الجدولة مرتبط بصلاحية تعديل شاشة جدولة التركيبات",
-    "منع الجدولة في اليوم المغلق للجميع بما في ذلك مدير النظام حتى يتم فتح اليوم",
-    "تعطيل مواعيد الفني المحجوزة حسب التاريخ والفني والوقت مع حماية قاعدة البيانات"
+    "إظهار الحي وموقع العميل ورقم طلب العميل ورقم عرض السعر داخل نافذة تعديل الخدمات",
+    "إلغاء التمرير الأفقي وتحسين تناسب النافذة مع المحتوى",
+    "تحويل بنود الخدمات إلى بطاقات متجاوبة على الشاشات الضيقة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-1-m14-9-8-15-installation-day-lock-smart-availability"
+  "cacheToken": "kyum-crm-pwa-18-50-2-m14-9-8-15-1-inline-edit-dialog-layout-context"
 }
