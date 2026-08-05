@@ -1,9 +1,20 @@
-# Phase M15.0.1 — Unified Invoice Conversion Form
+# Phase M16 — Installation Analytics & Financial Intelligence
 
-- Renamed installation completion screen to **تأكيد الانتهاء من التركيبات**.
-- Replaced completion action with **تحويل إلى فاتورة**.
-- Reused one invoice conversion dialog for quotations and completed installations.
-- Invoice number accepts exactly nine English digits.
-- Successful conversion navigates to Sales Invoices and removes the source from its operational queue.
-- Installation documentation, delivery authorization, photos, representative scope, and duplicate protection remain enforced.
-- Version: 18.48.1 / Build 184801.
+## Scope
+تم تطوير شاشة تقارير التركيبات الموجودة بالفعل دون إنشاء Route أو شاشة مكررة.
+
+## التقارير
+- التقرير المالي للتركيبات.
+- أرباح المندوبين.
+- أداء فرق التركيبات.
+- أداء الفنيين.
+- الفواتير المرتبطة بالتركيبات.
+- تحليل الربحية وأسباب التعثر.
+
+## الصلاحيات
+يستمر استخدام صلاحية `installationReports:view` لفتح وتحميل الشاشة، وتخضع جميع استعلامات Supabase إلى RLS ونطاقات البيانات الحالية. لا توجد استعلامات Service Role أو تجاوز للصلاحيات.
+
+## القيم المالية
+- الإيراد من فاتورة التركيب عند وجودها، وإلا من إجمالي خدمات الطلب.
+- المصروف من مصاريف الفاتورة عند وجودها، وإلا من كمية الخدمة × التكلفة الافتراضية.
+- صافي الربح = الإيراد - المصروف.

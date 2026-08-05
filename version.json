@@ -1,13 +1,13 @@
 {
-  "version": "18.48.1",
-  "build": 184801,
+  "version": "18.49.0",
+  "build": 184900,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M15.0.1 Unified Invoice Conversion Form",
+  "title": "M16 Installation Analytics & Financial Intelligence",
   "notes": [
-    "توحيد تحويل عروض الأسعار والتركيبات إلى فاتورة من شاشة واحدة",
-    "تقييد رقم الفاتورة إلى 9 أرقام ومنع التكرار",
-    "إخفاء العروض والتركيبات من قوائم العمل بعد الحفظ"
+    "تطوير شاشة تقارير التركيبات الحالية إلى مركز مالي وتشغيلي",
+    "إضافة تقارير المندوبين والفرق والفنيين والفواتير والربحية",
+    "تطبيق صلاحيات الشاشة ونطاق البيانات الحالي على جميع النتائج"
   ],
-  "cacheToken": "kyum-crm-pwa-18-48-1-m15-0-1-unified-invoice-conversion"
+  "cacheToken": "kyum-crm-pwa-18-49-0-m16-installation-financial-analytics"
 }

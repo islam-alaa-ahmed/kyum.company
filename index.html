@@ -34,22 +34,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.48.1" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.48.1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.49.0" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.49.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1463,27 +1463,64 @@
 
       <section id="installationReportsView" class="view-section hidden installation-operations-view" aria-hidden="true">
         <div class="actions-row installation-operations-header">
-          <div><h2>تقارير التركيبات</h2><p>مؤشرات تشغيلية للإنتاجية والالتزام وإعادة الزيارة وأسباب التعثر.</p></div>
+          <div><h2>تقارير التركيبات</h2><p>مركز مالي وتشغيلي لتحليل الإيرادات والمصروفات والربحية وأداء المندوبين والفرق والفنيين.</p></div>
           <div class="installation-report-actions"><button id="refreshInstallationReportsBtn" class="secondary-btn" type="button">تحديث</button><button id="exportInstallationReportsBtn" class="primary-btn" type="button">تصدير CSV</button></div>
         </div>
-        <div class="panel installation-operations-filters">
+        <div class="panel installation-operations-filters installation-report-advanced-filters">
           <label>من تاريخ<input id="installationReportsDateFrom" type="date"></label>
           <label>إلى تاريخ<input id="installationReportsDateTo" type="date"></label>
+          <label>المندوب<select id="installationReportsRepresentativeFilter"><option value="">كل المندوبين</option></select></label>
+          <label>الفرقة<select id="installationReportsTeamFilter"><option value="">كل الفرق</option></select></label>
           <label>الفني<select id="installationReportsTechnicianFilter"><option value="">كل الفنيين</option></select></label>
+          <label>الحالة<select id="installationReportsStatusFilter"><option value="">كل الحالات</option><option>جديد</option><option>مسند</option><option>قيد التنفيذ</option><option>مكتمل</option><option>مؤجل</option><option>متعذر</option></select></label>
           <button id="resetInstallationReportsFilters" class="secondary-btn" type="button">إعادة ضبط</button>
         </div>
-        <div class="installation-report-kpis">
+        <div class="installation-report-kpis installation-financial-kpis">
           <article class="panel"><span>إجمالي الطلبات</span><strong id="installationReportsKpiTotal">0</strong></article>
-          <article class="panel"><span>مكتملة</span><strong id="installationReportsKpiCompleted">0</strong></article>
+          <article class="panel"><span>الطلبات المكتملة</span><strong id="installationReportsKpiCompleted">0</strong></article>
+          <article class="panel"><span>إجمالي الإيراد</span><strong id="installationReportsKpiRevenue">SAR 0.00</strong></article>
+          <article class="panel"><span>إجمالي المصروف</span><strong id="installationReportsKpiExpenses">SAR 0.00</strong></article>
+          <article class="panel"><span>صافي الربح</span><strong id="installationReportsKpiProfit">SAR 0.00</strong></article>
+          <article class="panel"><span>هامش الربح</span><strong id="installationReportsKpiMargin">0%</strong></article>
           <article class="panel"><span>نسبة الإكمال</span><strong id="installationReportsKpiCompletionRate">0%</strong></article>
           <article class="panel"><span>نسبة إعادة الزيارة</span><strong id="installationReportsKpiRevisitRate">0%</strong></article>
           <article class="panel"><span>متوسط مدة التنفيذ</span><strong id="installationReportsKpiDuration">—</strong></article>
         </div>
         <div id="installationReportsStatus" class="data-status hidden" aria-live="polite"></div>
-        <div class="installation-report-grid">
-          <section class="panel"><h3>أداء الفنيين</h3><div class="table-scroll"><table><thead><tr><th>الفني</th><th>الطلبات</th><th>مكتملة</th><th>استثناءات</th><th>إعادة زيارة</th><th>نسبة الإكمال</th></tr></thead><tbody id="installationTechnicianReportBody"></tbody></table></div></section>
-          <section class="panel"><h3>أسباب التعثر</h3><div id="installationFailureReasonsReport" class="installation-reasons-list"></div></section>
+        <div class="installation-report-tabs" role="tablist" aria-label="أنواع تقارير التركيبات">
+          <button class="active" type="button" data-installation-report-tab="financial">التقرير المالي</button>
+          <button type="button" data-installation-report-tab="representatives">أرباح المندوبين</button>
+          <button type="button" data-installation-report-tab="teams">أداء الفرق</button>
+          <button type="button" data-installation-report-tab="technicians">أداء الفنيين</button>
+          <button type="button" data-installation-report-tab="invoices">فواتير التركيبات</button>
+          <button type="button" data-installation-report-tab="profitability">الربحية</button>
         </div>
+        <section class="panel installation-report-panel" data-installation-report-panel="financial">
+          <div class="installation-report-panel-head"><h3>التقرير المالي للتركيبات</h3><span>القيم المعروضة تخضع للصلاحيات ونطاق البيانات الممنوح للمستخدم.</span></div>
+          <div class="table-scroll"><table><thead><tr><th>رقم الطلب</th><th>العميل</th><th>المندوب</th><th>الفرقة</th><th>الفني</th><th>الحالة</th><th>قيمة الفاتورة</th><th>مصاريف التركيب</th><th>صافي الربح</th><th>تاريخ التنفيذ</th></tr></thead><tbody id="installationFinancialReportBody"></tbody></table></div>
+        </section>
+        <section class="panel installation-report-panel hidden" data-installation-report-panel="representatives">
+          <div class="installation-report-panel-head"><h3>تقرير أرباح المندوبين</h3><span>تجميع مالي وتشغيلي حسب المندوب.</span></div>
+          <div class="table-scroll"><table><thead><tr><th>المندوب</th><th>الطلبات</th><th>المكتملة</th><th>الإيراد</th><th>المصروف</th><th>صافي الربح</th><th>متوسط الطلب</th><th>نسبة الإكمال</th></tr></thead><tbody id="installationRepresentativeReportBody"></tbody></table></div>
+        </section>
+        <section class="panel installation-report-panel hidden" data-installation-report-panel="teams">
+          <div class="installation-report-panel-head"><h3>تقرير أداء فرق التركيبات</h3><span>الإنتاجية والتكلفة والالتزام لكل فرقة.</span></div>
+          <div class="table-scroll"><table><thead><tr><th>الفرقة</th><th>الطلبات</th><th>المكتملة</th><th>الإيراد</th><th>المصروف</th><th>صافي الربح</th><th>متوسط التنفيذ</th><th>إعادة زيارة</th><th>نسبة الإكمال</th></tr></thead><tbody id="installationTeamReportBody"></tbody></table></div>
+        </section>
+        <section class="panel installation-report-panel hidden" data-installation-report-panel="technicians">
+          <div class="installation-report-panel-head"><h3>تقرير أداء الفنيين</h3><span>الإنجاز والقيمة المالية والاستثناءات.</span></div>
+          <div class="table-scroll"><table><thead><tr><th>الفني</th><th>الطلبات</th><th>مكتملة</th><th>الإيراد</th><th>المصروف</th><th>صافي الربح</th><th>استثناءات</th><th>إعادة زيارة</th><th>نسبة الإكمال</th></tr></thead><tbody id="installationTechnicianReportBody"></tbody></table></div>
+        </section>
+        <section class="panel installation-report-panel hidden" data-installation-report-panel="invoices">
+          <div class="installation-report-panel-head"><h3>الفواتير المرتبطة بالتركيبات</h3><span>الطلبات المفوترة وغير المفوترة داخل نطاق المستخدم.</span></div>
+          <div class="table-scroll"><table><thead><tr><th>رقم الطلب</th><th>رقم الفاتورة</th><th>العميل</th><th>المندوب</th><th>قيمة الفاتورة</th><th>مصاريف التركيب</th><th>صافي الربح</th><th>تاريخ الفاتورة</th><th>حالة الفوترة</th></tr></thead><tbody id="installationInvoiceReportBody"></tbody></table></div>
+        </section>
+        <section class="installation-report-panel hidden" data-installation-report-panel="profitability">
+          <div class="installation-profitability-layout">
+            <section class="panel"><div class="installation-report-panel-head"><h3>تحليل الربحية</h3><span>أعلى العمليات حسب صافي الربح.</span></div><div id="installationProfitabilityBars" class="installation-profitability-bars"></div></section>
+            <section class="panel"><h3>أسباب التعثر</h3><div id="installationFailureReasonsReport" class="installation-reasons-list"></div></section>
+          </div>
+        </section>
       </section>
 
       <section id="reportsOverviewView" class="view-section hidden">
@@ -3098,10 +3135,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.48.1"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.48.1"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.48.1"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.48.1"></script>
+  <script src="assets/js/performance-monitor.js?v=18.49.0"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.49.0"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.49.0"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.49.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3382,57 +3419,57 @@
         </form>
       </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.48.1"></script>
-  <script src="assets/js/offline-session-store.js?v=18.48.1"></script>
-  <script src="assets/js/supabase-client.js?v=18.48.1"></script>
-  <script src="assets/js/permissions.js?v=18.48.1"></script>
-  <script src="assets/js/permission-engine.js?v=18.48.1"></script>
-  <script src="assets/js/data-access-scope.js?v=18.48.1"></script>
-  <script src="assets/js/smart-cache.js?v=18.48.1"></script>
-  <script src="assets/js/sync-engine.js?v=18.48.1"></script>
-  <script src="assets/js/offline-queue.js?v=18.48.1"></script>
-  <script src="assets/js/permissions-service.js?v=18.48.1"></script>
-  <script src="assets/js/auth-session.js?v=18.48.1"></script>
-  <script src="assets/js/reference-data-service.js?v=18.48.1"></script>
-  <script src="assets/js/customers-service.js?v=18.48.1"></script>
-  <script src="assets/js/followups-service.js?v=18.48.1"></script>
-  <script src="assets/js/quotations-service.js?v=18.48.1"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.48.1"></script>
-  <script src="assets/js/users-service.js?v=18.48.1"></script>
-  <script src="assets/js/activity-service.js?v=18.48.1"></script>
-  <script src="assets/js/backup-service.js?v=18.48.1"></script>
-  <script src="assets/js/system-settings-service.js?v=18.48.1"></script>
-  <script src="assets/js/system-health-service.js?v=18.48.1"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.48.1"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.48.1"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.48.1"></script>
-  <script src="assets/js/installations-service.js?v=18.48.1"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.48.1"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.48.1"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.48.1"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.48.1"></script>
+  <script src="assets/js/supabase-config.js?v=18.49.0"></script>
+  <script src="assets/js/offline-session-store.js?v=18.49.0"></script>
+  <script src="assets/js/supabase-client.js?v=18.49.0"></script>
+  <script src="assets/js/permissions.js?v=18.49.0"></script>
+  <script src="assets/js/permission-engine.js?v=18.49.0"></script>
+  <script src="assets/js/data-access-scope.js?v=18.49.0"></script>
+  <script src="assets/js/smart-cache.js?v=18.49.0"></script>
+  <script src="assets/js/sync-engine.js?v=18.49.0"></script>
+  <script src="assets/js/offline-queue.js?v=18.49.0"></script>
+  <script src="assets/js/permissions-service.js?v=18.49.0"></script>
+  <script src="assets/js/auth-session.js?v=18.49.0"></script>
+  <script src="assets/js/reference-data-service.js?v=18.49.0"></script>
+  <script src="assets/js/customers-service.js?v=18.49.0"></script>
+  <script src="assets/js/followups-service.js?v=18.49.0"></script>
+  <script src="assets/js/quotations-service.js?v=18.49.0"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.49.0"></script>
+  <script src="assets/js/users-service.js?v=18.49.0"></script>
+  <script src="assets/js/activity-service.js?v=18.49.0"></script>
+  <script src="assets/js/backup-service.js?v=18.49.0"></script>
+  <script src="assets/js/system-settings-service.js?v=18.49.0"></script>
+  <script src="assets/js/system-health-service.js?v=18.49.0"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.49.0"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.49.0"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.49.0"></script>
+  <script src="assets/js/installations-service.js?v=18.49.0"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.49.0"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.49.0"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.49.0"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.49.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.48.1"></script>
-  <script src="assets/js/export-center.js?v=18.48.1"></script>
-  <script src="assets/js/customer360-engine.js?v=18.48.1"></script>
-  <script src="assets/js/customer360-export.js?v=18.48.1"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.48.1"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.48.1"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.48.1"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.48.1"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.48.1"></script>
-  <script src="assets/js/app.js?v=18.48.1"></script>
-  <script src="assets/js/sales-invoices.js?v=18.48.1"></script>
-  <script src="assets/js/installations-module.js?v=18.48.1"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.48.1"></script>
-  <script src="assets/js/installation-execution.js?v=18.48.1"></script>
-  <script src="assets/js/installation-completion.js?v=18.48.1"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.48.1"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.48.1"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.48.1"></script>
-  <script src="assets/js/mobile.js?v=18.48.1"></script>
-  <script src="assets/js/pwa.js?v=18.48.1"></script>
-  <script src="assets/js/native.js?v=18.48.1"></script>
+  <script src="assets/js/reports-engine.js?v=18.49.0"></script>
+  <script src="assets/js/export-center.js?v=18.49.0"></script>
+  <script src="assets/js/customer360-engine.js?v=18.49.0"></script>
+  <script src="assets/js/customer360-export.js?v=18.49.0"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.49.0"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.49.0"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.49.0"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.49.0"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.49.0"></script>
+  <script src="assets/js/app.js?v=18.49.0"></script>
+  <script src="assets/js/sales-invoices.js?v=18.49.0"></script>
+  <script src="assets/js/installations-module.js?v=18.49.0"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.49.0"></script>
+  <script src="assets/js/installation-execution.js?v=18.49.0"></script>
+  <script src="assets/js/installation-completion.js?v=18.49.0"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.49.0"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.49.0"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.49.0"></script>
+  <script src="assets/js/mobile.js?v=18.49.0"></script>
+  <script src="assets/js/pwa.js?v=18.49.0"></script>
+  <script src="assets/js/native.js?v=18.49.0"></script>
 </body>
 </html>
