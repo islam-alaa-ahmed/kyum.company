@@ -5608,6 +5608,103 @@ async function sendDailyPerformanceWhatsappPdf(event) {
   }
 }
 
+
+async function createDailyActivityPdfFile() {
+  if (!dailyActivitySnapshot) throw new Error("حمّل تقرير الأداء اليومي أولًا.");
+  const employeeSelect = document.getElementById("dailyActivityEmployeeFilter");
+  const employeeValue = employeeSelect?.value || "";
+  if (!dailyActivityReportRequested || !employeeValue) throw new Error("اختر الموظف واعرض بيانات خط السير أولًا.");
+  if (!window.html2canvas || !window.jspdf?.jsPDF) throw new Error("تعذر تحميل أدوات إنشاء ملف PDF.");
+
+  const events = filteredDailyActivityTimeline();
+  const typeSelect = document.getElementById("dailyActivityTypeFilter");
+  const selectedDate = document.getElementById("dailyPerformanceDate")?.value || dailyPerformanceSnapshot?.workDate || dailyLocalDate();
+  const employeeLabel = employeeSelect?.options?.[employeeSelect.selectedIndex]?.textContent || "الموظف";
+  const typeLabel = typeSelect?.options?.[typeSelect.selectedIndex]?.textContent || "كل الأنشطة";
+
+  const host = document.createElement("section");
+  host.setAttribute("dir", "rtl");
+  host.style.cssText = "position:fixed;left:-20000px;top:0;width:1200px;background:#fff;color:#111827;padding:28px;font-family:Tahoma,Arial,sans-serif;z-index:-1";
+  host.innerHTML = `
+    <header style="display:grid;grid-template-columns:160px 1fr 300px;align-items:center;gap:20px;padding:18px 22px;border-radius:18px;background:linear-gradient(135deg,#06192c,#0a3651);color:#fff;margin-bottom:18px">
+      <img src="assets/images/kyum-header-logo.png" alt="KYUM" style="width:150px;max-height:72px;object-fit:contain;border-radius:10px">
+      <div style="text-align:center"><h1 style="margin:0 0 6px;font-size:28px">خط سير يوم الموظف</h1><p style="margin:0;color:#d5e3ee">سجل تفصيلي للحركات والمهام داخل البرنامج بالدقيقة</p></div>
+      <div style="font-size:13px;line-height:2;border-right:1px solid rgba(255,255,255,.25);padding-right:18px">
+        <div><strong style="color:#f4bd3c">التاريخ:</strong> ${dailyPerformancePdfEscape(selectedDate)}</div>
+        <div><strong style="color:#f4bd3c">الموظف:</strong> ${dailyPerformancePdfEscape(employeeLabel)}</div>
+        <div><strong style="color:#f4bd3c">نوع النشاط:</strong> ${dailyPerformancePdfEscape(typeLabel)}</div>
+        <div><strong style="color:#f4bd3c">عدد الحركات:</strong> ${events.length}</div>
+      </div>
+    </header>
+    <main style="display:grid;gap:10px">
+      ${events.length ? events.map(event => `
+        <article style="display:grid;grid-template-columns:125px 1fr;gap:14px;border:1px solid #dbe3ea;border-radius:12px;padding:13px;background:#f8fafc;break-inside:avoid">
+          <div style="border-left:2px solid #2563eb;padding-left:10px"><strong style="display:block;font-size:15px">${dailyPerformancePdfEscape(dailyActivityTime(event.createdAt))}</strong><span style="font-size:12px;color:#64748b">${dailyPerformancePdfEscape(dailyActivityTypeLabel(event.type))}</span></div>
+          <div><strong style="display:block;font-size:15px;margin-bottom:5px">${dailyPerformancePdfEscape(event.title || "نشاط")}</strong><p style="margin:0 0 5px;line-height:1.8">${dailyPerformancePdfEscape(event.detail || "—")}</p><small style="color:#64748b">نفذ بواسطة: ${dailyPerformancePdfEscape(event.employeeName || employeeLabel)}</small></div>
+        </article>`).join("") : '<div style="padding:30px;text-align:center">لا توجد حركات مطابقة للفلاتر.</div>'}
+    </main>`;
+  document.body.appendChild(host);
+  try {
+    const canvas = await window.html2canvas(host,{scale:1.4,useCORS:true,backgroundColor:"#ffffff",logging:false,windowWidth:1200,scrollX:0,scrollY:0});
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight(), margin=6;
+    const iw=pw-margin*2, ih=canvas.height*iw/canvas.width, usable=ph-margin*2;
+    const data=canvas.toDataURL("image/jpeg",0.94); let offset=0;
+    while(offset<ih){ if(offset>0) pdf.addPage(); pdf.addImage(data,"JPEG",margin,margin-offset,iw,ih,undefined,"FAST"); offset+=usable; }
+    const safeEmployee=String(employeeLabel).replace(/[^\p{L}\p{N}_-]+/gu,"-");
+    return new File([pdf.output("blob")],`kyum-employee-timeline-${safeEmployee}-${selectedDate}.pdf`,{type:"application/pdf"});
+  } finally { host.remove(); }
+}
+
+async function exportDailyActivityPdf(event) {
+  const button=event?.currentTarget; const original=button?.textContent || "تصدير خط السير PDF";
+  if(button?.disabled) return;
+  try { if(button){button.disabled=true;button.textContent="جاري تجهيز PDF...";} const file=await createDailyActivityPdfFile(); downloadDailyPerformancePdfFile(file); if(button) button.textContent="تم التصدير"; }
+  catch(error){ showDataStatus("dailyPerformanceStatus",error?.message||"تعذر تصدير خط السير.","error"); if(button) button.textContent="تعذر التصدير"; }
+  finally { setTimeout(()=>{if(button){button.disabled=false;button.textContent=original;}},1200); }
+}
+
+async function sendDailyActivityWhatsappPdf(event) {
+  const button=event?.currentTarget; const original=button?.textContent || "إرسال خط السير واتساب PDF";
+  if(button?.disabled) return;
+  try {
+    if(button){button.disabled=true;button.textContent="جاري تجهيز PDF...";}
+    const file=await createDailyActivityPdfFile();
+    const date=document.getElementById("dailyPerformanceDate")?.value || dailyLocalDate();
+    const employee=document.getElementById("dailyActivityEmployeeFilter");
+    const name=employee?.options?.[employee.selectedIndex]?.textContent || "الموظف";
+    const message=`خط سير يوم الموظف\nالموظف: ${name}\nالتاريخ: ${date}\nمرفق التقرير بصيغة PDF وفق الفلاتر المحددة.`;
+    const shareData={title:`خط سير ${name} - ${date}`,text:message,files:[file]};
+    if(navigator.share && (!navigator.canShare || navigator.canShare(shareData))){ if(button) button.textContent="تم تجهيز التقرير"; await navigator.share(shareData); }
+    else { downloadDailyPerformancePdfFile(file); if(button) button.textContent="تم تجهيز التقرير"; window.open(`https://wa.me/?text=${encodeURIComponent(message+"\nتم تنزيل ملف PDF على الجهاز لإرفاقه بالمحادثة.")}`,"_blank","noopener,noreferrer"); }
+  } catch(error){ if(error?.name!=="AbortError") showDataStatus("dailyPerformanceStatus",error?.message||"تعذر مشاركة خط السير.","error"); }
+  finally { setTimeout(()=>{if(button){button.disabled=false;button.textContent=original;}},1200); }
+}
+
+async function logWhatsappBusinessActivity(anchor) {
+  try {
+    if (!anchor?.href || !/wa\.me|api\.whatsapp\.com/i.test(anchor.href)) return;
+    const row=anchor.closest("tr,[data-customer-id],.customer-card,.daily-suggested-customer-card,.daily-suggested-row") || anchor.parentElement;
+    const customerId=row?.dataset?.customerId || row?.querySelector?.("[data-customer-id]")?.dataset?.customerId || null;
+    const candidate=row?.querySelector?.("strong,.customer-name,[data-customer-name]");
+    const customerName=candidate?.dataset?.customerName || candidate?.textContent?.trim() || "عميل";
+    const phone=(anchor.href.match(/wa\.me\/(\d+)/i)||[])[1] || "";
+    await window.customerSupabase?.rpc?.("log_business_activity_event",{
+      p_event_type:"whatsapp_open",p_section_key:"customers",p_action_key:"open_whatsapp",
+      p_entity_type:"customers",p_entity_id:customerId?String(customerId):null,p_entity_display_name:customerName,
+      p_customer_id:customerId||null,p_customer_name:customerName,p_request_number:null,p_quotation_number:null,p_invoice_number:null,
+      p_details:{phone,source_label:document.querySelector(".view.active h1,.view.active h2")?.textContent?.trim()||"البرنامج",description:"تم فتح رابط واتساب بنجاح."}
+    });
+    window.KYUMOfflineReadCache?.invalidate?.(`daily-activity:${dailyLocalDate()}`);
+  } catch(error){ console.warn("WhatsApp activity log skipped",error); }
+}
+
+document.addEventListener("click", event => {
+  const link=event.target.closest('a[href*="wa.me"],a[href*="api.whatsapp.com"]');
+  if(link) window.setTimeout(()=>logWhatsappBusinessActivity(link),0);
+}, true);
+
 function dailyLocalDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -5684,6 +5781,8 @@ function dailyActivityTypeLabel(type) {
     customers: "العملاء",
     followups: "المتابعات",
     quotations: "عروض الأسعار",
+    installations: "طلبات التركيبات",
+    invoices: "فواتير المبيعات",
     daily_tasks: "المهام اليومية",
     daily_alerts: "التنبيهات",
     users: "المستخدمون والصلاحيات",
@@ -8795,6 +8894,8 @@ document.getElementById("showDailyActivityReportBtn")?.addEventListener(
     renderDailyActivityTimeline();
   }
 );
+document.getElementById("exportDailyActivityPdfBtn")?.addEventListener("click", exportDailyActivityPdf);
+document.getElementById("sendDailyActivityWhatsappPdfBtn")?.addEventListener("click", sendDailyActivityWhatsappPdf);
 document.getElementById("dailyTasksEmployeeFilter")?.addEventListener(
   "change",
   resetDailyTasksReportView

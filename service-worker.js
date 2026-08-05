@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-50-15-daily-performance-whatsapp-pdf-share";
+const CACHE_VERSION = "kyum-crm-pwa-18-51-0-employee-business-activity-timeline";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

@@ -160,10 +160,65 @@
     return data || [];
   }
 
+
+  async function listBusinessEvents(workDate, limit = 2000) {
+    const from = `${workDate}T00:00:00`;
+    const toDate = new Date(`${workDate}T00:00:00`);
+    toDate.setDate(toDate.getDate() + 1);
+    const { data, error } = await client()
+      .from("business_activity_events")
+      .select(`
+        id,user_id,representative_id,event_type,section_key,action_key,entity_type,entity_id,
+        entity_display_name,customer_id,customer_name,request_number,quotation_number,invoice_number,
+        status,details,before_data,after_data,occurred_at,
+        user:user_profiles!business_activity_events_user_id_fkey(full_name,role,representative_id)
+      `)
+      .gte("occurred_at", from)
+      .lt("occurred_at", toDate.toISOString())
+      .order("occurred_at", { ascending: false })
+      .limit(limit);
+    if (error) {
+      console.warn("Business activity events unavailable:", error);
+      return [];
+    }
+    return data || [];
+  }
+
+  const entityLabels = {
+    customers: "العملاء", customer_followups: "المتابعات", quotations: "عروض الأسعار",
+    installation_requests: "طلبات التركيبات", sales_invoices: "فواتير المبيعات",
+    daily_task_completions: "المهام اليومية", user_profiles: "المستخدمون",
+    role_screen_permissions: "الصلاحيات", interest_categories: "مجالات الاهتمام",
+    no_sale_reasons: "أسباب عدم البيع", sales_representatives: "مندوبي المبيعات"
+  };
+
+  function readableEntity(value) { return entityLabels[String(value || "").toLowerCase()] || "نشاط داخل البرنامج"; }
+
+  function businessTitle(event) {
+    const action = actionLabel(event.action_key);
+    const subject = event.customer_name || event.entity_display_name || event.request_number || event.quotation_number || event.invoice_number || "";
+    const section = readableEntity(event.entity_type || event.section_key);
+    return subject ? `${action} ${section}: ${subject}` : `${action} ${section}`;
+  }
+
+  function businessDetail(event) {
+    const parts = [];
+    if (event.request_number) parts.push(`رقم الطلب: ${event.request_number}`);
+    if (event.quotation_number) parts.push(`رقم عرض السعر: ${event.quotation_number}`);
+    if (event.invoice_number) parts.push(`رقم الفاتورة: ${event.invoice_number}`);
+    const d = event.details || {};
+    if (d.phone) parts.push(`رقم الجوال: ${d.phone}`);
+    if (d.source_label) parts.push(`المصدر: ${d.source_label}`);
+    if (d.description) parts.push(d.description);
+    return parts.join(" — ") || "تم تنفيذ الحركة بنجاح.";
+  }
+
   function categoryFor(entityType) {
     const type = String(entityType || "").toLowerCase();
     if (type.includes("customer_followup")) return "followups";
     if (type.includes("quotation")) return "quotations";
+    if (type.includes("installation")) return "installations";
+    if (type.includes("invoice")) return "invoices";
     if (type === "customers" || type.includes("customer")) return "customers";
     if (type.includes("daily_task")) return "daily_tasks";
     if (type.includes("daily_alert")) return "daily_alerts";
@@ -187,12 +242,14 @@
       close: "إغلاق",
       login: "تسجيل الدخول",
       heartbeat: "نشاط داخل النظام",
-      end_day: "إنهاء يوم العمل"
+      end_day: "إنهاء يوم العمل",
+      open_whatsapp: "فتح واتساب",
+      INSERT: "إضافة", UPDATE: "تعديل", DELETE: "حذف"
     };
     return labels[action] || action || "نشاط";
   }
 
-  function buildTimeline({ sessions, auditLogs, taskEvents, alertEvents }) {
+  function buildTimeline({ sessions, auditLogs, taskEvents, alertEvents, businessEvents }) {
     const events = [];
 
     sessions.forEach(session => {
@@ -227,6 +284,25 @@
       }
     });
 
+    (businessEvents || []).forEach(event => {
+      events.push({
+        id: `business-${event.id}`,
+        userId: event.user_id,
+        representativeId: event.representative_id || event.user?.representative_id || null,
+        employeeName: event.user?.full_name || "غير محدد",
+        type: categoryFor(event.entity_type || event.section_key),
+        action: event.action_key,
+        title: businessTitle(event),
+        detail: businessDetail(event),
+        createdAt: event.occurred_at,
+        entityDisplayName: event.entity_display_name || event.customer_name || "",
+        requestNumber: event.request_number || "",
+        quotationNumber: event.quotation_number || "",
+        invoiceNumber: event.invoice_number || "",
+        status: event.status || "success"
+      });
+    });
+
     auditLogs.forEach(log => {
       events.push({
         id: `audit-${log.id}`,
@@ -235,12 +311,13 @@
         employeeName: log.user?.full_name || "غير محدد",
         type: categoryFor(log.entity_type),
         action: log.action,
-        title: `${actionLabel(log.action)} — ${log.entity_type}`,
+        title: `${actionLabel(log.action)} ${readableEntity(log.entity_type)}${(log.new_data?.name || log.new_data?.customer_name) ? `: ${log.new_data?.name || log.new_data?.customer_name}` : ""}`,
         detail: log.metadata?.description
-          || log.new_data?.name
           || log.new_data?.customer_name
-          || log.entity_id
-          || "تم تسجيل عملية داخل النظام.",
+          || log.new_data?.name
+          || log.new_data?.request_number
+          || log.new_data?.quotation_number
+          || "تم تنفيذ الحركة بنجاح.",
         createdAt: log.created_at
       });
     });
@@ -273,22 +350,26 @@
       });
     });
 
-    return events
-      .filter(item => item.createdAt)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const unique = new Map();
+    events.filter(item => item.createdAt).forEach(item => {
+      const key = `${item.userId || ""}|${String(item.createdAt).slice(0,19)}|${item.title || ""}`;
+      if (!unique.has(key)) unique.set(key, item);
+    });
+    return [...unique.values()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
   async function loadOnline(workDate) {
-    const [sessions, auditLogs, taskEvents, alertEvents] = await Promise.all([
+    const [sessions, auditLogs, taskEvents, alertEvents, businessEvents] = await Promise.all([
       listSessions(workDate),
       listAudit(workDate),
       listTaskEvents(workDate),
-      listAlertEvents(workDate)
+      listAlertEvents(workDate),
+      listBusinessEvents(workDate)
     ]);
 
     return {
       sessions,
-      timeline: buildTimeline({ sessions, auditLogs, taskEvents, alertEvents })
+      timeline: buildTimeline({ sessions, auditLogs, taskEvents, alertEvents, businessEvents })
     };
   }
 

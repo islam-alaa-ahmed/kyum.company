@@ -1,32 +1,22 @@
-# Phase M14.9.8.16.7 — Daily Performance WhatsApp PDF Share
+# Phase M14.9.8.16.8 — Employee Activity Timeline & Business Audit Trail
 
 ## Scope
-- استبدال زر تصدير CSV في تقرير الأداء اليومي بزر إرسال التقرير واتساب PDF.
-- إنشاء ملف PDF فعلي من التقرير الحالي مع تطبيق فلتر التاريخ والموظف.
-- مشاركة الملف مباشرة عبر Web Share API عند دعم مشاركة الملفات.
-- على سطح المكتب: تنزيل PDF ثم فتح واتساب برسالة جاهزة لإرفاق الملف.
-- الحفاظ على زر تصدير PDF الحالي بدون تغيير.
+- تحويل خط سير الموظف من سجل تقني إلى أحداث أعمال عربية مرتبطة باسم العميل أو رقم الطلب/العرض/الفاتورة.
+- إضافة سجل أعمال محمي في Supabase مع Triggers للجداول الأساسية وRPC لتسجيل الحركات التفاعلية مثل فتح واتساب.
+- تسجيل فتح رابط واتساب بعد تنفيذ فتح الرابط من المتصفح، مع اسم العميل ورقم الهاتف ومصدر الحركة عند توفرها.
+- إضافة تصدير مستقل لخط السير PDF ومشاركة واتساب PDF وفق التاريخ والموظف ونوع النشاط المحددين.
 
-## Save/Progress UX
-- جاري تجهيز PDF...
-- تم تجهيز التقرير
-- تعذر التجهيز
-- منع الضغط المتكرر أثناء إنشاء الملف.
-
-## Modified Files
+## Files Modified
 - index.html
+- assets/css/style.css
 - assets/js/app.js
+- assets/js/daily-activity-service.js
 - assets/js/pwa.js
 - service-worker.js
 - package.json
 - version.json
-- PHASE_REPORT.md
+- supabase/migrations/phase_m14_9_8_16_8_employee_business_activity_timeline.sql
+- supabase/verification/phase_m14_9_8_16_8_employee_business_activity_timeline_verification.sql
 
-## Validation
-- JavaScript syntax: PASS
-- Service worker syntax: PASS
-- CSV action replacement: PASS
-- PDF file creation path: PASS
-- Web Share file path: PASS
-- Desktop fallback download + WhatsApp path: PASS
-- Version synchronization: PASS
+## Version
+18.51.0 / build 185100

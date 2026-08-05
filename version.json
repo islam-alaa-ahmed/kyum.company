@@ -1,12 +1,13 @@
 {
-  "version": "18.50.15",
-  "build": 185015,
+  "version": "18.51.0",
+  "build": 185100,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Daily Performance WhatsApp PDF Share",
+  "title": "Employee Activity Timeline & Business Audit Trail",
   "notes": [
-    "استبدال تصدير CSV بإرسال تقرير الأداء اليومي بصيغة PDF عبر المشاركة وواتساب",
-    "دعم مشاركة ملف PDF مباشرة على الأجهزة المتوافقة وتنزيله مع فتح واتساب على سطح المكتب"
+    "تحويل خط سير الموظف إلى سجل أعمال عربي مفصل مرتبط بالعملاء والطلبات والمستندات",
+    "تسجيل فتح روابط واتساب فعليًا مع اسم العميل ومصدر الحركة",
+    "إضافة تصدير PDF ومشاركة واتساب PDF مستقلة وفق الفلاتر المستخدمة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-15-daily-performance-whatsapp-pdf-share"
+  "cacheToken": "kyum-crm-pwa-18-51-0-employee-business-activity-timeline"
 }
