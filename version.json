@@ -1,13 +1,13 @@
 {
-  "version": "18.50.4",
-  "build": 185004,
+  "version": "18.50.5",
+  "build": 185005,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15.3 Multi-Day Scheduling Workflow Recovery",
+  "title": "M14.9.8.15.4 Scheduled Request Service Value Sync & Save State UX",
   "notes": [
-    "استعادة خيار تقسيم طلب التركيب على أكثر من يوم داخل نافذة الجدولة وإعادة الجدولة",
-    "توزيع كميات كل خدمة على الزيارات مع تحقق كامل قبل الحفظ",
-    "إظهار كل زيارة في تقويم الجدولة مع منع الأيام المغلقة وتعارض مواعيد الفنيين"
+    "منع تصفير قيمة الطلب المجدول بعد تعديل الخدمات",
+    "إعادة ربط خدمات الزيارات بالخدمات الجديدة مع الحفاظ على توزيع الأيام",
+    "إظهار جاري الحفظ ثم تم الحفظ ومنع الضغط المتكرر في مسارات حفظ التركيبات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-4-m14-9-8-15-3-multi-day-scheduling-recovery"
+  "cacheToken": "kyum-crm-pwa-18-50-5-m14-9-8-15-4-scheduled-service-value-sync-save-state"
 }

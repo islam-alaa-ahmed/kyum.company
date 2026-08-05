@@ -12,6 +12,14 @@
   const QUOTATION_PREFILL_KEY = "kyum:installation:quotation-prefill";
   let quotationPrefillPromise = null;
 
+
+  function setSaveState(button,state,originalText){
+    if(!button)return;
+    if(state==='saving'){button.dataset.originalText=originalText||button.textContent;button.disabled=true;button.textContent='جاري الحفظ...';button.classList.add('is-saving');}
+    else if(state==='saved'){button.textContent='تم الحفظ';button.classList.remove('is-saving');button.classList.add('is-saved');}
+    else if(state==='error'){button.textContent='تعذر الحفظ';button.classList.remove('is-saving');button.classList.add('is-save-error');}
+    else{button.disabled=false;button.textContent=button.dataset.originalText||originalText||button.textContent;button.classList.remove('is-saving','is-saved','is-save-error');}
+  }
   function status(node, message, type = "info") {
     if (!node) return;
     node.textContent = message;
@@ -612,7 +620,7 @@
     $("installationServicesEditBody")?.addEventListener("input",event=>{const row=event.target.closest('.installation-inline-service-row');if(event.target.matches('.inline-service-type')){const service=opts.serviceTypes.find(item=>item.id===event.target.value);if(service&&row)row.querySelector('.inline-service-price').value=Number(service.default_price||0).toFixed(2)}recalculateInlineServices()});
     $("installationServicesEditBody")?.addEventListener("click",event=>{const btn=event.target.closest('.inline-service-remove');if(!btn)return;const all=$("installationServicesEditBody").querySelectorAll('.installation-inline-service-row');if(all.length===1)return status($("installationServicesEditStatus"),'يجب أن يحتوي الطلب على خدمة واحدة على الأقل.','error');btn.closest('tr').remove();recalculateInlineServices()});
     $("installationServicesEditMapUrl")?.addEventListener("input",syncInlineMapLink);
-    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");btn.disabled=true;try{await window.InstallationsServiceSafe.updateRequestContextServices($("installationServicesEditRequestId").value,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});$("installationServicesEditDialog").close();await load();window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:$("installationServicesEditRequestId").value}}))}catch(error){status($("installationServicesEditStatus"),error.message,'error')}finally{btn.disabled=false}});
+    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");setSaveState(btn,'saving','حفظ التعديلات');try{await window.InstallationsServiceSafe.updateRequestContextServices($("installationServicesEditRequestId").value,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});setSaveState(btn,'saved');await new Promise(r=>setTimeout(r,450));$("installationServicesEditDialog").close();await load();window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:$("installationServicesEditRequestId").value}}))}catch(error){setSaveState(btn,'error');status($("installationServicesEditStatus"),error.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ التعديلات')}});
     window.addEventListener('kyum-installation-request-view',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return renderRequestView(row);if(!id)return;try{await load();renderRequestView(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
     window.addEventListener('kyum-installation-services-edit',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return openServicesEdit(row);if(!id)return;try{await load();openServicesEdit(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
     window.addEventListener('kyum-installation-services-updated',()=>load());
@@ -642,7 +650,7 @@
         return status($("newInstallationRequestFormStatus"), "راجع نوع الخدمة والعدد والسعر في جميع الخدمات.", "error");
       }
       const button = $("saveNewInstallationRequest");
-      button.disabled = true;
+      setSaveState(button,"saving", editingRequestId ? "حفظ التعديلات" : "حفظ الطلب");
       try {
         if (editingRequestId) {
           await window.InstallationsServiceSafe.updateRequest({ ...payload, id: editingRequestId });
@@ -650,13 +658,18 @@
           status($("newInstallationRequestFormStatus"), `تم حفظ تعديلات الطلب ${requestNumber}.`, "success");
           editingRequestId = null;
           await load();
+          setSaveState(button,"saved");
+          await new Promise(r=>setTimeout(r,450));
           window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
         } else {
           const created = await window.InstallationsServiceSafe.createRequest(payload);
           status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
+          setSaveState(button,"saved");
+          await new Promise(r=>setTimeout(r,450));
           resetNewForm({ exitEdit: true });
         }
       } catch (error) {
+        setSaveState(button,"error");
         status($("newInstallationRequestFormStatus"), error.message, "error");
       } finally {
         syncNewRequestPermissionState();
