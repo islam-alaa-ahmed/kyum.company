@@ -13,26 +13,39 @@ function hasExecutionProgress(r){return Boolean(r.onRouteAt||r.mapOpenedAt||r.ar
 function isActive(r){return !['مكتمل','ملغي'].includes(normalizeStatus(r.status))&&(Boolean(r.selectedForExecutionAt)||hasExecutionProgress(r))}
 function stepIndex(r){if(r.completedAt)return 5;if(r.startedAt)return 4;if(r.arrivedAt)return 3;if(r.mapOpenedAt)return 2;if(r.onRouteAt)return 1;return 0}
 function switchTab(tab){activeTab=tab;const todayTab=$('installationExecutionTodayTab'),currentTab=$('installationExecutionCurrentTab');todayTab?.classList.toggle('active',tab==='today');currentTab?.classList.toggle('active',tab==='current');todayTab?.setAttribute('aria-selected',String(tab==='today'));currentTab?.setAttribute('aria-selected',String(tab==='current'));$('installationExecutionTodayPanel')?.classList.toggle('hidden',tab!=='today');$('installationExecutionCurrentPanel')?.classList.toggle('hidden',tab!=='current');if(tab==='current')renderCurrent()}
-function fillFilters(){
-  const tech=$('installationExecutionTechnicianFilter'),team=$('installationExecutionTeamFilter');
+function executionRowsForSelectedDate(){
+  const date=$('installationExecutionDateFilter')?.value||today();
+  return rows.filter(r=>r.scheduledDate===date&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status)));
+}
+function syncTechnicianFilter(){
+  const tech=$('installationExecutionTechnicianFilter');
+  if(!tech)return;
+  const teamValue=$('installationExecutionTeamFilter')?.value||'';
   const lockIdentity=executionIdentity?.lockIdentity===true;
-  if(tech){
-    const previous=tech.value||'';
-    const vals=[...new Set(rows.map(r=>r.technicianName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
-    if(lockIdentity){
-      tech.innerHTML=`<option value="${esc(executionIdentity.technicianName)}">${esc(executionIdentity.technicianName)}</option>`;
-      tech.value=executionIdentity.technicianName;
-      tech.disabled=true;
-      tech.setAttribute('aria-readonly','true');
-      tech.title='الفني مرتبط بحساب فني التركيبات ومثبت على نطاقه الشخصي';
-    }else{
-      tech.disabled=false;
-      tech.removeAttribute('aria-readonly');
-      tech.removeAttribute('title');
-      tech.innerHTML='<option value="">كل الفنيين</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-      tech.value=vals.includes(previous)?previous:'';
-    }
+  const availableRows=executionRowsForSelectedDate().filter(r=>!teamValue||r.teamId===teamValue);
+  const vals=[...new Set(availableRows.map(r=>r.technicianName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+  const previous=tech.value||'';
+  if(lockIdentity){
+    const ownName=executionIdentity.technicianName||'';
+    const hasOwnRequests=Boolean(ownName)&&vals.includes(ownName);
+    tech.innerHTML=hasOwnRequests
+      ?`<option value="${esc(ownName)}">${esc(ownName)}</option>`
+      :'<option value="">لا توجد طلبات للفني في التاريخ المحدد</option>';
+    tech.value=hasOwnRequests?ownName:'';
+    tech.disabled=true;
+    tech.setAttribute('aria-readonly','true');
+    tech.title=hasOwnRequests?'الفني مرتبط بالحساب ومثبت على نطاقه الشخصي':'لا توجد طلبات مسندة للفني في التاريخ المحدد';
+    return;
   }
+  tech.disabled=false;
+  tech.removeAttribute('aria-readonly');
+  tech.removeAttribute('title');
+  tech.innerHTML='<option value="">كل الفنيين</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  tech.value=vals.includes(previous)?previous:'';
+}
+function fillFilters(){
+  const team=$('installationExecutionTeamFilter');
+  const lockIdentity=executionIdentity?.lockIdentity===true;
   if(team){
     const previous=team.value||'';
     const map=new Map(rows.filter(r=>r.teamId).map(r=>[r.teamId,r.teamName||'فرقة غير مسماة']));
@@ -50,6 +63,7 @@ function fillFilters(){
       team.value=map.has(previous)?previous:'';
     }
   }
+  syncTechnicianFilter();
 }
 function filteredToday(){const date=$('installationExecutionDateFilter')?.value||today(),tech=$('installationExecutionTechnicianFilter')?.value||'',team=$('installationExecutionTeamFilter')?.value||'';return rows.filter(r=>r.scheduledDate===date&&!isActive(r)&&!hasExecutionProgress(r)&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status))&&(!tech||r.technicianName===tech)&&(!team||r.teamId===team))}
 function servicesHtml(r){return (r.services||[]).length?`<ul class="installation-card-services">${r.services.map(s=>`<li><span>${esc(s.name)}</span><strong>${Number(s.quantity||0)} ×</strong></li>`).join('')}</ul>`:'<p class="installation-card-muted">لا توجد خدمات مسجلة.</p>'}
@@ -72,5 +86,5 @@ function bindPhotoInput(){const input=$('installationExecutionPhotos');if(!input
 async function load({resetDate=false}={}){setStatus($('installationExecutionStatus'),'جاري تحميل طلبات التنفيذ...');try{[rows,executionIdentity]=await Promise.all([window.InstallationsServiceSafe.executionWorkspace(),window.InstallationsServiceSafe.executionIdentity?.()||Promise.resolve(null)]);const dateFilter=$('installationExecutionDateFilter');if(dateFilter&&(resetDate||!dateFilter.value))dateFilter.value=today();fillFilters();renderToday();renderCurrent();setStatus($('installationExecutionStatus'),'')}catch(e){setStatus($('installationExecutionStatus'),e.message,'error')}}
 async function startRequest(id){const r=rows.find(x=>x.id===id);if(!r)return;try{await window.InstallationsServiceSafe.selectExecutionRequest(r.id);await load();switchTab('current')}catch(e){setStatus($('installationExecutionStatus'),e.message,'error')}}
 async function advance(nextStatus){if(!current)return;const btn=document.querySelector('[data-execution-next]');if(btn)btn.disabled=true;try{const notes=$('installationExecutionNotes')?.value.trim()||'';await window.InstallationsServiceSafe.advanceExecution({id:current.id,nextStatus,notes,photos:nextStatus==='مكتمل'?selectedFiles:[]});selectedFiles=[];await load();if(nextStatus==='مكتمل'){document.querySelector('[data-view="installationCompletion"]')?.click()}else switchTab('current')}catch(e){setStatus($('installationExecutionCurrentStatus'),e.message,'error')}finally{if(btn)btn.disabled=false}}
-document.addEventListener('DOMContentLoaded',()=>{window.addEventListener('kyum-view-changed',e=>{if(e.detail?.view==='installationExecution')load({resetDate:true})});document.querySelectorAll('[data-execution-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.executionTab)));$('refreshInstallationExecutionBtn')?.addEventListener('click',load);['installationExecutionTechnicianFilter','installationExecutionTeamFilter','installationExecutionDateFilter'].forEach(id=>$(id)?.addEventListener('change',renderToday));$('installationExecutionTodayCards')?.addEventListener('click',e=>{const start=e.target.closest('[data-execution-start]');if(start)startRequest(start.dataset.executionStart)});$('installationExecutionCurrentContent')?.addEventListener('click',e=>{const map=e.target.closest('[data-execution-map]');if(map)window.InstallationsServiceSafe.recordMapOpened(map.dataset.executionMap).then(load).catch(err=>setStatus($('installationExecutionCurrentStatus'),err.message,'error'));const b=e.target.closest('[data-execution-next]');if(b)advance(b.dataset.executionNext)})});
+document.addEventListener('DOMContentLoaded',()=>{window.addEventListener('kyum-view-changed',e=>{if(e.detail?.view==='installationExecution')load({resetDate:true})});document.querySelectorAll('[data-execution-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.executionTab)));$('refreshInstallationExecutionBtn')?.addEventListener('click',load);$('installationExecutionTechnicianFilter')?.addEventListener('change',renderToday);$('installationExecutionTeamFilter')?.addEventListener('change',()=>{syncTechnicianFilter();renderToday()});$('installationExecutionDateFilter')?.addEventListener('change',()=>{syncTechnicianFilter();renderToday()});$('installationExecutionTodayCards')?.addEventListener('click',e=>{const start=e.target.closest('[data-execution-start]');if(start)startRequest(start.dataset.executionStart)});$('installationExecutionCurrentContent')?.addEventListener('click',e=>{const map=e.target.closest('[data-execution-map]');if(map)window.InstallationsServiceSafe.recordMapOpened(map.dataset.executionMap).then(load).catch(err=>setStatus($('installationExecutionCurrentStatus'),err.message,'error'));const b=e.target.closest('[data-execution-next]');if(b)advance(b.dataset.executionNext)})});
 })();

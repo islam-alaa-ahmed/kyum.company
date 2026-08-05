@@ -1,31 +1,37 @@
-# Phase M14.9.8.11.2 — Execution Technician Filter Permission Scope Recovery
+# Phase M14.9.8.11.3 — Execution Active Technicians Filter Synchronization
+
+## Scope
+تطوير فلتر الفني داخل شاشة تنفيذ التركيبات ليعرض فقط الفنيين الذين لديهم طلبات تركيب في التاريخ المحدد، بعد تطبيق نطاق المستخدم والفرقة المختارة.
 
 ## Root Cause
+قائمة الفنيين كانت تُبنى من جميع صفوف مساحة تنفيذ التركيبات المحملة للمستخدم، بدون تقييدها بتاريخ شاشة التنفيذ. لذلك كان الفني المسجل أو صاحب طلب في يوم مختلف يظهر داخل فلتر اليوم الحالي.
 
-The execution filters were locked whenever a record existed in `installation_user_technician_bindings`. The UI did not check the current role or installation access mode. A Super Admin or a user with `all` / `selected` access could therefore be treated as an own-scope technician and become locked to the saved technician and team.
+## Changes
+- بناء خيارات الفني من الطلبات المطابقة لتاريخ الفلتر الحالي فقط.
+- استبعاد الطلبات المكتملة والملغاة من مصدر خيارات الفني.
+- إعادة بناء قائمة الفنيين فور تغيير التاريخ.
+- إعادة بناء القائمة عند تغيير الفرقة لتعرض الفنيين أصحاب الطلبات داخل الفرقة المختارة فقط.
+- إعادة الفلتر إلى «كل الفنيين» عندما لا يعود الفني السابق موجودًا في اليوم أو الفرقة الجديدة.
+- الاحتفاظ بقفل هوية فني التركيبات محدود النطاق، مع عرض حالة واضحة إذا لم توجد له طلبات في التاريخ المختار.
+- عدم تعديل RLS أو الصلاحيات أو دورة التنفيذ.
 
-## Fix
-
-- `executionIdentity()` now returns the current role, installation access mode, binding, and an explicit `lockIdentity` decision.
-- Identity filters are locked only when all conditions are true:
-  - role code is `viewer` (displayed as فني تركيبات),
-  - installation access mode is `own`,
-  - a technician and team binding are both present.
-- Super Admin is always resolved as `all` and never locked.
-- Users with `all` or `selected` scope can choose among technicians and teams returned by their RLS-authorized workspace.
-- Existing filter selections are preserved when the workspace refreshes if they remain authorized.
-- No RLS bypass or SQL change was introduced.
-
-## Regression Scope
-
-- Technician own-scope remains locked to the assigned technician and team.
-- Super Admin defaults to all technicians and all permitted teams.
-- Selected-scope users can switch only between rows returned by Supabase RLS.
-- Current request and execution stage permissions remain unchanged.
-- Phase M16 installation financial reports remain merged in the baseline.
+## Regression Preservation
+- Super Admin ونطاق all يظلان قادرين على اختيار كل الفنيين أصحاب الطلبات في اليوم.
+- نطاق selected يرى فقط الفنيين الذين وصلت طلباتهم بالفعل عبر RLS.
+- فني own لا يرى أي فني آخر.
+- Phase M16 وتقارير التركيبات محفوظة ضمن النسخة المجمعة المستخدمة للفحص.
 
 ## Version
+- Version: 18.49.2
+- Build: 184902
+- Cache Token: kyum-crm-pwa-18-49-2-m14-9-8-11-3-execution-active-technicians-filter
 
-- Version: 18.49.1
-- Build: 184901
-- Cache Token: `kyum-crm-pwa-18-49-1-m14-9-8-11-2-execution-technician-permission-scope`
+## Modified Files
+- assets/js/installation-execution.js
+- assets/js/pwa.js
+- index.html
+- service-worker.js
+- package.json
+- version.json
+- scripts/phase-m14-9-8-11-3-check.mjs
+- PHASE_REPORT.md

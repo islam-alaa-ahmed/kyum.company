@@ -1,13 +1,13 @@
 {
-  "version": "18.49.1",
-  "build": 184901,
+  "version": "18.49.2",
+  "build": 184902,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.11.2 Execution Technician Filter Permission Scope Recovery",
+  "title": "M14.9.8.11.3 Execution Active Technicians Filter Synchronization",
   "notes": [
-    "فك قفل فلاتر الفني والفرقة لمدير النظام والمستخدمين ذوي النطاق all أو selected",
-    "تثبيت الفلاتر فقط لحساب فني التركيبات المرتبط بفني وفرقة ونطاق own",
-    "الحفاظ على نطاق Supabase RLS ومنع عرض أي فني خارج الصلاحيات الممنوحة"
+    "عرض الفنيين الذين لديهم طلبات تركيب فقط في التاريخ المحدد داخل شاشة التنفيذ",
+    "إعادة بناء فلتر الفني عند تغيير التاريخ أو الفرقة مع الحفاظ على نطاق الصلاحيات",
+    "إخفاء الفني غير المسند له طلب في اليوم المحدد وعدم توسيع بيانات المستخدم"
   ],
-  "cacheToken": "kyum-crm-pwa-18-49-1-m14-9-8-11-2-execution-technician-permission-scope"
+  "cacheToken": "kyum-crm-pwa-18-49-2-m14-9-8-11-3-execution-active-technicians-filter"
 }
