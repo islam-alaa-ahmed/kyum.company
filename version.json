@@ -1,13 +1,13 @@
 {
-  "version": "18.50.6",
-  "build": 185006,
+  "version": "18.50.7",
+  "build": 185007,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15.4.1 Visit Service Write Permission Hotfix",
+  "title": "M14.9.8.16 Cancel Scheduled Installation",
   "notes": [
-    "إصلاح رفض حفظ تعديل طلب التركيب عند إعادة ربط خدمات الزيارات",
-    "إعادة مسار الكتابة المحمي عبر SECURITY DEFINER مع فحص الصلاحية والنطاق",
-    "الإبقاء على منع الكتابة المباشرة إلى جدول خدمات الزيارات"
+    "استبدال فتح الطلب بإلغاء الجدولة داخل تفاصيل يوم التركيبات",
+    "ربط الإلغاء بصلاحية تعديل شاشة جدولة التركيبات",
+    "إلغاء جميع زيارات الطلب وإعادته إلى قائمة الطلبات المطلوب جدولتها مع منع الإلغاء بعد بدء التنفيذ"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-6-m14-9-8-15-4-1-visit-service-write-permission-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-50-7-m14-9-8-16-cancel-scheduled-installation"
 }

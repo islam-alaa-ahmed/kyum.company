@@ -300,3 +300,27 @@ html[data-theme="dark"] .installation-day-lock-glass{background:rgba(15,23,42,.5
 .installation-allocation-summary{display:flex;flex-wrap:wrap;gap:8px 14px;padding:10px 12px;border-radius:12px;background:var(--surface-soft);font-size:.84rem}.installation-allocation-summary strong{font-weight:900}.installation-allocation-summary .is-error{color:var(--danger)}.installation-allocation-summary .is-ok{color:var(--success)}
 @media(max-width:900px){.installation-multi-day-visit-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.installation-multi-day-visit-fields{grid-template-columns:1fr}.installation-multi-day-quantity-row{grid-template-columns:1fr}.installation-multi-day-visit-head{align-items:flex-start}.installation-multi-day-panel{padding:12px}}
+
+
+/* Phase M14.9.8.16 — Cancel scheduled installation */
+.installation-day-actions .installation-cancel-schedule-btn {
+  min-width: 0;
+  border: 1px solid rgba(190, 48, 48, .28);
+  background: rgba(255, 238, 238, .96);
+  color: #9f2020;
+  font-weight: 800;
+}
+.installation-day-actions .installation-cancel-schedule-btn:hover:not(:disabled) {
+  background: #ffe3e3;
+  border-color: rgba(190, 48, 48, .48);
+}
+.installation-day-actions .installation-cancel-schedule-btn.is-saving,
+.installation-day-actions .installation-cancel-schedule-btn.is-saved,
+.installation-day-actions .installation-cancel-schedule-btn.is-save-error {
+  cursor: wait;
+}
+html[data-theme="dark"] .installation-day-actions .installation-cancel-schedule-btn {
+  background: rgba(125, 29, 29, .3);
+  border-color: rgba(255, 139, 139, .35);
+  color: #ffd1d1;
+}

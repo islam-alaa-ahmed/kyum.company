@@ -1,20 +1,34 @@
-# Phase M14.9.8.15.4.1 — Visit Service Write Permission Hotfix
+# Phase M14.9.8.16 — Cancel Scheduled Installation
 
 ## Root Cause
-The Phase M14.9.8.15.4 replacement of `update_installation_request_with_services` was declared `SECURITY INVOKER`, while direct INSERT/UPDATE/DELETE privileges on `installation_execution_visit_services` are intentionally revoked from `authenticated`. When the RPC rebuilt visit-service allocations, PostgreSQL executed the INSERT as the logged-in user and returned `permission denied for table installation_execution_visit_services`.
+The daily details dialog still exposed the legacy **Open Request** action although request editing had already moved to dedicated inline workflows. Scheduling managers had no direct way to remove a scheduled request from the calendar and return it to the pending scheduling queue.
 
-## Fix
-- Restored the canonical RPC to `SECURITY DEFINER`.
-- Kept the protected visit-service table unavailable for direct client writes.
-- Added explicit screen-permission, request-scope and representative-scope guards before privileged writes.
-- No RLS broadening and no direct table grant was introduced.
+## Implemented
+- Replaced **فتح الطلب** with **إلغاء الجدولة** in the daily appointment card.
+- The action is rendered only when the user has `installationSchedule.edit` and operational access to the request.
+- Added confirmation before cancellation.
+- Added save-state feedback: `جاري الحفظ...`, `تم الحفظ`, and `تعذر الحفظ`.
+- Added the protected RPC `cancel_installation_request_schedule(uuid)`.
+- Cancels all unstarted visits for single-day and multi-day requests.
+- Clears date, time, team, technician, assignment metadata, and returns the request to `بانتظار الجدولة`.
+- Blocks cancellation after execution starts or any actual quantity is confirmed.
 
-## Apply
-1. Run `supabase/migrations/phase_m14_9_8_15_4_1_visit_service_write_permission_hotfix.sql`.
-2. Run `supabase/verification/phase_m14_9_8_15_4_1_visit_service_write_permission_hotfix_verification.sql`.
+## Files Modified
+- `assets/js/installation-scheduling.js`
+- `assets/js/installations-service.js`
+- `assets/js/installations-service-contract.js`
+- `assets/css/installation-scheduling.css`
+- `supabase/migrations/phase_m14_9_8_16_cancel_scheduled_installation.sql`
+- `supabase/verification/phase_m14_9_8_16_cancel_scheduled_installation_verification.sql`
+- `index.html`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
 
-## Expected verification
-- `is_security_definer = true`
-- `has_scope_guard = true`
-- `has_representative_guard = true`
-- `authenticated_has_direct_write = false`
+## Manual Regression
+1. User with view-only permission does not see the cancellation button.
+2. User with edit permission cancels a single-day request and it returns to the pending table.
+3. Cancelling a multi-day request removes every planned visit.
+4. A request with started execution or confirmed quantity cannot be cancelled.
+5. Day locks, rescheduling, technician conflict checks, and multi-day scheduling remain operational.
