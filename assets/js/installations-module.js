@@ -445,7 +445,50 @@
   function inlineNeighborhoodOptions(selected=""){return '<option value="">اختر الحي</option>'+opts.neighborhoods.map(item=>`<option value="${esc(item.id)}" ${String(item.id)===String(selected)?'selected':''}>${esc(item.name)}</option>`).join('')}
   function inlineQuotationOptions(customerId,selected=""){const rows=opts.quotations.filter(item=>String(item.customer_id||'')===String(customerId||'')&&(item.status==='مقبول'||String(item.id)===String(selected)));return '<option value="">بدون عرض سعر</option>'+rows.map(item=>`<option value="${esc(item.id)}" ${String(item.id)===String(selected)?'selected':''}>${esc(item.quotation_number||'عرض سعر')}</option>`).join('')}
   function syncInlineMapLink(){const input=$("installationServicesEditMapUrl"),link=$("installationServicesEditOpenMap");if(!input||!link)return;const value=String(input.value||'').trim();if(/^https:\/\//i.test(value)){link.href=value;link.classList.remove('hidden')}else{link.href='#';link.classList.add('hidden')}}
-  async function openServicesEdit(row){if(!row)return;await ensureOptions();$("installationServicesEditRequestId").value=row.id;$("installationServicesEditLabel").textContent=`${row.requestNumber} — ${row.customerName}`;const neighborhood=$("installationServicesEditNeighborhood");neighborhood.innerHTML=inlineNeighborhoodOptions(row.neighborhoodId||'');neighborhood.value=row.neighborhoodId||'';$("installationServicesEditMapUrl").value=row.customerMapUrl||'';$("installationServicesEditCustomerOrder").value=row.customerOrderNumber||'';const quotation=$("installationServicesEditQuotation");quotation.innerHTML=inlineQuotationOptions(row.customerId,row.quotationId||'');quotation.value=row.quotationId||'';syncInlineMapLink();$("installationServicesEditBody").innerHTML='';(row.services?.length?row.services:[{}]).forEach(addInlineServiceRow);clearStatus($("installationServicesEditStatus"));$("installationServicesEditDialog").showModal()}
+  async function ensureInlineEditOptions(customerId){
+    const needsNeighborhoods=!opts.neighborhoods?.length,needsServices=!opts.serviceTypes?.length;
+    const hasCustomerQuotes=(opts.quotations||[]).some(item=>String(item.customer_id||'')===String(customerId||''));
+    if(!needsNeighborhoods&&!needsServices&&hasCustomerQuotes)return;
+    const data=await window.InstallationsServiceSafe.requestEditOptions(customerId);
+    if(needsNeighborhoods)opts.neighborhoods=data.neighborhoods||[];
+    if(needsServices)opts.serviceTypes=data.serviceTypes||[];
+    const others=(opts.quotations||[]).filter(item=>String(item.customer_id||'')!==String(customerId||''));
+    opts.quotations=[...others,...(data.quotations||[])];
+  }
+  function renderServicesEditData(row){
+    $("installationServicesEditRequestId").value=row.id;
+    $("installationServicesEditLabel").textContent=`${row.requestNumber} — ${row.customerName}`;
+    const neighborhood=$("installationServicesEditNeighborhood");
+    neighborhood.innerHTML=inlineNeighborhoodOptions(row.neighborhoodId||'');
+    neighborhood.value=row.neighborhoodId||'';
+    $("installationServicesEditMapUrl").value=row.customerMapUrl||'';
+    $("installationServicesEditCustomerOrder").value=row.customerOrderNumber||'';
+    const quotation=$("installationServicesEditQuotation");
+    quotation.innerHTML=inlineQuotationOptions(row.customerId,row.quotationId||'');
+    quotation.value=row.quotationId||'';
+    syncInlineMapLink();
+    $("installationServicesEditBody").innerHTML='';
+    (row.services?.length?row.services:[{}]).forEach(addInlineServiceRow);
+    clearStatus($("installationServicesEditStatus"));
+  }
+  async function openServicesEdit(input){
+    const id=input?.id||input;
+    if(!id)return;
+    const dialog=$("installationServicesEditDialog"),save=$("saveInstallationServicesEdit");
+    $("installationServicesEditRequestId").value=id;
+    $("installationServicesEditLabel").textContent='جاري تحميل بيانات الطلب...';
+    $("installationServicesEditBody").innerHTML='<tr><td colspan="5" class="empty-cell">جاري تحميل البيانات الحالية...</td></tr>';
+    save.disabled=true;clearStatus($("installationServicesEditStatus"));
+    if(!dialog.open)dialog.showModal();
+    try{
+      const row=await window.InstallationsServiceSafe.requestEditDetail(id);
+      await ensureInlineEditOptions(row.customerId);
+      renderServicesEditData(row);
+    }catch(error){
+      status($("installationServicesEditStatus"),error.message,'error');
+      $("installationServicesEditBody").innerHTML='<tr><td colspan="5" class="empty-cell">تعذر تحميل بيانات الطلب.</td></tr>';
+    }finally{save.disabled=false}
+  }
   function currentRow(id){return rows.find(row=>row.id===id)}
 
   function restoreEditForm() {
@@ -601,7 +644,7 @@
       const servicesButton = event.target.closest("[data-install-services-edit]");
       const deleteButton = event.target.closest("[data-install-delete]");
       if (viewButton) renderRequestView(currentRow(viewButton.dataset.installView));
-      if (servicesButton) openServicesEdit(currentRow(servicesButton.dataset.installServicesEdit));
+      if (servicesButton) openServicesEdit(servicesButton.dataset.installServicesEdit);
       if (deleteButton && confirm("هل تريد حذف طلب التركيب؟")) {
         try {
           await window.InstallationsServiceSafe.remove(deleteButton.dataset.installDelete);
@@ -620,9 +663,9 @@
     $("installationServicesEditBody")?.addEventListener("input",event=>{const row=event.target.closest('.installation-inline-service-row');if(event.target.matches('.inline-service-type')){const service=opts.serviceTypes.find(item=>item.id===event.target.value);if(service&&row)row.querySelector('.inline-service-price').value=Number(service.default_price||0).toFixed(2)}recalculateInlineServices()});
     $("installationServicesEditBody")?.addEventListener("click",event=>{const btn=event.target.closest('.inline-service-remove');if(!btn)return;const all=$("installationServicesEditBody").querySelectorAll('.installation-inline-service-row');if(all.length===1)return status($("installationServicesEditStatus"),'يجب أن يحتوي الطلب على خدمة واحدة على الأقل.','error');btn.closest('tr').remove();recalculateInlineServices()});
     $("installationServicesEditMapUrl")?.addEventListener("input",syncInlineMapLink);
-    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");setSaveState(btn,'saving','حفظ التعديلات');try{await window.InstallationsServiceSafe.updateRequestContextServices($("installationServicesEditRequestId").value,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});setSaveState(btn,'saved');await new Promise(r=>setTimeout(r,450));$("installationServicesEditDialog").close();await load();window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:$("installationServicesEditRequestId").value}}))}catch(error){setSaveState(btn,'error');status($("installationServicesEditStatus"),error.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ التعديلات')}});
+    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");setSaveState(btn,'saving','حفظ التعديلات');try{const requestId=$("installationServicesEditRequestId").value;await window.InstallationsServiceSafe.updateRequestContextServices(requestId,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});const fresh=await window.InstallationsServiceSafe.requestEditDetail(requestId);const index=rows.findIndex(item=>item.id===requestId);if(index>=0)rows[index]=fresh;setSaveState(btn,'saved');window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:requestId,row:fresh}}));await new Promise(r=>setTimeout(r,350));$("installationServicesEditDialog").close();render();load().catch(()=>{})}catch(error){setSaveState(btn,'error');status($("installationServicesEditStatus"),error.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ التعديلات')}});
     window.addEventListener('kyum-installation-request-view',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return renderRequestView(row);if(!id)return;try{await load();renderRequestView(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
-    window.addEventListener('kyum-installation-services-edit',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return openServicesEdit(row);if(!id)return;try{await load();openServicesEdit(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
+    window.addEventListener('kyum-installation-services-edit',event=>{const id=event.detail?.id;if(id)openServicesEdit(id)});
     window.addEventListener('kyum-installation-services-updated',()=>load());
 
     $("newInstallationRequestForm")?.addEventListener("submit", async event => {

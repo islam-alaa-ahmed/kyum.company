@@ -1,34 +1,28 @@
-# Phase M14.9.8.16 — Cancel Scheduled Installation
+# Phase M14.9.8.16.1 — Pending Installation Edit Data Hydration & Save Sync
 
 ## Root Cause
-The daily details dialog still exposed the legacy **Open Request** action although request editing had already moved to dedicated inline workflows. Scheduling managers had no direct way to remove a scheduled request from the calendar and return it to the pending scheduling queue.
+- شاشة الجدولة كانت تمرر نسخة مختصرة من الطلب إلى نافذة التعديل. هذه النسخة لا تحتوي دائمًا على `neighborhoodId` أو معرّفات أنواع الخدمات.
+- نافذة التعديل كانت تعتمد على النسخة المختصرة فورًا، لذلك ظهر الحي فارغًا والخدمة كـ «اختر الخدمة».
+- فتح النافذة كان يستدعي تحميل جميع العملاء والعروض والبيانات المرجعية، مما تسبب في تأخير غير ضروري.
+- بعد الحفظ لم تكن كل الوحدات تعتمد فورًا على سجل محدث مؤكد من Supabase.
 
-## Implemented
-- Replaced **فتح الطلب** with **إلغاء الجدولة** in the daily appointment card.
-- The action is rendered only when the user has `installationSchedule.edit` and operational access to the request.
-- Added confirmation before cancellation.
-- Added save-state feedback: `جاري الحفظ...`, `تم الحفظ`, and `تعذر الحفظ`.
-- Added the protected RPC `cancel_installation_request_schedule(uuid)`.
-- Cancels all unstarted visits for single-day and multi-day requests.
-- Clears date, time, team, technician, assignment metadata, and returns the request to `بانتظار الجدولة`.
-- Blocks cancellation after execution starts or any actual quantity is confirmed.
+## Fix
+- إضافة `requestEditDetail()` لتحميل الطلب الحالي وخدماته بمعرّفاتها الفعلية مباشرة من Supabase.
+- إضافة `requestEditOptions()` لتحميل خيارات التعديل المطلوبة فقط بدل تحميل بيانات النظام كاملة.
+- فتح النافذة فورًا بحالة تحميل ثم تعبئتها بالبيانات المؤكدة.
+- الحفظ ثم إعادة قراءة الطلب المحدث وتحديث الواجهة وإرسال حدث تحديث لباقي مسارات التركيبات.
 
-## Files Modified
-- `assets/js/installation-scheduling.js`
-- `assets/js/installations-service.js`
-- `assets/js/installations-service-contract.js`
-- `assets/css/installation-scheduling.css`
-- `supabase/migrations/phase_m14_9_8_16_cancel_scheduled_installation.sql`
-- `supabase/verification/phase_m14_9_8_16_cancel_scheduled_installation_verification.sql`
-- `index.html`
-- `assets/js/pwa.js`
-- `service-worker.js`
-- `package.json`
-- `version.json`
+## Regression Scope
+- طلبات التركيبات.
+- جدول الطلبات المطلوب جدولتها.
+- نافذة تعديل خدمات الطلب.
+- التقويم والجدولة متعددة الأيام.
+- مزامنة قيم الخدمات والزيارات.
 
-## Manual Regression
-1. User with view-only permission does not see the cancellation button.
-2. User with edit permission cancels a single-day request and it returns to the pending table.
-3. Cancelling a multi-day request removes every planned visit.
-4. A request with started execution or confirmed quantity cannot be cancelled.
-5. Day locks, rescheduling, technician conflict checks, and multi-day scheduling remain operational.
+## Validation
+- JavaScript syntax: PASS
+- Service contract: PASS
+- Fresh detail hydration: PASS
+- Lightweight edit options: PASS
+- Post-save confirmed refresh: PASS
+- Version synchronization: PASS

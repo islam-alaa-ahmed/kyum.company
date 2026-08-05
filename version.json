@@ -1,13 +1,13 @@
 {
-  "version": "18.50.7",
-  "build": 185007,
+  "version": "18.50.8",
+  "build": 185008,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.16 Cancel Scheduled Installation",
+  "title": "M14.9.8.16.1 Pending Installation Edit Data Hydration & Save Sync",
   "notes": [
-    "استبدال فتح الطلب بإلغاء الجدولة داخل تفاصيل يوم التركيبات",
-    "ربط الإلغاء بصلاحية تعديل شاشة جدولة التركيبات",
-    "إلغاء جميع زيارات الطلب وإعادته إلى قائمة الطلبات المطلوب جدولتها مع منع الإلغاء بعد بدء التنفيذ"
+    "تحميل بيانات الطلب والخدمات الحالية مباشرة عند فتح التعديل من قائمة الطلبات غير المجدولة",
+    "منع ظهور الحي فارغًا أو الخدمة كخيار افتراضي عند وجود بيانات محفوظة",
+    "تحديث جميع مسارات العرض فور نجاح الحفظ مع إعادة تحميل البيانات المؤكدة من Supabase"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-7-m14-9-8-16-cancel-scheduled-installation"
+  "cacheToken": "kyum-crm-pwa-18-50-8-m14-9-8-16-1-pending-edit-data-hydration-save-sync"
 }
