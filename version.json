@@ -1,13 +1,12 @@
 {
-  "version": "18.50.14",
-  "build": 185014,
+  "version": "18.50.15",
+  "build": 185015,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "M14.9.8.16.6.1 Scheduling Modal Scroll & Sticky Footer Recovery",
+  "title": "Daily Performance WhatsApp PDF Share",
   "notes": [
-    "إضافة تمرير رأسي مستقل لجسم نافذة الجدولة",
-    "تثبيت الهيدر وشريط حفظ الجدولة والإلغاء دون تغطية المحتوى",
-    "منع التمرير الأفقي وضمان الوصول إلى جميع الأيام والخدمات"
+    "استبدال تصدير CSV بإرسال تقرير الأداء اليومي بصيغة PDF عبر المشاركة وواتساب",
+    "دعم مشاركة ملف PDF مباشرة على الأجهزة المتوافقة وتنزيله مع فتح واتساب على سطح المكتب"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-14-m14-9-8-16-6-1-scheduling-modal-scroll-sticky-footer"
+  "cacheToken": "kyum-crm-pwa-18-50-15-daily-performance-whatsapp-pdf-share"
 }

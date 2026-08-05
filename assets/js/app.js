@@ -5477,6 +5477,137 @@ table{width:100%!important;border-collapse:collapse!important;table-layout:auto!
   popup.document.close();
 }
 
+
+async function createDailyPerformancePdfFile() {
+  if (!dailyPerformanceSnapshot) {
+    throw new Error("حمّل تقرير الأداء اليومي أولًا قبل تجهيز PDF.");
+  }
+  if (!window.html2canvas || !window.jspdf?.jsPDF) {
+    throw new Error("تعذر تحميل أدوات إنشاء ملف PDF.");
+  }
+
+  const source = document.getElementById("dailyPerformanceReportView");
+  if (!source) throw new Error("تعذر الوصول إلى محتوى تقرير الأداء اليومي.");
+
+  const selectedDate = document.getElementById("dailyPerformanceDate")?.value
+    || dailyPerformanceSnapshot.workDate
+    || dailyLocalDate();
+  const employeeSelect = document.getElementById("dailyPerformanceRepresentativeFilter");
+  const employeeLabel = employeeSelect?.options?.[employeeSelect.selectedIndex]?.textContent
+    || "كل الموظفين";
+
+  const host = document.createElement("section");
+  host.setAttribute("dir", "rtl");
+  host.style.cssText = "position:fixed;left:-20000px;top:0;width:1400px;background:#fff;color:#111827;padding:28px;font-family:Tahoma,Arial,sans-serif;z-index:-1";
+  host.innerHTML = `
+    <header style="display:grid;grid-template-columns:180px 1fr 290px;align-items:center;gap:20px;padding:18px 22px;border-radius:20px;background:linear-gradient(135deg,#06192c,#0a3651);color:#fff;margin-bottom:18px">
+      <img src="assets/images/kyum-header-logo.png" alt="KYUM" style="width:165px;max-height:78px;object-fit:contain;border-radius:12px">
+      <div style="text-align:center"><h1 style="margin:0 0 6px;font-size:30px">تقرير الأداء اليومي</h1><p style="margin:0;color:#d5e3ee;font-size:15px">متابعة تنفيذ المهام والنشاط اليومي للموظفين</p></div>
+      <div style="font-size:13px;line-height:2;border-right:1px solid rgba(255,255,255,.25);padding-right:18px">
+        <div><strong style="color:#f4bd3c">تاريخ التقرير:</strong> ${dailyPerformancePdfEscape(selectedDate)}</div>
+        <div><strong style="color:#f4bd3c">الموظف / المندوب:</strong> ${dailyPerformancePdfEscape(employeeLabel)}</div>
+      </div>
+    </header>
+  `;
+
+  const clone = source.cloneNode(true);
+  clone.classList.remove("hidden");
+  clone.removeAttribute("id");
+  clone.querySelectorAll(".daily-performance-header, .daily-performance-filters, #dailyPerformanceStatus, button, .daily-report-show-btn").forEach(el => el.remove());
+  clone.querySelectorAll("select, input").forEach(control => {
+    const replacement = document.createElement("span");
+    replacement.textContent = control.tagName === "SELECT"
+      ? control.options?.[control.selectedIndex]?.textContent || "—"
+      : control.value || "—";
+    replacement.style.cssText = "display:inline-block;padding:5px 9px;border:1px solid #dbe3ea;border-radius:7px;background:#f8fafc";
+    control.replaceWith(replacement);
+  });
+  clone.querySelectorAll(".hidden").forEach(el => el.remove());
+  clone.style.cssText = "display:block!important;width:100%!important;background:#fff!important;color:#111827!important";
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  try {
+    const canvas = await window.html2canvas(host, {
+      scale: 1.35,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      windowWidth: 1400,
+      scrollX: 0,
+      scrollY: 0
+    });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 6;
+    const imageWidth = pageWidth - margin * 2;
+    const imageHeight = canvas.height * imageWidth / canvas.width;
+    const usableHeight = pageHeight - margin * 2;
+    let offset = 0;
+    const imageData = canvas.toDataURL("image/jpeg", 0.93);
+    while (offset < imageHeight) {
+      if (offset > 0) pdf.addPage();
+      pdf.addImage(imageData, "JPEG", margin, margin - offset, imageWidth, imageHeight, undefined, "FAST");
+      offset += usableHeight;
+    }
+    const fileName = `kyum-daily-performance-${selectedDate}.pdf`;
+    const blob = pdf.output("blob");
+    return new File([blob], fileName, { type: "application/pdf" });
+  } finally {
+    host.remove();
+  }
+}
+
+function downloadDailyPerformancePdfFile(file) {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function sendDailyPerformanceWhatsappPdf(event) {
+  const button = event?.currentTarget || document.getElementById("sendDailyPerformanceWhatsappPdfBtn");
+  const originalText = button?.textContent || "إرسال التقرير واتساب PDF";
+  if (button?.disabled) return;
+  if (button) { button.disabled = true; button.textContent = "جاري تجهيز PDF..."; }
+
+  try {
+    const file = await createDailyPerformancePdfFile();
+    const selectedDate = document.getElementById("dailyPerformanceDate")?.value
+      || dailyPerformanceSnapshot?.workDate
+      || dailyLocalDate();
+    const message = `تقرير الأداء اليومي\nالتاريخ: ${selectedDate}\nمرفق تقرير الأداء بصيغة PDF.`;
+    const shareData = { title: `تقرير الأداء اليومي - ${selectedDate}`, text: message, files: [file] };
+
+    if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+      if (button) button.textContent = "تم تجهيز التقرير";
+      await navigator.share(shareData);
+    } else {
+      downloadDailyPerformancePdfFile(file);
+      if (button) button.textContent = "تم تجهيز التقرير";
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message + "\nتم تنزيل ملف PDF على الجهاز لإرفاقه بالمحادثة.")}`;
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      showDataStatus("dailyPerformanceStatus", "تم تنزيل ملف PDF وفتح واتساب. أرفق الملف الذي تم تنزيله بالمحادثة.", "success");
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      console.error("Daily performance WhatsApp PDF error", error);
+      showDataStatus("dailyPerformanceStatus", error?.message || "تعذر تجهيز تقرير PDF للمشاركة.", "error");
+      if (button) button.textContent = "تعذر التجهيز";
+    }
+  } finally {
+    setTimeout(() => {
+      if (button) { button.disabled = false; button.textContent = originalText; }
+    }, 1200);
+  }
+}
+
 function dailyLocalDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -8612,9 +8743,9 @@ document.getElementById("exportDailyPerformancePdfBtn")?.addEventListener(
   "click",
   exportDailyPerformancePdf
 );
-document.getElementById("exportDailyPerformanceCsvBtn")?.addEventListener(
+document.getElementById("sendDailyPerformanceWhatsappPdfBtn")?.addEventListener(
   "click",
-  exportDailyPerformanceCsv
+  sendDailyPerformanceWhatsappPdf
 );
 document.getElementById("resetDailyPerformanceFiltersBtn")?.addEventListener(
   "click",

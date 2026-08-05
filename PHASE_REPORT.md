@@ -1,24 +1,32 @@
-# Phase M14.9.8.16.6.1 — Scheduling Modal Scroll & Sticky Footer Recovery
+# Phase M14.9.8.16.7 — Daily Performance WhatsApp PDF Share
 
-## Root Cause
-The assignment dialog used a flex shell without a dedicated scrollable body. The action bar remained visible but overlapped the lower visit cards because the content area did not reserve its own scrolling region.
+## Scope
+- استبدال زر تصدير CSV في تقرير الأداء اليومي بزر إرسال التقرير واتساب PDF.
+- إنشاء ملف PDF فعلي من التقرير الحالي مع تطبيق فلتر التاريخ والموظف.
+- مشاركة الملف مباشرة عبر Web Share API عند دعم مشاركة الملفات.
+- على سطح المكتب: تنزيل PDF ثم فتح واتساب برسالة جاهزة لإرفاق الملف.
+- الحفاظ على زر تصدير PDF الحالي بدون تغيير.
 
-## Changes
-- Added `installation-assignment-scroll-body` between the fixed header and footer.
-- Converted the dialog shell to a three-row grid: header, scrollable body, footer.
-- Added vertical scrolling to the body only.
-- Kept Save and Cancel visible in a dedicated footer that does not cover fields.
-- Prevented horizontal overflow and preserved responsive one-column layout.
+## Save/Progress UX
+- جاري تجهيز PDF...
+- تم تجهيز التقرير
+- تعذر التجهيز
+- منع الضغط المتكرر أثناء إنشاء الملف.
 
-## Files Modified
+## Modified Files
 - index.html
-- assets/css/installation-scheduling.css
+- assets/js/app.js
 - assets/js/pwa.js
 - service-worker.js
 - package.json
 - version.json
 - PHASE_REPORT.md
 
-## Version
-- Version: 18.50.14
-- Build: 185014
+## Validation
+- JavaScript syntax: PASS
+- Service worker syntax: PASS
+- CSV action replacement: PASS
+- PDF file creation path: PASS
+- Web Share file path: PASS
+- Desktop fallback download + WhatsApp path: PASS
+- Version synchronization: PASS
