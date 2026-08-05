@@ -2,7 +2,7 @@
   'use strict';
 
   const REQUIRED_METHODS = [
-    'list', 'options', 'createRequest', 'updateRequest', 'updateRequestServices', 'updateRequestContextServices', 'remove', 'technicians', 'scheduleTeams', 'technicianNameSuggestions', 'scheduleList', 'assign', 'executionWorkspace', 'executionIdentity', 'selectExecutionRequest', 'recordMapOpened', 'advanceExecution', 'completionList', 'saveCompletion', 'signedFileUrl', 'exceptionList', 'saveRevisit', 'operationalReport', 'settingsCatalog', 'saveSettingItem', 'toggleSettingItem', 'removeSettingItem'
+    'list', 'options', 'createRequest', 'updateRequest', 'updateRequestServices', 'updateRequestContextServices', 'remove', 'technicians', 'scheduleTeams', 'technicianNameSuggestions', 'scheduleList', 'schedulePlan', 'assignMultiDay', 'assign', 'executionWorkspace', 'executionIdentity', 'selectExecutionRequest', 'recordMapOpened', 'advanceExecution', 'completionList', 'saveCompletion', 'signedFileUrl', 'exceptionList', 'saveRevisit', 'operationalReport', 'settingsCatalog', 'saveSettingItem', 'toggleSettingItem', 'removeSettingItem'
   ];
 
   function isValid(service) {
@@ -19,7 +19,7 @@
       }
 
       const script = document.createElement('script');
-      script.src = 'assets/js/installations-service.js?v=18.50.3-recovery';
+      script.src = 'assets/js/installations-service.js?v=18.50.4-recovery';
       script.async = false;
       script.dataset.kyumInstallationsServiceRecovery = 'true';
       script.addEventListener('load', resolve, { once: true });

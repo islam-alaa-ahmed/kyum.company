@@ -286,3 +286,17 @@ html[data-theme="dark"] .installation-readonly-note{background:rgba(148,163,184,
 #installationAssignmentDate option:disabled,#installationAssignmentTime option:disabled{color:var(--muted);background:var(--surface-soft)}
 html[data-theme="light"] .installation-day-lock-glass{background:rgba(248,250,252,.62)}
 html[data-theme="dark"] .installation-day-lock-glass{background:rgba(15,23,42,.54)}
+
+/* Phase M14.9.8.15.3 — Multi-day scheduling recovery */
+.installation-multi-day-toggle{display:flex!important;align-items:flex-start;gap:10px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface-soft)}
+.installation-multi-day-toggle input{width:20px!important;min-width:20px;height:20px;margin-top:2px}
+.installation-multi-day-toggle span{font-weight:800}.installation-multi-day-toggle small{display:block;width:100%}
+.installation-multi-day-panel{display:grid;gap:14px;padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--surface-soft)}
+.installation-multi-day-panel.hidden{display:none}.installation-multi-day-panel .installation-section-title{align-items:flex-start;gap:12px}.installation-multi-day-panel .installation-section-title p{margin:4px 0 0;color:var(--muted);font-size:.82rem}
+.installation-multi-day-visits{display:grid;gap:14px}.installation-multi-day-visit{display:grid;gap:12px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.installation-multi-day-visit-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.installation-multi-day-visit-head h5{margin:0;font-size:1rem}.installation-multi-day-visit-head button{white-space:nowrap}
+.installation-multi-day-visit-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.installation-multi-day-visit-fields label{min-width:0}.installation-multi-day-visit-fields input,.installation-multi-day-visit-fields select{width:100%;max-width:100%;box-sizing:border-box}
+.installation-multi-day-quantities{display:grid;gap:8px}.installation-multi-day-quantity-row{display:grid;grid-template-columns:minmax(180px,1fr) 110px 130px;align-items:center;gap:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:12px}.installation-multi-day-quantity-row strong{overflow-wrap:anywhere}.installation-multi-day-quantity-row small{color:var(--muted)}.installation-multi-day-quantity-row input{width:100%;box-sizing:border-box}
+.installation-allocation-summary{display:flex;flex-wrap:wrap;gap:8px 14px;padding:10px 12px;border-radius:12px;background:var(--surface-soft);font-size:.84rem}.installation-allocation-summary strong{font-weight:900}.installation-allocation-summary .is-error{color:var(--danger)}.installation-allocation-summary .is-ok{color:var(--success)}
+@media(max-width:900px){.installation-multi-day-visit-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.installation-multi-day-visit-fields{grid-template-columns:1fr}.installation-multi-day-quantity-row{grid-template-columns:1fr}.installation-multi-day-visit-head{align-items:flex-start}.installation-multi-day-panel{padding:12px}}

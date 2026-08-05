@@ -1,13 +1,13 @@
 {
-  "version": "18.50.3",
-  "build": 185003,
+  "version": "18.50.4",
+  "build": 185004,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15.2 Installation Request Context Inline Editing",
+  "title": "M14.9.8.15.3 Multi-Day Scheduling Workflow Recovery",
   "notes": [
-    "تعديل الحي ورابط Google Maps ورقم طلب العميل ورقم عرض السعر من نفس نافذة تعديل الطلب",
-    "حفظ بيانات طلب التركيب والخدمات في عملية موحدة عبر RPC الحالية",
-    "تحسين تجاوب النافذة ومنع قص النصوص والتمرير الأفقي"
+    "استعادة خيار تقسيم طلب التركيب على أكثر من يوم داخل نافذة الجدولة وإعادة الجدولة",
+    "توزيع كميات كل خدمة على الزيارات مع تحقق كامل قبل الحفظ",
+    "إظهار كل زيارة في تقويم الجدولة مع منع الأيام المغلقة وتعارض مواعيد الفنيين"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-3-m14-9-8-15-2-request-context-inline-editing"
+  "cacheToken": "kyum-crm-pwa-18-50-4-m14-9-8-15-3-multi-day-scheduling-recovery"
 }
