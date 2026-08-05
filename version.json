@@ -1,13 +1,13 @@
 {
-  "version": "18.50.12",
-  "build": 185012,
+  "version": "18.50.13",
+  "build": 185013,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.16.4 Wide Multi-Day Scheduling & Request Context Sync",
+  "title": "M14.9.8.16.6 Multi-Day Scheduling Layout Collision Recovery",
   "notes": [
-    "تحديث جدول الطلبات المطلوب جدولتها بأحدث حي محفوظ في طلب التركيب",
-    "تطبيق تصميم واسع لنافذة الجدولة متعددة الأيام ببطاقتين في كل صف",
-    "إضافة ملخص الطلب وبيانات الحي ورقم الطلب وعرض السعر وموقع العميل داخل نافذة الجدولة"
+    "إصلاح امتداد الأقسام بعرض نافذة الجدولة بالكامل",
+    "منع تداخل بطاقات الأيام والحقول والأزرار",
+    "عرض يومين في كل صف مع استجابة واضحة للشاشات المتوسطة والصغيرة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-11-m14-9-8-16-4-wide-multi-day-scheduling-context-sync"
+  "cacheToken": "kyum-crm-pwa-18-50-13-m14-9-8-16-6-multi-day-layout-collision-recovery"
 }

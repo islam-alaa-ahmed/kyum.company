@@ -1,18 +1,20 @@
-# Phase M14.9.8.16.5 — Customer Edit Hydration & Interest Validation Recovery
+# Phase M14.9.8.16.6 — Multi-Day Scheduling Layout Collision Recovery
 
 ## Root Cause
-- نافذة تعديل العميل كانت تنتظر تحميل كل البيانات المرجعية قبل الظهور، مما سبب تأخيرًا ملحوظًا.
-- حقل مجالات الاهتمام الأصلي المخفي كان يحمل `required`، بينما الواجهة المرئية قائمة مخصصة؛ لذلك كان تحقق المتصفح يوقف الحفظ برسالة «يرجى اختيار عنصر من القائمة» حتى عندما تبدو القيمة معروضة.
-- بعض العملاء القدماء كانت اهتماماتهم محفوظة بالاسم أو لم تُربط بالمعرف الحالي قبل تمكين الحفظ.
+The scheduling form uses a four-column CSS grid, but the `full-span` sections did not have an effective `grid-column: 1 / -1` rule. The multi-day panel, services summary and notes therefore occupied individual grid cells and collided with each other. Older responsive rules also compressed visit cards and their controls beyond usable widths.
 
 ## Changes
-- فتح النافذة فورًا بحالة «جاري تحميل البيانات...».
-- تحميل سجل العميل المطلوب فقط من Supabase مع تحميل الأحياء والمرجعيات بالتوازي.
-- إعادة ربط الاهتمامات بالمعرف، مع fallback بالاسم للبيانات القديمة.
-- إزالة التحقق الأصلي `required` من الـselect المخفي، واستبداله بتحقق واضح على زر القائمة المرئي.
-- الحفاظ على الحي والمندوب والقيم الحالية عند فتح التعديل.
-- منع الضغط على الحفظ أثناء التحميل.
+- Forced all direct `full-span` scheduling sections to occupy the full grid width.
+- Separated the multi-day header, add-day action and visit cards into stable layout regions.
+- Displayed two visit cards per row on wide screens and one per row below 1180px.
+- Rebuilt each visit card as clear two-column field rows with readable labels and controls.
+- Prevented horizontal overflow and text clipping in service quantity rows.
+- Enlarged and clarified Add Day, Delete Day, Save Scheduling and Cancel buttons.
+- Kept the dialog footer visible and stable.
+
+## Regression Preservation
+No scheduling business logic, quantities, past-date support, day locking, technician conflict checks, permissions, execution, invoices or reports were changed.
 
 ## Version
-- 18.50.12
-- Build 185012
+- Version: 18.50.13
+- Build: 185013

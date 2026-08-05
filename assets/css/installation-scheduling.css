@@ -509,3 +509,202 @@ html[data-theme="dark"] .installation-day-actions .installation-cancel-schedule-
   .installation-multi-day-quantity-row{grid-template-columns:1fr}
   .installation-multi-day-panel{padding:12px}
 }
+
+/* Phase M14.9.8.16.6 — Multi-day scheduling layout collision recovery */
+.installation-assignment-grid > .full-span{
+  grid-column:1 / -1 !important;
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+.installation-assignment-dialog .dialog-shell{
+  display:flex;
+  flex-direction:column;
+  max-height:calc(100vh - 24px);
+  overflow:hidden;
+}
+.installation-assignment-dialog .dialog-header{
+  flex:0 0 auto;
+}
+.installation-assignment-dialog .installation-assignment-context,
+.installation-assignment-dialog .installation-assignment-grid,
+.installation-assignment-dialog #installationAssignmentFormStatus{
+  flex:0 0 auto;
+}
+.installation-assignment-dialog .installation-assignment-grid{
+  overflow:visible;
+}
+.installation-assignment-overview-row{
+  grid-template-columns:minmax(360px,.9fr) minmax(520px,1.35fr);
+  width:100%;
+}
+.installation-assignment-overview-row > *{
+  min-width:0;
+}
+.installation-assignment-order-summary{
+  min-height:112px;
+  align-items:stretch;
+}
+.installation-multi-day-panel{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+  overflow:visible;
+}
+.installation-multi-day-panel.hidden{display:none!important}
+.installation-multi-day-panel .installation-section-title{
+  width:100%;
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.installation-multi-day-panel .installation-section-title > div{
+  min-width:0;
+}
+.installation-multi-day-panel .installation-section-title h4{
+  margin:0 0 5px;
+  line-height:1.5;
+}
+.installation-multi-day-panel .installation-section-title p{
+  margin:0;
+  line-height:1.65;
+  overflow-wrap:anywhere;
+}
+.installation-multi-day-panel .installation-section-title button{
+  min-width:132px;
+  min-height:44px;
+  padding:10px 16px;
+  white-space:nowrap;
+}
+.installation-multi-day-visits{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  align-items:start;
+  gap:16px;
+}
+.installation-multi-day-visit{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  overflow:visible;
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+}
+.installation-multi-day-visit-head{
+  min-height:44px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+.installation-multi-day-visit-head h5{
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.installation-multi-day-visit-head button{
+  min-height:38px;
+  padding:8px 12px;
+  border-color:#fecaca;
+  color:#b91c1c;
+  background:#fff7f7;
+}
+.installation-multi-day-visit-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px;
+}
+.installation-multi-day-visit-fields label{
+  display:grid;
+  align-content:start;
+  gap:7px;
+  min-width:0;
+  line-height:1.45;
+  font-weight:700;
+}
+.installation-multi-day-visit-fields select,
+.installation-multi-day-visit-fields input{
+  width:100%;
+  min-width:0;
+  min-height:46px;
+  padding:10px 12px;
+  box-sizing:border-box;
+  font-size:.9rem;
+  line-height:1.35;
+  text-overflow:ellipsis;
+}
+.installation-multi-day-quantities{
+  min-width:0;
+  overflow:visible;
+}
+.installation-multi-day-quantity-row{
+  width:100%;
+  min-width:0;
+  grid-template-columns:minmax(160px,1.4fr) minmax(95px,.65fr) minmax(110px,.72fr) !important;
+  box-sizing:border-box;
+}
+.installation-multi-day-quantity-row > *{
+  min-width:0;
+}
+.installation-multi-day-quantity-row strong,
+.installation-multi-day-quantity-row span,
+.installation-multi-day-quantity-row small{
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
+.installation-allocation-summary{
+  width:100%;
+  box-sizing:border-box;
+}
+.installation-assignment-services-section{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface-soft);
+}
+.installation-assignment-services-section .installation-section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.installation-assignment-services-section .installation-section-title button{
+  min-height:42px;
+  padding:9px 14px;
+  white-space:nowrap;
+}
+.installation-assignment-services-summary{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.installation-assignment-dialog .dialog-actions{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:72px;
+  margin-top:16px;
+  padding:14px 0 0;
+}
+.installation-assignment-dialog .dialog-actions button{
+  min-width:118px;
+  min-height:48px;
+  padding:11px 18px;
+  font-weight:800;
+  white-space:nowrap;
+}
+@media(max-width:1180px){
+  .installation-assignment-overview-row{grid-template-columns:1fr}
+  .installation-multi-day-visits{grid-template-columns:1fr !important}
+}
+@media(max-width:820px){
+  .installation-multi-day-panel .installation-section-title{grid-template-columns:1fr}
+  .installation-multi-day-panel .installation-section-title button{width:100%}
+  .installation-multi-day-visit-fields,
+  .installation-multi-day-quantity-row{grid-template-columns:1fr !important}
+  .installation-assignment-dialog .dialog-actions{position:sticky;bottom:0}
+  .installation-assignment-dialog .dialog-actions button{flex:1 1 0;min-width:0}
+}
