@@ -45,3 +45,16 @@
  .installation-inline-services-table .inline-service-remove{width:auto;align-self:flex-start}
 }
 @media(max-width:520px){.installation-services-edit-dialog{width:calc(100vw - 16px)}.installation-services-edit-context{grid-template-columns:1fr}.installation-inline-services-table tr{grid-template-columns:1fr}.installation-inline-services-table td,.installation-inline-services-table td:first-child,.installation-inline-services-table td:last-child{grid-column:1}}
+
+
+/* Phase M14.9.8.15.2 — editable request context without clipped content */
+.installation-services-edit-context-form label{display:flex;flex-direction:column;min-width:0;gap:7px;padding:12px 14px;border:1px solid var(--border-color,#d9e2ec);border-radius:12px;background:var(--surface-soft,#f8fafc)}
+.installation-services-edit-context-form label>span{margin:0;color:var(--text-muted,#64748b);font-size:.82rem;font-weight:700;white-space:normal;overflow-wrap:anywhere}
+.installation-services-edit-context-form input,.installation-services-edit-context-form select{width:100%;min-width:0;max-width:100%;box-sizing:border-box;white-space:normal;text-overflow:clip}
+.installation-context-location-field{grid-column:span 2}
+.installation-context-location-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0}
+.installation-context-location-control input{direction:ltr;text-align:left}
+.installation-context-location-link{white-space:nowrap}
+.installation-services-edit-dialog .dialog-header h3,.installation-services-edit-dialog .dialog-header p{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:900px){.installation-context-location-field{grid-column:span 2}}
+@media(max-width:520px){.installation-context-location-field{grid-column:1}.installation-context-location-control{grid-template-columns:1fr}.installation-context-location-link{width:100%}}

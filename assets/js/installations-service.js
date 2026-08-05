@@ -76,6 +76,32 @@
     return Array.isArray(data)?data[0]:data;
   }
 
+  async function updateRequestContextServices(requestId,payload={}){
+    const canRequests=window.CustomerPermissions?.canScreen?.('installationRequests','edit')===true;
+    const canSchedule=window.CustomerPermissions?.canScreen?.('installationSchedule','edit')===true;
+    if(!canRequests&&!canSchedule)throw new Error('ليس لديك صلاحية تعديل طلبات التركيبات.');
+    if(!requestId)throw new Error('معرّف طلب التركيب مطلوب.');
+    if(!payload.neighborhoodId)throw new Error('اختر الحي الخاص بطلب التركيب.');
+    if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');
+    const normalized=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));
+    if(normalized.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');
+    const {data:row,error:loadError}=await db().from('installation_requests').select('id,customer_id,quotation_id,representative_id,priority,installation_address,notes').eq('id',requestId).single();
+    if(loadError||!row)throw new Error('تعذر تحميل بيانات طلب التركيب قبل الحفظ: '+(loadError?.message||'الطلب غير موجود.'));
+    const quotationId=payload.quotationId||null;
+    if(quotationId){
+      const {data:quotation,error:quotationError}=await db().from('quotations').select('id,customer_id,status,installation_request_id').eq('id',quotationId).maybeSingle();
+      if(quotationError)throw new Error('تعذر التحقق من عرض السعر: '+quotationError.message);
+      if(!quotation||String(quotation.customer_id)!==String(row.customer_id))throw new Error('عرض السعر لا يخص عميل طلب التركيب.');
+      if(quotation.status!=='مقبول')throw new Error('لا يمكن ربط طلب التركيب إلا بعرض سعر مقبول.');
+      if(quotation.installation_request_id&&String(quotation.installation_request_id)!==String(requestId))throw new Error('عرض السعر مرتبط بطلب تركيب آخر بالفعل.');
+    }
+    const {data,error}=await db().rpc('update_installation_request_with_services',{
+      p_request_id:row.id,p_customer_id:row.customer_id,p_quotation_id:quotationId,p_representative_id:row.representative_id||null,p_neighborhood_id:payload.neighborhoodId,p_priority:row.priority||'عادية',p_installation_address:row.installation_address||null,p_customer_order_number:String(payload.customerOrderNumber||'').trim()||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:row.notes||null,p_services:normalized
+    });
+    if(error)throw new Error('تعذر حفظ بيانات وخدمات طلب التركيب: '+error.message);
+    return Array.isArray(data)?data[0]:data;
+  }
+
   async function save(payload){requireAction(payload.id?'edit':'add',payload.id?'installationRequests':'installationRequestNew');if(!payload.id)return createRequest(payload);const record={customer_id:payload.customerId,quotation_id:payload.quotationId||null,representative_id:payload.representativeId||null,scheduled_date:payload.scheduledDate||null,time_slot:payload.timeSlot||null,status:payload.status,priority:payload.priority,installation_address:payload.installationAddress||null,customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,description:payload.description||null,notes:payload.notes||null};const {data,error}=await db().from('installation_requests').update(record).eq('id',payload.id).select('id').single();if(error)throw new Error('تعذر حفظ طلب التركيب: '+error.message);return data}
   async function remove(id){requireAction('delete');const {error}=await db().from('installation_requests').delete().eq('id',id);if(error)throw new Error('تعذر حذف طلب التركيب: '+error.message)}
   async function technicians(){requireAction('view','installationSchedule');const {data,error}=await db().from('installation_technicians').select('*').order('full_name');if(error)throw new Error('تعذر تحميل الفنيين: '+error.message);return (data||[]).map(r=>({id:r.id,name:r.full_name,phone:r.phone||'',specialty:r.specialty||'',city:r.city||'',status:r.status||'متاح'}))}
@@ -237,6 +263,6 @@
 
   async function getSettings(){requireAction('view','installationSettings');const {data,error}=await db().from('installation_settings').select('*').eq('id',1).maybeSingle();if(error)throw new Error('تعذر تحميل إعدادات التركيبات: '+error.message);const r=data||{};return {morningLabel:r.morning_label||'صباحية',eveningLabel:r.evening_label||'مسائية',slaDays:Number(r.sla_days??1),defaultPriority:r.default_priority||'عادية',requireCompletionReport:r.require_completion_report!==false}}
   async function saveSettings(payload){requireAction('edit','installationSettings');const record={id:1,morning_label:payload.morningLabel,evening_label:payload.eveningLabel,sla_days:payload.slaDays,default_priority:payload.defaultPriority,require_completion_report:!!payload.requireCompletionReport,updated_at:new Date().toISOString()};const {error}=await db().from('installation_settings').upsert(record,{onConflict:'id'});if(error)throw new Error('تعذر حفظ إعدادات التركيبات: '+error.message)}
-  window.InstallationsService={list,options,createRequest,updateRequest,updateRequestServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
+  window.InstallationsService={list,options,createRequest,updateRequest,updateRequestServices,updateRequestContextServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
   window.dispatchEvent(new CustomEvent('kyum-installations-service-ready'));
 })();

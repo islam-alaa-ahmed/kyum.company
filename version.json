@@ -1,13 +1,13 @@
 {
-  "version": "18.50.2",
-  "build": 185002,
+  "version": "18.50.3",
+  "build": 185003,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15.1 Installation Inline Edit Dialog Layout & Request Context Recovery",
+  "title": "M14.9.8.15.2 Installation Request Context Inline Editing",
   "notes": [
-    "إظهار الحي وموقع العميل ورقم طلب العميل ورقم عرض السعر داخل نافذة تعديل الخدمات",
-    "إلغاء التمرير الأفقي وتحسين تناسب النافذة مع المحتوى",
-    "تحويل بنود الخدمات إلى بطاقات متجاوبة على الشاشات الضيقة"
+    "تعديل الحي ورابط Google Maps ورقم طلب العميل ورقم عرض السعر من نفس نافذة تعديل الطلب",
+    "حفظ بيانات طلب التركيب والخدمات في عملية موحدة عبر RPC الحالية",
+    "تحسين تجاوب النافذة ومنع قص النصوص والتمرير الأفقي"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-2-m14-9-8-15-1-inline-edit-dialog-layout-context"
+  "cacheToken": "kyum-crm-pwa-18-50-3-m14-9-8-15-2-request-context-inline-editing"
 }
