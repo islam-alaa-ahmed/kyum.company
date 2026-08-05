@@ -1,20 +1,24 @@
-# Phase M14.9.8.16.6 — Multi-Day Scheduling Layout Collision Recovery
+# Phase M14.9.8.16.6.1 — Scheduling Modal Scroll & Sticky Footer Recovery
 
 ## Root Cause
-The scheduling form uses a four-column CSS grid, but the `full-span` sections did not have an effective `grid-column: 1 / -1` rule. The multi-day panel, services summary and notes therefore occupied individual grid cells and collided with each other. Older responsive rules also compressed visit cards and their controls beyond usable widths.
+The assignment dialog used a flex shell without a dedicated scrollable body. The action bar remained visible but overlapped the lower visit cards because the content area did not reserve its own scrolling region.
 
 ## Changes
-- Forced all direct `full-span` scheduling sections to occupy the full grid width.
-- Separated the multi-day header, add-day action and visit cards into stable layout regions.
-- Displayed two visit cards per row on wide screens and one per row below 1180px.
-- Rebuilt each visit card as clear two-column field rows with readable labels and controls.
-- Prevented horizontal overflow and text clipping in service quantity rows.
-- Enlarged and clarified Add Day, Delete Day, Save Scheduling and Cancel buttons.
-- Kept the dialog footer visible and stable.
+- Added `installation-assignment-scroll-body` between the fixed header and footer.
+- Converted the dialog shell to a three-row grid: header, scrollable body, footer.
+- Added vertical scrolling to the body only.
+- Kept Save and Cancel visible in a dedicated footer that does not cover fields.
+- Prevented horizontal overflow and preserved responsive one-column layout.
 
-## Regression Preservation
-No scheduling business logic, quantities, past-date support, day locking, technician conflict checks, permissions, execution, invoices or reports were changed.
+## Files Modified
+- index.html
+- assets/css/installation-scheduling.css
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- PHASE_REPORT.md
 
 ## Version
-- Version: 18.50.13
-- Build: 185013
+- Version: 18.50.14
+- Build: 185014

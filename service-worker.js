@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-50-13-m14-9-8-16-6-multi-day-layout-collision-recovery";
+const CACHE_VERSION = "kyum-crm-pwa-18-50-14-m14-9-8-16-6-1-scheduling-modal-scroll-sticky-footer";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

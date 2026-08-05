@@ -1,13 +1,13 @@
 {
-  "version": "18.50.13",
-  "build": 185013,
+  "version": "18.50.14",
+  "build": 185014,
   "forceUpdate": true,
-  "releaseDate": "2026-08-05",
-  "title": "M14.9.8.16.6 Multi-Day Scheduling Layout Collision Recovery",
+  "releaseDate": "2026-08-06",
+  "title": "M14.9.8.16.6.1 Scheduling Modal Scroll & Sticky Footer Recovery",
   "notes": [
-    "إصلاح امتداد الأقسام بعرض نافذة الجدولة بالكامل",
-    "منع تداخل بطاقات الأيام والحقول والأزرار",
-    "عرض يومين في كل صف مع استجابة واضحة للشاشات المتوسطة والصغيرة"
+    "إضافة تمرير رأسي مستقل لجسم نافذة الجدولة",
+    "تثبيت الهيدر وشريط حفظ الجدولة والإلغاء دون تغطية المحتوى",
+    "منع التمرير الأفقي وضمان الوصول إلى جميع الأيام والخدمات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-13-m14-9-8-16-6-multi-day-layout-collision-recovery"
+  "cacheToken": "kyum-crm-pwa-18-50-14-m14-9-8-16-6-1-scheduling-modal-scroll-sticky-footer"
 }
