@@ -1,37 +1,8 @@
-# Phase M14.9.8.11.3 — Execution Active Technicians Filter Synchronization
+# Phase M14.9.8.12 — Installation Service Pricing, View & Inline Edit Workflow
 
-## Scope
-تطوير فلتر الفني داخل شاشة تنفيذ التركيبات ليعرض فقط الفنيين الذين لديهم طلبات تركيب في التاريخ المحدد، بعد تطبيق نطاق المستخدم والفرقة المختارة.
-
-## Root Cause
-قائمة الفنيين كانت تُبنى من جميع صفوف مساحة تنفيذ التركيبات المحملة للمستخدم، بدون تقييدها بتاريخ شاشة التنفيذ. لذلك كان الفني المسجل أو صاحب طلب في يوم مختلف يظهر داخل فلتر اليوم الحالي.
-
-## Changes
-- بناء خيارات الفني من الطلبات المطابقة لتاريخ الفلتر الحالي فقط.
-- استبعاد الطلبات المكتملة والملغاة من مصدر خيارات الفني.
-- إعادة بناء قائمة الفنيين فور تغيير التاريخ.
-- إعادة بناء القائمة عند تغيير الفرقة لتعرض الفنيين أصحاب الطلبات داخل الفرقة المختارة فقط.
-- إعادة الفلتر إلى «كل الفنيين» عندما لا يعود الفني السابق موجودًا في اليوم أو الفرقة الجديدة.
-- الاحتفاظ بقفل هوية فني التركيبات محدود النطاق، مع عرض حالة واضحة إذا لم توجد له طلبات في التاريخ المختار.
-- عدم تعديل RLS أو الصلاحيات أو دورة التنفيذ.
-
-## Regression Preservation
-- Super Admin ونطاق all يظلان قادرين على اختيار كل الفنيين أصحاب الطلبات في اليوم.
-- نطاق selected يرى فقط الفنيين الذين وصلت طلباتهم بالفعل عبر RLS.
-- فني own لا يرى أي فني آخر.
-- Phase M16 وتقارير التركيبات محفوظة ضمن النسخة المجمعة المستخدمة للفحص.
-
-## Version
-- Version: 18.49.2
-- Build: 184902
-- Cache Token: kyum-crm-pwa-18-49-2-m14-9-8-11-3-execution-active-technicians-filter
-
-## Modified Files
-- assets/js/installation-execution.js
-- assets/js/pwa.js
-- index.html
-- service-worker.js
-- package.json
-- version.json
-- scripts/phase-m14-9-8-11-3-check.mjs
-- PHASE_REPORT.md
+- Added service price visibility in installation requests and scheduling tables.
+- Added read-only request details dialog.
+- Replaced full-page edit navigation with an inline services editor.
+- Added service summary and edit action inside assignment dialog.
+- Prices, quantities and service types are saved on request line items and flow to execution, completion, invoices and financial reports.
+- Version: 18.49.3 / Build 184903.

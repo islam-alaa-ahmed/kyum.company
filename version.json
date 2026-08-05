@@ -1,13 +1,13 @@
 {
-  "version": "18.49.2",
-  "build": 184902,
+  "version": "18.49.3",
+  "build": 184903,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.11.3 Execution Active Technicians Filter Synchronization",
+  "title": "M14.9.8.12 Installation Service Pricing, View & Inline Edit Workflow",
   "notes": [
-    "عرض الفنيين الذين لديهم طلبات تركيب فقط في التاريخ المحدد داخل شاشة التنفيذ",
-    "إعادة بناء فلتر الفني عند تغيير التاريخ أو الفرقة مع الحفاظ على نطاق الصلاحيات",
-    "إخفاء الفني غير المسند له طلب في اليوم المحدد وعدم توسيع بيانات المستخدم"
+    "عرض سعر الوحدة وإجمالي كل خدمة داخل طلبات التركيبات وجدولة التركيبات",
+    "إضافة نافذة عرض كاملة للطلب ونافذة تعديل للخدمات والكميات والأسعار دون الرجوع لشاشة الإنشاء",
+    "تحديث ملخص الخدمات داخل نافذة الجدولة وربط القيم بالتنفيذ والفواتير والتقارير المالية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-49-2-m14-9-8-11-3-execution-active-technicians-filter"
+  "cacheToken": "kyum-crm-pwa-18-49-3-m14-9-8-12-installation-service-pricing-inline-edit"
 }

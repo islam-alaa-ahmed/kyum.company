@@ -298,7 +298,7 @@
 
     $("installationRequestsBody").innerHTML = data.length ? data.map(row => {
       const serviceSummary = row.services.length
-        ? row.services.map(service => `${esc(service.serviceName)} × ${service.quantity}`).join("<br>")
+        ? row.services.map(service => `<div class="installation-service-detail"><strong>${esc(service.serviceName||service.name||'خدمة')}</strong><small>${service.quantity} × ${money(service.unitPrice)} = ${money(service.lineTotal ?? service.quantity*service.unitPrice)}</small></div>`).join("")
         : "—";
       return `<tr>
         <td>${esc(row.requestNumber)}</td>
@@ -313,7 +313,7 @@
         <td><span class="installation-status-badge" data-status="${esc(row.status)}">${esc(row.status)}</span></td>
         <td><span class="installation-priority-badge" data-priority="${esc(row.priority)}">${esc(row.priority)}</span></td>
         <td>${esc(row.representativeName || "—")}</td>
-        <td><div class="installation-row-actions"><button class="secondary-btn" data-install-edit="${row.id}" type="button">تعديل</button><button class="danger-btn" data-install-delete="${row.id}" type="button">حذف</button></div></td>
+        <td><div class="installation-row-actions"><button class="secondary-btn" data-install-view="${row.id}" type="button">عرض</button><button class="secondary-btn" data-install-services-edit="${row.id}" type="button">تعديل الخدمات</button><button class="danger-btn" data-install-delete="${row.id}" type="button">حذف</button></div></td>
       </tr>`;
     }).join("") : '<tr><td colspan="13" class="empty-cell">لا توجد طلبات مطابقة.</td></tr>';
   }
@@ -428,6 +428,14 @@
       unitPrice: Number(row.querySelector(".installation-service-price")?.value || 0)
     }));
   }
+
+  function inlineServiceOptions(selected=""){return '<option value="">اختر الخدمة</option>'+opts.serviceTypes.map(item=>`<option value="${esc(item.id)}" ${item.id===selected?'selected':''}>${esc(item.name)}</option>`).join('')}
+  function renderRequestView(row){if(!row)return;$("installationRequestViewLabel").textContent=`${row.requestNumber} — ${row.customerName}`;const services=(row.services||[]).map(service=>`<div class="installation-view-service-row"><strong>${esc(service.serviceName||service.name||'خدمة')}</strong><span>${Number(service.quantity||0)} × ${money(service.unitPrice)}</span><span>${money(service.lineTotal??Number(service.quantity||0)*Number(service.unitPrice||0))}</span></div>`).join('')||'<p>لا توجد خدمات.</p>';$("installationRequestViewContent").innerHTML=`<div class="installation-request-view-grid"><div><span>رقم الطلب</span><strong>${esc(row.requestNumber)}</strong></div><div><span>اسم العميل</span><strong>${row.customerMasked===true?'بيانات العميل محجوبة':esc(row.customerName||'—')}</strong></div><div><span>رقم العميل</span><strong>${row.customerMasked===true?'محجوب':esc(row.customerPhone||'—')}</strong></div><div><span>رقم طلب العميل</span><strong>${esc(row.customerOrderNumber||'—')}</strong></div><div><span>عرض السعر</span><strong>${esc(row.quotationNumber||'بدون عرض سعر')}</strong></div><div><span>المندوب</span><strong>${esc(row.representativeName||'—')}</strong></div><div><span>الموقع</span><strong>${esc(row.installationAddress||'—')}</strong></div><div><span>الأولوية</span><strong>${esc(row.priority||'—')}</strong></div><div><span>الحالة</span><strong>${esc(row.status||'—')}</strong></div><div><span>موعد التركيب</span><strong>${esc(row.scheduledDate||'غير محدد')} ${row.scheduledTime?`— ${esc(row.scheduledTime)}`:''}</strong></div><div><span>إجمالي الخدمات</span><strong>${money(row.totalServicesAmount)}</strong></div><div><span>ملاحظات</span><strong>${esc(row.notes||'—')}</strong></div></div><section class="installation-view-services"><h4>الخدمات</h4>${services}</section>`;$("installationRequestViewDialog").showModal()}
+  function addInlineServiceRow(initial={}){const body=$("installationServicesEditBody");const tr=document.createElement('tr');tr.className='installation-inline-service-row';tr.innerHTML=`<td><select class="inline-service-type" required>${inlineServiceOptions(initial.serviceTypeId||initial.id||'')}</select></td><td><input class="inline-service-quantity" type="number" min="1" step="1" value="${esc(initial.quantity||1)}" required></td><td><input class="inline-service-price" type="number" min="0" step="0.01" value="${esc(initial.unitPrice??0)}" required></td><td><output class="inline-service-total">${money((initial.quantity||1)*(initial.unitPrice||0))}</output></td><td><button class="danger-btn inline-service-remove" type="button">حذف</button></td>`;body.appendChild(tr);recalculateInlineServices()}
+  function recalculateInlineServices(){let q=0,t=0;document.querySelectorAll('#installationServicesEditBody .installation-inline-service-row').forEach(row=>{const qty=Math.max(0,Number(row.querySelector('.inline-service-quantity').value||0)),price=Math.max(0,Number(row.querySelector('.inline-service-price').value||0)),line=qty*price;q+=qty;t+=line;row.querySelector('.inline-service-total').textContent=money(line)});$("installationInlineTotalQuantity").textContent=String(q);$("installationInlineGrandTotal").textContent=money(t)}
+  function collectInlineServices(){return [...document.querySelectorAll('#installationServicesEditBody .installation-inline-service-row')].map(row=>({serviceTypeId:row.querySelector('.inline-service-type').value,quantity:Number(row.querySelector('.inline-service-quantity').value||0),unitPrice:Number(row.querySelector('.inline-service-price').value||0)}))}
+  async function openServicesEdit(row){if(!row)return;await ensureOptions();$("installationServicesEditRequestId").value=row.id;$("installationServicesEditLabel").textContent=`${row.requestNumber} — ${row.customerName}`;$("installationServicesEditBody").innerHTML='';(row.services?.length?row.services:[{}]).forEach(addInlineServiceRow);clearStatus($("installationServicesEditStatus"));$("installationServicesEditDialog").showModal()}
+  function currentRow(id){return rows.find(row=>row.id===id)}
 
   function restoreEditForm() {
     const row = rows.find(item => item.id === editingRequestId);
@@ -578,9 +586,11 @@
     $("resetNewInstallationRequest")?.addEventListener("click", resetNewForm);
 
     $("installationRequestsBody")?.addEventListener("click", async event => {
-      const editButton = event.target.closest("[data-install-edit]");
+      const viewButton = event.target.closest("[data-install-view]");
+      const servicesButton = event.target.closest("[data-install-services-edit]");
       const deleteButton = event.target.closest("[data-install-delete]");
-      if (editButton) openEdit(rows.find(row => row.id === editButton.dataset.installEdit));
+      if (viewButton) renderRequestView(currentRow(viewButton.dataset.installView));
+      if (servicesButton) openServicesEdit(currentRow(servicesButton.dataset.installServicesEdit));
       if (deleteButton && confirm("هل تريد حذف طلب التركيب؟")) {
         try {
           await window.InstallationsServiceSafe.remove(deleteButton.dataset.installDelete);
@@ -590,6 +600,18 @@
         }
       }
     });
+
+    $("closeInstallationRequestViewDialog")?.addEventListener("click",()=>$("installationRequestViewDialog").close());
+    $("closeInstallationRequestViewFooter")?.addEventListener("click",()=>$("installationRequestViewDialog").close());
+    $("closeInstallationServicesEditDialog")?.addEventListener("click",()=>$("installationServicesEditDialog").close());
+    $("cancelInstallationServicesEdit")?.addEventListener("click",()=>$("installationServicesEditDialog").close());
+    $("addInstallationInlineService")?.addEventListener("click",()=>addInlineServiceRow());
+    $("installationServicesEditBody")?.addEventListener("input",event=>{const row=event.target.closest('.installation-inline-service-row');if(event.target.matches('.inline-service-type')){const service=opts.serviceTypes.find(item=>item.id===event.target.value);if(service&&row)row.querySelector('.inline-service-price').value=Number(service.default_price||0).toFixed(2)}recalculateInlineServices()});
+    $("installationServicesEditBody")?.addEventListener("click",event=>{const btn=event.target.closest('.inline-service-remove');if(!btn)return;const all=$("installationServicesEditBody").querySelectorAll('.installation-inline-service-row');if(all.length===1)return status($("installationServicesEditStatus"),'يجب أن يحتوي الطلب على خدمة واحدة على الأقل.','error');btn.closest('tr').remove();recalculateInlineServices()});
+    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const btn=$("saveInstallationServicesEdit");btn.disabled=true;try{await window.InstallationsServiceSafe.updateRequestServices($("installationServicesEditRequestId").value,services);$("installationServicesEditDialog").close();await load();window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:$("installationServicesEditRequestId").value}}))}catch(error){status($("installationServicesEditStatus"),error.message,'error')}finally{btn.disabled=false}});
+    window.addEventListener('kyum-installation-request-view',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return renderRequestView(row);if(!id)return;try{await load();renderRequestView(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
+    window.addEventListener('kyum-installation-services-edit',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return openServicesEdit(row);if(!id)return;try{await load();openServicesEdit(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
+    window.addEventListener('kyum-installation-services-updated',()=>load());
 
     $("newInstallationRequestForm")?.addEventListener("submit", async event => {
       event.preventDefault();
@@ -647,7 +669,9 @@
         }
         return opened;
       },
-      applyQuotationPrefill
+      applyQuotationPrefill,
+      openRequestView(id){renderRequestView(currentRow(id));},
+      openServicesEdit(id){return openServicesEdit(currentRow(id));}
     });
 
 ;

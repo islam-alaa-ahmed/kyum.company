@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-49-2-m14-9-8-11-3-execution-active-technicians-filter";
+const CACHE_VERSION = "kyum-crm-pwa-18-49-3-m14-9-8-12-installation-service-pricing-inline-edit";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -21,6 +21,7 @@ const CORE_APP_SHELL = [
   "./assets/css/tablet-desktop-certification.css",
   "./assets/css/installations-foundation.css",
   "./assets/css/installation-requests.css",
+  "./assets/css/installation-request-inline-dialogs.css",
   "./assets/css/installation-scheduling.css",
   "./assets/css/installation-execution.css",
   "./assets/css/installation-completion.css",
