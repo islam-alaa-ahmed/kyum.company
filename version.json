@@ -1,13 +1,13 @@
 {
-  "version": "18.51.0",
-  "build": 185100,
+  "version": "18.51.1",
+  "build": 185101,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Employee Activity Timeline & Business Audit Trail",
+  "title": "Global Typography Scale & Responsive Layout Certification",
   "notes": [
-    "تحويل خط سير الموظف إلى سجل أعمال عربي مفصل مرتبط بالعملاء والطلبات والمستندات",
-    "تسجيل فتح روابط واتساب فعليًا مع اسم العميل ومصدر الحركة",
-    "إضافة تصدير PDF ومشاركة واتساب PDF مستقلة وفق الفلاتر المستخدمة"
+    "زيادة أحجام خطوط الواجهة بدرجتين تقريبًا مع أوزان أوضح ومتدرجة",
+    "حماية الأزرار والجداول والنوافذ المنبثقة من قص النصوص أو خروجها خارج الحدود",
+    "فصل مقاسات واجهة البرنامج عن مقاسات الطباعة وملفات PDF للحفاظ على التقارير"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-0-employee-business-activity-timeline"
+  "cacheToken": "kyum-crm-pwa-18-51-1-global-typography-responsive-certification"
 }

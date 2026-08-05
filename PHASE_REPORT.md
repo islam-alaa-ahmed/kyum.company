@@ -1,22 +1,23 @@
-# Phase M14.9.8.16.8 — Employee Activity Timeline & Business Audit Trail
+# Phase M14.9.8.16.9 — Global Typography Scale & Responsive Layout Certification
 
 ## Scope
-- تحويل خط سير الموظف من سجل تقني إلى أحداث أعمال عربية مرتبطة باسم العميل أو رقم الطلب/العرض/الفاتورة.
-- إضافة سجل أعمال محمي في Supabase مع Triggers للجداول الأساسية وRPC لتسجيل الحركات التفاعلية مثل فتح واتساب.
-- تسجيل فتح رابط واتساب بعد تنفيذ فتح الرابط من المتصفح، مع اسم العميل ورقم الهاتف ومصدر الحركة عند توفرها.
-- إضافة تصدير مستقل لخط السير PDF ومشاركة واتساب PDF وفق التاريخ والموظف ونوع النشاط المحددين.
+- Increased UI typography by approximately two visual steps.
+- Applied stronger, tiered font weights to headings, controls, buttons, tables, cards, and dialogs.
+- Protected buttons and controls against clipped or overflowing labels.
+- Improved wrapping and minimum heights for forms, tables, badges, dialogs, and action groups.
+- Added responsive desktop, tablet, and mobile typography rules.
+- Isolated print/PDF typography through `@media print` so exports remain compact and stable.
 
 ## Files Modified
-- index.html
-- assets/css/style.css
-- assets/js/app.js
-- assets/js/daily-activity-service.js
-- assets/js/pwa.js
-- service-worker.js
-- package.json
-- version.json
-- supabase/migrations/phase_m14_9_8_16_8_employee_business_activity_timeline.sql
-- supabase/verification/phase_m14_9_8_16_8_employee_business_activity_timeline_verification.sql
+- `assets/css/global-typography-certification.css`
+- `index.html`
+- `assets/js/pwa.js`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `PHASE_REPORT.md`
 
-## Version
-18.51.0 / build 185100
+## Regression Protection
+- No business logic, permissions, Supabase queries, calculations, filters, or workflow code changed.
+- Existing CSS files were not replaced; the certification layer loads last and contains scoped overrides.
+- Print styles explicitly restore compact report dimensions.
