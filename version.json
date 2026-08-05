@@ -1,13 +1,13 @@
 {
-  "version": "18.50.0",
-  "build": 185000,
+  "version": "18.50.1",
+  "build": 185001,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.14 Actual Execution Confirmation & Dynamic Re-Scheduling",
+  "title": "M14.9.8.15 Installation Day Lock & Smart Availability",
   "notes": [
-    "تأكيد الكميات المنفذة فعليًا لكل خدمات طلب التركيب",
-    "إعادة جدولة المتبقي فورًا أو إعادته إلى الطلبات المطلوب جدولتها",
-    "تحديث التنفيذ والجدولة والتقارير ومنع الفوترة قبل اكتمال الكميات"
+    "قفل وفتح أيام الجدولة مرتبط بصلاحية تعديل شاشة جدولة التركيبات",
+    "منع الجدولة في اليوم المغلق للجميع بما في ذلك مدير النظام حتى يتم فتح اليوم",
+    "تعطيل مواعيد الفني المحجوزة حسب التاريخ والفني والوقت مع حماية قاعدة البيانات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-0-m14-9-8-14-actual-execution-dynamic-rescheduling"
+  "cacheToken": "kyum-crm-pwa-18-50-1-m14-9-8-15-installation-day-lock-smart-availability"
 }

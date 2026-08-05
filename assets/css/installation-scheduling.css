@@ -271,3 +271,18 @@ html[data-theme="light"] #installationDayDetailsDialog .secondary-btn:hover {
 .installation-day-actions button:disabled,
 #installationUnscheduledBody button:disabled{cursor:not-allowed;opacity:.62;filter:saturate(.7)}
 html[data-theme="dark"] .installation-readonly-note{background:rgba(148,163,184,.08)}
+
+
+/* Phase M14.9.8.15 — Installation Day Lock & Smart Availability */
+.installation-calendar-day{position:relative}
+.installation-day-header-actions{display:flex;align-items:center;gap:6px;position:relative;z-index:4}
+.installation-day-lock-toggle{width:28px;height:28px;border:1px solid var(--border);border-radius:9px;background:var(--surface-soft);display:inline-grid;place-items:center;cursor:pointer;padding:0;position:relative;z-index:6}
+.installation-day-lock-indicator{display:inline-grid;place-items:center;position:relative;z-index:6}
+.installation-day-lock-glass{position:absolute;inset:0;z-index:3;border-radius:inherit;background:color-mix(in srgb,var(--surface) 52%,transparent);backdrop-filter:blur(3px) saturate(.75);-webkit-backdrop-filter:blur(3px) saturate(.75);display:grid;place-items:center;pointer-events:none}
+.installation-day-lock-glass>span{font-size:1.65rem;filter:drop-shadow(0 3px 7px rgba(15,23,42,.28))}
+.installation-calendar-day.is-locked{border-style:dashed;opacity:.78}
+.installation-calendar-day.is-locked .installation-calendar-details-link{position:relative;z-index:5;background:var(--surface);padding:4px 8px;border-radius:999px}
+.installation-calendar-day.is-locked .installation-calendar-day-header{position:relative;z-index:5}
+#installationAssignmentDate option:disabled,#installationAssignmentTime option:disabled{color:var(--muted);background:var(--surface-soft)}
+html[data-theme="light"] .installation-day-lock-glass{background:rgba(248,250,252,.62)}
+html[data-theme="dark"] .installation-day-lock-glass{background:rgba(15,23,42,.54)}
