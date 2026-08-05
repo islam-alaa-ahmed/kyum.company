@@ -408,3 +408,22 @@ html[data-theme="dark"] .installation-completion-dialog .installation-invoice-no
   }
   html[data-theme="dark"] .installation-completion-table tbody tr:hover{background:#111b2b;}
 }
+
+/* Phase M14.9.8.14 — Actual execution confirmation */
+.installation-quantity-confirmation-dialog{width:min(940px,calc(100vw - 24px));max-height:94dvh}
+.installation-quantity-confirmation-body{display:grid;gap:16px;padding:4px 2px 12px;overflow:auto}
+.installation-quantity-lines{display:grid;gap:12px}
+.installation-quantity-line{display:grid;gap:12px;padding:16px;border:1px solid var(--border-color,#d8dee9);border-radius:16px;background:var(--surface-color,#fff)}
+.installation-quantity-line-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.installation-quantity-line-head span{font-size:.85rem;color:var(--muted-text,#667085)}
+.installation-quantity-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.installation-quantity-metrics span{display:grid;gap:3px;padding:10px;border-radius:12px;background:var(--soft-surface,#f5f7fb);font-size:.82rem}
+.installation-quantity-line label{display:grid;gap:7px;font-weight:700}
+.installation-quantity-result{color:var(--muted-text,#667085)}
+.installation-quantity-summary-card{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid rgba(187,145,48,.35);border-radius:15px;background:rgba(187,145,48,.09)}
+.installation-quantity-summary-card strong{font-size:1.35rem}
+#installationQuantityRemainingActionWrap{display:grid;gap:12px;padding:14px;border:1px solid var(--border-color,#d8dee9);border-radius:16px}
+#installationQuantityRemainingActionWrap>label{display:grid;gap:7px;font-weight:700}
+@media(max-width:700px){.installation-quantity-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-quantity-line-head{align-items:flex-start;flex-direction:column}.installation-quantity-confirmation-dialog{width:100%;max-width:none;height:100dvh;max-height:100dvh;margin:0;border-radius:0}.installation-quantity-confirmation-dialog .dialog-shell{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}}
+[data-theme="dark"] .installation-quantity-line,[data-theme="dark"] #installationQuantityRemainingActionWrap{background:#111b30;border-color:#2f3b54}
+[data-theme="dark"] .installation-quantity-metrics span{background:#18243b}

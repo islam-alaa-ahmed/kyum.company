@@ -1,13 +1,13 @@
 {
-  "version": "18.49.3",
-  "build": 184903,
+  "version": "18.50.0",
+  "build": 185000,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.12 Installation Service Pricing, View & Inline Edit Workflow",
+  "title": "M14.9.8.14 Actual Execution Confirmation & Dynamic Re-Scheduling",
   "notes": [
-    "عرض سعر الوحدة وإجمالي كل خدمة داخل طلبات التركيبات وجدولة التركيبات",
-    "إضافة نافذة عرض كاملة للطلب ونافذة تعديل للخدمات والكميات والأسعار دون الرجوع لشاشة الإنشاء",
-    "تحديث ملخص الخدمات داخل نافذة الجدولة وربط القيم بالتنفيذ والفواتير والتقارير المالية"
+    "تأكيد الكميات المنفذة فعليًا لكل خدمات طلب التركيب",
+    "إعادة جدولة المتبقي فورًا أو إعادته إلى الطلبات المطلوب جدولتها",
+    "تحديث التنفيذ والجدولة والتقارير ومنع الفوترة قبل اكتمال الكميات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-49-3-m14-9-8-12-installation-service-pricing-inline-edit"
+  "cacheToken": "kyum-crm-pwa-18-50-0-m14-9-8-14-actual-execution-dynamic-rescheduling"
 }
