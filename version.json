@@ -1,13 +1,13 @@
 {
-  "version": "18.50.10",
-  "build": 185010,
+  "version": "18.50.11",
+  "build": 185011,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.16.3 Current Installation Request Permission Scope Recovery",
+  "title": "M14.9.8.16.4 Wide Multi-Day Scheduling & Request Context Sync",
   "notes": [
-    "إتاحة متابعة الطلبات قيد التنفيذ للسوبر أدمن وخدمة العملاء والمستخدمين وفق نطاق البيانات الممنوح",
-    "عرض قائمة اختيار عند وجود أكثر من طلب جاري بدل الاعتماد على طلب المستخدم المحدد فقط",
-    "فصل صلاحية العرض والمتابعة عن صلاحية تغيير مراحل التنفيذ"
+    "تحديث جدول الطلبات المطلوب جدولتها بأحدث حي محفوظ في طلب التركيب",
+    "تطبيق تصميم واسع لنافذة الجدولة متعددة الأيام ببطاقتين في كل صف",
+    "إضافة ملخص الطلب وبيانات الحي ورقم الطلب وعرض السعر وموقع العميل داخل نافذة الجدولة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-10-m14-9-8-16-3-current-request-permission-scope"
+  "cacheToken": "kyum-crm-pwa-18-50-11-m14-9-8-16-4-wide-multi-day-scheduling-context-sync"
 }

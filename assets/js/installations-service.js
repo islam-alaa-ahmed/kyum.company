@@ -132,6 +132,31 @@
   async function technicians(){requireAction('view','installationSchedule');const {data,error}=await db().from('installation_technicians').select('*').order('full_name');if(error)throw new Error('تعذر تحميل الفنيين: '+error.message);return (data||[]).map(r=>({id:r.id,name:r.full_name,phone:r.phone||'',specialty:r.specialty||'',city:r.city||'',status:r.status||'متاح'}))}
   async function scheduleTeams(){requireAction('view','installationSchedule');const {data,error}=await db().from('installation_teams').select('id,name,status').neq('status','غير نشطة').order('name');if(error)throw new Error('تعذر تحميل فرق التركيبات: '+error.message);return data||[]}
   async function technicianNameSuggestions(){requireAction('view','installationSchedule');const {data,error}=await db().from('installation_technician_name_suggestions').select('name').eq('is_active',true).order('name');if(error)throw new Error('تعذر تحميل أسماء الفنيين المقترحة: '+error.message);return (data||[]).map(r=>r.name).filter(Boolean)}
+  async function scheduleContextSnapshot(requestIds=[]){
+    const ids=[...new Set((requestIds||[]).filter(Boolean))];
+    if(!ids.length)return new Map();
+    const {data:requestRows,error:requestError}=await db().from('installation_requests').select('id,neighborhood_id,customer_map_url,customer_order_number,quotation_id').in('id',ids);
+    if(requestError)throw new Error('تعذر تحميل أحدث بيانات طلبات الجدولة: '+requestError.message);
+    const neighborhoodIds=[...new Set((requestRows||[]).map(x=>x.neighborhood_id).filter(Boolean))];
+    const quotationIds=[...new Set((requestRows||[]).map(x=>x.quotation_id).filter(Boolean))];
+    const [neighborhoodResult,quotationResult]=await Promise.all([
+      neighborhoodIds.length?db().from('installation_neighborhoods').select('id,name').in('id',neighborhoodIds):Promise.resolve({data:[],error:null}),
+      quotationIds.length?db().from('quotations').select('id,quotation_number').in('id',quotationIds):Promise.resolve({data:[],error:null})
+    ]);
+    if(neighborhoodResult.error)throw new Error('تعذر تحميل الأحياء الحالية لطلبات الجدولة: '+neighborhoodResult.error.message);
+    if(quotationResult.error)throw new Error('تعذر تحميل عروض السعر الحالية لطلبات الجدولة: '+quotationResult.error.message);
+    const neighborhoods=new Map((neighborhoodResult.data||[]).map(x=>[String(x.id),x.name||'']));
+    const quotations=new Map((quotationResult.data||[]).map(x=>[String(x.id),x.quotation_number||'']));
+    return new Map((requestRows||[]).map(x=>[String(x.id),{
+      neighborhoodId:x.neighborhood_id||'',
+      neighborhoodName:neighborhoods.get(String(x.neighborhood_id||''))||'',
+      customerMapUrl:x.customer_map_url||'',
+      customerOrderNumber:x.customer_order_number||'',
+      quotationId:x.quotation_id||'',
+      quotationNumber:quotations.get(String(x.quotation_id||''))||''
+    }]));
+  }
+
   async function scheduleList(){
     requireAction('view','installationSchedule');
     const [{data,error},{data:visits,error:visitError},{data:visitLines,error:lineError}]=await Promise.all([
@@ -142,9 +167,14 @@
     if(error)throw new Error('تعذر تحميل الرؤية العامة لجدول التركيبات: '+error.message);
     if(visitError&&visitError.code!=='42P01')throw new Error('تعذر تحميل زيارات التركيبات: '+visitError.message);
     if(lineError&&lineError.code!=='42P01')throw new Error('تعذر تحميل كميات زيارات التركيبات: '+lineError.message);
-    const base=(Array.isArray(data)?data:[]).map(r=>({
-      id:r.id,scheduleEntryId:r.id,visitId:'',visitNo:0,requestNumber:r.request_number,customerOrderNumber:r.customer_order_number||'',customerName:r.customer_name||'',customerPhone:r.customer_phone||'',customerMasked:r.customer_masked===true,representativeId:r.representative_id||'',representativeName:r.representative_name||'',scheduledDate:r.scheduled_date||'',scheduledTime:r.scheduled_time||'',timeSlot:r.time_slot||'',status:r.status||'جديد',priority:r.priority||'عادية',technicianId:r.technician_id||'',technicianName:r.technician_name||'',technicianStatus:r.technician_status||'',teamId:r.team_id||'',teamName:r.team_name||'',installationAddress:r.installation_address||'',totalServicesCount:Number(r.total_services_count||0),totalServicesAmount:Number(r.total_services_amount||0),services:(Array.isArray(r.services)?r.services:[]).map(x=>({id:x.id||'',name:x.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)})),assignmentNotes:r.assignment_notes||'',canOperate:r.can_operate===true
-    }));
+    const rawRows=Array.isArray(data)?data:[];
+    const contextMap=await scheduleContextSnapshot(rawRows.map(r=>r.id));
+    const base=rawRows.map(r=>{
+      const context=contextMap.get(String(r.id))||{};
+      return {
+      id:r.id,scheduleEntryId:r.id,visitId:'',visitNo:0,requestNumber:r.request_number,customerOrderNumber:context.customerOrderNumber??r.customer_order_number??'',customerName:r.customer_name||'',customerPhone:r.customer_phone||'',customerMasked:r.customer_masked===true,representativeId:r.representative_id||'',representativeName:r.representative_name||'',scheduledDate:r.scheduled_date||'',scheduledTime:r.scheduled_time||'',timeSlot:r.time_slot||'',status:r.status||'جديد',priority:r.priority||'عادية',technicianId:r.technician_id||'',technicianName:r.technician_name||'',technicianStatus:r.technician_status||'',teamId:r.team_id||'',teamName:r.team_name||'',installationAddress:context.neighborhoodName||r.installation_address||'',neighborhoodId:context.neighborhoodId||'',neighborhoodName:context.neighborhoodName||'',customerMapUrl:context.customerMapUrl||'',quotationId:context.quotationId||'',quotationNumber:context.quotationNumber||'',totalServicesCount:Number(r.total_services_count||0),totalServicesAmount:Number(r.total_services_amount||0),services:(Array.isArray(r.services)?r.services:[]).map(x=>({id:x.id||'',name:x.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)})),assignmentNotes:r.assignment_notes||'',canOperate:r.can_operate===true
+      };
+    });
     if(visitError||lineError||!(visits||[]).length)return base;
     const byRequest=new Map(base.map(x=>[x.id,x])),lineMap=new Map();
     (visitLines||[]).forEach(x=>{const arr=lineMap.get(x.visit_id)||[];arr.push(x);lineMap.set(x.visit_id,arr)});
