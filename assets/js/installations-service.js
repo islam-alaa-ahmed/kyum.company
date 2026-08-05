@@ -218,7 +218,9 @@
       lockIdentity,
       teamId,
       teamName:binding?.team?.name||'',
-      technicianName
+      technicianName,
+      canEdit:Boolean(window.CustomerPermissions?.canAction?.('installationExecution','edit')),
+      canObserveInProgress:['super_admin','customer_service','sales_manager','sales_supervisor','sales_representative','viewer'].includes(role)
     };
   }
   async function selectExecutionRequest(id){requireAction('edit','installationExecution');const {error}=await db().rpc('select_installation_execution_request',{p_request_id:id});if(error)throw new Error('تعذر اختيار الطلب الحالي: '+error.message)}
