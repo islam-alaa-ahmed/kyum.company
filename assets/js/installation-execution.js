@@ -13,7 +13,44 @@ function hasExecutionProgress(r){return Boolean(r.onRouteAt||r.mapOpenedAt||r.ar
 function isActive(r){return !['مكتمل','ملغي'].includes(normalizeStatus(r.status))&&(Boolean(r.selectedForExecutionAt)||hasExecutionProgress(r))}
 function stepIndex(r){if(r.completedAt)return 5;if(r.startedAt)return 4;if(r.arrivedAt)return 3;if(r.mapOpenedAt)return 2;if(r.onRouteAt)return 1;return 0}
 function switchTab(tab){activeTab=tab;const todayTab=$('installationExecutionTodayTab'),currentTab=$('installationExecutionCurrentTab');todayTab?.classList.toggle('active',tab==='today');currentTab?.classList.toggle('active',tab==='current');todayTab?.setAttribute('aria-selected',String(tab==='today'));currentTab?.setAttribute('aria-selected',String(tab==='current'));$('installationExecutionTodayPanel')?.classList.toggle('hidden',tab!=='today');$('installationExecutionCurrentPanel')?.classList.toggle('hidden',tab!=='current');if(tab==='current')renderCurrent()}
-function fillFilters(){const tech=$('installationExecutionTechnicianFilter'),team=$('installationExecutionTeamFilter');if(tech){const vals=[...new Set(rows.map(r=>r.technicianName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));if(executionIdentity?.technicianName){tech.innerHTML=`<option value="${esc(executionIdentity.technicianName)}">${esc(executionIdentity.technicianName)}</option>`;tech.value=executionIdentity.technicianName;tech.disabled=true;tech.setAttribute('aria-readonly','true');tech.title='الفني مرتبط بحساب المستخدم';}else{tech.disabled=false;tech.removeAttribute('aria-readonly');tech.removeAttribute('title');tech.innerHTML='<option value="">كل الفنيين</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')}}if(team){const map=new Map(rows.filter(r=>r.teamId).map(r=>[r.teamId,r.teamName||'فرقة غير مسماة']));if(executionIdentity?.teamId){team.innerHTML=`<option value="${esc(executionIdentity.teamId)}">${esc(executionIdentity.teamName||'الفرقة المرتبطة')}</option>`;team.value=executionIdentity.teamId;team.disabled=true;team.setAttribute('aria-readonly','true');team.title='الفرقة مرتبطة بحساب المستخدم';}else{team.disabled=false;team.removeAttribute('aria-readonly');team.removeAttribute('title');team.innerHTML='<option value="">كل الفرق المسموح بها</option>'+[...map].sort((a,b)=>a[1].localeCompare(b[1],'ar')).map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')}}}
+function fillFilters(){
+  const tech=$('installationExecutionTechnicianFilter'),team=$('installationExecutionTeamFilter');
+  const lockIdentity=executionIdentity?.lockIdentity===true;
+  if(tech){
+    const previous=tech.value||'';
+    const vals=[...new Set(rows.map(r=>r.technicianName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+    if(lockIdentity){
+      tech.innerHTML=`<option value="${esc(executionIdentity.technicianName)}">${esc(executionIdentity.technicianName)}</option>`;
+      tech.value=executionIdentity.technicianName;
+      tech.disabled=true;
+      tech.setAttribute('aria-readonly','true');
+      tech.title='الفني مرتبط بحساب فني التركيبات ومثبت على نطاقه الشخصي';
+    }else{
+      tech.disabled=false;
+      tech.removeAttribute('aria-readonly');
+      tech.removeAttribute('title');
+      tech.innerHTML='<option value="">كل الفنيين</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+      tech.value=vals.includes(previous)?previous:'';
+    }
+  }
+  if(team){
+    const previous=team.value||'';
+    const map=new Map(rows.filter(r=>r.teamId).map(r=>[r.teamId,r.teamName||'فرقة غير مسماة']));
+    if(lockIdentity){
+      team.innerHTML=`<option value="${esc(executionIdentity.teamId)}">${esc(executionIdentity.teamName||'الفرقة المرتبطة')}</option>`;
+      team.value=executionIdentity.teamId;
+      team.disabled=true;
+      team.setAttribute('aria-readonly','true');
+      team.title='الفرقة مرتبطة بحساب فني التركيبات ومثبتة على نطاقه الشخصي';
+    }else{
+      team.disabled=false;
+      team.removeAttribute('aria-readonly');
+      team.removeAttribute('title');
+      team.innerHTML='<option value="">كل الفرق المسموح بها</option>'+[...map].sort((a,b)=>a[1].localeCompare(b[1],'ar')).map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('');
+      team.value=map.has(previous)?previous:'';
+    }
+  }
+}
 function filteredToday(){const date=$('installationExecutionDateFilter')?.value||today(),tech=$('installationExecutionTechnicianFilter')?.value||'',team=$('installationExecutionTeamFilter')?.value||'';return rows.filter(r=>r.scheduledDate===date&&!isActive(r)&&!hasExecutionProgress(r)&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status))&&(!tech||r.technicianName===tech)&&(!team||r.teamId===team))}
 function servicesHtml(r){return (r.services||[]).length?`<ul class="installation-card-services">${r.services.map(s=>`<li><span>${esc(s.name)}</span><strong>${Number(s.quantity||0)} ×</strong></li>`).join('')}</ul>`:'<p class="installation-card-muted">لا توجد خدمات مسجلة.</p>'}
 function cardHtml(r){return `<article class="installation-today-card"><div class="installation-today-card-main"><div class="installation-today-card-head"><span class="installation-time">${esc(fmtTime(r.scheduledTime))}</span><span class="installation-request-number">${esc(r.requestNumber)}</span></div><div class="installation-customer-name">${esc(r.customerName||'عميل غير محدد')}</div><div class="installation-card-muted">${esc(r.installationAddress||'لا يوجد عنوان')}</div><div class="installation-card-muted">الفني: ${esc(r.technicianName||'غير محدد')}</div><div class="installation-card-muted">الفرقة: ${esc(r.teamName||'بدون فرقة')}</div>${servicesHtml(r)}</div><div class="installation-today-card-side"><div class="installation-metrics"><span>عدد الخدمات: <strong>${Number(r.totalServicesCount||0)}</strong></span><span>الإجمالي: <strong>${money(r.totalServicesAmount)}</strong></span></div><div class="installation-card-actions"><button class="execution-primary-action" type="button" data-execution-start="${esc(r.id)}">بدء التنفيذ <span class="execution-arrow">◀</span></button></div></div></article>`}

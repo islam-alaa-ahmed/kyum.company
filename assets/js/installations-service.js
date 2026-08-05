@@ -100,7 +100,30 @@
   async function removeTechnician(id){requireAction('delete','installationSchedule');const {error}=await db().from('installation_technicians').delete().eq('id',id);if(error)throw new Error('تعذر حذف الفني: '+error.message)}
 
   async function executionWorkspace(){requireAction('view','installationExecution');const [{data,error},{data:currentId,error:currentError}]=await Promise.all([db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),team:installation_teams(id,name,status),services:installation_request_services(id,quantity,unit_price,line_total,service_type:installation_service_types(id,name))').or('installation_team_id.not.is.null,assigned_technician_name.not.is.null').order('scheduled_date',{ascending:true,nullsFirst:false}).order('scheduled_time',{ascending:true,nullsFirst:false}),db().rpc('get_current_installation_execution_request_id')]);if(error)throw new Error('تعذر تحميل مهام التنفيذ: '+error.message);if(currentError)throw new Error('تعذر تحديد الطلب الحالي: '+currentError.message);return (data||[]).map(r=>({id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',scheduledDate:r.scheduled_date||'',scheduledTime:r.scheduled_time||'',status:r.status||'مسند',priority:r.priority||'عادية',technicianName:r.assigned_technician_name||'',teamId:r.installation_team_id||'',teamName:r.team?.name||'',installationAddress:r.installation_address||'',customerMapUrl:r.customer_map_url||'',executionNotes:r.execution_notes||'',selectedForExecutionAt:r.selected_for_execution_at||'',selectedForExecutionBy:r.selected_for_execution_by||'',isCurrentUserSelection:Boolean(currentId&&r.id===currentId),mapOpenedAt:r.map_opened_at||'',onRouteAt:r.on_route_at||'',arrivedAt:r.arrived_at||'',startedAt:r.started_at||'',completedAt:r.completed_at||'',totalServicesCount:Number(r.total_services_count||0),totalServicesAmount:Number(r.total_services_amount||0),services:(r.services||[]).map(x=>({id:x.id,name:x.service_type?.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)}))}))}
-  async function executionIdentity(){requireAction('view','installationExecution');const {data,error}=await db().from('installation_user_technician_bindings').select('installation_team_id,technician_name,team:installation_teams(id,name)').maybeSingle();if(error&&error.code!=='PGRST116')throw new Error('تعذر تحميل هوية فني التركيبات: '+error.message);if(!data)return null;return {teamId:data.installation_team_id||'',teamName:data.team?.name||'',technicianName:data.technician_name||''}}
+  async function executionIdentity(){
+    requireAction('view','installationExecution');
+    const profile=window.CustomerAuth?.getState?.().profile||{};
+    const role=String(profile.role||'').trim();
+    const [{data:binding,error:bindingError},{data:scope,error:scopeError}]=await Promise.all([
+      db().from('installation_user_technician_bindings').select('installation_team_id,technician_name,team:installation_teams(id,name)').maybeSingle(),
+      db().from('installation_data_access_profiles').select('access_mode').maybeSingle()
+    ]);
+    if(bindingError&&bindingError.code!=='PGRST116')throw new Error('تعذر تحميل هوية فني التركيبات: '+bindingError.message);
+    if(scopeError&&scopeError.code!=='PGRST116'&&scopeError.code!=='42P01')throw new Error('تعذر تحميل نطاق تنفيذ التركيبات: '+scopeError.message);
+    const accessMode=role==='super_admin'?'all':String(scope?.access_mode||'own').trim().toLowerCase();
+    const isTechnicianRole=role==='viewer';
+    const technicianName=String(binding?.technician_name||'').trim();
+    const teamId=String(binding?.installation_team_id||'').trim();
+    const lockIdentity=Boolean(isTechnicianRole&&accessMode==='own'&&technicianName&&teamId);
+    return {
+      role,
+      accessMode,
+      lockIdentity,
+      teamId,
+      teamName:binding?.team?.name||'',
+      technicianName
+    };
+  }
   async function selectExecutionRequest(id){requireAction('edit','installationExecution');const {error}=await db().rpc('select_installation_execution_request',{p_request_id:id});if(error)throw new Error('تعذر اختيار الطلب الحالي: '+error.message)}
   async function recordMapOpened(id){requireAction('edit','installationExecution');const {error}=await db().rpc('record_installation_map_opened',{p_request_id:id});if(error)throw new Error('تعذر تسجيل فتح موقع العميل: '+error.message)}
   async function uploadExecutionFile(requestId,file){if(!file)return null;if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('صيغة الصورة غير مدعومة.');if(file.size>10485760)throw new Error('حجم الصورة يجب ألا يتجاوز 10 ميجابايت.');const ext=(file.name.split('.').pop()||'jpg').toLowerCase(),path=`${requestId}/execution/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const {error:up}=await db().storage.from('installation-evidence').upload(path,file,{contentType:file.type,upsert:false});if(up)throw new Error('تعذر رفع صورة التنفيذ: '+up.message);const {error}=await db().from('installation_execution_files').insert({installation_request_id:requestId,storage_path:path,original_name:file.name,mime_type:file.type,file_size:file.size});if(error)throw new Error('تعذر تسجيل صورة التنفيذ: '+error.message);return path}

@@ -1,13 +1,13 @@
 {
-  "version": "18.49.0",
-  "build": 184900,
+  "version": "18.49.1",
+  "build": 184901,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M16 Installation Analytics & Financial Intelligence",
+  "title": "M14.9.8.11.2 Execution Technician Filter Permission Scope Recovery",
   "notes": [
-    "تطوير شاشة تقارير التركيبات الحالية إلى مركز مالي وتشغيلي",
-    "إضافة تقارير المندوبين والفرق والفنيين والفواتير والربحية",
-    "تطبيق صلاحيات الشاشة ونطاق البيانات الحالي على جميع النتائج"
+    "فك قفل فلاتر الفني والفرقة لمدير النظام والمستخدمين ذوي النطاق all أو selected",
+    "تثبيت الفلاتر فقط لحساب فني التركيبات المرتبط بفني وفرقة ونطاق own",
+    "الحفاظ على نطاق Supabase RLS ومنع عرض أي فني خارج الصلاحيات الممنوحة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-49-0-m16-installation-financial-analytics"
+  "cacheToken": "kyum-crm-pwa-18-49-1-m14-9-8-11-2-execution-technician-permission-scope"
 }

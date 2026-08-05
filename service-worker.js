@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-49-0-m16-installation-financial-analytics";
+const CACHE_VERSION = "kyum-crm-pwa-18-49-1-m14-9-8-11-2-execution-technician-permission-scope";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
