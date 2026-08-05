@@ -324,3 +324,49 @@ html[data-theme="dark"] .installation-day-actions .installation-cancel-schedule-
   border-color: rgba(255, 139, 139, .35);
   color: #ffd1d1;
 }
+
+
+/* Phase M14.9.8.16.2 — Multi-day scheduling dialog layout & historical dates */
+.installation-assignment-dialog .dialog-shell{
+  width:min(1180px,calc(100vw - 28px));
+  max-height:min(94dvh,980px);
+}
+.installation-multi-day-panel{
+  min-width:0;
+  overflow:visible;
+}
+.installation-multi-day-panel .installation-section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+.installation-multi-day-panel .installation-section-title>div{min-width:0;flex:1 1 420px}
+.installation-multi-day-panel .installation-section-title h4,
+.installation-multi-day-panel .installation-section-title p{overflow-wrap:anywhere;white-space:normal}
+.installation-multi-day-visits{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+}
+.installation-multi-day-visit{min-width:0;overflow:hidden}
+.installation-multi-day-visit-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.installation-multi-day-visit-fields label,
+.installation-multi-day-quantity-row>*{min-width:0}
+.installation-multi-day-visit-fields select,
+.installation-multi-day-visit-fields input{white-space:normal;text-overflow:clip}
+.installation-multi-day-quantity-row{
+  grid-template-columns:minmax(160px,1fr) 90px minmax(90px,120px);
+}
+.installation-multi-day-quantity-row strong,
+.installation-multi-day-quantity-row span{white-space:normal;overflow-wrap:anywhere}
+.installation-allocation-summary{grid-column:1/-1}
+@media(max-width:1100px){
+  .installation-multi-day-visits{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .installation-assignment-dialog .dialog-shell{width:calc(100vw - 12px);max-height:96dvh;padding:14px}
+  .installation-multi-day-visit-fields{grid-template-columns:1fr}
+  .installation-multi-day-quantity-row{grid-template-columns:1fr}
+  .installation-multi-day-panel .installation-section-title>div{flex-basis:100%}
+  .installation-multi-day-panel .installation-section-title button{width:100%}
+}
