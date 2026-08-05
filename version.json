@@ -1,13 +1,13 @@
 {
-  "version": "18.50.5",
-  "build": 185005,
+  "version": "18.50.6",
+  "build": 185006,
   "forceUpdate": true,
   "releaseDate": "2026-08-05",
-  "title": "M14.9.8.15.4 Scheduled Request Service Value Sync & Save State UX",
+  "title": "M14.9.8.15.4.1 Visit Service Write Permission Hotfix",
   "notes": [
-    "منع تصفير قيمة الطلب المجدول بعد تعديل الخدمات",
-    "إعادة ربط خدمات الزيارات بالخدمات الجديدة مع الحفاظ على توزيع الأيام",
-    "إظهار جاري الحفظ ثم تم الحفظ ومنع الضغط المتكرر في مسارات حفظ التركيبات"
+    "إصلاح رفض حفظ تعديل طلب التركيب عند إعادة ربط خدمات الزيارات",
+    "إعادة مسار الكتابة المحمي عبر SECURITY DEFINER مع فحص الصلاحية والنطاق",
+    "الإبقاء على منع الكتابة المباشرة إلى جدول خدمات الزيارات"
   ],
-  "cacheToken": "kyum-crm-pwa-18-50-5-m14-9-8-15-4-scheduled-service-value-sync-save-state"
+  "cacheToken": "kyum-crm-pwa-18-50-6-m14-9-8-15-4-1-visit-service-write-permission-hotfix"
 }

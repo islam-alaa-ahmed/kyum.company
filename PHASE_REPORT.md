@@ -1,24 +1,20 @@
-# Phase M14.9.8.15.4 — Scheduled Request Service Value Sync & Global Save State UX
+# Phase M14.9.8.15.4.1 — Visit Service Write Permission Hotfix
 
 ## Root Cause
-`update_installation_request_with_services` deleted and recreated request-service rows. Visit allocations reference those row UUIDs with `ON DELETE CASCADE`, so editing a scheduled request removed the visit allocations. The calendar then rendered the visit with zero services and SAR 0.00.
+The Phase M14.9.8.15.4 replacement of `update_installation_request_with_services` was declared `SECURITY INVOKER`, while direct INSERT/UPDATE/DELETE privileges on `installation_execution_visit_services` are intentionally revoked from `authenticated`. When the RPC rebuilt visit-service allocations, PostgreSQL executed the INSERT as the logged-in user and returned `permission denied for table installation_execution_visit_services`.
 
 ## Fix
-- Preserve allocations by visit and service type before replacing request-service rows.
-- Rebuild allocations against the new row IDs after save.
-- Single-day requests receive the complete updated quantity.
-- Multi-day requests preserve visit order and distribution; quantity changes are reconciled on the last active visit.
-- Prevent reducing a service below already executed quantity.
-- Removed duplicate client-side visit-line collection.
-- Added save-state feedback to request-service editing, request creation/editing, and scheduling/multi-day scheduling.
+- Restored the canonical RPC to `SECURITY DEFINER`.
+- Kept the protected visit-service table unavailable for direct client writes.
+- Added explicit screen-permission, request-scope and representative-scope guards before privileged writes.
+- No RLS broadening and no direct table grant was introduced.
 
-## Database
-Run migration then verification:
-- `supabase/migrations/phase_m14_9_8_15_4_scheduled_request_service_value_sync.sql`
-- `supabase/verification/phase_m14_9_8_15_4_scheduled_request_service_value_sync_verification.sql`
+## Apply
+1. Run `supabase/migrations/phase_m14_9_8_15_4_1_visit_service_write_permission_hotfix.sql`.
+2. Run `supabase/verification/phase_m14_9_8_15_4_1_visit_service_write_permission_hotfix_verification.sql`.
 
-The last two verification queries should return 0 rows.
-
-## Version
-- Version: 18.50.5
-- Build: 185005
+## Expected verification
+- `is_security_definer = true`
+- `has_scope_guard = true`
+- `has_representative_guard = true`
+- `authenticated_has_direct_write = false`
