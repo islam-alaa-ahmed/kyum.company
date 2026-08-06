@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-51-4-execution-visit-schedule-data-alignment";
+const CACHE_VERSION = "kyum-crm-pwa-18-51-5-installation-summary-report-financial-layout-recovery";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

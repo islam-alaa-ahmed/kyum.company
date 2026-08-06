@@ -1,13 +1,14 @@
 {
-  "version": "18.51.4",
-  "build": 185104,
+  "version": "18.51.5",
+  "build": 185105,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Execution Visit Schedule Data Alignment",
+  "title": "Installation Summary Report & Financial Layout Recovery",
   "notes": [
-    "توحيد وقت وفرقة شاشة التنفيذ مع بيانات الزيارة الفعلية في جدول التركيبات",
-    "إظهار رقم العميل واسم المندوب والملاحظات داخل بطاقات طلبات اليوم",
-    "الحفاظ على خدمات وكميات كل زيارة للطلبات المقسمة على عدة أيام"
+    "إضافة تبويب ملخص التركيبات قبل التقرير المالي بتجميع الخدمات حسب الفرقة",
+    "إضافة فلاتر اليوم والسنة والشهر والمندوب واختيار الفرق المتعدد",
+    "إضافة تصدير PDF ومشاركة واتساب PDF مع الحفاظ على الفلاتر الحالية",
+    "إصلاح تطابق هيدر التقرير المالي مع البيانات وإزالة قيم undefined"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-4-execution-visit-schedule-data-alignment"
+  "cacheToken": "kyum-crm-pwa-18-51-5-installation-summary-report-financial-layout-recovery"
 }
