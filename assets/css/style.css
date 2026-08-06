@@ -11348,3 +11348,20 @@ html[data-theme="dark"] .searchable-select-option.is-selected{
 /* Phase M15 searchable geographic cascade */
 #customerDialog #customerRegion,#customerDialog #customerCity,#customerDialog #customerDistrict{min-height:48px;width:100%;font-weight:700}
 #customerDialog datalist{max-height:280px}
+
+/* Phase M15.2 — Customer geographic searchable cascade UX certification */
+#customerDialog .customer-geo-field{position:relative;min-width:0}
+#customerDialog .geo-searchable-select{position:relative;width:100%;isolation:isolate}
+#customerDialog .geo-searchable-input{width:100%;min-height:50px;padding-inline:48px 16px;font-weight:700;background:var(--surface,#fff);cursor:text}
+#customerDialog .geo-searchable-toggle{position:absolute;inset-inline-start:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;border-radius:10px;font-size:20px;font-weight:800;z-index:2;cursor:pointer}
+#customerDialog .geo-searchable-select.is-disabled{opacity:.68}
+#customerDialog .geo-searchable-options{position:absolute;z-index:12050;top:calc(100% + 8px);inset-inline:0;max-height:300px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface,#fff);border:1px solid rgba(37,99,235,.25);border-radius:14px;box-shadow:0 18px 48px rgba(15,23,42,.22);padding:8px;min-width:100%}
+#customerDialog .geo-searchable-option{display:block;width:100%;border:0;background:transparent;border-radius:10px;padding:11px 12px;text-align:right;color:inherit;font:inherit;font-weight:700;line-height:1.45;cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+#customerDialog .geo-searchable-option:hover,#customerDialog .geo-searchable-option:focus,#customerDialog .geo-searchable-option.is-selected{outline:0;background:rgba(37,99,235,.12);color:#1d4ed8}
+#customerDialog .geo-searchable-empty{padding:18px 12px;text-align:center;color:var(--muted,#64748b);font-weight:700}
+html[data-theme="dark"] #customerDialog .geo-searchable-options{background:#0f1f35;border-color:rgba(96,165,250,.32);box-shadow:0 18px 48px rgba(0,0,0,.5)}
+html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-theme="dark"] #customerDialog .geo-searchable-option:focus,html[data-theme="dark"] #customerDialog .geo-searchable-option.is-selected{background:rgba(59,130,246,.22);color:#bfdbfe}
+@media(max-width:767px){
+  #customerDialog .geo-searchable-options{position:fixed;top:auto;bottom:max(18px,env(safe-area-inset-bottom));inset-inline:16px;max-height:min(48vh,420px);border-radius:18px;z-index:13000}
+  #customerDialog .geo-searchable-input{min-height:52px}
+}
