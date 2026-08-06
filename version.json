@@ -1,13 +1,13 @@
 {
-  "version": "18.51.1",
-  "build": 185101,
+  "version": "18.51.2",
+  "build": 185102,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Global Typography Scale & Responsive Layout Certification",
+  "title": "Scheduling Save Button Runtime Recovery",
   "notes": [
-    "زيادة أحجام خطوط الواجهة بدرجتين تقريبًا مع أوزان أوضح ومتدرجة",
-    "حماية الأزرار والجداول والنوافذ المنبثقة من قص النصوص أو خروجها خارج الحدود",
-    "فصل مقاسات واجهة البرنامج عن مقاسات الطباعة وملفات PDF للحفاظ على التقارير"
+    "إصلاح توقف زر حفظ الجدولة بسبب تحقق المتصفح الصامت من حقول مخفية متعددة الأيام",
+    "تعطيل حقول الزيارات المخفية فعليًا عند إيقاف التقسيم وربط الحفظ مباشرة بزر واضح",
+    "إضافة تحقق صريح ورسائل خطأ وحالة جاري الحفظ ومنع الضغط المتكرر"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-1-global-typography-responsive-certification"
+  "cacheToken": "kyum-crm-pwa-18-51-2-scheduling-save-runtime-recovery"
 }

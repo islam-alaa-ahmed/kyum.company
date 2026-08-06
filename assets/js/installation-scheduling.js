@@ -1,5 +1,5 @@
 (function(){
-  const $=id=>document.getElementById(id); let month=new Date();month.setDate(1);let requests=[],technicianNames=[],teams=[],dayLocks=new Map(),bookedTimes=new Map(),multiDayServices=[],multiDayVisits=[];
+  const $=id=>document.getElementById(id); let month=new Date();month.setDate(1);let requests=[],technicianNames=[],teams=[],dayLocks=new Map(),bookedTimes=new Map(),multiDayServices=[],multiDayVisits=[],assignmentSaveInFlight=false;
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function setSaveState(button,state,originalText){if(!button)return;if(state==='saving'){button.dataset.originalText=originalText||button.textContent;button.disabled=true;button.textContent='جاري الحفظ...';button.classList.add('is-saving')}else if(state==='saved'){button.textContent='تم الحفظ';button.classList.remove('is-saving');button.classList.add('is-saved')}else if(state==='error'){button.textContent='تعذر الحفظ';button.classList.remove('is-saving');button.classList.add('is-save-error')}else{button.disabled=false;button.textContent=button.dataset.originalText||originalText||button.textContent;button.classList.remove('is-saving','is-saved','is-save-error')}}
@@ -76,7 +76,18 @@
   function seedMultiDay(r,plan){multiDayServices=(plan?.services?.length?plan.services:(r.services||[])).map(x=>({...x,id:x.id||x.serviceTypeId||''}));const saved=plan?.visits||[];if(saved.length>1){multiDayVisits=saved.map(v=>({date:v.scheduled_date||'',time:v.scheduled_time||'10:00',teamId:v.installation_team_id||'',technicianName:v.technician_name||'',quantities:Object.fromEntries((v.lines||[]).map(x=>[x.requestServiceId,Number(x.quantity||0)]))}))}else{const first=saved[0];const d1=first?.scheduled_date||r.scheduledDate||localKey(new Date()),d2=nextOpenDate(d1,1);multiDayVisits=[{date:d1,time:first?.scheduled_time||r.scheduledTime||'10:00',teamId:first?.installation_team_id||r.teamId||'',technicianName:first?.technician_name||r.technicianName||'',quantities:{}},{date:d2,time:first?.scheduled_time||r.scheduledTime||'10:00',teamId:first?.installation_team_id||r.teamId||'',technicianName:first?.technician_name||r.technicianName||'',quantities:{}}];multiDayServices.forEach(s=>{const total=Number(s.quantity||0),firstQty=Math.ceil(total/2);multiDayVisits[0].quantities[s.id]=firstQty;multiDayVisits[1].quantities[s.id]=total-firstQty})}}
   function allocationStatus(){return multiDayServices.map(s=>{const total=Number(s.quantity||0),allocated=multiDayVisits.reduce((a,v)=>a+Number(v.quantities[s.id]||0),0),remaining=total-allocated;return `<span class="${remaining===0?'is-ok':'is-error'}">${esc(s.name)}: ${allocated}/${total}${remaining===0?' ✓':remaining>0?` — متبقي ${remaining}`:` — زائد ${Math.abs(remaining)}`}</span>`}).join('')}
   function renderMultiDay(){const wrap=$('installationMultiDayVisits');if(!wrap)return;wrap.innerHTML=multiDayVisits.map((v,i)=>`<article class="installation-multi-day-visit" data-visit-index="${i}"><div class="installation-multi-day-visit-head"><h5>اليوم ${i+1}</h5><button type="button" class="secondary-btn compact-btn" data-remove-visit="${i}" ${multiDayVisits.length<=2?'disabled':''}>حذف اليوم</button></div><div class="installation-multi-day-visit-fields"><label>التاريخ<select data-visit-date="${i}" required>${visitDateOptions(v.date)}</select></label><label>الوقت<select data-visit-time="${i}" required><option value="">اختر الوقت</option>${timeOptions(v.time)}</select></label><label>الفرقة<select data-visit-team="${i}" required>${teamOptions(v.teamId)}</select></label><label>الفني<input data-visit-technician="${i}" type="search" list="installationTechnicianNameSuggestions" value="${esc(v.technicianName)}" placeholder="اسم الفني" required></label></div><div class="installation-multi-day-quantities">${multiDayServices.map(s=>`<label class="installation-multi-day-quantity-row"><strong>${esc(s.name)}<small>الإجمالي: ${Number(s.quantity||0)}</small></strong><span>كمية اليوم</span><input data-visit-quantity="${i}" data-service-id="${esc(s.id)}" type="number" min="0" max="${Number(s.quantity||0)}" step="1" value="${Number(v.quantities[s.id]||0)}"></label>`).join('')}</div></article>`).join('')+`<div class="installation-allocation-summary">${allocationStatus()}</div>`}
-  function syncMultiDayMode(enabled){$('installationMultiDayPanel')?.classList.toggle('hidden',!enabled);['installationAssignmentDate','installationAssignmentTime','installationAssignmentTeam','installationAssignmentTechnicianName'].forEach(id=>{const el=$(id);if(el){el.disabled=enabled;el.required=!enabled}});if(enabled)renderMultiDay()}
+  function syncMultiDayMode(enabled){
+    const panel=$('installationMultiDayPanel');
+    panel?.classList.toggle('hidden',!enabled);
+    ['installationAssignmentDate','installationAssignmentTime','installationAssignmentTeam','installationAssignmentTechnicianName'].forEach(id=>{const el=$(id);if(el){el.disabled=enabled;el.required=!enabled}});
+    if(enabled)renderMultiDay();
+    panel?.querySelectorAll('input,select,textarea,button').forEach(el=>{
+      if(el.id==='addInstallationVisitRow')return;
+      el.disabled=!enabled;
+    });
+    const addButton=$('addInstallationVisitRow');
+    if(addButton)addButton.disabled=!enabled;
+  }
   function collectMultiDay(){return multiDayVisits.map(v=>({scheduledDate:v.date,scheduledTime:v.time,teamId:v.teamId,technicianName:v.technicianName,services:multiDayServices.map(s=>({requestServiceId:s.id,quantity:Number(v.quantities[s.id]||0)})).filter(x=>x.quantity>0)}))}
   function validateMultiDay(){if(multiDayVisits.length<2)throw new Error('أضف يومين على الأقل.');for(const [i,v] of multiDayVisits.entries()){if(!v.date||!v.time||!v.teamId||!String(v.technicianName||'').trim())throw new Error(`أكمل بيانات اليوم ${i+1}.`);if(lockInfo(v.date).isLocked)throw new Error(`اليوم ${i+1} مغلق أمام الجدولة.`);if(!Object.values(v.quantities).some(x=>Number(x)>0))throw new Error(`حدد كمية واحدة على الأقل في اليوم ${i+1}.`)}for(const s of multiDayServices){const allocated=multiDayVisits.reduce((a,v)=>a+Number(v.quantities[s.id]||0),0);if(allocated!==Number(s.quantity||0))throw new Error(`توزيع خدمة ${s.name} غير مكتمل: الموزع ${allocated} من ${Number(s.quantity||0)}.`)}}
 
@@ -97,6 +108,53 @@
     $('installationDayTeamsGrid')?.addEventListener('click',async e=>{const re=e.target.closest('[data-day-reschedule]'),cancel=e.target.closest('[data-day-cancel-schedule]');if(re&&!re.disabled){const r=requests.find(x=>x.id===re.dataset.dayReschedule);if(!r?.canOperate)return;$('installationDayDetailsDialog').close();openAssignment(r).catch(err=>status($('installationScheduleStatus'),err.message,'error'));return}if(cancel&&!cancel.disabled){const r=requests.find(x=>x.id===cancel.dataset.dayCancelSchedule);if(!r?.canOperate||!canEditSchedule())return;const message=`هل تريد إلغاء جدولة الطلب ${r.requestNumber}؟\n\nسيتم إلغاء جميع مواعيد هذا الطلب وإعادته إلى قائمة الطلبات التي تحتاج جدولة أو إسناد.`;if(!window.confirm(message))return;const original=cancel.textContent;setSaveState(cancel,'saving',original);try{await window.InstallationsServiceSafe.cancelSchedule(r.id);setSaveState(cancel,'saved');await new Promise(resolve=>setTimeout(resolve,450));$('installationDayDetailsDialog').close();await load();status($('installationScheduleStatus'),'تم إلغاء الجدولة وإعادة الطلب إلى قائمة الطلبات المطلوب جدولتها.','success')}catch(err){setSaveState(cancel,'error');status($('installationScheduleStatus'),err.message,'error');await new Promise(resolve=>setTimeout(resolve,900));setSaveState(cancel,'idle',original)}}});
     $('closeInstallationDayDetailsDialog')?.addEventListener('click',()=>$('installationDayDetailsDialog').close());$('closeInstallationDayDetailsFooter')?.addEventListener('click',()=>$('installationDayDetailsDialog').close());
     $('closeInstallationAssignmentDialog')?.addEventListener('click',()=> $('installationAssignmentDialog').close());$('cancelInstallationAssignment')?.addEventListener('click',()=> $('installationAssignmentDialog').close());
-    $('installationAssignmentForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!canEditSchedule()){status($('installationAssignmentFormStatus'),'ليس لديك صلاحية جدولة وإسناد طلبات التركيبات.','error');syncAssignmentPermission();return}const btn=$('saveInstallationAssignment');if($('installationMultiDayToggle')?.checked){setSaveState(btn,'saving','حفظ الجدولة');try{validateMultiDay();await window.InstallationsServiceSafe.assignMultiDay({id:$('installationAssignmentRequestId').value,visits:collectMultiDay(),assignmentNotes:$('installationAssignmentNotes').value.trim()});setSaveState(btn,'saved');await new Promise(r=>setTimeout(r,450));$('installationAssignmentDialog').close();await load()}catch(err){setSaveState(btn,'error');status($('installationAssignmentFormStatus'),err.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ الجدولة')}return}const selectedDate=$('installationAssignmentDate').value;if(lockInfo(selectedDate).isLocked){status($('installationAssignmentFormStatus'),'هذا اليوم مغلق. افتح اليوم أولًا قبل الجدولة.','error');return}const selectedTime=$('installationAssignmentTime').value;if(bookedTimes.has(selectedTime)){status($('installationAssignmentFormStatus'),'هذا الموعد محجوز للفني المحدد. اختر موعدًا آخر.','error');return}const technicianName=$('installationAssignmentTechnicianName').value.trim(),teamId=$('installationAssignmentTeam').value;if(!teamId){status($('installationAssignmentFormStatus'),'اختر فرقة التركيبات.','error');return}if(!technicianName){status($('installationAssignmentFormStatus'),'اكتب اسم الفني.','error');return}setSaveState(btn,'saving','حفظ الجدولة');try{await window.InstallationsServiceSafe.assign({id:$('installationAssignmentRequestId').value,scheduledDate:$('installationAssignmentDate').value,scheduledTime:$('installationAssignmentTime').value,teamId,technicianName,assignmentNotes:$('installationAssignmentNotes').value.trim()});setSaveState(btn,'saved');await new Promise(r=>setTimeout(r,450));$('installationAssignmentDialog').close();await load()}catch(err){setSaveState(btn,'error');status($('installationAssignmentFormStatus'),err.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ الجدولة')}});
+    async function handleAssignmentSave(event){
+      event?.preventDefault?.();
+      if(assignmentSaveInFlight)return;
+      const form=$('installationAssignmentForm'),btn=$('saveInstallationAssignment'),formStatus=$('installationAssignmentFormStatus');
+      clear(formStatus);
+      if(!canEditSchedule()){
+        status(formStatus,'ليس لديك صلاحية جدولة وإسناد طلبات التركيبات.','error');
+        syncAssignmentPermission();
+        return;
+      }
+      assignmentSaveInFlight=true;
+      setSaveState(btn,'saving','حفظ الجدولة');
+      try{
+        const requestId=$('installationAssignmentRequestId')?.value||'';
+        if(!requestId)throw new Error('تعذر تحديد طلب التركيب. أغلق النافذة وافتح الطلب مرة أخرى.');
+        if($('installationMultiDayToggle')?.checked){
+          validateMultiDay();
+          await window.InstallationsServiceSafe.assignMultiDay({id:requestId,visits:collectMultiDay(),assignmentNotes:$('installationAssignmentNotes').value.trim()});
+        }else{
+          const selectedDate=$('installationAssignmentDate')?.value||'';
+          const selectedTime=$('installationAssignmentTime')?.value||'';
+          const technicianName=$('installationAssignmentTechnicianName')?.value.trim()||'';
+          const teamId=$('installationAssignmentTeam')?.value||'';
+          if(!selectedDate)throw new Error('اختر تاريخ التركيب.');
+          if(lockInfo(selectedDate).isLocked)throw new Error('هذا اليوم مغلق. افتح اليوم أولًا قبل الجدولة.');
+          if(!selectedTime)throw new Error('اختر وقت التركيب.');
+          if(bookedTimes.has(selectedTime))throw new Error('هذا الموعد محجوز للفني المحدد. اختر موعدًا آخر.');
+          if(!teamId)throw new Error('اختر فرقة التركيبات.');
+          if(!technicianName)throw new Error('اكتب اسم الفني.');
+          await window.InstallationsServiceSafe.assign({id:requestId,scheduledDate:selectedDate,scheduledTime:selectedTime,teamId,technicianName,assignmentNotes:$('installationAssignmentNotes').value.trim()});
+        }
+        setSaveState(btn,'saved');
+        status(formStatus,'تم حفظ الجدولة بنجاح.','success');
+        await new Promise(resolve=>setTimeout(resolve,450));
+        $('installationAssignmentDialog').close();
+        await load();
+      }catch(err){
+        setSaveState(btn,'error');
+        status(formStatus,err?.message||'تعذر حفظ الجدولة.','error');
+        formStatus?.scrollIntoView?.({block:'nearest',behavior:'smooth'});
+        await new Promise(resolve=>setTimeout(resolve,900));
+      }finally{
+        assignmentSaveInFlight=false;
+        setSaveState(btn,'idle','حفظ الجدولة');
+      }
+    }
+    $('saveInstallationAssignment')?.addEventListener('click',handleAssignmentSave);
+    $('installationAssignmentForm')?.addEventListener('submit',handleAssignmentSave);
   });
 })();
