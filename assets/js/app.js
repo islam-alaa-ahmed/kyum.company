@@ -1020,23 +1020,31 @@ let customerDistrictCatalog = [];
 let customerDistrictCatalogLoaded = false;
 let customerDistrictCatalogPromise = null;
 
-function renderCustomerDistrictOptions(currentValue = "") {
-  const select = document.getElementById("customerDistrict");
-  if (!select) return;
-  const normalizedCurrent = String(currentValue || "").trim();
-  const names = new Set(customerDistrictCatalog.map(item => String(item.name || "").trim()).filter(Boolean));
-  select.innerHTML = '<option value="">اختر الحي</option>' + customerDistrictCatalog.map(item =>
-    `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`
-  ).join("");
-  if (normalizedCurrent && !names.has(normalizedCurrent)) {
-    const legacy = document.createElement("option");
-    legacy.value = normalizedCurrent;
-    legacy.textContent = `${normalizedCurrent} (قيمة محفوظة)`;
-    select.appendChild(legacy);
-  }
-  select.value = normalizedCurrent;
+function normalizeGeoValue(value){return String(value||"").trim().replace(/\s+/g," ")}
+function uniqueGeoValues(rows,key){return [...new Set((rows||[]).map(x=>normalizeGeoValue(x?.[key])).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'))}
+function fillGeoDatalist(id,values){const list=document.getElementById(id);if(list)list.innerHTML=values.map(v=>`<option value="${escapeHtml(v)}"></option>`).join("")}
+function renderCustomerGeography(current={}){
+  const region=document.getElementById("customerRegion"),city=document.getElementById("customerCity"),district=document.getElementById("customerDistrict");
+  if(!region||!city||!district)return;
+  if(current.region!==undefined)region.value=current.region||"";
+  if(current.city!==undefined)city.value=current.city||"";
+  if(current.district!==undefined)district.value=current.district||"";
+  const regionValue=normalizeGeoValue(region.value),cityValue=normalizeGeoValue(city.value);
+  fillGeoDatalist("customerRegionOptions",uniqueGeoValues(customerDistrictCatalog,"region"));
+  const cityRows=regionValue?customerDistrictCatalog.filter(x=>normalizeGeoValue(x.region)===regionValue):customerDistrictCatalog;
+  fillGeoDatalist("customerCityOptions",uniqueGeoValues(cityRows,"city"));
+  const districtRows=customerDistrictCatalog.filter(x=>(!regionValue||normalizeGeoValue(x.region)===regionValue)&&(!cityValue||normalizeGeoValue(x.city)===cityValue));
+  fillGeoDatalist("customerDistrictOptions",uniqueGeoValues(districtRows,"name"));
 }
-
+function renderCustomerDistrictOptions(currentValue = "") {renderCustomerGeography({district:currentValue})}
+function bindCustomerGeographyCascade(){
+  const region=document.getElementById("customerRegion"),city=document.getElementById("customerCity"),district=document.getElementById("customerDistrict");
+  if(!region||region.dataset.geoBound)return;region.dataset.geoBound="1";
+  region.addEventListener("change",()=>{city.value="";district.value="";renderCustomerGeography()});
+  region.addEventListener("input",()=>renderCustomerGeography());
+  city.addEventListener("change",()=>{district.value="";renderCustomerGeography()});
+  city.addEventListener("input",()=>renderCustomerGeography());
+}
 async function loadCustomerDistrictCatalog(force = false) {
   if (!force && customerDistrictCatalogLoaded) return customerDistrictCatalog;
   if (customerDistrictCatalogPromise) return customerDistrictCatalogPromise;
@@ -1054,6 +1062,8 @@ async function loadCustomerDistrictCatalog(force = false) {
     if (error) throw new Error(`تعذر تحميل قائمة الأحياء: ${error.message}`);
     customerDistrictCatalog = Array.isArray(data) ? data : [];
     customerDistrictCatalogLoaded = true;
+    bindCustomerGeographyCascade();
+    renderCustomerGeography();
     return customerDistrictCatalog;
   })();
 
@@ -4033,9 +4043,7 @@ async function openCustomerDialog(customer = null) {
     document.getElementById("customerContactPerson").value = record?.contactPersonName || "";
     syncCustomerContactPersonField();
     document.getElementById("customerPhone").value = record?.phone || "";
-    document.getElementById("customerRegion").value = record?.region || "";
-    document.getElementById("customerCity").value = record?.city || "";
-    renderCustomerDistrictOptions(record?.district || "");
+    renderCustomerGeography({region:record?.region||"",city:record?.city||"",district:record?.district||""});
     document.getElementById("customerRepresentative").value = operationalDefaultRepresentativeId(record?.representativeId);
     document.getElementById("contactDate").value = record?.contactDate || new Date().toISOString().slice(0, 10);
     document.getElementById("quotationNumber").value = record?.quotationNumber || "";

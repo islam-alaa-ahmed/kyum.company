@@ -9,3 +9,33 @@
 @media(max-width:1350px){.installation-summary-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.installation-summary-day-nav{grid-column:1/-1}.installation-summary-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.installation-summary-filters,.installation-summary-kpis{grid-template-columns:1fr 1fr}.installation-summary-day-nav,.installation-summary-export-actions{grid-column:1/-1}.installation-summary-head{display:grid}.installation-summary-export-actions button{flex:1}.installation-summary-team-cell{min-width:125px}}
 @media(max-width:520px){.installation-summary-filters,.installation-summary-kpis{grid-template-columns:1fr}.installation-summary-day-nav button{flex:1}.installation-summary-export-actions{display:grid}.installation-summary-table{min-width:720px}}
+
+
+/* Phase M15: installation summary professional certification */
+.installation-summary-panel{overflow:visible}
+.installation-summary-filters{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;padding:16px;border:1px solid color-mix(in srgb,var(--border-color) 85%,transparent);border-radius:16px;background:color-mix(in srgb,var(--surface-color) 96%,var(--primary-color) 4%);align-items:end}
+.installation-summary-day-nav{grid-column:span 4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.installation-summary-day-nav button{min-height:48px;white-space:nowrap}
+.installation-summary-day-nav button.is-active{box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 22%,transparent)}
+.installation-summary-filters>label{grid-column:span 1;min-width:0}
+.installation-summary-filters>label:nth-of-type(4){grid-column:span 2}
+.installation-summary-team-filter{grid-column:span 2;min-width:0}
+#resetInstallationSummaryFilters{grid-column:span 1;min-height:48px}
+.installation-summary-teams-menu{inset-inline-start:auto;inset-inline-end:0;width:min(390px,calc(100vw - 40px));max-height:390px;overflow:hidden;padding:0}
+.installation-summary-teams-actions{position:sticky;top:0;z-index:2;padding:12px;background:var(--surface-color);display:flex;justify-content:space-between}
+#installationSummaryTeamsOptions{max-height:300px;overflow:auto;padding:8px}
+.installation-summary-team-option{display:grid!important;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:10px;padding:10px 12px!important;margin:2px 0;cursor:pointer}
+.installation-summary-team-option input{inline-size:18px;block-size:18px;margin:0}
+.installation-summary-team-option span{min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.45;font-weight:700}
+.installation-summary-table-wrap{border:1px solid #b8c4d6;border-radius:14px;overflow:auto;background:var(--surface-color)}
+.installation-summary-table{width:100%;border-collapse:separate;border-spacing:0;min-width:850px}
+.installation-summary-table th,.installation-summary-table td{border-inline-start:1px solid #c7d0dd;border-block-end:1px solid #d3dae4;padding:13px 15px;line-height:1.5}
+.installation-summary-table th:first-child,.installation-summary-table td:first-child{border-inline-start:0}
+.installation-summary-table thead th{position:sticky;top:0;z-index:3;background:linear-gradient(180deg,#16478f,#1f5db8);font-weight:900;letter-spacing:.1px}
+.installation-summary-table tbody tr:nth-child(even):not(.installation-summary-service-total):not(.installation-summary-grand-total) td{background:color-mix(in srgb,var(--surface-color) 94%,#dbeafe 6%)}
+.installation-summary-team-cell{border-inline-end:2px solid #7fa0ca!important;background:linear-gradient(180deg,color-mix(in srgb,var(--primary-color) 12%,var(--surface-color)),color-mix(in srgb,var(--primary-color) 5%,var(--surface-color)))!important;font-size:1.05rem}
+.installation-summary-service-total td{border-block-start:2px solid #83a5d0;background:color-mix(in srgb,var(--primary-color) 9%,var(--surface-color))!important}
+.installation-summary-grand-total td{border-block-start:3px solid #15906a;border-block-end:0;background:color-mix(in srgb,#22c55e 15%,var(--surface-color))!important}
+.installation-summary-value{white-space:nowrap}
+@media(max-width:1250px){.installation-summary-day-nav{grid-column:1/-1}.installation-summary-filters>label{grid-column:span 3}.installation-summary-filters>label:nth-of-type(4),.installation-summary-team-filter{grid-column:span 6}#resetInstallationSummaryFilters{grid-column:span 3}}
+@media(max-width:760px){.installation-summary-filters{grid-template-columns:1fr 1fr}.installation-summary-day-nav,.installation-summary-filters>label,.installation-summary-filters>label:nth-of-type(4),.installation-summary-team-filter,#resetInstallationSummaryFilters{grid-column:auto}.installation-summary-day-nav{grid-column:1/-1}.installation-summary-team-filter{grid-column:1/-1}.installation-summary-teams-menu{position:fixed;inset:15% 16px auto;width:auto;max-height:65vh}.installation-summary-table th,.installation-summary-table td{padding:11px 10px}}

@@ -1,14 +1,14 @@
 {
-  "version": "18.51.5",
-  "build": 185105,
+  "version": "18.52.0",
+  "build": 185200,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Installation Summary Report & Financial Layout Recovery",
+  "title": "Geographic Reference System & Installation Summary Certification",
   "notes": [
-    "إضافة تبويب ملخص التركيبات قبل التقرير المالي بتجميع الخدمات حسب الفرقة",
-    "إضافة فلاتر اليوم والسنة والشهر والمندوب واختيار الفرق المتعدد",
-    "إضافة تصدير PDF ومشاركة واتساب PDF مع الحفاظ على الفلاتر الحالية",
-    "إصلاح تطابق هيدر التقرير المالي مع البيانات وإزالة قيم undefined"
+    "إصلاح التنقل بين أيام ملخص التركيبات مع الحفاظ على الفلاتر",
+    "إعادة تصميم فلاتر الفرق وحدود جدول الملخص بصورة احترافية",
+    "إضافة هيكل مناطق ومدن مترابط مع الحفاظ على الأحياء الحالية",
+    "تحويل منطقة ومدينة وحي العميل إلى قوائم بحث مترابطة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-5-installation-summary-report-financial-layout-recovery"
+  "cacheToken": "kyum-crm-pwa-18-52-0-geographic-reference-summary-certification"
 }
