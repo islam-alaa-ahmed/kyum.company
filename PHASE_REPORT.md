@@ -1,35 +1,46 @@
-# Phase M14.9.8.16.9.1 — Scheduling Save Button Runtime Recovery
+# Phase M14.9.8.16.9.2 — Scheduling Audit Customer Name Hotfix
 
 ## Root Cause
 
-The scheduling form relied only on the browser native submit lifecycle. Multi-day visit controls were rendered with `required`, but when multi-day mode was turned off the panel was only hidden; its generated controls remained enabled and required. The browser therefore blocked the `submit` event before the JavaScript handler ran. This produced no `جاري الحفظ...` state and no application error, making the button appear unresponsive.
+The scheduling button and frontend save path were working. The database transaction failed only after the scheduling RPC updated `installation_requests`.
+
+That update fired `capture_business_activity_event()`, introduced by the employee activity timeline phase. The trigger queried:
+
+```sql
+select name from public.customers
+```
+
+The canonical customer field in the current database is `customer_name`, not `name`. PostgreSQL therefore raised:
+
+```text
+column "name" does not exist
+```
+
+Because the audit trigger executes in the same transaction, PostgreSQL rolled back the complete schedule operation. This affected single-day scheduling, multi-day scheduling, rescheduling, and editing an existing schedule.
 
 ## Fix
 
-- Added `novalidate` to the scheduling form and moved validation to the application layer.
-- Changed the save button to an explicit button with a direct click handler.
-- Kept Enter/form submission routed to the same single save function.
-- Disabled every generated multi-day field whenever multi-day mode is off.
-- Added explicit single-day validation and visible Arabic errors.
-- Added save in-flight protection and clear saving/saved/error states.
-- Preserved multi-day quantity validation, day locks, technician booking checks, permissions, and existing scheduling service calls.
+- Replaced all direct customer lookups inside `capture_business_activity_event()` with `customers.customer_name`.
+- Kept a JSON fallback for legacy payloads without requiring a physical `name` column.
+- Preserved all audit triggers and audit event data.
+- Did not modify scheduling business logic, permissions, conflict detection, day locks, quantities, or frontend layout.
 
 ## Files Modified
 
+- `supabase/migrations/phase_m14_9_8_16_9_2_scheduling_audit_customer_name_hotfix.sql`
+- `supabase/verification/phase_m14_9_8_16_9_2_scheduling_audit_customer_name_hotfix_verification.sql`
 - `index.html`
-- `assets/js/installation-scheduling.js`
 - `assets/js/pwa.js`
 - `service-worker.js`
 - `package.json`
 - `version.json`
 - `PHASE_REPORT.md`
 
-## Regression Scope
+## Manual Regression Tests
 
-- Single-day scheduling
-- Multi-day scheduling
-- Toggle between single and multi-day modes
-- Required-field validation
-- Save button state transitions
-- Day lock and technician booking validation
-- Permission enforcement
+1. Schedule one request for one day.
+2. Schedule one request across two days.
+3. Edit and save an existing schedule.
+4. Reschedule an existing request.
+5. Confirm technician conflict still blocks a different request at the same time.
+6. Confirm audit timeline records the scheduling change with the customer name in Arabic.

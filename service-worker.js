@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-51-2-scheduling-save-runtime-recovery";
+const CACHE_VERSION = "kyum-crm-pwa-18-51-3-scheduling-audit-customer-name-hotfix";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

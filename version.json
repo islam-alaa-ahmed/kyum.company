@@ -1,13 +1,13 @@
 {
-  "version": "18.51.2",
-  "build": 185102,
+  "version": "18.51.3",
+  "build": 185103,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Scheduling Save Button Runtime Recovery",
+  "title": "Scheduling Audit Customer Name Hotfix",
   "notes": [
-    "إصلاح توقف زر حفظ الجدولة بسبب تحقق المتصفح الصامت من حقول مخفية متعددة الأيام",
-    "تعطيل حقول الزيارات المخفية فعليًا عند إيقاف التقسيم وربط الحفظ مباشرة بزر واضح",
-    "إضافة تحقق صريح ورسائل خطأ وحالة جاري الحفظ ومنع الضغط المتكرر"
+    "إصلاح فشل حفظ الجدولة بسبب Trigger سجل الحركات الذي كان يقرأ عمود customers.name غير الموجود",
+    "استخدام العمود القياسي customers.customer_name في جميع أحداث العملاء والمتابعات والعروض والتركيبات والفواتير",
+    "الحفاظ على منطق الجدولة أحادية اليوم ومتعددة الأيام دون أي تغيير"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-2-scheduling-save-runtime-recovery"
+  "cacheToken": "kyum-crm-pwa-18-51-3-scheduling-audit-customer-name-hotfix"
 }
