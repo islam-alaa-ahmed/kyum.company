@@ -51,3 +51,37 @@
 5. Test a city/district expected after row 1000 to confirm pagination loads the full catalog.
 6. Edit an existing customer and confirm its current geography is restored.
 7. Test desktop, mobile, light mode, and dark mode.
+
+# Phase M15.2.1 — Customer Geographic Dropdown Overlay & Layout Hotfix
+
+## Root Cause
+
+The searchable geography menu used an absolute overlay with a fixed 300px height. Inside the long customer dialog, the menu could open into insufficient space and cover the city, district, interests, and representative fields. The overlay was also not repositioned when the dialog scrolled.
+
+## Fix
+
+- Added viewport- and dialog-aware menu positioning.
+- Opens below the input when space is available and above it when the lower space is insufficient.
+- Caps menu height to the actually available space with independent scrolling.
+- Aligns menu width and horizontal position with the active input while remaining inside the viewport.
+- Closes open menus on customer-dialog scroll, resize, dialog close, outside click, and Escape.
+- Preserves region → city → district cascading, search, keyboard navigation, light/dark mode, and mobile bottom-sheet behavior.
+
+## Modified Files
+
+- `assets/js/app.js`
+- `assets/css/style.css`
+- `assets/js/pwa.js`
+- `index.html`
+- `service-worker.js`
+- `package.json`
+- `version.json`
+- `PHASE_REPORT.md`
+
+## Regression Audit
+
+- Geographic catalog loading and pagination unchanged.
+- Region selection still clears incompatible city and district.
+- City selection still clears incompatible district.
+- Customer payload continues saving Arabic geography names.
+- No changes to customers business rules, permissions, Supabase, installations, or reports.

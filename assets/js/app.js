@@ -1033,7 +1033,51 @@ function geoRows(type){
   return cityId?customerDistrictCatalog.filter(x=>String(x.city_id)===String(cityId)):[];
 }
 function geoLabel(type,row){return normalizeGeoValue(row?.name||row?.label||'')}
-function closeGeoOptions(type){const {wrapper,search,options}=geoElements(type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden')}
+function resetGeoOptionsPosition(options){
+  if(!options)return;
+  options.classList.remove('is-positioned','opens-upward');
+  options.style.removeProperty('top');
+  options.style.removeProperty('bottom');
+  options.style.removeProperty('left');
+  options.style.removeProperty('right');
+  options.style.removeProperty('width');
+  options.style.removeProperty('max-height');
+}
+function positionGeoOptions(type){
+  const {search,options}=geoElements(type);
+  const dialog=document.getElementById('customerDialog');
+  if(!search||!options||!dialog||window.matchMedia('(max-width: 767px)').matches){resetGeoOptionsPosition(options);return}
+  const inputRect=search.getBoundingClientRect();
+  const dialogRect=dialog.getBoundingClientRect();
+  const viewportHeight=window.innerHeight||document.documentElement.clientHeight;
+  const viewportWidth=window.innerWidth||document.documentElement.clientWidth;
+  const safeTop=Math.max(12,dialogRect.top+12);
+  const safeBottom=Math.min(viewportHeight-12,dialogRect.bottom-12);
+  const gap=8;
+  const minListHeight=150;
+  const preferredHeight=280;
+  const below=Math.max(0,safeBottom-inputRect.bottom-gap);
+  const above=Math.max(0,inputRect.top-safeTop-gap);
+  const opensUpward=below<minListHeight&&above>below;
+  const available=opensUpward?above:below;
+  const maxHeight=Math.max(120,Math.min(preferredHeight,available));
+  const width=Math.min(inputRect.width,viewportWidth-24);
+  const left=Math.max(12,Math.min(inputRect.left,viewportWidth-width-12));
+  options.classList.add('is-positioned');
+  options.classList.toggle('opens-upward',opensUpward);
+  options.style.left=`${Math.round(left)}px`;
+  options.style.right='auto';
+  options.style.width=`${Math.round(width)}px`;
+  options.style.maxHeight=`${Math.round(maxHeight)}px`;
+  if(opensUpward){
+    options.style.top='auto';
+    options.style.bottom=`${Math.round(viewportHeight-inputRect.top+gap)}px`;
+  }else{
+    options.style.bottom='auto';
+    options.style.top=`${Math.round(inputRect.bottom+gap)}px`;
+  }
+}
+function closeGeoOptions(type){const {wrapper,search,options}=geoElements(type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden');resetGeoOptionsPosition(options)}
 function closeAllGeoOptions(except=''){['region','city','district'].forEach(type=>{if(type!==except)closeGeoOptions(type)})}
 function renderGeoOptions(type,query=''){
   const {hidden,options}=geoElements(type);if(!options)return;
@@ -1042,7 +1086,7 @@ function renderGeoOptions(type,query=''){
   if(!rows.length){options.innerHTML='<div class="geo-searchable-empty">لا توجد نتائج مطابقة.</div>';return}
   options.innerHTML=rows.map(row=>`<button type="button" class="geo-searchable-option${String(hidden?.value||'')===String(row.id)?' is-selected':''}" role="option" aria-selected="${String(hidden?.value||'')===String(row.id)}" data-geo-id="${escapeHtml(String(row.id))}">${escapeHtml(geoLabel(type,row))}</button>`).join('');
 }
-function openGeoOptions(type){const {wrapper,search,options}=geoElements(type);if(!wrapper||!search||!options||search.disabled)return;closeAllGeoOptions(type);renderGeoOptions(type,search.value);wrapper.dataset.open='true';search.setAttribute('aria-expanded','true');options.classList.remove('hidden')}
+function openGeoOptions(type){const {wrapper,search,options}=geoElements(type);if(!wrapper||!search||!options||search.disabled)return;closeAllGeoOptions(type);renderGeoOptions(type,search.value);wrapper.dataset.open='true';search.setAttribute('aria-expanded','true');options.classList.remove('hidden');requestAnimationFrame(()=>positionGeoOptions(type))}
 function setGeoEnabled(type,enabled,placeholder){const {wrapper,search}=geoElements(type);if(!wrapper||!search)return;search.disabled=!enabled;wrapper.classList.toggle('is-disabled',!enabled);wrapper.querySelector('.geo-searchable-toggle')?.toggleAttribute('disabled',!enabled);if(placeholder)search.placeholder=placeholder}
 function setGeoSelection(type,id,{cascade=true,close=true}={}){
   const {hidden,search}=geoElements(type);if(!hidden||!search)return;
@@ -1077,7 +1121,15 @@ function bindCustomerGeographyCascade(){
     options.addEventListener('click',event=>{const button=event.target.closest('.geo-searchable-option');if(button)setGeoSelection(type,button.dataset.geoId)});
     options.addEventListener('keydown',event=>{const current=event.target.closest('.geo-searchable-option');if(!current)return;const buttons=[...options.querySelectorAll('.geo-searchable-option')];const idx=buttons.indexOf(current);if(event.key==='ArrowDown'){event.preventDefault();buttons[idx+1]?.focus()}if(event.key==='ArrowUp'){event.preventDefault();(buttons[idx-1]||search).focus()}if(event.key==='Enter'){event.preventDefault();setGeoSelection(type,current.dataset.geoId)}});
   });
-  document.addEventListener('click',event=>{if(!event.target.closest('.geo-searchable-select'))closeAllGeoOptions()});
+  document.addEventListener('click',event=>{if(!event.target.closest('.geo-searchable-select')&&!event.target.closest('.geo-searchable-options'))closeAllGeoOptions()});
+  const customerDialog=document.getElementById('customerDialog');
+  if(customerDialog&&!customerDialog.dataset.geoScrollBound){
+    customerDialog.dataset.geoScrollBound='1';
+    customerDialog.addEventListener('scroll',()=>closeAllGeoOptions(),{passive:true});
+    customerDialog.querySelector('form')?.addEventListener('scroll',()=>closeAllGeoOptions(),{passive:true});
+    customerDialog.addEventListener('close',()=>closeAllGeoOptions());
+  }
+  window.addEventListener('resize',()=>closeAllGeoOptions(),{passive:true});
 }
 async function fetchAllGeoRows(table,columns,order='name'){
   const pageSize=1000,all=[];let from=0;
