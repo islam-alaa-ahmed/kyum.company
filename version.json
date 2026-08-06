@@ -1,13 +1,13 @@
 {
-  "version": "18.51.3",
-  "build": 185103,
+  "version": "18.51.4",
+  "build": 185104,
   "forceUpdate": true,
   "releaseDate": "2026-08-06",
-  "title": "Scheduling Audit Customer Name Hotfix",
+  "title": "Execution Visit Schedule Data Alignment",
   "notes": [
-    "إصلاح فشل حفظ الجدولة بسبب Trigger سجل الحركات الذي كان يقرأ عمود customers.name غير الموجود",
-    "استخدام العمود القياسي customers.customer_name في جميع أحداث العملاء والمتابعات والعروض والتركيبات والفواتير",
-    "الحفاظ على منطق الجدولة أحادية اليوم ومتعددة الأيام دون أي تغيير"
+    "توحيد وقت وفرقة شاشة التنفيذ مع بيانات الزيارة الفعلية في جدول التركيبات",
+    "إظهار رقم العميل واسم المندوب والملاحظات داخل بطاقات طلبات اليوم",
+    "الحفاظ على خدمات وكميات كل زيارة للطلبات المقسمة على عدة أيام"
   ],
-  "cacheToken": "kyum-crm-pwa-18-51-3-scheduling-audit-customer-name-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-51-4-execution-visit-schedule-data-alignment"
 }

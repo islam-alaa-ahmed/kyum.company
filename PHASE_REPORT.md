@@ -1,46 +1,33 @@
-# Phase M14.9.8.16.9.2 — Scheduling Audit Customer Name Hotfix
+# Phase M14.9.8.16.9.3 — Execution Visit Schedule Data Alignment
 
 ## Root Cause
 
-The scheduling button and frontend save path were working. The database transaction failed only after the scheduling RPC updated `installation_requests`.
+شاشة التنفيذ كانت تقرأ التاريخ والوقت والفرقة من سجل `installation_requests` الرئيسي فقط، بينما التقويم يعرض بيانات `installation_execution_visits`. عند وجود زيارة فعلية أو خطة متعددة الأيام، أدى ذلك إلى اختلاف الوقت وظهور الفرقة القديمة أو الفارغة.
 
-That update fired `capture_business_activity_event()`, introduced by the employee activity timeline phase. The trigger queried:
+## Changes
 
-```sql
-select name from public.customers
-```
+- توسيع `executionWorkspace()` ليقرأ الزيارات وخدمات كل زيارة.
+- استخدام وقت وفرقة وفني الزيارة الفعلية في طلبات اليوم.
+- إضافة رقم العميل واسم المندوب.
+- عرض ملاحظات الإسناد، ثم ملاحظات الطلب كبديل.
+- الحفاظ على خدمات وكميات الزيارة بدل إجمالي الطلب الكامل.
+- منع تكرار الطلب نفسه داخل قائمة الطلبات الحالية عند وجود أكثر من زيارة.
 
-The canonical customer field in the current database is `customer_name`, not `name`. PostgreSQL therefore raised:
+## Modified Files
 
-```text
-column "name" does not exist
-```
-
-Because the audit trigger executes in the same transaction, PostgreSQL rolled back the complete schedule operation. This affected single-day scheduling, multi-day scheduling, rescheduling, and editing an existing schedule.
-
-## Fix
-
-- Replaced all direct customer lookups inside `capture_business_activity_event()` with `customers.customer_name`.
-- Kept a JSON fallback for legacy payloads without requiring a physical `name` column.
-- Preserved all audit triggers and audit event data.
-- Did not modify scheduling business logic, permissions, conflict detection, day locks, quantities, or frontend layout.
-
-## Files Modified
-
-- `supabase/migrations/phase_m14_9_8_16_9_2_scheduling_audit_customer_name_hotfix.sql`
-- `supabase/verification/phase_m14_9_8_16_9_2_scheduling_audit_customer_name_hotfix_verification.sql`
-- `index.html`
+- `assets/js/installations-service.js`
+- `assets/js/installation-execution.js`
+- `assets/css/installation-execution.css`
 - `assets/js/pwa.js`
+- `index.html`
 - `service-worker.js`
 - `package.json`
 - `version.json`
-- `PHASE_REPORT.md`
 
-## Manual Regression Tests
+## Manual Regression
 
-1. Schedule one request for one day.
-2. Schedule one request across two days.
-3. Edit and save an existing schedule.
-4. Reschedule an existing request.
-5. Confirm technician conflict still blocks a different request at the same time.
-6. Confirm audit timeline records the scheduling change with the customer name in Arabic.
+- طلب أحادي اليوم.
+- طلب متعدد الأيام.
+- إعادة الجدولة مع تغيير الوقت والفرقة.
+- عرض الديسكتوب والموبايل.
+- زر بدء التنفيذ والطلب الحالي.
