@@ -440,7 +440,7 @@
       teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';serviceName=serviceName||'خدمة غير محددة';
       let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0,expenses:0,profit:0};grouped.set(teamId,team)}
       team.visitIds.add(entryKey);team.quantity+=quantity;team.value+=value;team.expenses+=expenses;team.profit+=profit;
-      let item=team.services.get(serviceName);if(!item){item={name:serviceName,quantity:0,value:0,expenses:0,profit:0};team.services.set(serviceName,item)}item.quantity+=quantity;item.value+=value;item.expenses+=expenses;item.profit+=profit;
+      let item=team.services.get(serviceName);if(!item){item={name:serviceName,entryKeys:new Set(),quantity:0,value:0,expenses:0,profit:0};team.services.set(serviceName,item)}item.entryKeys.add(entryKey);item.quantity+=quantity;item.value+=value;item.expenses+=expenses;item.profit+=profit;
     };
 
     // Multi-day schedules: use the quantity allocated to each execution visit.
@@ -460,7 +460,7 @@
       }
     }
 
-    const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,expenses:team.expenses,profit:team.profit,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({...x,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
+    const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,expenses:team.expenses,profit:team.profit,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({name:x.name,executions:x.entryKeys.size,quantity:x.quantity,value:x.value,expenses:x.expenses,profit:x.profit,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
     const executionGrouped=new Map();
     const pushExecution=(teamId,teamName,entryKey,request,scheduledDate,scheduledTime,technicianName,services)=>{
       teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';

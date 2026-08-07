@@ -57,3 +57,47 @@
 .installation-summary-exporting .installation-summary-execution-order{min-width:0;grid-template-columns:150px 200px 1fr}.installation-summary-exporting .installation-summary-stage strong{white-space:normal}.installation-summary-exporting .installation-summary-order-meta>span:not(.installation-summary-order-state){white-space:normal}
 @media(max-width:1100px){.installation-summary-execution-team{overflow-x:auto}.installation-summary-execution-head{align-items:start}}
 @media(max-width:760px){.installation-summary-execution-head{display:grid}.installation-summary-execution-order{min-width:980px;grid-template-columns:160px 220px 600px}.installation-summary-order-timeline{grid-template-columns:repeat(5,115px)}}
+
+/* Phase S1 — Service Analytics Dashboard */
+.installation-service-analytics-panel{display:grid;gap:18px;overflow:visible}
+.installation-service-analytics-panel.hidden{display:none!important}
+.installation-service-analytics-head{margin-bottom:0}
+.installation-service-analytics-filters{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;padding:16px;border:1px solid color-mix(in srgb,var(--border-color) 85%,transparent);border-radius:16px;background:color-mix(in srgb,var(--surface-color) 96%,var(--primary-color) 4%);align-items:end}
+.installation-service-day-nav{grid-column:span 4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.installation-service-day-nav button{min-height:48px;white-space:nowrap}
+.installation-service-day-nav button.is-active{box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 22%,transparent)}
+.installation-service-analytics-filters>label{grid-column:span 1;min-width:0}
+.installation-service-analytics-filters>label:nth-of-type(4){grid-column:span 2}
+.installation-service-team-filter{grid-column:span 2;min-width:0;position:relative}
+#resetInstallationServiceFilters{grid-column:span 1;min-height:48px}
+#installationServiceTeamsOptions{max-height:300px;overflow:auto;padding:8px}
+.installation-service-analytics-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.installation-service-analytics-kpis>.panel{min-height:106px;display:grid;align-content:center;gap:7px;padding:16px}
+.installation-service-analytics-kpis span{color:var(--text-muted);font-size:.86rem}
+.installation-service-analytics-kpis strong{font-size:1.22rem;line-height:1.3;overflow-wrap:anywhere}
+.installation-service-analytics-kpis small{font-weight:800;color:var(--primary-color)}
+.service-leader-kpi strong{font-size:1rem}
+.installation-service-analytics-layout{display:grid;grid-template-columns:minmax(0,2.5fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.installation-service-analytics-main{min-width:0}
+.installation-service-analytics-main>.installation-report-panel-head{padding:2px 0 12px}
+.installation-service-analytics-main>.installation-report-panel-head span{font-size:.82rem;color:var(--text-muted)}
+.installation-service-analytics-table-wrap{border:1px solid #b8c4d6;border-radius:14px;overflow:auto;background:var(--surface-color)}
+.installation-service-analytics-table{width:100%;min-width:980px;border-collapse:separate;border-spacing:0}
+.installation-service-analytics-table th,.installation-service-analytics-table td{padding:12px 13px;border-inline-start:1px solid #c7d0dd;border-block-end:1px solid #d3dae4;text-align:center;white-space:nowrap}
+.installation-service-analytics-table th:first-child,.installation-service-analytics-table td:first-child{border-inline-start:0;text-align:start}
+.installation-service-analytics-table thead th{background:linear-gradient(180deg,#16478f,#1f5db8);color:#fff;font-weight:900}
+.installation-service-analytics-table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--surface-color) 95%,#dbeafe 5%)}
+.installation-service-rankings{display:grid;gap:12px}
+.installation-service-rankings>.panel{padding:15px;display:grid;gap:12px}
+.installation-service-rankings h4{margin:0;font-size:.98rem}
+.installation-service-ranking-list{display:grid;gap:10px}
+.installation-service-ranking-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:9px;align-items:center}
+.installation-service-ranking-index{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--primary-color) 12%,var(--surface-color));color:var(--primary-color);font-weight:900;font-size:.76rem}
+.installation-service-ranking-row>div{min-width:0;display:grid;gap:5px}
+.installation-service-ranking-row strong{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem}
+.installation-service-ranking-row>b{font-size:.75rem;white-space:nowrap}
+.installation-service-ranking-track{height:6px;border-radius:999px;background:color-mix(in srgb,var(--border-color) 70%,transparent);overflow:hidden}
+.installation-service-ranking-track i{display:block;height:100%;border-radius:inherit;background:var(--primary-color)}
+.installation-service-ranking-empty{padding:12px;text-align:center;color:var(--text-muted);font-size:.82rem}
+@media(max-width:1250px){.installation-service-day-nav{grid-column:1/-1}.installation-service-analytics-filters>label{grid-column:span 3}.installation-service-analytics-filters>label:nth-of-type(4),.installation-service-team-filter{grid-column:span 6}#resetInstallationServiceFilters{grid-column:span 3}.installation-service-analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-analytics-layout{grid-template-columns:1fr}.installation-service-rankings{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.installation-service-analytics-filters{grid-template-columns:1fr 1fr}.installation-service-day-nav,.installation-service-analytics-filters>label,.installation-service-analytics-filters>label:nth-of-type(4),.installation-service-team-filter,#resetInstallationServiceFilters{grid-column:auto}.installation-service-day-nav,.installation-service-team-filter{grid-column:1/-1}.installation-service-analytics-kpis,.installation-service-rankings{grid-template-columns:1fr}.installation-service-analytics-table th,.installation-service-analytics-table td{padding:10px 9px}}
