@@ -394,7 +394,7 @@
 
   async function installationSummaryReport(filters={}){
     requireAction('view','installationReports');
-    const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set();
+    const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set(),teamFilterApplied=filters.teamFilterApplied===true;
     let visitsQuery=db().from('installation_execution_visits').select('id,installation_request_id,scheduled_date,scheduled_time,installation_team_id,technician_name,status,team:installation_teams(id,name),request:installation_requests(id,request_number,representative_id,status,scheduled_date,scheduled_time,assigned_technician_name,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),representative:sales_representatives(id,full_name))');
     let requestsQuery=db().from('installation_requests').select('id,request_number,scheduled_date,scheduled_time,installation_team_id,assigned_technician_name,representative_id,status,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
     if(filters.date){visitsQuery=visitsQuery.eq('scheduled_date',filters.date);requestsQuery=requestsQuery.eq('scheduled_date',filters.date)}
@@ -407,7 +407,7 @@
     if(ve)throw new Error('تعذر تحميل زيارات ملخص التركيبات: '+ve.message);
     if(sre)throw new Error('تعذر تحميل الطلبات المجدولة لملخص التركيبات: '+sre.message);
     if(te||re)throw new Error('تعذر تحميل فلاتر ملخص التركيبات.');
-    const inScope=(row,representativeId,teamId)=>(!filters.representativeId||String(representativeId||'')===String(filters.representativeId))&&(!selectedTeams.size||selectedTeams.has(String(teamId||'')));
+    const inScope=(row,representativeId,teamId)=>(!filters.representativeId||String(representativeId||'')===String(filters.representativeId))&&(!teamFilterApplied||selectedTeams.has(String(teamId||'')));
     const scopedVisits=(visits||[]).filter(v=>inScope(v,v.request?.representative_id,v.installation_team_id));
     const scopedRequests=(scheduledRequests||[]).filter(r=>inScope(r,r.representative_id,r.installation_team_id));
 

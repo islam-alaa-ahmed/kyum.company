@@ -1,13 +1,14 @@
 {
-  "version": "18.53.9",
-  "build": 185308,
+  "version": "18.53.10",
+  "build": 185309,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Installation Summary Grouped Execution Timeline",
+  "title": "Installation Summary Timeline Accuracy & Duration Layout",
   "notes": [
-    "إضافة مراحل تنفيذ جميع طلبات التاريخ المحدد أسفل ملخص التركيبات مع عرض الطلبات تحت بعضها ومقسمة حسب فرقة التركيبات",
-    "إعادة استخدام أوقات مراحل التنفيذ الأصلية من الطلب بدون تغيير Workflow التنفيذ أو التأكيد",
-    "الحفاظ على فلاتر التاريخ والمندوب والفرق ومنطق Single-Day وMulti-Day ومصاريف التركيب وصافي الربح"
+    "نقل مدة كل انتقال لتظهر فوق الخط بين مرحلتي التنفيذ بدل أسفل المرحلة",
+    "مراجعة دقة مدد التنفيذ: عدم تحويل أي ترتيب زمني غير صالح إلى مدة صفرية",
+    "تصحيح فلتر الفرق بحيث إلغاء تحديد الكل يعرض صفر نتائج بدل الرجوع ضمنيًا إلى كل الفرق",
+    "الحفاظ على مرجعية أزرار اليوم السابق والحالي والتالي لتاريخ اليوم الحقيقي وعلى منع التكرار بين Single-Day وMulti-Day"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-9-installation-summary-execution-timeline"
+  "cacheToken": "kyum-crm-pwa-18-53-10-installation-summary-timeline-accuracy"
 }
