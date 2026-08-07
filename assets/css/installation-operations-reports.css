@@ -117,3 +117,22 @@
 .installation-service-financial-rankings h4{margin:0;font-size:.98rem}
 @media(max-width:1000px){.installation-service-financial-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-financial-rankings{grid-template-columns:1fr}}
 @media(max-width:600px){.installation-service-financial-kpis{grid-template-columns:1fr}}
+
+
+/* Phase S3 — Service Operational Analytics */
+.installation-service-operational-section{display:grid;gap:14px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--border-color) 78%,transparent)}
+.installation-service-operational-head{display:flex;justify-content:space-between;gap:16px;align-items:end;padding-top:10px;margin-bottom:0}
+.installation-service-operational-head span,.installation-service-operational-head small{font-size:.82rem;color:var(--text-muted)}
+.installation-service-operational-head small{max-width:480px;line-height:1.6}
+.installation-service-operational-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.installation-service-operational-kpis>.panel{min-height:96px;display:grid;align-content:center;gap:7px;padding:15px}
+.installation-service-operational-kpis span{color:var(--text-muted);font-size:.84rem}
+.installation-service-operational-kpis strong{font-size:1.14rem}
+.installation-service-operational-table-wrap{border:1px solid #b8c4d6;border-radius:14px;overflow:auto;background:var(--surface-color)}
+.installation-service-operational-table{min-width:1120px}
+.installation-service-operational-layout{display:grid;grid-template-columns:minmax(220px,.65fr) minmax(220px,.65fr) minmax(520px,1.7fr);gap:12px;align-items:start}
+.installation-service-operational-layout>.panel{padding:15px;display:grid;gap:12px;min-width:0}
+.installation-service-operational-layout h4{margin:0;font-size:.98rem}
+.installation-service-team-ops table{min-width:620px}
+@media(max-width:1200px){.installation-service-operational-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-operational-layout{grid-template-columns:1fr 1fr}.installation-service-team-ops{grid-column:1/-1}}
+@media(max-width:700px){.installation-service-operational-head{align-items:start;flex-direction:column}.installation-service-operational-kpis,.installation-service-operational-layout{grid-template-columns:1fr}.installation-service-team-ops{grid-column:auto}}

@@ -34,24 +34,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.13" />
-  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.13" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.14" />
+  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.14" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1630,6 +1630,22 @@
               <section class="panel"><h4>أعلى هامش ربح</h4><div id="installationServiceTopMarginList" class="installation-service-ranking-list"></div></section>
               <section class="panel"><h4>أعلى الخدمات تكلفة</h4><div id="installationServiceTopExpenseList" class="installation-service-ranking-list"></div></section>
               <section class="panel"><h4>أقل هامش ربح</h4><div id="installationServiceLowMarginList" class="installation-service-ranking-list"></div></section>
+            </div>
+          </section>
+          <section class="installation-service-operational-section" aria-labelledby="installationServiceOperationalTitle">
+            <div class="installation-report-panel-head installation-service-operational-head"><div><h3 id="installationServiceOperationalTitle">التحليل التشغيلي للخدمات</h3><span id="installationServiceOperationalFilterLabel"></span></div><small>المدد محسوبة من أوقات مراحل التنفيذ المسجلة فعليًا، ومتوسط الخدمة يعني متوسط الطلبات التي تتضمن هذه الخدمة.</small></div>
+            <div class="installation-service-operational-kpis">
+              <article class="panel"><span>طلبات ببيانات زمنية مكتملة</span><strong id="installationServiceOpsTimedOrders">0</strong></article>
+              <article class="panel"><span>متوسط مدة الطلب</span><strong id="installationServiceOpsAverageTotal">—</strong></article>
+              <article class="panel"><span>متوسط زمن التحرك والوصول</span><strong id="installationServiceOpsAverageTravel">—</strong></article>
+              <article class="panel"><span>متوسط الانتظار بالموقع</span><strong id="installationServiceOpsAverageWait">—</strong></article>
+              <article class="panel"><span>متوسط زمن التركيب</span><strong id="installationServiceOpsAverageInstallation">—</strong></article>
+            </div>
+            <div class="table-scroll installation-service-operational-table-wrap"><table class="installation-service-analytics-table installation-service-operational-table"><thead><tr><th>الخدمة</th><th>مرات التنفيذ</th><th>عينات زمنية</th><th>تغطية الوقت</th><th>متوسط مدة الطلب</th><th>التحرك والوصول</th><th>الانتظار بالموقع</th><th>زمن التركيب</th></tr></thead><tbody id="installationServiceOperationalBody"></tbody></table></div>
+            <div class="installation-service-operational-layout">
+              <section class="panel"><h4>الخدمات الأطول زمنًا</h4><div id="installationServiceSlowestList" class="installation-service-ranking-list"></div></section>
+              <section class="panel"><h4>الخدمات الأسرع تنفيذًا</h4><div id="installationServiceFastestList" class="installation-service-ranking-list"></div></section>
+              <section class="panel installation-service-team-ops"><h4>مقارنة تشغيلية حسب الفرقة</h4><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>الفرقة</th><th>خدمات مختلفة</th><th>مرات التنفيذ</th><th>عينات زمنية</th><th>متوسط مدة الطلب</th></tr></thead><tbody id="installationServiceTeamOpsBody"></tbody></table></div></section>
             </div>
           </section>
         </section>
@@ -3286,10 +3302,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.53.13"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.53.13"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.53.13"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.53.13"></script>
+  <script src="assets/js/performance-monitor.js?v=18.53.14"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.53.14"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.53.14"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.53.14"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3635,59 +3651,59 @@
         </form>
       </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.53.13"></script>
-  <script src="assets/js/offline-session-store.js?v=18.53.13"></script>
-  <script src="assets/js/supabase-client.js?v=18.53.13"></script>
-  <script src="assets/js/geographic-address.js?v=18.53.13"></script>
-  <script src="assets/js/permissions.js?v=18.53.13"></script>
-  <script src="assets/js/permission-engine.js?v=18.53.13"></script>
-  <script src="assets/js/data-access-scope.js?v=18.53.13"></script>
-  <script src="assets/js/smart-cache.js?v=18.53.13"></script>
-  <script src="assets/js/sync-engine.js?v=18.53.13"></script>
-  <script src="assets/js/offline-queue.js?v=18.53.13"></script>
-  <script src="assets/js/permissions-service.js?v=18.53.13"></script>
-  <script src="assets/js/auth-session.js?v=18.53.13"></script>
-  <script src="assets/js/reference-data-service.js?v=18.53.13"></script>
-  <script src="assets/js/customers-service.js?v=18.53.13"></script>
-  <script src="assets/js/followups-service.js?v=18.53.13"></script>
-  <script src="assets/js/quotations-service.js?v=18.53.13"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.53.13"></script>
-  <script src="assets/js/users-service.js?v=18.53.13"></script>
-  <script src="assets/js/activity-service.js?v=18.53.13"></script>
-  <script src="assets/js/backup-service.js?v=18.53.13"></script>
-  <script src="assets/js/system-settings-service.js?v=18.53.13"></script>
-  <script src="assets/js/system-health-service.js?v=18.53.13"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.53.13"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.53.13"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.53.13"></script>
-  <script src="assets/js/installations-service.js?v=18.53.13"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.53.13"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.53.13"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.53.13"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.53.13"></script>
+  <script src="assets/js/supabase-config.js?v=18.53.14"></script>
+  <script src="assets/js/offline-session-store.js?v=18.53.14"></script>
+  <script src="assets/js/supabase-client.js?v=18.53.14"></script>
+  <script src="assets/js/geographic-address.js?v=18.53.14"></script>
+  <script src="assets/js/permissions.js?v=18.53.14"></script>
+  <script src="assets/js/permission-engine.js?v=18.53.14"></script>
+  <script src="assets/js/data-access-scope.js?v=18.53.14"></script>
+  <script src="assets/js/smart-cache.js?v=18.53.14"></script>
+  <script src="assets/js/sync-engine.js?v=18.53.14"></script>
+  <script src="assets/js/offline-queue.js?v=18.53.14"></script>
+  <script src="assets/js/permissions-service.js?v=18.53.14"></script>
+  <script src="assets/js/auth-session.js?v=18.53.14"></script>
+  <script src="assets/js/reference-data-service.js?v=18.53.14"></script>
+  <script src="assets/js/customers-service.js?v=18.53.14"></script>
+  <script src="assets/js/followups-service.js?v=18.53.14"></script>
+  <script src="assets/js/quotations-service.js?v=18.53.14"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.53.14"></script>
+  <script src="assets/js/users-service.js?v=18.53.14"></script>
+  <script src="assets/js/activity-service.js?v=18.53.14"></script>
+  <script src="assets/js/backup-service.js?v=18.53.14"></script>
+  <script src="assets/js/system-settings-service.js?v=18.53.14"></script>
+  <script src="assets/js/system-health-service.js?v=18.53.14"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.53.14"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.53.14"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.53.14"></script>
+  <script src="assets/js/installations-service.js?v=18.53.14"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.53.14"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.53.14"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.53.14"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.53.14"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.53.13"></script>
-  <script src="assets/js/export-center.js?v=18.53.13"></script>
-  <script src="assets/js/customer360-engine.js?v=18.53.13"></script>
-  <script src="assets/js/customer360-export.js?v=18.53.13"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.53.13"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.53.13"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.53.13"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.53.13"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.53.13"></script>
-  <script src="assets/js/app.js?v=18.53.13"></script>
-  <script src="assets/js/sales-invoices.js?v=18.53.13"></script>
-  <script src="assets/js/installations-module.js?v=18.53.13"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.53.13"></script>
-  <script src="assets/js/installation-execution.js?v=18.53.13"></script>
-  <script src="assets/js/installation-completion.js?v=18.53.13"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.53.13"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.53.13"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.53.13"></script>
-  <script src="assets/js/mobile.js?v=18.53.13"></script>
-  <script src="assets/js/pwa.js?v=18.53.13"></script>
-  <script src="assets/js/native.js?v=18.53.13"></script>
+  <script src="assets/js/reports-engine.js?v=18.53.14"></script>
+  <script src="assets/js/export-center.js?v=18.53.14"></script>
+  <script src="assets/js/customer360-engine.js?v=18.53.14"></script>
+  <script src="assets/js/customer360-export.js?v=18.53.14"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.53.14"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.53.14"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.53.14"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.53.14"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.53.14"></script>
+  <script src="assets/js/app.js?v=18.53.14"></script>
+  <script src="assets/js/sales-invoices.js?v=18.53.14"></script>
+  <script src="assets/js/installations-module.js?v=18.53.14"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.53.14"></script>
+  <script src="assets/js/installation-execution.js?v=18.53.14"></script>
+  <script src="assets/js/installation-completion.js?v=18.53.14"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.53.14"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.53.14"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.53.14"></script>
+  <script src="assets/js/mobile.js?v=18.53.14"></script>
+  <script src="assets/js/pwa.js?v=18.53.14"></script>
+  <script src="assets/js/native.js?v=18.53.14"></script>
 </body>
 </html>
