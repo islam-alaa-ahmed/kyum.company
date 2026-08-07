@@ -1,13 +1,13 @@
 {
-  "version": "18.53.1",
-  "build": 185301,
+  "version": "18.53.2",
+  "build": 185302,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Installation Geographic Canonicalization Completion",
+  "title": "Unified Geographic Address Component",
   "notes": [
-    "توحيد اختيار المنطقة والمدينة في إعدادات الأحياء بنفس القوائم القابلة للبحث المستخدمة في طلبات التركيبات",
-    "قصر إنشاء أو تعديل الأحياء على المناطق والمدن النشطة فقط مع التحقق من علاقة المدينة بالمنطقة قبل الحفظ",
-    "استمرار طلب تركيب جديد وتعديل الطلب على تسلسل المنطقة ثم المدينة ثم الحي ومنع الرجوع إلى بيانات Legacy المعطلة"
+    "توحيد مكوّن المنطقة ثم المدينة ثم الحي بين العملاء وطلبات التركيبات وتعديل الطلب",
+    "حفظ العملاء بالقيم الجغرافية Canonical فقط عند إدخال عنوان ومنع النصوص الحرة غير المطابقة للقوائم المعتمدة",
+    "تطبيع بيانات العنوان في استيراد Excel والتحقق من التسلسل المعتمد قبل اعتماد الصفوف الجديدة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-1-installation-geographic-canonicalization-completion"
+  "cacheToken": "kyum-crm-pwa-18-53-2-unified-geographic-address-component"
 }

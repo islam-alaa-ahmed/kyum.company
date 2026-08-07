@@ -254,60 +254,40 @@
     ).join("");
   }
 
-  function normalizeInstallationGeoSearch(value){return normalizeArabicText(value).normalize("NFKD").replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
-  function installationGeoIds(scope,type){
+  const installationGeoControllers = new Map();
+  function installationGeoController(scope){
+    if(installationGeoControllers.has(scope))return installationGeoControllers.get(scope);
+    if(!window.KYUMGeography)throw new Error('مكوّن العنوان الجغرافي غير محمّل.');
     const prefix=scope==='edit'?'installationServicesEdit':'newInstallation';
-    const part=type==='district'?'District':type[0].toUpperCase()+type.slice(1);
-    return {wrapper:$(prefix+part+'Combobox'),hidden:$(type==='district'?(scope==='edit'?'installationServicesEditNeighborhood':'newInstallationNeighborhoodId'):prefix+part+'Id'),search:$(prefix+part+'Search'),options:$(prefix+part+'Options')};
+    const controller=window.KYUMGeography.createController({
+      ids:{
+        region:{wrapper:prefix+'RegionCombobox',hidden:prefix+'RegionId',search:prefix+'RegionSearch',options:prefix+'RegionOptions'},
+        city:{wrapper:prefix+'CityCombobox',hidden:prefix+'CityId',search:prefix+'CitySearch',options:prefix+'CityOptions'},
+        district:{
+          wrapper:prefix+'DistrictCombobox',
+          hidden:scope==='edit'?'installationServicesEditNeighborhood':'newInstallationNeighborhoodId',
+          search:prefix+'DistrictSearch',
+          options:prefix+'DistrictOptions'
+        }
+      },
+      optionLimit:300,
+      boundAttribute:`installationGeo${scope[0].toUpperCase()+scope.slice(1)}UnifiedBound`
+    }).bind();
+    installationGeoControllers.set(scope,controller);
+    return controller;
   }
-  function installationGeoCatalog(type){return type==='region'?opts.regions:type==='city'?opts.cities:opts.neighborhoods}
-  function installationGeoRows(scope,type){
-    const regionId=installationGeoIds(scope,'region').hidden?.value||'';
-    const cityId=installationGeoIds(scope,'city').hidden?.value||'';
-    if(type==='region')return opts.regions||[];
-    if(type==='city')return regionId?(opts.cities||[]).filter(x=>String(x.region_id)===String(regionId)):[];
-    return cityId?(opts.neighborhoods||[]).filter(x=>String(x.city_id)===String(cityId)):[];
-  }
-  function closeInstallationGeo(scope,type){const {wrapper,search,options}=installationGeoIds(scope,type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden')}
-  function closeAllInstallationGeo(exceptScope='',exceptType=''){['new','edit'].forEach(scope=>['region','city','district'].forEach(type=>{if(scope!==exceptScope||type!==exceptType)closeInstallationGeo(scope,type)}))}
-  function renderInstallationGeoOptions(scope,type,query=''){
-    const {hidden,options}=installationGeoIds(scope,type);if(!options)return;
-    const q=normalizeInstallationGeoSearch(query);
-    const rows=installationGeoRows(scope,type).filter(row=>!q||normalizeInstallationGeoSearch(row.name).includes(q)).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar')).slice(0,300);
-    options.innerHTML=rows.length?rows.map(row=>`<button type="button" class="geo-searchable-option${String(hidden?.value||'')===String(row.id)?' is-selected':''}" role="option" aria-selected="${String(hidden?.value||'')===String(row.id)}" data-installation-geo-id="${esc(row.id)}">${esc(row.name)}</button>`).join(''):'<div class="geo-searchable-empty">لا توجد نتائج مطابقة.</div>';
-  }
-  function openInstallationGeo(scope,type){const {wrapper,search,options}=installationGeoIds(scope,type);if(!wrapper||!search||!options||search.disabled)return;closeAllInstallationGeo(scope,type);renderInstallationGeoOptions(scope,type,search.value);wrapper.dataset.open='true';search.setAttribute('aria-expanded','true');options.classList.remove('hidden')}
-  function setInstallationGeoEnabled(scope,type,enabled,placeholder){const {wrapper,search}=installationGeoIds(scope,type);if(!wrapper||!search)return;search.disabled=!enabled;wrapper.classList.toggle('is-disabled',!enabled);wrapper.querySelector('.geo-searchable-toggle')?.toggleAttribute('disabled',!enabled);if(placeholder)search.placeholder=placeholder}
-  function setInstallationGeoSelection(scope,type,id,{cascade=true,close=true}={}){
-    const {hidden,search}=installationGeoIds(scope,type);if(!hidden||!search)return;
-    const row=installationGeoCatalog(type).find(x=>String(x.id)===String(id||''));hidden.value=row?String(row.id):'';search.value=row?String(row.name||''):'';search.dataset.selectedId=row?String(row.id):'';search.setCustomValidity('');
-    if(type==='region'&&cascade){setInstallationGeoSelection(scope,'city','',{cascade:false,close:false});setInstallationGeoSelection(scope,'district','',{cascade:false,close:false});setInstallationGeoEnabled(scope,'city',!!row,row?'ابحث واختر المدينة':'اختر المنطقة أولًا');setInstallationGeoEnabled(scope,'district',false,'اختر المدينة أولًا')}
-    if(type==='city'&&cascade){setInstallationGeoSelection(scope,'district','',{cascade:false,close:false});setInstallationGeoEnabled(scope,'district',!!row,row?'ابحث واختر الحي':'اختر المدينة أولًا')}
-    if(close)closeInstallationGeo(scope,type);
+  function syncInstallationGeoCatalog(){
+    window.KYUMGeography?.setCatalog({regions:opts.regions||[],cities:opts.cities||[],neighborhoods:opts.neighborhoods||[]});
   }
   function setInstallationGeoFromNeighborhood(scope,neighborhoodId=''){
-    const district=(opts.neighborhoods||[]).find(x=>String(x.id)===String(neighborhoodId||''));
-    let region=district?(opts.regions||[]).find(x=>String(x.id)===String(district.region_id||'')):null;
-    if(!region&&district?.region){const rn=normalizeArabicText(district.region);region=(opts.regions||[]).find(x=>normalizeArabicText(x.name)===rn)||null}
-    let city=district?(opts.cities||[]).find(x=>String(x.id)===String(district.city_id||'')):null;
-    if(!city&&district?.city){const cn=normalizeArabicText(district.city);city=(opts.cities||[]).find(x=>normalizeArabicText(x.name)===cn&&(!region||String(x.region_id)===String(region.id)))||null}
-    if(!region&&city)region=(opts.regions||[]).find(x=>String(x.id)===String(city.region_id||''))||null;
-    setInstallationGeoSelection(scope,'region',region?.id||'',{cascade:true,close:false});
-    setInstallationGeoSelection(scope,'city',city?.id||'',{cascade:true,close:false});
-    setInstallationGeoSelection(scope,'district',district?.id||'',{cascade:false,close:false});
-    setInstallationGeoEnabled(scope,'city',!!region,region?'ابحث واختر المدينة':'اختر المنطقة أولًا');
-    setInstallationGeoEnabled(scope,'district',!!city,city?'ابحث واختر الحي':'اختر المدينة أولًا');
+    syncInstallationGeoCatalog();
+    return installationGeoController(scope).setValue({districtId:neighborhoodId});
   }
-  function bindInstallationGeo(scope){
-    ['region','city','district'].forEach(type=>{const {wrapper,hidden,search,options}=installationGeoIds(scope,type);if(!wrapper||wrapper.dataset.installationGeoBound)return;wrapper.dataset.installationGeoBound='1';
-      search.addEventListener('focus',()=>openInstallationGeo(scope,type));
-      search.addEventListener('input',()=>{hidden.value='';renderInstallationGeoOptions(scope,type,search.value);openInstallationGeo(scope,type)});
-      search.addEventListener('keydown',event=>{if(event.key==='Escape')closeInstallationGeo(scope,type);if(event.key==='ArrowDown'){event.preventDefault();openInstallationGeo(scope,type);options.querySelector('.geo-searchable-option')?.focus()}});
-      wrapper.querySelector('.geo-searchable-toggle')?.addEventListener('click',()=>wrapper.dataset.open==='true'?closeInstallationGeo(scope,type):openInstallationGeo(scope,type));
-      options.addEventListener('click',event=>{const button=event.target.closest('.geo-searchable-option');if(button)setInstallationGeoSelection(scope,type,button.dataset.installationGeoId)});
-    });
+  function neighborhoodOptions(){
+    syncInstallationGeoCatalog();
+    installationGeoController('new');
+    installationGeoController('edit');
   }
-  function neighborhoodOptions(){bindInstallationGeo('new');bindInstallationGeo('edit');}
 
   function serviceTypeOptions(selectedId = "") {
     return '<option value="">اختر نوع الخدمة</option>' + opts.serviceTypes.map(item =>

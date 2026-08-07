@@ -352,6 +352,13 @@
     }, new Map());
 
     const previewRows = rows.map(row => {
+      const geoProvided = [row.region, row.city, row.district].some(value => safeText(value).trim());
+      const geoResolved = geoProvided && window.KYUMGeography
+        ? window.KYUMGeography.canonicalizeAddress({ region: row.region, city: row.city, district: row.district })
+        : null;
+      const canonicalRow = geoResolved?.complete
+        ? { ...row, region: geoResolved.region, city: geoResolved.city, district: geoResolved.district }
+        : row;
       const existing = row.phone ? (existingMap.get(row.phone) || null) : null;
       const identity = requestIdentity(row.requestNumber, row.quotationNumber);
       const previouslyUploaded = Boolean(
@@ -365,7 +372,7 @@
       // reported as an error when the same file is previewed again.
       if (previouslyUploaded) {
         return {
-          ...row,
+          ...canonicalRow,
           normalizedPhone: row.phone,
           representativeId: existing?.representativeId || existing?.representative_id || null,
           interestIds: existing?.interestIds || [],
@@ -379,6 +386,9 @@
       }
 
       const errors = [];
+      if (geoProvided && !geoResolved?.complete) {
+        errors.push("العنوان يجب أن يطابق المنطقة ثم المدينة ثم الحي من القوائم المعتمدة");
+      }
       if (!row.name) errors.push("اسم العميل مطلوب");
       if (!/^05\d{8}$/.test(row.phone)) errors.push("رقم الجوال غير صالح");
       if (!["شركة", "فردي"].includes(row.type)) errors.push("التصنيف يجب أن يكون شركة أو فردي");
@@ -413,7 +423,7 @@
         : null;
 
       return {
-        ...row,
+        ...canonicalRow,
         normalizedPhone: row.phone,
         representativeId: representative?.id || null,
         interestIds,

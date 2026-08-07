@@ -24,46 +24,30 @@ function showSection(section,{persist=true}={}){
   if(persist)sessionStorage.setItem(SECTION_KEY,next);
 }
 async function load(){message('جاري تحميل إعدادات التركيبات...');try{cache=await window.InstallationsServiceSafe.settingsCatalog();render();message('')}catch(e){message(e.message||'تعذر تحميل الإعدادات.','error')}}
-function normalizeGeo(value){return String(value||'').trim().replace(/\s+/g,' ').normalize('NFKD').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
-function activeRegions(){return cache.regions.filter(row=>row.is_active!==false)}
-function activeCities(regionId=''){return cache.cities.filter(row=>row.is_active!==false&&(!regionId||String(row.region_id)===String(regionId)))}
-function referenceGeoElements(type){const cap=type==='region'?'Region':'City';return {wrapper:$(`installationReference${cap}Combobox`),hidden:$(`installationReference${cap}Id`),search:$(`installationReference${cap}Search`),options:$(`installationReference${cap}Options`)}}
-function closeReferenceGeo(type){const {wrapper,search,options}=referenceGeoElements(type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden')}
-function closeAllReferenceGeo(except=''){['region','city'].forEach(type=>{if(type!==except)closeReferenceGeo(type)})}
-function referenceGeoRows(type){if(type==='region')return activeRegions();const regionId=referenceGeoElements('region').hidden?.value||'';return regionId?activeCities(regionId):[]}
-function renderReferenceGeoOptions(type,query=''){
-  const {hidden,options}=referenceGeoElements(type);if(!options)return;
-  const q=normalizeGeo(query);
-  const rows=referenceGeoRows(type).filter(row=>!q||normalizeGeo(row.name).includes(q)).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar')).slice(0,300);
-  options.innerHTML=rows.length?rows.map(row=>`<button type="button" class="geo-searchable-option${String(hidden?.value||'')===String(row.id)?' is-selected':''}" role="option" aria-selected="${String(hidden?.value||'')===String(row.id)}" data-reference-geo-id="${esc(row.id)}">${esc(row.name)}</button>`).join(''):'<div class="geo-searchable-empty">لا توجد نتائج مطابقة.</div>';
+let referenceGeoController=null;
+function syncReferenceGeoCatalog(){window.KYUMGeography?.setCatalog({regions:cache.regions||[],cities:cache.cities||[],neighborhoods:cache.neighborhoods||[]})}
+function ensureReferenceGeoController(){
+  syncReferenceGeoCatalog();
+  if(referenceGeoController)return referenceGeoController.bind();
+  if(!window.KYUMGeography)throw new Error('مكوّن العنوان الجغرافي غير محمّل.');
+  referenceGeoController=window.KYUMGeography.createController({
+    ids:{
+      region:{wrapper:'installationReferenceRegionCombobox',hidden:'installationReferenceRegionId',search:'installationReferenceRegionSearch',options:'installationReferenceRegionOptions'},
+      city:{wrapper:'installationReferenceCityCombobox',hidden:'installationReferenceCityId',search:'installationReferenceCitySearch',options:'installationReferenceCityOptions'},
+      district:{wrapper:'installationReferenceDistrictCombobox',hidden:'installationReferenceDistrictId',search:'installationReferenceDistrictSearch',options:'installationReferenceDistrictOptions'}
+    },
+    optionLimit:300,
+    boundAttribute:'installationReferenceGeoUnifiedBound'
+  }).bind();
+  return referenceGeoController;
 }
-function setReferenceGeoEnabled(type,enabled,placeholder){const {wrapper,search}=referenceGeoElements(type);if(!wrapper||!search)return;search.disabled=!enabled;wrapper.classList.toggle('is-disabled',!enabled);wrapper.querySelector('.geo-searchable-toggle')?.toggleAttribute('disabled',!enabled);if(placeholder)search.placeholder=placeholder}
-function setReferenceGeoSelection(type,id,{cascade=true,close=true}={}){
-  const {hidden,search}=referenceGeoElements(type);if(!hidden||!search)return;
-  const rows=type==='region'?activeRegions():activeCities(referenceGeoElements('region').hidden?.value||'');
-  const row=rows.find(item=>String(item.id)===String(id||''));
-  hidden.value=row?String(row.id):'';
-  search.value=row?String(row.name||''):'';
-  search.dataset.selectedId=row?String(row.id):'';
-  search.setCustomValidity('');
-  if(type==='region'&&cascade){setReferenceGeoSelection('city','',{cascade:false,close:false});setReferenceGeoEnabled('city',!!row,row?'ابحث واختر المدينة':'اختر المنطقة أولًا')}
-  if(close)closeReferenceGeo(type);
-}
-function openReferenceGeo(type){const {wrapper,search,options}=referenceGeoElements(type);if(!wrapper||!search||!options||search.disabled)return;closeAllReferenceGeo(type);renderReferenceGeoOptions(type,search.value);wrapper.dataset.open='true';search.setAttribute('aria-expanded','true');options.classList.remove('hidden')}
+function closeAllReferenceGeo(){['region','city','district'].forEach(type=>referenceGeoController?.close(type))}
 function bindReferenceGeography(row={}){
-  ['region','city'].forEach(type=>{const {wrapper,hidden,search,options}=referenceGeoElements(type);if(!wrapper||wrapper.dataset.referenceGeoBound)return;wrapper.dataset.referenceGeoBound='1';
-    search.addEventListener('focus',()=>openReferenceGeo(type));
-    search.addEventListener('input',()=>{hidden.value='';search.dataset.selectedId='';if(type==='region'){setReferenceGeoSelection('city','',{cascade:false,close:false});setReferenceGeoEnabled('city',false,'اختر المنطقة أولًا')}renderReferenceGeoOptions(type,search.value);openReferenceGeo(type)});
-    search.addEventListener('keydown',event=>{if(event.key==='Escape')closeReferenceGeo(type);if(event.key==='ArrowDown'){event.preventDefault();openReferenceGeo(type);options.querySelector('.geo-searchable-option')?.focus()}});
-    wrapper.querySelector('.geo-searchable-toggle')?.addEventListener('click',()=>wrapper.dataset.open==='true'?closeReferenceGeo(type):openReferenceGeo(type));
-    options.addEventListener('click',event=>{const button=event.target.closest('[data-reference-geo-id]');if(button)setReferenceGeoSelection(type,button.dataset.referenceGeoId)});
-  });
-  const region=activeRegions().find(item=>String(item.id)===String(row.region_id||''));
-  setReferenceGeoSelection('region',region?.id||'',{cascade:true,close:false});
-  const city=activeCities(region?.id||'').find(item=>String(item.id)===String(row.city_id||''));
-  setReferenceGeoSelection('city',city?.id||'',{cascade:false,close:false});
-  setReferenceGeoEnabled('city',!!region,region?'ابحث واختر المدينة':'اختر المنطقة أولًا');
+  const controller=ensureReferenceGeoController();
+  controller.setValue({regionId:row.region_id||'',cityId:row.city_id||''});
+  controller.setEnabled('city',Boolean(row.region_id),'ابحث واختر المدينة');
 }
+
 function fields(type,row={}){
   if(type==='service')return `<label>اسم الخدمة<input name="name" required maxlength="120" value="${esc(row.name||'')}"></label><label>السعر<input name="price" type="number" min="0" step="0.01" required value="${Number(row.default_price||0)}"></label><label>التكلفة<input name="cost" type="number" min="0" step="0.01" required value="${Number(row.default_cost||0)}"></label><label>الحالة<select name="isActive"><option value="1" ${row.is_active!==false?'selected':''}>نشطة</option><option value="0" ${row.is_active===false?'selected':''}>متوقفة</option></select></label>`;
   if(type==='team')return `<label>اسم الفرقة<input name="name" required maxlength="120" value="${esc(row.name||'')}"></label><label>مسؤول الفرقة<input name="leaderName" maxlength="120" value="${esc(row.leader_name||'')}"></label><label>رقم التواصل<input name="phone" maxlength="30" value="${esc(row.phone||'')}"></label><label>المدينة<input name="city" maxlength="120" value="${esc(row.city||'')}"></label><label>الحالة<select name="status">${['متاحة','مشغولة','إجازة','غير نشطة'].map(x=>`<option ${row.status===x?'selected':''}>${x}</option>`).join('')}</select></label>`;
@@ -101,11 +85,11 @@ async function submit(e){
   const fd=new FormData(e.currentTarget),type=$('installationReferenceType').value,payload=Object.fromEntries(fd.entries());
   payload.id=$('installationReferenceId').value;payload.isActive=payload.isActive!=='0';
   if(type==='neighborhood'){
-    const region=activeRegions().find(x=>String(x.id)===String(payload.regionId||''));
-    const city=activeCities(region?.id||'').find(x=>String(x.id)===String(payload.cityId||''));
-    if(!region){const input=$('installationReferenceRegionSearch');input?.setCustomValidity('اختر منطقة من القائمة النشطة.');input?.reportValidity();input?.focus();return}
-    if(!city){const input=$('installationReferenceCitySearch');input?.setCustomValidity('اختر مدينة تابعة للمنطقة من القائمة.');input?.reportValidity();input?.focus();return}
-    payload.region=region.name||'';payload.city=city.name||'';
+    const controller=ensureReferenceGeoController();
+    const validation=controller.validate({requireRegion:true,requireCity:true,requireDistrict:false});
+    if(!validation.valid){const input=controller.elements(validation.field)?.search;input?.setCustomValidity(validation.message);input?.reportValidity();input?.focus();return}
+    payload.regionId=validation.value.regionId;payload.cityId=validation.value.cityId;
+    payload.region=validation.value.region||'';payload.city=validation.value.city||'';
   }
   try{await window.InstallationsServiceSafe.saveSettingItem(type,payload);closeAllReferenceGeo();$('installationReferenceDialog').close();await load();message('تم حفظ البيانات بنجاح.','success')}catch(err){const el=$('installationReferenceFormStatus');el.textContent=err.message;el.classList.remove('hidden');el.dataset.type='error'}
 }
