@@ -394,38 +394,75 @@
 
   async function installationSummaryReport(filters={}){
     requireAction('view','installationReports');
+    const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set();
     let visitsQuery=db().from('installation_execution_visits').select('id,installation_request_id,scheduled_date,installation_team_id,status,team:installation_teams(id,name),request:installation_requests(id,representative_id,representative:sales_representatives(id,full_name))');
-    if(filters.date)visitsQuery=visitsQuery.eq('scheduled_date',filters.date);
-    const [{data:visits,error:ve},{data:teams,error:te},{data:reps,error:re}]=await Promise.all([
+    let requestsQuery=db().from('installation_requests').select('id,scheduled_date,installation_team_id,representative_id,team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
+    if(filters.date){visitsQuery=visitsQuery.eq('scheduled_date',filters.date);requestsQuery=requestsQuery.eq('scheduled_date',filters.date)}
+    const [{data:visits,error:ve},{data:scheduledRequests,error:sre},{data:teams,error:te},{data:reps,error:re}]=await Promise.all([
       visitsQuery.order('scheduled_date',{ascending:true}),
+      requestsQuery.order('scheduled_date',{ascending:true}),
       db().from('installation_teams').select('id,name').order('name'),
       db().from('sales_representatives').select('id,full_name').order('full_name')
     ]);
     if(ve)throw new Error('تعذر تحميل زيارات ملخص التركيبات: '+ve.message);
+    if(sre)throw new Error('تعذر تحميل الطلبات المجدولة لملخص التركيبات: '+sre.message);
     if(te||re)throw new Error('تعذر تحميل فلاتر ملخص التركيبات.');
-    const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set();
-    const scopedVisits=(visits||[]).filter(v=>(!filters.representativeId||String(v.request?.representative_id||'')===String(filters.representativeId))&&(!selectedTeams.size||selectedTeams.has(String(v.installation_team_id||''))));
-    if(!scopedVisits.length)return {rows:[],summary:{teams:0,visits:0,quantity:0,value:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
-    const visitIds=scopedVisits.map(v=>v.id),requestIds=[...new Set(scopedVisits.map(v=>v.installation_request_id).filter(Boolean))];
-    const [{data:visitLines,error:vle},{data:requestServices,error:rse}]=await Promise.all([
-      db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity').in('visit_id',visitIds),
-      db().from('installation_request_services').select('id,installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name,default_price)').in('installation_request_id',requestIds)
-    ]);
+    const inScope=(row,representativeId,teamId)=>(!filters.representativeId||String(representativeId||'')===String(filters.representativeId))&&(!selectedTeams.size||selectedTeams.has(String(teamId||'')));
+    const scopedVisits=(visits||[]).filter(v=>inScope(v,v.request?.representative_id,v.installation_team_id));
+    const scopedRequests=(scheduledRequests||[]).filter(r=>inScope(r,r.representative_id,r.installation_team_id));
+
+    // A request scheduled through the multi-day workflow must be represented by its visit rows only.
+    // Check all candidate single-day request IDs for any execution visit, not only visits on the selected date,
+    // so the request row can never double-count a multi-day schedule.
+    const candidateRequestIds=[...new Set(scopedRequests.map(r=>r.id).filter(Boolean))];
+    let requestsWithVisits=new Set();
+    if(candidateRequestIds.length){
+      const {data:anyVisits,error:ave}=await db().from('installation_execution_visits').select('installation_request_id').in('installation_request_id',candidateRequestIds);
+      if(ave)throw new Error('تعذر التحقق من نوع جدولة طلبات ملخص التركيبات: '+ave.message);
+      requestsWithVisits=new Set((anyVisits||[]).map(v=>String(v.installation_request_id||'')).filter(Boolean));
+    }
+    const singleDayRequests=scopedRequests.filter(r=>!requestsWithVisits.has(String(r.id||'')));
+    if(!scopedVisits.length&&!singleDayRequests.length)return {rows:[],summary:{teams:0,visits:0,quantity:0,value:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+
+    const visitIds=scopedVisits.map(v=>v.id).filter(Boolean);
+    const requestIds=[...new Set([...scopedVisits.map(v=>v.installation_request_id),...singleDayRequests.map(r=>r.id)].filter(Boolean))];
+    const visitLinesResult=visitIds.length?await db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity').in('visit_id',visitIds):{data:[],error:null};
+    const requestServicesResult=requestIds.length?await db().from('installation_request_services').select('id,installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name,default_price)').in('installation_request_id',requestIds):{data:[],error:null};
+    const {data:visitLines,error:vle}=visitLinesResult,{data:requestServices,error:rse}=requestServicesResult;
     if(vle)throw new Error('تعذر تحميل كميات خدمات الزيارات: '+vle.message);
     if(rse)throw new Error('تعذر تحميل خدمات طلبات التركيبات: '+rse.message);
-    const visitMap=new Map(scopedVisits.map(v=>[v.id,v])),serviceMap=new Map((requestServices||[]).map(x=>[x.id,x])),grouped=new Map();
+
+    const visitMap=new Map(scopedVisits.map(v=>[v.id,v])),serviceMap=new Map((requestServices||[]).map(x=>[x.id,x])),servicesByRequest=new Map(),grouped=new Map();
+    for(const service of requestServices||[]){const key=String(service.installation_request_id||'');const list=servicesByRequest.get(key)||[];list.push(service);servicesByRequest.set(key,list)}
+    const addLine=(teamId,teamName,entryKey,serviceName,quantity,unitPrice)=>{
+      quantity=Number(quantity||0);unitPrice=Number(unitPrice||0);if(quantity<=0)return;
+      const value=quantity*unitPrice;
+      teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';serviceName=serviceName||'خدمة غير محددة';
+      let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0};grouped.set(teamId,team)}
+      team.visitIds.add(entryKey);team.quantity+=quantity;team.value+=value;
+      let item=team.services.get(serviceName);if(!item){item={name:serviceName,quantity:0,value:0};team.services.set(serviceName,item)}item.quantity+=quantity;item.value+=value;
+    };
+
+    // Multi-day schedules: use the quantity allocated to each execution visit.
     for(const line of visitLines||[]){
       const visit=visitMap.get(line.visit_id),service=serviceMap.get(line.request_service_id);if(!visit||!service)continue;
-      const teamId=String(visit.installation_team_id||'unassigned'),teamName=visit.team?.name||'غير مسند',serviceName=service.service?.name||'خدمة غير محددة';
-      const quantity=Number(line.scheduled_quantity||0);if(quantity<=0)continue;
-      const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0)),value=quantity*unitPrice;
-      let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0};grouped.set(teamId,team)}
-      team.visitIds.add(visit.id);team.quantity+=quantity;team.value+=value;
-      let item=team.services.get(serviceName);if(!item){item={name:serviceName,quantity:0,value:0};team.services.set(serviceName,item)}item.quantity+=quantity;item.value+=value;
+      const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0));
+      addLine(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,service.service?.name,Number(line.scheduled_quantity||0),unitPrice);
     }
+
+    // Single-day schedules: there is no execution-visit row, so use the request's scheduled date/team
+    // and the original request-service quantity/value as the reporting source.
+    for(const request of singleDayRequests){
+      for(const service of servicesByRequest.get(String(request.id||''))||[]){
+        const quantity=Number(service.quantity||0);
+        const unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0));
+        addLine(request.installation_team_id,request.team?.name,'request:'+request.id,service.service?.name,quantity,unitPrice);
+      }
+    }
+
     const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({...x,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
     const totalQuantity=rows.reduce((a,x)=>a+x.quantity,0),totalValue=rows.reduce((a,x)=>a+x.value,0);
-    return {rows,summary:{teams:rows.length,visits:scopedVisits.length,quantity:totalQuantity,value:totalValue,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+    return {rows,summary:{teams:rows.length,visits:scopedVisits.length+singleDayRequests.length,quantity:totalQuantity,value:totalValue,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
   }
 
   async function settingsCatalog(){requireAction('view','installationSettings');const [services,teams,neighborhoods,regions,cities]=await Promise.all([db().from('installation_service_types').select('*').order('name'),db().from('installation_teams').select('*').order('name'),db().from('installation_neighborhoods').select('*').order('name'),db().from('installation_regions').select('id,name,is_active').order('name'),db().from('installation_cities').select('id,region_id,name,is_active').order('name')]);if(services.error)throw new Error('تعذر تحميل الخدمات: '+services.error.message);if(teams.error)throw new Error('تعذر تحميل فرق التركيبات: '+teams.error.message);if(neighborhoods.error)throw new Error('تعذر تحميل الأحياء: '+neighborhoods.error.message);if(regions.error||cities.error)throw new Error('تعذر تحميل المناطق والمدن. شغّل Migration المرحلة أولًا.');return {services:services.data||[],teams:teams.data||[],neighborhoods:neighborhoods.data||[],regions:regions.data||[],cities:cities.data||[]}}

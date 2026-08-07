@@ -1,6 +1,6 @@
 {
-  "version": "18.53.6",
-  "build": 185306,
+  "version": "18.53.7",
+  "build": 185307,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
   "title": "Enterprise Geographic Certification & Regression Audit",
@@ -9,5 +9,5 @@
     "تسجيل Geographic Address Runtime رسميًا ضمن Enterprise Offline Policy مع الحفاظ على Smart Cache وOffline stale fallback",
     "تشغيل Regression Audit للصلاحيات وOffline Runtime وCache First وMobile مع توثيق الديون السابقة الموجودة قبل M15 بدون توسيع النطاق"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-6-geographic-enterprise-certification"
+  "cacheToken": "kyum-crm-pwa-18-53-7-installation-summary-date-hotfix"
 }
