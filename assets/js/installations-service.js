@@ -412,7 +412,26 @@
   }
 
   async function settingsCatalog(){requireAction('view','installationSettings');const [services,teams,neighborhoods,regions,cities]=await Promise.all([db().from('installation_service_types').select('*').order('name'),db().from('installation_teams').select('*').order('name'),db().from('installation_neighborhoods').select('*').order('name'),db().from('installation_regions').select('id,name,is_active').order('name'),db().from('installation_cities').select('id,region_id,name,is_active').order('name')]);if(services.error)throw new Error('تعذر تحميل الخدمات: '+services.error.message);if(teams.error)throw new Error('تعذر تحميل فرق التركيبات: '+teams.error.message);if(neighborhoods.error)throw new Error('تعذر تحميل الأحياء: '+neighborhoods.error.message);if(regions.error||cities.error)throw new Error('تعذر تحميل المناطق والمدن. شغّل Migration المرحلة أولًا.');return {services:services.data||[],teams:teams.data||[],neighborhoods:neighborhoods.data||[],regions:regions.data||[],cities:cities.data||[]}}
-  async function saveSettingItem(type,payload){requireAction(payload.id?'edit':'add','installationSettings');const map={service:{table:'installation_service_types',record:{name:payload.name,default_price:Number(payload.price||0),default_cost:Number(payload.cost||0),is_active:payload.isActive!==false}},team:{table:'installation_teams',record:{name:payload.name,leader_name:payload.leaderName||null,phone:payload.phone||null,city:payload.city||null,status:payload.status||'متاحة'}},neighborhood:{table:'installation_neighborhoods',record:{name:payload.name,city:payload.city||null,region:payload.region||null,city_id:payload.cityId||null,region_id:payload.regionId||null,is_active:payload.isActive!==false}}};const cfg=map[type];if(!cfg)throw new Error('نوع بيانات غير مدعوم.');let q=payload.id?db().from(cfg.table).update(cfg.record).eq('id',payload.id):db().from(cfg.table).insert(cfg.record);const {error}=await q;if(error)throw new Error('تعذر حفظ البيانات: '+error.message)}
+  async function saveSettingItem(type,payload){
+    requireAction(payload.id?'edit':'add','installationSettings');
+    if(type==='neighborhood'){
+      if(!payload.regionId)throw new Error('اختر المنطقة من القائمة النشطة.');
+      if(!payload.cityId)throw new Error('اختر المدينة التابعة للمنطقة.');
+      const [{data:region,error:regionError},{data:city,error:cityError}]=await Promise.all([
+        db().from('installation_regions').select('id,name,is_active').eq('id',payload.regionId).eq('is_active',true).maybeSingle(),
+        db().from('installation_cities').select('id,region_id,name,is_active').eq('id',payload.cityId).eq('is_active',true).maybeSingle()
+      ]);
+      if(regionError||!region)throw new Error('المنطقة المختارة غير متاحة أو غير نشطة.');
+      if(cityError||!city)throw new Error('المدينة المختارة غير متاحة أو غير نشطة.');
+      if(String(city.region_id)!==String(region.id))throw new Error('المدينة المختارة لا تتبع المنطقة المحددة.');
+      payload.region=region.name||'';
+      payload.city=city.name||'';
+    }
+    const map={service:{table:'installation_service_types',record:{name:payload.name,default_price:Number(payload.price||0),default_cost:Number(payload.cost||0),is_active:payload.isActive!==false}},team:{table:'installation_teams',record:{name:payload.name,leader_name:payload.leaderName||null,phone:payload.phone||null,city:payload.city||null,status:payload.status||'متاحة'}},neighborhood:{table:'installation_neighborhoods',record:{name:payload.name,city:payload.city||null,region:payload.region||null,city_id:payload.cityId||null,region_id:payload.regionId||null,is_active:payload.isActive!==false}}};
+    const cfg=map[type];if(!cfg)throw new Error('نوع بيانات غير مدعوم.');
+    let q=payload.id?db().from(cfg.table).update(cfg.record).eq('id',payload.id):db().from(cfg.table).insert(cfg.record);
+    const {error}=await q;if(error)throw new Error('تعذر حفظ البيانات: '+error.message)
+  }
   async function toggleSettingItem(type,id,isActive){requireAction('edit','installationSettings');const table=type==='service'?'installation_service_types':type==='neighborhood'?'installation_neighborhoods':'installation_teams';const record=type==='team'?{status:isActive?'متاحة':'غير نشطة'}:{is_active:!!isActive};const {error}=await db().from(table).update(record).eq('id',id);if(error)throw new Error('تعذر تحديث الحالة: '+error.message)}
   async function removeSettingItem(type,id){requireAction('delete','installationSettings');const table=type==='service'?'installation_service_types':type==='neighborhood'?'installation_neighborhoods':'installation_teams';const {error}=await db().from(table).delete().eq('id',id);if(error)throw new Error('تعذر حذف البيانات؛ قد تكون مرتبطة بطلبات قائمة. '+error.message)}
 

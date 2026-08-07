@@ -1,13 +1,13 @@
 {
-  "version": "18.53.0",
-  "build": 185300,
+  "version": "18.53.1",
+  "build": 185301,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Installation Address Hierarchy Unification",
+  "title": "Installation Geographic Canonicalization Completion",
   "notes": [
-    "إضافة المنطقة ثم المدينة ثم الحي في طلب تركيب جديد بنفس القوائم القابلة للبحث",
-    "إضافة نفس التسلسل داخل تعديل بيانات الطلب من شاشة الجدولة والإسناد",
-    "ربط المدينة بالمنطقة والحي بالمدينة مع حفظ neighborhood_id المرجعي لمنع التباس الأحياء المتشابهة"
+    "توحيد اختيار المنطقة والمدينة في إعدادات الأحياء بنفس القوائم القابلة للبحث المستخدمة في طلبات التركيبات",
+    "قصر إنشاء أو تعديل الأحياء على المناطق والمدن النشطة فقط مع التحقق من علاقة المدينة بالمنطقة قبل الحفظ",
+    "استمرار طلب تركيب جديد وتعديل الطلب على تسلسل المنطقة ثم المدينة ثم الحي ومنع الرجوع إلى بيانات Legacy المعطلة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-0-installation-address-hierarchy-unification"
+  "cacheToken": "kyum-crm-pwa-18-53-1-installation-geographic-canonicalization-completion"
 }
