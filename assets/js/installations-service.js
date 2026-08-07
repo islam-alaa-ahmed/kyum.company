@@ -422,32 +422,32 @@
       requestsWithVisits=new Set((anyVisits||[]).map(v=>String(v.installation_request_id||'')).filter(Boolean));
     }
     const singleDayRequests=scopedRequests.filter(r=>!requestsWithVisits.has(String(r.id||'')));
-    if(!scopedVisits.length&&!singleDayRequests.length)return {rows:[],summary:{teams:0,visits:0,quantity:0,value:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+    if(!scopedVisits.length&&!singleDayRequests.length)return {rows:[],summary:{teams:0,visits:0,quantity:0,value:0,expenses:0,profit:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
 
     const visitIds=scopedVisits.map(v=>v.id).filter(Boolean);
     const requestIds=[...new Set([...scopedVisits.map(v=>v.installation_request_id),...singleDayRequests.map(r=>r.id)].filter(Boolean))];
     const visitLinesResult=visitIds.length?await db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity').in('visit_id',visitIds):{data:[],error:null};
-    const requestServicesResult=requestIds.length?await db().from('installation_request_services').select('id,installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name,default_price)').in('installation_request_id',requestIds):{data:[],error:null};
+    const requestServicesResult=requestIds.length?await db().from('installation_request_services').select('id,installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name,default_price,default_cost)').in('installation_request_id',requestIds):{data:[],error:null};
     const {data:visitLines,error:vle}=visitLinesResult,{data:requestServices,error:rse}=requestServicesResult;
     if(vle)throw new Error('تعذر تحميل كميات خدمات الزيارات: '+vle.message);
     if(rse)throw new Error('تعذر تحميل خدمات طلبات التركيبات: '+rse.message);
 
     const visitMap=new Map(scopedVisits.map(v=>[v.id,v])),serviceMap=new Map((requestServices||[]).map(x=>[x.id,x])),servicesByRequest=new Map(),grouped=new Map();
     for(const service of requestServices||[]){const key=String(service.installation_request_id||'');const list=servicesByRequest.get(key)||[];list.push(service);servicesByRequest.set(key,list)}
-    const addLine=(teamId,teamName,entryKey,serviceName,quantity,unitPrice)=>{
-      quantity=Number(quantity||0);unitPrice=Number(unitPrice||0);if(quantity<=0)return;
-      const value=quantity*unitPrice;
+    const addLine=(teamId,teamName,entryKey,serviceName,quantity,unitPrice,unitCost)=>{
+      quantity=Number(quantity||0);unitPrice=Number(unitPrice||0);unitCost=Number(unitCost||0);if(quantity<=0)return;
+      const value=quantity*unitPrice,expenses=quantity*unitCost,profit=value-expenses;
       teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';serviceName=serviceName||'خدمة غير محددة';
-      let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0};grouped.set(teamId,team)}
-      team.visitIds.add(entryKey);team.quantity+=quantity;team.value+=value;
-      let item=team.services.get(serviceName);if(!item){item={name:serviceName,quantity:0,value:0};team.services.set(serviceName,item)}item.quantity+=quantity;item.value+=value;
+      let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0,expenses:0,profit:0};grouped.set(teamId,team)}
+      team.visitIds.add(entryKey);team.quantity+=quantity;team.value+=value;team.expenses+=expenses;team.profit+=profit;
+      let item=team.services.get(serviceName);if(!item){item={name:serviceName,quantity:0,value:0,expenses:0,profit:0};team.services.set(serviceName,item)}item.quantity+=quantity;item.value+=value;item.expenses+=expenses;item.profit+=profit;
     };
 
     // Multi-day schedules: use the quantity allocated to each execution visit.
     for(const line of visitLines||[]){
       const visit=visitMap.get(line.visit_id),service=serviceMap.get(line.request_service_id);if(!visit||!service)continue;
       const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0));
-      addLine(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,service.service?.name,Number(line.scheduled_quantity||0),unitPrice);
+      addLine(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,service.service?.name,Number(line.scheduled_quantity||0),unitPrice,Number(service.service?.default_cost||0));
     }
 
     // Single-day schedules: there is no execution-visit row, so use the request's scheduled date/team
@@ -456,13 +456,13 @@
       for(const service of servicesByRequest.get(String(request.id||''))||[]){
         const quantity=Number(service.quantity||0);
         const unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0));
-        addLine(request.installation_team_id,request.team?.name,'request:'+request.id,service.service?.name,quantity,unitPrice);
+        addLine(request.installation_team_id,request.team?.name,'request:'+request.id,service.service?.name,quantity,unitPrice,Number(service.service?.default_cost||0));
       }
     }
 
-    const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({...x,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
-    const totalQuantity=rows.reduce((a,x)=>a+x.quantity,0),totalValue=rows.reduce((a,x)=>a+x.value,0);
-    return {rows,summary:{teams:rows.length,visits:scopedVisits.length+singleDayRequests.length,quantity:totalQuantity,value:totalValue,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+    const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,expenses:team.expenses,profit:team.profit,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({...x,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
+    const totalQuantity=rows.reduce((a,x)=>a+x.quantity,0),totalValue=rows.reduce((a,x)=>a+x.value,0),totalExpenses=rows.reduce((a,x)=>a+x.expenses,0),totalProfit=totalValue-totalExpenses;
+    return {rows,summary:{teams:rows.length,visits:scopedVisits.length+singleDayRequests.length,quantity:totalQuantity,value:totalValue,expenses:totalExpenses,profit:totalProfit,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
   }
 
   async function settingsCatalog(){requireAction('view','installationSettings');const [services,teams,neighborhoods,regions,cities]=await Promise.all([db().from('installation_service_types').select('*').order('name'),db().from('installation_teams').select('*').order('name'),db().from('installation_neighborhoods').select('*').order('name'),db().from('installation_regions').select('id,name,is_active').order('name'),db().from('installation_cities').select('id,region_id,name,is_active').order('name')]);if(services.error)throw new Error('تعذر تحميل الخدمات: '+services.error.message);if(teams.error)throw new Error('تعذر تحميل فرق التركيبات: '+teams.error.message);if(neighborhoods.error)throw new Error('تعذر تحميل الأحياء: '+neighborhoods.error.message);if(regions.error||cities.error)throw new Error('تعذر تحميل المناطق والمدن. شغّل Migration المرحلة أولًا.');return {services:services.data||[],teams:teams.data||[],neighborhoods:neighborhoods.data||[],regions:regions.data||[],cities:cities.data||[]}}
