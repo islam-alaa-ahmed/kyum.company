@@ -1,13 +1,13 @@
 {
-  "version": "18.53.5",
-  "build": 185305,
+  "version": "18.53.6",
+  "build": 185306,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Geographic Validation & Data Integrity",
+  "title": "Enterprise Geographic Certification & Regression Audit",
   "notes": [
-    "إضافة تحقق مركزي صارم لعلاقات المنطقة والمدينة والحي ومنع أي تسلسل جغرافي غير متطابق قبل الحفظ",
-    "إضافة تحقق Service-side لطلبات التركيبات يرفض الحي أو المدينة أو المنطقة غير النشطة أو غير المترابطة حتى عند تجاوز الواجهة",
-    "توحيد حفظ عناوين العملاء على القيم Canonical والتحقق منها قبل الكتابة مع استمرار السماح بالعنوان الفارغ للعملاء القدامى"
+    "اعتماد نظام العناوين الجغرافي الموحد بعد فحص تكاملي للمناطق والمدن والأحياء عبر العملاء والتركيبات والاستيراد",
+    "تسجيل Geographic Address Runtime رسميًا ضمن Enterprise Offline Policy مع الحفاظ على Smart Cache وOffline stale fallback",
+    "تشغيل Regression Audit للصلاحيات وOffline Runtime وCache First وMobile مع توثيق الديون السابقة الموجودة قبل M15 بدون توسيع النطاق"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-5-geographic-validation-integrity"
+  "cacheToken": "kyum-crm-pwa-18-53-6-geographic-enterprise-certification"
 }
