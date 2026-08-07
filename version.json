@@ -1,14 +1,13 @@
 {
-  "version": "18.53.10",
-  "build": 185309,
+  "version": "18.53.11",
+  "build": 185310,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Installation Summary Timeline Accuracy & Duration Layout",
+  "title": "Installation Summary Timeline Spacing Hotfix",
   "notes": [
-    "نقل مدة كل انتقال لتظهر فوق الخط بين مرحلتي التنفيذ بدل أسفل المرحلة",
-    "مراجعة دقة مدد التنفيذ: عدم تحويل أي ترتيب زمني غير صالح إلى مدة صفرية",
-    "تصحيح فلتر الفرق بحيث إلغاء تحديد الكل يعرض صفر نتائج بدل الرجوع ضمنيًا إلى كل الفرق",
-    "الحفاظ على مرجعية أزرار اليوم السابق والحالي والتالي لتاريخ اليوم الحقيقي وعلى منع التكرار بين Single-Day وMulti-Day"
+    "حجز مساحة داخل مخطط مراحل التنفيذ لمدد الانتقال فوق خطوط الربط بدون تداخل مع شريط اسم الفرقة",
+    "محاذاة مدة كل انتقال في منتصف الخط بين المرحلتين مع خلفية سطحية صغيرة لضمان القراءة في Light وDark Mode",
+    "الحفاظ على منطق التقرير والفلاتر والحسابات دون أي تغيير وظيفي"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-10-installation-summary-timeline-accuracy"
+  "cacheToken": "kyum-crm-pwa-18-53-11-installation-summary-timeline-spacing"
 }

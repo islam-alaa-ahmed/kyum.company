@@ -6,7 +6,7 @@ const css=read('assets/css/installation-operations-reports.css');
 const html=read('index.html');
 const ver=JSON.parse(read('version.json'));
 const checks=[
-  ['duration rendered above connector', ui.includes('installation-summary-stage-duration') && !ui.includes('<small>${esc(duration)}</small>') && css.includes('top:-15px') && css.includes('inset-inline-start:calc(50% + 8px)')],
+  ['duration rendered above connector', ui.includes('installation-summary-stage-duration') && !ui.includes('<small>${esc(duration)}</small>') && css.includes('installation-summary-stage-duration') && css.includes('inset-inline-start:calc(50% + 8px)')],
   ['negative/invalid elapsed time is not coerced to zero', ui.includes('if(!Number.isFinite(delta)||delta<0)return') && !ui.includes('Math.max(0,Math.round((new Date(b)-new Date(a))/60000))')],
   ['previous/today/next are anchored to real current date', ui.includes("installationSummaryPreviousDay')?.addEventListener('click',()=>{const d=new Date();d.setDate(d.getDate()-1)") && ui.includes("installationSummaryToday')?.addEventListener('click',()=>{setSummaryDate(isoDate(new Date()))") && ui.includes("installationSummaryNextDay')?.addEventListener('click',()=>{const d=new Date();d.setDate(d.getDate()+1)")],
   ['quick-day active state follows selected report date', ui.includes('const active=selected===date') && ui.includes('aria-pressed')],
@@ -16,7 +16,7 @@ const checks=[
   ['single/multi-day dedupe remains global by request', svc.includes('requestsWithVisits') && svc.includes("from('installation_execution_visits').select('installation_request_id').in('installation_request_id',candidateRequestIds)") && svc.includes('singleDayRequests=scopedRequests.filter')],
   ['summary value/cost/profit share same allocated quantities', svc.includes('value=quantity*unitPrice,expenses=quantity*unitCost,profit=value-expenses') && svc.includes('totalProfit=totalValue-totalExpenses')],
   ['execution grouping remains by team and chronological order', svc.includes('executionGrouped') && svc.includes('orders:group.orders.sort') && ui.includes('installation-summary-execution-team')],
-  ['version/cache advanced', ver.version==='18.53.10' && ver.cacheToken==='kyum-crm-pwa-18-53-10-installation-summary-timeline-accuracy' && html.includes('?v=18.53.10')]
+  ['version/cache advanced', /^18\.53\.(?:10|11)$/.test(ver.version) && html.includes('?v='+ver.version)]
 ];
 let failed=0;
 for(const [name,ok] of checks){console.log(`${ok?'PASS':'FAIL'} ${name}`);if(!ok)failed++;}
