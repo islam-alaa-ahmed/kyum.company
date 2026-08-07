@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-2-unified-geographic-address-component";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-3-geographic-search-ux";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

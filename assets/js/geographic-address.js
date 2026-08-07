@@ -4,6 +4,7 @@
 
   let catalog = { regions: [], cities: [], districts: [] };
   let catalogPromise = null;
+  let searchIndex = { region: new Map(), city: new Map(), district: new Map() };
 
   function normalizeValue(value) {
     return String(value || "").trim().replace(/\s+/g, " ");
@@ -13,10 +14,48 @@
     return normalizeValue(value)
       .normalize("NFKD")
       .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-      .replace(/[أإآ]/g, "ا")
+      .replace(/ـ/g, "")
+      .replace(/[أإآٱ]/g, "ا")
+      .replace(/ؤ/g, "و")
+      .replace(/ئ/g, "ي")
       .replace(/ة/g, "ه")
       .replace(/ى/g, "ي")
+      .replace(/[،,;؛:._\-–—/\\()\[\]{}]+/g, " ")
+      .replace(/^(?:ال)?منطقه\s+/g, "")
+      .replace(/^حي\s+/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
       .toLowerCase();
+  }
+
+  function tokenizeSearch(value) {
+    return normalizeSearch(value).split(" ").filter(Boolean);
+  }
+
+  function buildSearchIndex() {
+    const build = rows => new Map(rows.map(row => [String(row.id), {
+      key: normalizeSearch(row.name),
+      tokens: tokenizeSearch(row.name)
+    }]));
+    searchIndex = {
+      region: build(catalog.regions),
+      city: build(catalog.cities),
+      district: build(catalog.districts)
+    };
+    return searchIndex;
+  }
+
+  function scoreSearch(type, row, query) {
+    const q = normalizeSearch(query);
+    if (!q) return 0;
+    const meta = searchIndex[type]?.get(String(row.id)) || { key: normalizeSearch(row.name), tokens: tokenizeSearch(row.name) };
+    if (meta.key === q) return 1000;
+    if (meta.key.startsWith(q)) return 800;
+    const queryTokens = tokenizeSearch(q);
+    if (queryTokens.length && queryTokens.every(token => meta.tokens.some(item => item.startsWith(token)))) return 650;
+    if (meta.key.includes(q)) return 500;
+    if (queryTokens.length && queryTokens.every(token => meta.key.includes(token))) return 350;
+    return -1;
   }
 
   async function fetchAll(table, columns) {
@@ -49,6 +88,7 @@
       fetchAll("installation_neighborhoods", "id,region_id,city_id,name,city,region,is_active,national_address_district_id")
     ]).then(([regions, cities, districts]) => {
       catalog = { regions, cities, districts };
+      buildSearchIndex();
       return catalog;
     }).finally(() => {
       catalogPromise = null;
@@ -64,6 +104,7 @@
         ? (next.districts || next.neighborhoods).filter(row => row?.is_active !== false)
         : catalog.districts
     };
+    buildSearchIndex();
     return catalog;
   }
 
@@ -140,6 +181,7 @@
       if (!wrapper || !search || !options) return;
       wrapper.dataset.open = "false";
       search.setAttribute("aria-expanded", "false");
+      search.removeAttribute("aria-activedescendant");
       options.classList.add("hidden");
       config.onClose?.(type, { wrapper, search, options });
     };
@@ -160,9 +202,11 @@
       if (!options) return;
       const q = normalizeSearch(query);
       const rows = rowsFor(type)
-        .filter(row => !q || normalizeSearch(row.name).includes(q))
-        .sort((a, b) => normalizeValue(a.name).localeCompare(normalizeValue(b.name), "ar"))
-        .slice(0, optionLimit);
+        .map(row => ({ row, score: q ? scoreSearch(type, row, q) : 0 }))
+        .filter(item => !q || item.score >= 0)
+        .sort((a, b) => b.score - a.score || normalizeValue(a.row.name).localeCompare(normalizeValue(b.row.name), "ar"))
+        .slice(0, optionLimit)
+        .map(item => item.row);
       options.replaceChildren();
       if (!rows.length) {
         const empty = documentRef.createElement("div");
@@ -177,6 +221,7 @@
         button.className = `geo-searchable-option${String(hidden?.value || "") === String(row.id) ? " is-selected" : ""}`;
         button.setAttribute("role", "option");
         button.setAttribute("aria-selected", String(String(hidden?.value || "") === String(row.id)));
+        button.id = `geo-option-${type}-${String(row.id)}`;
         button.dataset.geoUnifiedId = String(row.id);
         button.textContent = normalizeValue(row.name);
         options.appendChild(button);
@@ -191,6 +236,8 @@
       wrapper.dataset.open = "true";
       search.setAttribute("aria-expanded", "true");
       options.classList.remove("hidden");
+      const selected = options.querySelector(".geo-searchable-option.is-selected");
+      if (selected) selected.scrollIntoView?.({ block: "nearest" });
       config.onOpen?.(type, { wrapper, search, options });
     };
 
@@ -268,11 +315,20 @@
           open(type);
         });
         search.addEventListener("keydown", event => {
-          if (event.key === "Escape") close(type);
-          if (event.key === "ArrowDown") {
+          if (event.key === "Escape") { event.preventDefault(); close(type); return; }
+          if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
             event.preventDefault();
             open(type);
-            options.querySelector(".geo-searchable-option")?.focus();
+            const buttons = [...options.querySelectorAll(".geo-searchable-option")];
+            if (!buttons.length) return;
+            const target = event.key === "End" || event.key === "ArrowUp" ? buttons[buttons.length - 1] : buttons[0];
+            target.focus();
+            search.setAttribute("aria-activedescendant", target.id);
+            return;
+          }
+          if (event.key === "Enter" && wrapper.dataset.open === "true") {
+            const first = options.querySelector(".geo-searchable-option");
+            if (first) { event.preventDefault(); select(type, first.dataset.geoUnifiedId); }
           }
         });
         wrapper.querySelector(".geo-searchable-toggle")?.addEventListener("click", () => wrapper.dataset.open === "true" ? close(type) : open(type));
@@ -285,9 +341,23 @@
           if (!current) return;
           const buttons = [...options.querySelectorAll(".geo-searchable-option")];
           const index = buttons.indexOf(current);
-          if (event.key === "ArrowDown") { event.preventDefault(); buttons[index + 1]?.focus(); }
-          if (event.key === "ArrowUp") { event.preventDefault(); (buttons[index - 1] || search).focus(); }
-          if (event.key === "Enter") { event.preventDefault(); select(type, current.dataset.geoUnifiedId); }
+          let target = null;
+          if (event.key === "ArrowDown") target = buttons[Math.min(index + 1, buttons.length - 1)];
+          if (event.key === "ArrowUp") target = index > 0 ? buttons[index - 1] : search;
+          if (event.key === "Home") target = buttons[0];
+          if (event.key === "End") target = buttons[buttons.length - 1];
+          if (target) {
+            event.preventDefault();
+            target.focus();
+            if (target.id) search.setAttribute("aria-activedescendant", target.id);
+            else search.removeAttribute("aria-activedescendant");
+          }
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(type, current.dataset.geoUnifiedId); }
+          if (event.key === "Escape") { event.preventDefault(); close(type); search.focus(); }
+        });
+        options.addEventListener("focusin", event => {
+          const current = event.target.closest(".geo-searchable-option");
+          if (current?.id) search.setAttribute("aria-activedescendant", current.id);
         });
       });
       documentRef.addEventListener("click", event => {
@@ -303,6 +373,8 @@
   window.KYUMGeography = Object.freeze({
     normalizeValue,
     normalizeSearch,
+    tokenizeSearch,
+    scoreSearch,
     loadCatalog,
     setCatalog,
     getCatalog,
