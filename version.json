@@ -1,13 +1,13 @@
 {
-  "version": "18.53.3",
-  "build": 185303,
+  "version": "18.53.4",
+  "build": 185304,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Geographic Search & UX Improvements",
+  "title": "Geographic Cache & Performance",
   "notes": [
-    "تحسين البحث الجغرافي العربي مع تجاهل الهمزات والتشكيل وكلمات حي ومنطقة أثناء المطابقة",
-    "ترتيب النتائج حسب جودة المطابقة مع فهرس بحث مسبق لتقليل المعالجة أثناء الكتابة",
-    "تحسين التنقل بلوحة المفاتيح وARIA داخل قوائم المنطقة والمدينة والحي دون تغيير منطق الحفظ"
+    "تخزين كتالوج المناطق والمدن والأحياء في Smart Cache مع دعم التشغيل دون اتصال باستخدام آخر نسخة سليمة",
+    "إعادة استخدام طلب تحميل واحد وتحديث الخلفية بدل إعادة الاستعلام عند فتح كل شاشة",
+    "إضافة فهارس Runtime للعلاقات Region→City وCity→District لتقليل عمليات الفلترة المتكررة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-3-geographic-search-ux"
+  "cacheToken": "kyum-crm-pwa-18-53-4-geographic-cache-performance"
 }

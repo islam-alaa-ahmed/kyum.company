@@ -2,9 +2,23 @@
 (function () {
   "use strict";
 
+  const GEO_CACHE_KEY = "geography:canonical-catalog:v1";
+  const GEO_CACHE_SCHEMA_VERSION = 1;
+  const GEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+  const GEO_CACHE_STALE_MAX_MS = 365 * 24 * 60 * 60 * 1000;
+
   let catalog = { regions: [], cities: [], districts: [] };
   let catalogPromise = null;
+  let networkRefreshPromise = null;
+  let lastLoadStatus = { source: "empty", stale: false, updatedAt: null };
   let searchIndex = { region: new Map(), city: new Map(), district: new Map() };
+  let relationIndex = {
+    regionById: new Map(),
+    cityById: new Map(),
+    districtById: new Map(),
+    citiesByRegion: new Map(),
+    districtsByCity: new Map()
+  };
 
   function normalizeValue(value) {
     return String(value || "").trim().replace(/\s+/g, " ");
@@ -32,17 +46,56 @@
     return normalizeSearch(value).split(" ").filter(Boolean);
   }
 
-  function buildSearchIndex() {
-    const build = rows => new Map(rows.map(row => [String(row.id), {
+  function buildIndexes() {
+    const buildSearch = rows => new Map(rows.map(row => [String(row.id), {
       key: normalizeSearch(row.name),
       tokens: tokenizeSearch(row.name)
     }]));
-    searchIndex = {
-      region: build(catalog.regions),
-      city: build(catalog.cities),
-      district: build(catalog.districts)
+    const groupBy = (rows, field) => {
+      const result = new Map();
+      rows.forEach(row => {
+        const key = String(row?.[field] || "");
+        if (!key) return;
+        if (!result.has(key)) result.set(key, []);
+        result.get(key).push(row);
+      });
+      return result;
     };
-    return searchIndex;
+
+    searchIndex = {
+      region: buildSearch(catalog.regions),
+      city: buildSearch(catalog.cities),
+      district: buildSearch(catalog.districts)
+    };
+    relationIndex = {
+      regionById: new Map(catalog.regions.map(row => [String(row.id), row])),
+      cityById: new Map(catalog.cities.map(row => [String(row.id), row])),
+      districtById: new Map(catalog.districts.map(row => [String(row.id), row])),
+      citiesByRegion: groupBy(catalog.cities, "region_id"),
+      districtsByCity: groupBy(catalog.districts, "city_id")
+    };
+    return { searchIndex, relationIndex };
+  }
+
+  function hasCompleteCatalog(value = catalog) {
+    return Boolean(
+      Array.isArray(value?.regions) && value.regions.length
+      && Array.isArray(value?.cities) && value.cities.length
+      && Array.isArray(value?.districts) && value.districts.length
+    );
+  }
+
+  function applyCatalog(next = {}, source = "runtime") {
+    catalog = {
+      regions: Array.isArray(next.regions) ? next.regions.filter(row => row?.is_active !== false) : [],
+      cities: Array.isArray(next.cities) ? next.cities.filter(row => row?.is_active !== false) : [],
+      districts: Array.isArray(next.districts || next.neighborhoods)
+        ? (next.districts || next.neighborhoods).filter(row => row?.is_active !== false)
+        : []
+    };
+    buildIndexes();
+    lastLoadStatus = { ...lastLoadStatus, source };
+    return catalog;
   }
 
   function scoreSearch(type, row, query) {
@@ -79,33 +132,132 @@
     return rows;
   }
 
-  async function loadCatalog(force = false) {
-    if (!force && catalog.regions.length && catalog.cities.length && catalog.districts.length) return catalog;
-    if (!force && catalogPromise) return catalogPromise;
-    catalogPromise = Promise.all([
-      fetchAll("installation_regions", "id,name,is_active,national_address_region_id"),
-      fetchAll("installation_cities", "id,region_id,name,is_active,national_address_city_id"),
-      fetchAll("installation_neighborhoods", "id,region_id,city_id,name,city,region,is_active,national_address_district_id")
-    ]).then(([regions, cities, districts]) => {
-      catalog = { regions, cities, districts };
-      buildSearchIndex();
+  async function currentNamespace() {
+    const localId = window.KYUMOfflineSessionStore?.currentUserId?.();
+    if (localId) return `user:${localId}`;
+    try {
+      const result = await window.customerSupabase?.auth?.getUser?.();
+      return `user:${result?.data?.user?.id || "anonymous"}`;
+    } catch (_) {
+      return "user:anonymous";
+    }
+  }
+
+  async function readPersistentCatalog(namespace) {
+    if (!window.KYUMSmartCache) return null;
+    const cached = await window.KYUMSmartCache.get(GEO_CACHE_KEY, {
+      namespace,
+      allowStale: true,
+      allowStaleAnyAge: true,
+      staleMaxMs: GEO_CACHE_STALE_MAX_MS
+    });
+    return cached?.hit && hasCompleteCatalog(cached.data) ? cached : null;
+  }
+
+  async function persistCatalog(data, namespace) {
+    if (!window.KYUMSmartCache || !hasCompleteCatalog(data)) return null;
+    return window.KYUMSmartCache.set(GEO_CACHE_KEY, data, {
+      namespace,
+      ttlMs: GEO_CACHE_TTL_MS,
+      staleMaxMs: GEO_CACHE_STALE_MAX_MS,
+      source: "supabase",
+      schemaVersion: GEO_CACHE_SCHEMA_VERSION
+    });
+  }
+
+  async function refreshCatalogFromNetwork(namespace, previousData = null) {
+    if (networkRefreshPromise) return networkRefreshPromise;
+    networkRefreshPromise = (async () => {
+      const [regions, cities, districts] = await Promise.all([
+        fetchAll("installation_regions", "id,name,is_active,national_address_region_id"),
+        fetchAll("installation_cities", "id,region_id,name,is_active,national_address_city_id"),
+        fetchAll("installation_neighborhoods", "id,region_id,city_id,name,city,region,is_active,national_address_district_id")
+      ]);
+      const next = { regions, cities, districts };
+      applyCatalog(next, "network");
+      const persisted = await persistCatalog(next, namespace);
+      lastLoadStatus = { source: "network", stale: false, updatedAt: persisted?.updatedAt || Date.now() };
+      if (previousData && window.KYUMSmartCache?.hashValue(previousData) !== window.KYUMSmartCache?.hashValue(next)) {
+        window.dispatchEvent(new CustomEvent("kyum-geography-cache-updated", {
+          detail: { catalog: next, source: "network-refresh", updatedAt: Date.now() }
+        }));
+      }
       return catalog;
-    }).finally(() => {
+    })().finally(() => {
+      networkRefreshPromise = null;
+    });
+    return networkRefreshPromise;
+  }
+
+  async function loadCatalog(force = false) {
+    if (!force && hasCompleteCatalog()) return catalog;
+    if (catalogPromise) return catalogPromise;
+
+    catalogPromise = (async () => {
+      const namespace = await currentNamespace();
+      let persistent = null;
+
+      if (!force) {
+        persistent = await readPersistentCatalog(namespace);
+        if (persistent) {
+          applyCatalog(persistent.data, "persistent-cache");
+          lastLoadStatus = {
+            source: "persistent-cache",
+            stale: Boolean(persistent.stale),
+            updatedAt: persistent.metadata?.updatedAt || null
+          };
+          if (window.customerSupabase && navigator.onLine !== false) {
+            refreshCatalogFromNetwork(namespace, persistent.data).catch(error => {
+              console.warn("KYUM Geography background refresh skipped:", error);
+            });
+          }
+          return catalog;
+        }
+      }
+
+      try {
+        return await refreshCatalogFromNetwork(namespace);
+      } catch (error) {
+        persistent = persistent || await readPersistentCatalog(namespace);
+        if (persistent) {
+          applyCatalog(persistent.data, "persistent-cache-fallback");
+          lastLoadStatus = {
+            source: "persistent-cache-fallback",
+            stale: true,
+            updatedAt: persistent.metadata?.updatedAt || null
+          };
+          return catalog;
+        }
+        if (hasCompleteCatalog()) return catalog;
+        throw error;
+      }
+    })().finally(() => {
       catalogPromise = null;
     });
+
     return catalogPromise;
   }
 
   function setCatalog(next = {}) {
-    catalog = {
-      regions: Array.isArray(next.regions) ? next.regions.filter(row => row?.is_active !== false) : catalog.regions,
-      cities: Array.isArray(next.cities) ? next.cities.filter(row => row?.is_active !== false) : catalog.cities,
+    const merged = {
+      regions: Array.isArray(next.regions) ? next.regions : catalog.regions,
+      cities: Array.isArray(next.cities) ? next.cities : catalog.cities,
       districts: Array.isArray(next.districts || next.neighborhoods)
-        ? (next.districts || next.neighborhoods).filter(row => row?.is_active !== false)
+        ? (next.districts || next.neighborhoods)
         : catalog.districts
     };
-    buildSearchIndex();
-    return catalog;
+    return applyCatalog(merged, "runtime-sync");
+  }
+
+  function getCacheStatus() {
+    return {
+      ...lastLoadStatus,
+      inMemory: hasCompleteCatalog(),
+      regions: catalog.regions.length,
+      cities: catalog.cities.length,
+      districts: catalog.districts.length,
+      networkRefreshInFlight: Boolean(networkRefreshPromise)
+    };
   }
 
   function getCatalog() {
@@ -125,17 +277,17 @@
 
   function canonicalizeAddress(address = {}) {
     let region = address.regionId
-      ? catalog.regions.find(row => String(row.id) === String(address.regionId))
+      ? relationIndex.regionById.get(String(address.regionId)) || null
       : findByName("region", address.region);
     let city = address.cityId
-      ? catalog.cities.find(row => String(row.id) === String(address.cityId))
+      ? relationIndex.cityById.get(String(address.cityId)) || null
       : findByName("city", address.city, region?.id || "");
     let district = address.districtId
-      ? catalog.districts.find(row => String(row.id) === String(address.districtId))
+      ? relationIndex.districtById.get(String(address.districtId)) || null
       : findByName("district", address.district, city?.id || "");
 
-    if (!city && district) city = catalog.cities.find(row => String(row.id) === String(district.city_id)) || null;
-    if (!region && city) region = catalog.regions.find(row => String(row.id) === String(city.region_id)) || null;
+    if (!city && district) city = relationIndex.cityById.get(String(district.city_id)) || null;
+    if (!region && city) region = relationIndex.regionById.get(String(city.region_id)) || null;
     if (district && city && String(district.city_id) !== String(city.id)) district = null;
     if (city && region && String(city.region_id) !== String(region.id)) city = null;
 
@@ -172,8 +324,8 @@
       const regionId = elements("region").hidden?.value || "";
       const cityId = elements("city").hidden?.value || "";
       if (type === "region") return catalog.regions;
-      if (type === "city") return regionId ? catalog.cities.filter(row => String(row.region_id) === String(regionId)) : [];
-      return cityId ? catalog.districts.filter(row => String(row.city_id) === String(cityId)) : [];
+      if (type === "city") return regionId ? (relationIndex.citiesByRegion.get(String(regionId)) || []) : [];
+      return cityId ? (relationIndex.districtsByCity.get(String(cityId)) || []) : [];
     };
 
     const close = type => {
@@ -245,8 +397,8 @@
       const { cascade = true, closeAfter = true } = options;
       const { hidden, search } = elements(type);
       if (!hidden || !search) return null;
-      const source = type === "region" ? catalog.regions : type === "city" ? catalog.cities : catalog.districts;
-      const row = source.find(item => String(item.id) === String(id || "")) || null;
+      const index = type === "region" ? relationIndex.regionById : type === "city" ? relationIndex.cityById : relationIndex.districtById;
+      const row = index.get(String(id || "")) || null;
       hidden.value = row ? String(row.id) : "";
       search.value = row ? normalizeValue(row.name) : "";
       search.dataset.selectedId = row ? String(row.id) : "";
@@ -378,6 +530,7 @@
     loadCatalog,
     setCatalog,
     getCatalog,
+    getCacheStatus,
     findByName,
     canonicalizeAddress,
     createController
