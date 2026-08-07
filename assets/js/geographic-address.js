@@ -276,20 +276,35 @@
   }
 
   function canonicalizeAddress(address = {}) {
-    let region = address.regionId
-      ? relationIndex.regionById.get(String(address.regionId)) || null
+    const requestedRegionId = normalizeValue(address.regionId);
+    const requestedCityId = normalizeValue(address.cityId);
+    const requestedDistrictId = normalizeValue(address.districtId);
+    let region = requestedRegionId
+      ? relationIndex.regionById.get(String(requestedRegionId)) || null
       : findByName("region", address.region);
-    let city = address.cityId
-      ? relationIndex.cityById.get(String(address.cityId)) || null
+    let city = requestedCityId
+      ? relationIndex.cityById.get(String(requestedCityId)) || null
       : findByName("city", address.city, region?.id || "");
-    let district = address.districtId
-      ? relationIndex.districtById.get(String(address.districtId)) || null
+    let district = requestedDistrictId
+      ? relationIndex.districtById.get(String(requestedDistrictId)) || null
       : findByName("district", address.district, city?.id || "");
 
-    if (!city && district) city = relationIndex.cityById.get(String(district.city_id)) || null;
-    if (!region && city) region = relationIndex.regionById.get(String(city.region_id)) || null;
-    if (district && city && String(district.city_id) !== String(city.id)) district = null;
-    if (city && region && String(city.region_id) !== String(region.id)) city = null;
+    const requestedMissing = {
+      region: Boolean(requestedRegionId && !region),
+      city: Boolean(requestedCityId && !city),
+      district: Boolean(requestedDistrictId && !district)
+    };
+    const cityRegionMismatch = Boolean(city && region && String(city.region_id) !== String(region.id));
+    const districtCityMismatch = Boolean(district && city && String(district.city_id) !== String(city.id));
+    const districtRegionMismatch = Boolean(district && region && district.region_id && String(district.region_id) !== String(region.id));
+
+    // Infer missing parents only when the child itself resolves to an active canonical row.
+    if (!city && district && !requestedCityId) city = relationIndex.cityById.get(String(district.city_id)) || null;
+    if (!region && city && !requestedRegionId) region = relationIndex.regionById.get(String(city.region_id)) || null;
+
+    const validRegionCity = Boolean(region && city && String(city.region_id) === String(region.id));
+    const validDistrictCity = Boolean(city && district && String(district.city_id) === String(city.id));
+    const validDistrictRegion = Boolean(!district?.region_id || (region && String(district.region_id) === String(region.id)));
 
     return {
       regionId: region?.id || "",
@@ -298,10 +313,29 @@
       city: city?.name || normalizeValue(address.city),
       districtId: district?.id || "",
       district: district?.name || normalizeValue(address.district),
-      complete: Boolean(region && city && district),
-      validRegionCity: Boolean(region && city && String(city.region_id) === String(region.id)),
-      validDistrictCity: Boolean(city && district && String(district.city_id) === String(city.id))
+      complete: Boolean(region && city && district && validRegionCity && validDistrictCity && validDistrictRegion),
+      validRegionCity,
+      validDistrictCity,
+      validDistrictRegion,
+      requestedMissing,
+      cityRegionMismatch,
+      districtCityMismatch,
+      districtRegionMismatch
     };
+  }
+
+  function validateCanonicalAddress(address = {}, { requireRegion = true, requireCity = true, requireDistrict = true } = {}) {
+    const current = canonicalizeAddress(address);
+    if (current.requestedMissing.region) return { valid: false, field: "region", code: "REGION_NOT_ACTIVE", message: "المنطقة المختارة غير موجودة أو غير نشطة." };
+    if (current.requestedMissing.city) return { valid: false, field: "city", code: "CITY_NOT_ACTIVE", message: "المدينة المختارة غير موجودة أو غير نشطة." };
+    if (current.requestedMissing.district) return { valid: false, field: "district", code: "DISTRICT_NOT_ACTIVE", message: "الحي المختار غير موجود أو غير نشط." };
+    if (requireRegion && !current.regionId) return { valid: false, field: "region", code: "REGION_REQUIRED", message: "اختر المنطقة." };
+    if (requireCity && !current.cityId) return { valid: false, field: "city", code: "CITY_REQUIRED", message: "اختر المدينة." };
+    if (requireDistrict && !current.districtId) return { valid: false, field: "district", code: "DISTRICT_REQUIRED", message: "اختر الحي." };
+    if (current.cityRegionMismatch || (current.cityId && !current.validRegionCity)) return { valid: false, field: "city", code: "CITY_REGION_MISMATCH", message: "المدينة لا تتبع المنطقة المختارة." };
+    if (current.districtCityMismatch || (current.districtId && !current.validDistrictCity)) return { valid: false, field: "district", code: "DISTRICT_CITY_MISMATCH", message: "الحي لا يتبع المدينة المختارة." };
+    if (current.districtRegionMismatch || (current.districtId && !current.validDistrictRegion)) return { valid: false, field: "district", code: "DISTRICT_REGION_MISMATCH", message: "الحي لا يتبع المنطقة المختارة." };
+    return { valid: true, value: current };
   }
 
   function createController(config) {
@@ -435,15 +469,12 @@
       return resolved;
     };
 
-    const validate = ({ requireRegion = true, requireCity = true, requireDistrict = true } = {}) => {
-      const current = value();
-      if (requireRegion && !current.regionId) return { valid: false, field: "region", message: "اختر المنطقة." };
-      if (requireCity && !current.cityId) return { valid: false, field: "city", message: "اختر المدينة." };
-      if (requireDistrict && !current.districtId) return { valid: false, field: "district", message: "اختر الحي." };
-      if (current.cityId && !current.validRegionCity) return { valid: false, field: "city", message: "المدينة لا تتبع المنطقة المختارة." };
-      if (current.districtId && !current.validDistrictCity) return { valid: false, field: "district", message: "الحي لا يتبع المدينة المختارة." };
-      return { valid: true, value: current };
-    };
+    const validate = ({ requireRegion = true, requireCity = true, requireDistrict = true } = {}) =>
+      validateCanonicalAddress({
+        regionId: elements("region").hidden?.value || "",
+        cityId: elements("city").hidden?.value || "",
+        districtId: elements("district").hidden?.value || ""
+      }, { requireRegion, requireCity, requireDistrict });
 
     const bind = () => {
       ["region", "city", "district"].forEach(type => {
@@ -533,6 +564,7 @@
     getCacheStatus,
     findByName,
     canonicalizeAddress,
+    validateCanonicalAddress,
     createController
   });
 })();

@@ -360,6 +360,18 @@
     );
   }
 
+  async function validateCustomerGeography(record = {}) {
+    const values = [record.region, record.city, record.district].map(value => String(value || "").trim());
+    if (!values.some(Boolean)) return { region: "", city: "", district: "" };
+    if (!window.KYUMGeography) throw new Error("مكوّن العنوان الجغرافي غير متاح؛ أعد تحميل التطبيق قبل حفظ عنوان العميل.");
+    await window.KYUMGeography.loadCatalog(false);
+    const validation = window.KYUMGeography.validateCanonicalAddress({ region: values[0], city: values[1], district: values[2] }, {
+      requireRegion: true, requireCity: true, requireDistrict: true
+    });
+    if (!validation.valid) throw new Error(validation.message);
+    return validation.value;
+  }
+
   async function saveCustomerOnline(record, context = {}) {
     requirePermission("customers", record?.id ? "edit" : "add");
     let userId = context.userId || null;
@@ -369,6 +381,8 @@
       userId = userData.user?.id || null;
     }
 
+    const canonicalGeo = await validateCustomerGeography(record);
+
     const payload = {
       customer_name: record.name.trim(),
       customer_type: record.type,
@@ -376,9 +390,9 @@
         ? (record.contactPersonName?.trim() || null)
         : null,
       phone: record.phone,
-      region: record.region?.trim() || null,
-      city: record.city?.trim() || null,
-      district: record.district?.trim() || null,
+      region: canonicalGeo.region || null,
+      city: canonicalGeo.city || null,
+      district: canonicalGeo.district || null,
       representative_id: record.representativeId || null,
       last_contact_date: record.contactDate || null,
       quotation_number: record.quotationNumber?.trim() || null,

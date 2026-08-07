@@ -34,13 +34,29 @@
     });
     return result;
   }
+  async function validateNeighborhoodIntegrity(neighborhoodId){
+    if(!neighborhoodId)throw new Error('اختر الحي الخاص بطلب التركيب.');
+    const {data:neighborhood,error:neighborhoodError}=await db().from('installation_neighborhoods').select('id,region_id,city_id,name,is_active').eq('id',neighborhoodId).eq('is_active',true).maybeSingle();
+    if(neighborhoodError||!neighborhood)throw new Error('الحي المختار غير موجود أو غير نشط.');
+    if(!neighborhood.region_id||!neighborhood.city_id)throw new Error('بيانات الحي غير مكتملة: يجب ربط الحي بمنطقة ومدينة معتمدتين.');
+    const [{data:city,error:cityError},{data:region,error:regionError}]=await Promise.all([
+      db().from('installation_cities').select('id,region_id,name,is_active').eq('id',neighborhood.city_id).eq('is_active',true).maybeSingle(),
+      db().from('installation_regions').select('id,name,is_active').eq('id',neighborhood.region_id).eq('is_active',true).maybeSingle()
+    ]);
+    if(cityError||!city)throw new Error('مدينة الحي المختار غير موجودة أو غير نشطة.');
+    if(regionError||!region)throw new Error('منطقة الحي المختار غير موجودة أو غير نشطة.');
+    if(String(city.region_id)!==String(region.id))throw new Error('سلامة العنوان مرفوضة: المدينة لا تتبع المنطقة المرتبطة بالحي.');
+    if(String(neighborhood.city_id)!==String(city.id)||String(neighborhood.region_id)!==String(region.id))throw new Error('سلامة العنوان مرفوضة: الحي لا يتبع المدينة والمنطقة المعتمدتين.');
+    return {neighborhood,city,region};
+  }
   function normalizeGoogleMapsUrl(value){const url=String(value||'').trim();if(!url)return '';let parsed;try{parsed=new URL(url)}catch(_){throw new Error('رابط موقع العميل غير صحيح. استخدم رابط مشاركة من Google Maps.')}const host=parsed.hostname.toLowerCase();const valid=(host==='maps.app.goo.gl'||host==='maps.google.com'||host==='www.google.com'||host==='google.com'||host==='goo.gl')&&(host!=='goo.gl'||parsed.pathname.toLowerCase().startsWith('/maps'));if(parsed.protocol!=='https:'||!valid)throw new Error('استخدم رابط Google Maps آمن يبدأ بـ https.');return parsed.toString()}
-  async function createRequest(payload){requireAction('add','installationRequestNew');if(!payload.customerId)throw new Error('اختر العميل.');if(payload.quotationId){const {data:quotation,error:quotationError}=await db().from('quotations').select('id,customer_id,status,installation_request_id').eq('id',payload.quotationId).maybeSingle();if(quotationError)throw new Error('تعذر التحقق من عرض السعر: '+quotationError.message);if(!quotation||quotation.customer_id!==payload.customerId)throw new Error('عرض السعر لا يخص العميل المحدد.');if(quotation.status!=='مقبول')throw new Error('لا يمكن إنشاء طلب تركيب إلا من عرض سعر مقبول.');if(quotation.installation_request_id)throw new Error('تم إنشاء طلب تركيب لهذا العرض بالفعل.');}if(!payload.neighborhoodId)throw new Error('اختر العنوان.');if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');const {data,error}=await db().rpc('create_installation_request_with_services',{p_customer_id:payload.customerId,p_quotation_id:payload.quotationId||null,p_representative_id:payload.representativeId||null,p_neighborhood_id:payload.neighborhoodId,p_priority:payload.priority||'عادية',p_installation_address:payload.installationAddress||null,p_customer_order_number:payload.customerOrderNumber||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:payload.notes||null,p_services:services});if(error)throw new Error('تعذر إنشاء طلب التركيب: '+error.message);return Array.isArray(data)?data[0]:data}
+  async function createRequest(payload){requireAction('add','installationRequestNew');if(!payload.customerId)throw new Error('اختر العميل.');if(payload.quotationId){const {data:quotation,error:quotationError}=await db().from('quotations').select('id,customer_id,status,installation_request_id').eq('id',payload.quotationId).maybeSingle();if(quotationError)throw new Error('تعذر التحقق من عرض السعر: '+quotationError.message);if(!quotation||quotation.customer_id!==payload.customerId)throw new Error('عرض السعر لا يخص العميل المحدد.');if(quotation.status!=='مقبول')throw new Error('لا يمكن إنشاء طلب تركيب إلا من عرض سعر مقبول.');if(quotation.installation_request_id)throw new Error('تم إنشاء طلب تركيب لهذا العرض بالفعل.');}const geo=await validateNeighborhoodIntegrity(payload.neighborhoodId);if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');const {data,error}=await db().rpc('create_installation_request_with_services',{p_customer_id:payload.customerId,p_quotation_id:payload.quotationId||null,p_representative_id:payload.representativeId||null,p_neighborhood_id:geo.neighborhood.id,p_priority:payload.priority||'عادية',p_installation_address:geo.neighborhood.name||payload.installationAddress||null,p_customer_order_number:payload.customerOrderNumber||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:payload.notes||null,p_services:services});if(error)throw new Error('تعذر إنشاء طلب التركيب: '+error.message);return Array.isArray(data)?data[0]:data}
   async function updateRequest(payload){
     requireAction('edit','installationRequests');
     if(!payload.id)throw new Error('معرّف طلب التركيب مطلوب.');
     if(!payload.customerId)throw new Error('اختر العميل.');
     if(!payload.neighborhoodId)throw new Error('اختر العنوان.');
+    const geo=await validateNeighborhoodIntegrity(payload.neighborhoodId);
     if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');
     const services=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));
     if(services.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');
@@ -49,9 +65,9 @@
       p_customer_id:payload.customerId,
       p_quotation_id:payload.quotationId||null,
       p_representative_id:payload.representativeId||null,
-      p_neighborhood_id:payload.neighborhoodId,
+      p_neighborhood_id:geo.neighborhood.id,
       p_priority:payload.priority||'عادية',
-      p_installation_address:payload.installationAddress||null,
+      p_installation_address:geo.neighborhood.name||payload.installationAddress||null,
       p_customer_order_number:payload.customerOrderNumber||null,
       p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,
       p_notes:payload.notes||null,
@@ -111,6 +127,7 @@
     if(!canRequests&&!canSchedule)throw new Error('ليس لديك صلاحية تعديل طلبات التركيبات.');
     if(!requestId)throw new Error('معرّف طلب التركيب مطلوب.');
     if(!payload.neighborhoodId)throw new Error('اختر الحي الخاص بطلب التركيب.');
+    const geo=await validateNeighborhoodIntegrity(payload.neighborhoodId);
     if(!Array.isArray(payload.services)||!payload.services.length)throw new Error('أضف خدمة واحدة على الأقل.');
     const normalized=payload.services.map(x=>({service_type_id:x.serviceTypeId,quantity:Number(x.quantity),unit_price:Number(x.unitPrice)}));
     if(normalized.some(x=>!x.service_type_id||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unit_price)||x.unit_price<0))throw new Error('راجع نوع الخدمة والعدد والسعر في جميع الخدمات.');
@@ -125,7 +142,7 @@
       if(quotation.installation_request_id&&String(quotation.installation_request_id)!==String(requestId))throw new Error('عرض السعر مرتبط بطلب تركيب آخر بالفعل.');
     }
     const {data,error}=await db().rpc('update_installation_request_with_services',{
-      p_request_id:row.id,p_customer_id:row.customer_id,p_quotation_id:quotationId,p_representative_id:row.representative_id||null,p_neighborhood_id:payload.neighborhoodId,p_priority:row.priority||'عادية',p_installation_address:row.installation_address||null,p_customer_order_number:String(payload.customerOrderNumber||'').trim()||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:row.notes||null,p_services:normalized
+      p_request_id:row.id,p_customer_id:row.customer_id,p_quotation_id:quotationId,p_representative_id:row.representative_id||null,p_neighborhood_id:geo.neighborhood.id,p_priority:row.priority||'عادية',p_installation_address:geo.neighborhood.name||row.installation_address||null,p_customer_order_number:String(payload.customerOrderNumber||'').trim()||null,p_customer_map_url:normalizeGoogleMapsUrl(payload.customerMapUrl)||null,p_notes:row.notes||null,p_services:normalized
     });
     if(error)throw new Error('تعذر حفظ بيانات وخدمات طلب التركيب: '+error.message);
     return Array.isArray(data)?data[0]:data;

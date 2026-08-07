@@ -1,13 +1,13 @@
 {
-  "version": "18.53.4",
-  "build": 185304,
+  "version": "18.53.5",
+  "build": 185305,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Geographic Cache & Performance",
+  "title": "Geographic Validation & Data Integrity",
   "notes": [
-    "تخزين كتالوج المناطق والمدن والأحياء في Smart Cache مع دعم التشغيل دون اتصال باستخدام آخر نسخة سليمة",
-    "إعادة استخدام طلب تحميل واحد وتحديث الخلفية بدل إعادة الاستعلام عند فتح كل شاشة",
-    "إضافة فهارس Runtime للعلاقات Region→City وCity→District لتقليل عمليات الفلترة المتكررة"
+    "إضافة تحقق مركزي صارم لعلاقات المنطقة والمدينة والحي ومنع أي تسلسل جغرافي غير متطابق قبل الحفظ",
+    "إضافة تحقق Service-side لطلبات التركيبات يرفض الحي أو المدينة أو المنطقة غير النشطة أو غير المترابطة حتى عند تجاوز الواجهة",
+    "توحيد حفظ عناوين العملاء على القيم Canonical والتحقق منها قبل الكتابة مع استمرار السماح بالعنوان الفارغ للعملاء القدامى"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-4-geographic-cache-performance"
+  "cacheToken": "kyum-crm-pwa-18-53-5-geographic-validation-integrity"
 }
