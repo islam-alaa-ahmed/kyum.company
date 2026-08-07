@@ -1036,46 +1036,36 @@ function geoLabel(type,row){return normalizeGeoValue(row?.name||row?.label||'')}
 function resetGeoOptionsPosition(options){
   if(!options)return;
   options.classList.remove('is-positioned','opens-upward');
-  options.style.removeProperty('top');
-  options.style.removeProperty('bottom');
-  options.style.removeProperty('left');
-  options.style.removeProperty('right');
-  options.style.removeProperty('width');
   options.style.removeProperty('max-height');
 }
 function positionGeoOptions(type){
   const {search,options}=geoElements(type);
   const dialog=document.getElementById('customerDialog');
-  if(!search||!options||!dialog||window.matchMedia('(max-width: 767px)').matches){resetGeoOptionsPosition(options);return}
+  if(!search||!options||!dialog){return}
+  if(window.matchMedia('(max-width: 767px)').matches){
+    resetGeoOptionsPosition(options);
+    return;
+  }
   const inputRect=search.getBoundingClientRect();
   const dialogRect=dialog.getBoundingClientRect();
   const viewportHeight=window.innerHeight||document.documentElement.clientHeight;
-  const viewportWidth=window.innerWidth||document.documentElement.clientWidth;
-  const safeTop=Math.max(12,dialogRect.top+12);
-  const safeBottom=Math.min(viewportHeight-12,dialogRect.bottom-12);
+  const safeTop=Math.max(12,dialogRect.top+16);
+  const safeBottom=Math.min(viewportHeight-12,dialogRect.bottom-16);
   const gap=8;
-  const minListHeight=150;
+  const minUsefulHeight=160;
   const preferredHeight=280;
   const below=Math.max(0,safeBottom-inputRect.bottom-gap);
   const above=Math.max(0,inputRect.top-safeTop-gap);
-  const opensUpward=below<minListHeight&&above>below;
+  const opensUpward=below<minUsefulHeight&&above>below;
   const available=opensUpward?above:below;
-  const maxHeight=Math.max(120,Math.min(preferredHeight,available));
-  const width=Math.min(inputRect.width,viewportWidth-24);
-  const left=Math.max(12,Math.min(inputRect.left,viewportWidth-width-12));
+  const maxHeight=Math.max(132,Math.min(preferredHeight,available||preferredHeight));
+
+  // Keep the popup anchored to the combobox itself.  A fixed popup inside a
+  // top-layer <dialog> can be resolved against a different containing block in
+  // Chromium, which produced the oversized blank panel seen in the customer form.
   options.classList.add('is-positioned');
   options.classList.toggle('opens-upward',opensUpward);
-  options.style.left=`${Math.round(left)}px`;
-  options.style.right='auto';
-  options.style.width=`${Math.round(width)}px`;
   options.style.maxHeight=`${Math.round(maxHeight)}px`;
-  if(opensUpward){
-    options.style.top='auto';
-    options.style.bottom=`${Math.round(viewportHeight-inputRect.top+gap)}px`;
-  }else{
-    options.style.bottom='auto';
-    options.style.top=`${Math.round(inputRect.bottom+gap)}px`;
-  }
 }
 function closeGeoOptions(type){const {wrapper,search,options}=geoElements(type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden');resetGeoOptionsPosition(options)}
 function closeAllGeoOptions(except=''){['region','city','district'].forEach(type=>{if(type!==except)closeGeoOptions(type)})}

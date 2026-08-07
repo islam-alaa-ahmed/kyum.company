@@ -1,14 +1,13 @@
 {
-  "version": "18.52.3",
-  "build": 185203,
+  "version": "18.52.4",
+  "build": 185204,
   "forceUpdate": true,
-  "releaseDate": "2026-08-06",
-  "title": "Customer Geographic Dropdown Overlay and Layout Hotfix",
+  "releaseDate": "2026-08-07",
+  "title": "Customer Geographic Dropdown Anchor and Rendering Hotfix",
   "notes": [
-    "تثبيت قوائم المنطقة والمدينة والحي داخل حدود نافذة العميل",
-    "فتح القائمة لأعلى أو لأسفل تلقائيًا حسب المساحة المتاحة",
-    "إضافة ارتفاع آمن وتمرير داخلي مستقل ومنع تغطية الحقول والأزرار",
-    "إغلاق القوائم عند تمرير النافذة أو تغيير حجم الشاشة أو إغلاق النافذة"
+    "إصلاح تموضع قوائم المنطقة والمدينة والحي داخل نفس عرض الحقل بدون خروج خارج نافذة العميل",
+    "إصلاح ظهور بيانات القوائم داخل منطقة العرض مع Scroll داخلي واضح",
+    "الحفاظ على البحث والربط الديناميكي المنطقة ثم المدينة ثم الحي"
   ],
-  "cacheToken": "kyum-crm-pwa-18-52-3-customer-geographic-dropdown-overlay-layout-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-52-4-customer-geographic-dropdown-anchor-rendering-hotfix"
 }
