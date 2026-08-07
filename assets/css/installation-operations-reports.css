@@ -101,3 +101,19 @@
 .installation-service-ranking-empty{padding:12px;text-align:center;color:var(--text-muted);font-size:.82rem}
 @media(max-width:1250px){.installation-service-day-nav{grid-column:1/-1}.installation-service-analytics-filters>label{grid-column:span 3}.installation-service-analytics-filters>label:nth-of-type(4),.installation-service-team-filter{grid-column:span 6}#resetInstallationServiceFilters{grid-column:span 3}.installation-service-analytics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-analytics-layout{grid-template-columns:1fr}.installation-service-rankings{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.installation-service-analytics-filters{grid-template-columns:1fr 1fr}.installation-service-day-nav,.installation-service-analytics-filters>label,.installation-service-analytics-filters>label:nth-of-type(4),.installation-service-team-filter,#resetInstallationServiceFilters{grid-column:auto}.installation-service-day-nav,.installation-service-team-filter{grid-column:1/-1}.installation-service-analytics-kpis,.installation-service-rankings{grid-template-columns:1fr}.installation-service-analytics-table th,.installation-service-analytics-table td{padding:10px 9px}}
+
+/* Phase S2 — Service Financial Analytics */
+.installation-service-financial-section{display:grid;gap:14px;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--border-color) 78%,transparent)}
+.installation-service-financial-head{padding-top:10px;margin-bottom:0}
+.installation-service-financial-head span{font-size:.82rem;color:var(--text-muted)}
+.installation-service-financial-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.installation-service-financial-kpis>.panel{min-height:96px;display:grid;align-content:center;gap:7px;padding:15px}
+.installation-service-financial-kpis span{color:var(--text-muted);font-size:.84rem}
+.installation-service-financial-kpis strong{font-size:1.16rem}
+.installation-service-financial-table-wrap{border:1px solid #b8c4d6;border-radius:14px;overflow:auto;background:var(--surface-color)}
+.installation-service-financial-table{min-width:1180px}
+.installation-service-financial-rankings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.installation-service-financial-rankings>.panel{padding:15px;display:grid;gap:12px}
+.installation-service-financial-rankings h4{margin:0;font-size:.98rem}
+@media(max-width:1000px){.installation-service-financial-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-financial-rankings{grid-template-columns:1fr}}
+@media(max-width:600px){.installation-service-financial-kpis{grid-template-columns:1fr}}
