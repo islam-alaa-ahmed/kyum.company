@@ -157,3 +157,24 @@
 .installation-service-period-comparison table{min-width:1580px}
 @media(max-width:1100px){.installation-service-geographic-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-geographic-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.installation-service-geographic-head{align-items:start;flex-direction:column}.installation-service-geographic-kpis{grid-template-columns:1fr}}
+
+
+/* Phase S4.1 — Service Analytics Filters & Visual Structure */
+.installation-service-analytics-panel{gap:20px}
+.installation-service-analytics-filters select:disabled{opacity:.58;cursor:not-allowed;background:color-mix(in srgb,var(--surface-color) 90%,var(--border-color) 10%)}
+.installation-service-section{position:relative;display:grid;gap:16px;padding:20px;border:1px solid color-mix(in srgb,var(--border-color) 82%,transparent);border-radius:20px;background:linear-gradient(180deg,color-mix(in srgb,var(--surface-color) 98%,var(--primary-color) 2%),var(--surface-color));box-shadow:0 10px 28px color-mix(in srgb,#0f172a 7%,transparent)}
+.installation-service-section+.installation-service-section{margin-top:6px}
+.installation-service-section-title{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:14px;border-bottom:2px solid color-mix(in srgb,var(--primary-color) 22%,var(--border-color));min-width:0}
+.installation-service-section-title>div{display:flex;align-items:center;gap:10px;min-width:0}
+.installation-service-section-title>div>span{display:grid;place-items:center;min-width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#16478f,#2563eb);color:#fff;font-size:.76rem;font-weight:900;box-shadow:0 5px 12px color-mix(in srgb,var(--primary-color) 24%,transparent)}
+.installation-service-section-title h3{margin:0;font-size:1.08rem}.installation-service-section-title p{margin:0;color:var(--text-muted);font-size:.84rem;line-height:1.5;text-align:end}
+.installation-service-overview-section .installation-service-analytics-kpis{order:1}.installation-service-overview-section .installation-service-analytics-layout{order:2}
+.installation-service-analytics-kpis>.panel,.installation-service-financial-kpis>.panel,.installation-service-operational-kpis>.panel,.installation-service-geographic-kpis>.panel{border-top:3px solid color-mix(in srgb,var(--primary-color) 65%,transparent);box-shadow:0 7px 18px color-mix(in srgb,#0f172a 6%,transparent)}
+.installation-service-analytics-kpis>.metric-profit{border-top-color:#10b981}.installation-service-analytics-kpis>.metric-highlight{border-top-color:#f59e0b}.installation-service-analytics-kpis>.metric-finance{border-top-color:#3b82f6}
+.installation-service-financial-section,.installation-service-operational-section,.installation-service-geographic-section{padding-top:20px;border-top:1px solid color-mix(in srgb,var(--border-color) 82%,transparent)}
+.installation-service-financial-head,.installation-service-operational-head,.installation-service-geographic-head{padding:0 2px 2px}
+.installation-service-financial-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.installation-service-operational-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.installation-service-geographic-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.installation-service-period-comparison{margin-top:4px;padding:18px;border:1px solid color-mix(in srgb,var(--primary-color) 20%,var(--border-color));background:color-mix(in srgb,var(--surface-color) 97%,var(--primary-color) 3%)}
+.installation-service-comparison-title{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:4px;border-bottom:1px dashed color-mix(in srgb,var(--primary-color) 28%,var(--border-color))}.installation-service-comparison-title>span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#0f4c9a;color:#fff;font-weight:900;font-size:.76rem}.installation-service-comparison-title h4,.installation-service-comparison-title p{margin:0}.installation-service-comparison-title p{margin-top:3px;color:var(--text-muted);font-size:.8rem}
+@media(max-width:900px){.installation-service-section{padding:15px}.installation-service-section-title{align-items:flex-start;display:grid}.installation-service-section-title p{text-align:start}.installation-service-operational-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.installation-service-section{padding:12px;border-radius:16px}.installation-service-financial-kpis,.installation-service-operational-kpis,.installation-service-geographic-kpis{grid-template-columns:1fr}}

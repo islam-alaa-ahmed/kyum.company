@@ -34,24 +34,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.15" />
-  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.15" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.16" />
+  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.16" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1595,18 +1595,20 @@
             </div>
             <button id="resetInstallationServiceFilters" class="secondary-btn" type="button">إعادة ضبط</button>
           </div>
-          <div class="installation-service-analytics-kpis">
-            <article class="panel"><span>الخدمات المختلفة</span><strong id="installationServiceKpiDistinct">0</strong></article>
-            <article class="panel"><span>مرات التنفيذ</span><strong id="installationServiceKpiExecutions">0</strong></article>
-            <article class="panel"><span>إجمالي الكمية</span><strong id="installationServiceKpiQuantity">0</strong></article>
-            <article class="panel"><span>إجمالي الإيراد</span><strong id="installationServiceKpiRevenue">SAR 0.00</strong></article>
-            <article class="panel"><span>إجمالي المصروف</span><strong id="installationServiceKpiExpenses">SAR 0.00</strong></article>
-            <article class="panel"><span>صافي الربح</span><strong id="installationServiceKpiProfit">SAR 0.00</strong></article>
-            <article class="panel service-leader-kpi"><span>أعلى خدمة ربحًا</span><strong id="installationServiceKpiTopProfit">—</strong><small id="installationServiceKpiTopProfitValue">SAR 0.00</small></article>
-            <article class="panel service-leader-kpi"><span>أكثر خدمة تنفيذًا</span><strong id="installationServiceKpiTopExecution">—</strong><small id="installationServiceKpiTopExecutionValue">0 مرة</small></article>
-          </div>
           <div id="installationServiceAnalyticsStatus" class="data-status hidden" aria-live="polite"></div>
-          <div class="installation-service-analytics-layout">
+          <section class="installation-service-section installation-service-overview-section" aria-labelledby="installationServiceOverviewTitle">
+            <div class="installation-service-section-title"><div><span>01</span><h3 id="installationServiceOverviewTitle">الملخص التنفيذي للخدمات</h3></div><p>حجم التنفيذ والقيمة والربحية وأهم الخدمات ضمن الفترة المحددة.</p></div>
+            <div class="installation-service-analytics-kpis">
+              <article class="panel metric-volume"><span>الخدمات المختلفة</span><strong id="installationServiceKpiDistinct">0</strong></article>
+              <article class="panel metric-volume"><span>مرات التنفيذ</span><strong id="installationServiceKpiExecutions">0</strong></article>
+              <article class="panel metric-volume"><span>إجمالي الكمية</span><strong id="installationServiceKpiQuantity">0</strong></article>
+              <article class="panel metric-finance"><span>إجمالي الإيراد</span><strong id="installationServiceKpiRevenue">SAR 0.00</strong></article>
+              <article class="panel metric-finance"><span>إجمالي المصروف</span><strong id="installationServiceKpiExpenses">SAR 0.00</strong></article>
+              <article class="panel metric-profit"><span>صافي الربح</span><strong id="installationServiceKpiProfit">SAR 0.00</strong></article>
+              <article class="panel service-leader-kpi metric-highlight"><span>أعلى خدمة ربحًا</span><strong id="installationServiceKpiTopProfit">—</strong><small id="installationServiceKpiTopProfitValue">SAR 0.00</small></article>
+              <article class="panel service-leader-kpi metric-highlight"><span>أكثر خدمة تنفيذًا</span><strong id="installationServiceKpiTopExecution">—</strong><small id="installationServiceKpiTopExecutionValue">0 مرة</small></article>
+            </div>
+            <div class="installation-service-analytics-layout">
             <section class="installation-service-analytics-main">
               <div class="installation-report-panel-head"><h3>ملخص الخدمات</h3><span id="installationServiceAnalyticsFilterLabel"></span></div>
               <div class="table-scroll installation-service-analytics-table-wrap"><table class="installation-service-analytics-table"><thead><tr><th>الخدمة</th><th>مرات التنفيذ</th><th>الكمية</th><th>الإيراد</th><th>المصروف</th><th>صافي الربح</th><th>هامش الربح</th><th>متوسط قيمة الوحدة</th></tr></thead><tbody id="installationServiceAnalyticsBody"></tbody></table></div>
@@ -1616,8 +1618,10 @@
               <section class="panel"><h4>أعلى الخدمات إيرادًا</h4><div id="installationServiceTopRevenueList" class="installation-service-ranking-list"></div></section>
               <section class="panel"><h4>الأكثر تنفيذًا</h4><div id="installationServiceTopExecutionList" class="installation-service-ranking-list"></div></section>
             </aside>
-          </div>
-          <section class="installation-service-financial-section" aria-labelledby="installationServiceFinancialTitle">
+            </div>
+          </section>
+          <section class="installation-service-section installation-service-financial-section" aria-labelledby="installationServiceFinancialTitle">
+            <div class="installation-service-section-title"><div><span>02</span><h3>التحليل المالي</h3></div><p>قياس الإيراد والتكلفة وصافي الربح وكفاءة كل خدمة ماليًا.</p></div>
             <div class="installation-report-panel-head installation-service-financial-head"><div><h3 id="installationServiceFinancialTitle">التحليل المالي للخدمات</h3><span id="installationServiceFinancialFilterLabel"></span></div></div>
             <div class="installation-service-financial-kpis">
               <article class="panel"><span>هامش الربح الإجمالي</span><strong id="installationServiceFinanceMargin">0%</strong></article>
@@ -1632,7 +1636,8 @@
               <section class="panel"><h4>أقل هامش ربح</h4><div id="installationServiceLowMarginList" class="installation-service-ranking-list"></div></section>
             </div>
           </section>
-          <section class="installation-service-operational-section" aria-labelledby="installationServiceOperationalTitle">
+          <section class="installation-service-section installation-service-operational-section" aria-labelledby="installationServiceOperationalTitle">
+            <div class="installation-service-section-title"><div><span>03</span><h3>التحليل التشغيلي</h3></div><p>قراءة أزمنة التنفيذ وكفاءة التشغيل ومقارنة أداء الفرق.</p></div>
             <div class="installation-report-panel-head installation-service-operational-head"><div><h3 id="installationServiceOperationalTitle">التحليل التشغيلي للخدمات</h3><span id="installationServiceOperationalFilterLabel"></span></div><small>المدد محسوبة من أوقات مراحل التنفيذ المسجلة فعليًا، ومتوسط الخدمة يعني متوسط الطلبات التي تتضمن هذه الخدمة.</small></div>
             <div class="installation-service-operational-kpis">
               <article class="panel"><span>طلبات ببيانات زمنية مكتملة</span><strong id="installationServiceOpsTimedOrders">0</strong></article>
@@ -1648,7 +1653,8 @@
               <section class="panel installation-service-team-ops"><h4>مقارنة تشغيلية حسب الفرقة</h4><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>الفرقة</th><th>خدمات مختلفة</th><th>مرات التنفيذ</th><th>عينات زمنية</th><th>متوسط مدة الطلب</th></tr></thead><tbody id="installationServiceTeamOpsBody"></tbody></table></div></section>
             </div>
           </section>
-          <section class="installation-service-geographic-section" aria-labelledby="installationServiceGeographicTitle">
+          <section class="installation-service-section installation-service-geographic-section" aria-labelledby="installationServiceGeographicTitle">
+            <div class="installation-service-section-title"><div><span>04</span><h3>التحليل الجغرافي</h3></div><p>توزيع الخدمات حسب المنطقة والمدينة والحي والمندوب.</p></div>
             <div class="installation-report-panel-head installation-service-geographic-head"><div><h3 id="installationServiceGeographicTitle">التحليل الجغرافي للخدمات</h3><span id="installationServiceGeographicFilterLabel"></span></div><small>يعتمد على المنطقة والمدينة والحي المرتبطين بطلب التركيب داخل البيانات الجغرافية الموحدة.</small></div>
             <div class="installation-service-geographic-kpis">
               <article class="panel"><span>المناطق النشطة في التقرير</span><strong id="installationServiceGeoRegions">0</strong></article>
@@ -1662,7 +1668,7 @@
               <section class="panel"><h4>الخدمات حسب الحي</h4><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>الحي</th><th>الخدمة</th><th>مرات التنفيذ</th><th>الكمية</th><th>الإيراد</th><th>صافي الربح</th><th>هامش الربح</th></tr></thead><tbody id="installationServiceDistrictBody"></tbody></table></div></section>
               <section class="panel"><h4>الخدمات حسب المندوب</h4><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>المندوب</th><th>الخدمة</th><th>مرات التنفيذ</th><th>الكمية</th><th>الإيراد</th><th>صافي الربح</th><th>هامش الربح</th></tr></thead><tbody id="installationServiceRepresentativeBody"></tbody></table></div></section>
             </div>
-            <section class="panel installation-service-period-comparison"><div class="installation-report-panel-head"><div><h4>مقارنة الخدمات مع اليوم السابق</h4><span id="installationServiceComparisonLabel"></span></div><small>المقارنة تستخدم نفس المندوب والفرق المختارة.</small></div><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>الخدمة</th><th>تنفيذ اليوم</th><th>تنفيذ السابق</th><th>التغير</th><th>كمية اليوم</th><th>كمية السابق</th><th>التغير</th><th>إيراد اليوم</th><th>إيراد السابق</th><th>التغير</th><th>ربح اليوم</th><th>ربح السابق</th><th>التغير</th></tr></thead><tbody id="installationServiceComparisonBody"></tbody></table></div></section>
+            <section class="panel installation-service-period-comparison"><div class="installation-service-comparison-title"><span>05</span><div><h4>مقارنة الفترات</h4><p>المقارنة تتغير تلقائيًا حسب مستوى التاريخ المختار: يوم/شهر/سنة.</p></div></div><div class="installation-report-panel-head"><div><h4>مقارنة الخدمات مع الفترة السابقة</h4><span id="installationServiceComparisonLabel"></span></div><small>المقارنة تستخدم نفس المندوب والفرق المختارة.</small></div><div class="table-scroll"><table class="installation-service-analytics-table"><thead><tr><th>الخدمة</th><th>تنفيذ اليوم</th><th>تنفيذ السابق</th><th>التغير</th><th>كمية اليوم</th><th>كمية السابق</th><th>التغير</th><th>إيراد اليوم</th><th>إيراد السابق</th><th>التغير</th><th>ربح اليوم</th><th>ربح السابق</th><th>التغير</th></tr></thead><tbody id="installationServiceComparisonBody"></tbody></table></div></section>
           </section>
         </section>
         <section class="panel installation-report-panel hidden" data-installation-report-panel="financial">
@@ -3318,10 +3324,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.53.15"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.53.15"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.53.15"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.53.15"></script>
+  <script src="assets/js/performance-monitor.js?v=18.53.16"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.53.16"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.53.16"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.53.16"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3667,59 +3673,59 @@
         </form>
       </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.53.15"></script>
-  <script src="assets/js/offline-session-store.js?v=18.53.15"></script>
-  <script src="assets/js/supabase-client.js?v=18.53.15"></script>
-  <script src="assets/js/geographic-address.js?v=18.53.15"></script>
-  <script src="assets/js/permissions.js?v=18.53.15"></script>
-  <script src="assets/js/permission-engine.js?v=18.53.15"></script>
-  <script src="assets/js/data-access-scope.js?v=18.53.15"></script>
-  <script src="assets/js/smart-cache.js?v=18.53.15"></script>
-  <script src="assets/js/sync-engine.js?v=18.53.15"></script>
-  <script src="assets/js/offline-queue.js?v=18.53.15"></script>
-  <script src="assets/js/permissions-service.js?v=18.53.15"></script>
-  <script src="assets/js/auth-session.js?v=18.53.15"></script>
-  <script src="assets/js/reference-data-service.js?v=18.53.15"></script>
-  <script src="assets/js/customers-service.js?v=18.53.15"></script>
-  <script src="assets/js/followups-service.js?v=18.53.15"></script>
-  <script src="assets/js/quotations-service.js?v=18.53.15"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.53.15"></script>
-  <script src="assets/js/users-service.js?v=18.53.15"></script>
-  <script src="assets/js/activity-service.js?v=18.53.15"></script>
-  <script src="assets/js/backup-service.js?v=18.53.15"></script>
-  <script src="assets/js/system-settings-service.js?v=18.53.15"></script>
-  <script src="assets/js/system-health-service.js?v=18.53.15"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.53.15"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.53.15"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.53.15"></script>
-  <script src="assets/js/installations-service.js?v=18.53.15"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.53.15"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.53.15"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.53.15"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.53.15"></script>
+  <script src="assets/js/supabase-config.js?v=18.53.16"></script>
+  <script src="assets/js/offline-session-store.js?v=18.53.16"></script>
+  <script src="assets/js/supabase-client.js?v=18.53.16"></script>
+  <script src="assets/js/geographic-address.js?v=18.53.16"></script>
+  <script src="assets/js/permissions.js?v=18.53.16"></script>
+  <script src="assets/js/permission-engine.js?v=18.53.16"></script>
+  <script src="assets/js/data-access-scope.js?v=18.53.16"></script>
+  <script src="assets/js/smart-cache.js?v=18.53.16"></script>
+  <script src="assets/js/sync-engine.js?v=18.53.16"></script>
+  <script src="assets/js/offline-queue.js?v=18.53.16"></script>
+  <script src="assets/js/permissions-service.js?v=18.53.16"></script>
+  <script src="assets/js/auth-session.js?v=18.53.16"></script>
+  <script src="assets/js/reference-data-service.js?v=18.53.16"></script>
+  <script src="assets/js/customers-service.js?v=18.53.16"></script>
+  <script src="assets/js/followups-service.js?v=18.53.16"></script>
+  <script src="assets/js/quotations-service.js?v=18.53.16"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.53.16"></script>
+  <script src="assets/js/users-service.js?v=18.53.16"></script>
+  <script src="assets/js/activity-service.js?v=18.53.16"></script>
+  <script src="assets/js/backup-service.js?v=18.53.16"></script>
+  <script src="assets/js/system-settings-service.js?v=18.53.16"></script>
+  <script src="assets/js/system-health-service.js?v=18.53.16"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.53.16"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.53.16"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.53.16"></script>
+  <script src="assets/js/installations-service.js?v=18.53.16"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.53.16"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.53.16"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.53.16"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.53.16"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.53.15"></script>
-  <script src="assets/js/export-center.js?v=18.53.15"></script>
-  <script src="assets/js/customer360-engine.js?v=18.53.15"></script>
-  <script src="assets/js/customer360-export.js?v=18.53.15"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.53.15"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.53.15"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.53.15"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.53.15"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.53.15"></script>
-  <script src="assets/js/app.js?v=18.53.15"></script>
-  <script src="assets/js/sales-invoices.js?v=18.53.15"></script>
-  <script src="assets/js/installations-module.js?v=18.53.15"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.53.15"></script>
-  <script src="assets/js/installation-execution.js?v=18.53.15"></script>
-  <script src="assets/js/installation-completion.js?v=18.53.15"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.53.15"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.53.15"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.53.15"></script>
-  <script src="assets/js/mobile.js?v=18.53.15"></script>
-  <script src="assets/js/pwa.js?v=18.53.15"></script>
-  <script src="assets/js/native.js?v=18.53.15"></script>
+  <script src="assets/js/reports-engine.js?v=18.53.16"></script>
+  <script src="assets/js/export-center.js?v=18.53.16"></script>
+  <script src="assets/js/customer360-engine.js?v=18.53.16"></script>
+  <script src="assets/js/customer360-export.js?v=18.53.16"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.53.16"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.53.16"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.53.16"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.53.16"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.53.16"></script>
+  <script src="assets/js/app.js?v=18.53.16"></script>
+  <script src="assets/js/sales-invoices.js?v=18.53.16"></script>
+  <script src="assets/js/installations-module.js?v=18.53.16"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.53.16"></script>
+  <script src="assets/js/installation-execution.js?v=18.53.16"></script>
+  <script src="assets/js/installation-completion.js?v=18.53.16"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.53.16"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.53.16"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.53.16"></script>
+  <script src="assets/js/mobile.js?v=18.53.16"></script>
+  <script src="assets/js/pwa.js?v=18.53.16"></script>
+  <script src="assets/js/native.js?v=18.53.16"></script>
 </body>
 </html>

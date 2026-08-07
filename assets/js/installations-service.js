@@ -395,12 +395,13 @@
   async function installationSummaryReport(filters={}){
     requireAction('view','installationReports');
     const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set(),teamFilterApplied=filters.teamFilterApplied===true;
-    let visitsQuery=db().from('installation_execution_visits').select('id,installation_request_id,scheduled_date,scheduled_time,installation_team_id,technician_name,status,team:installation_teams(id,name),request:installation_requests(id,request_number,representative_id,neighborhood_id,status,scheduled_date,scheduled_time,assigned_technician_name,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),representative:sales_representatives(id,full_name))');
-    let requestsQuery=db().from('installation_requests').select('id,request_number,neighborhood_id,scheduled_date,scheduled_time,installation_team_id,assigned_technician_name,representative_id,status,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
-    if(filters.date){visitsQuery=visitsQuery.eq('scheduled_date',filters.date);requestsQuery=requestsQuery.eq('scheduled_date',filters.date)}
+    const visitSelect='id,installation_request_id,scheduled_date,scheduled_time,installation_team_id,technician_name,status,team:installation_teams(id,name),request:installation_requests(id,request_number,representative_id,neighborhood_id,status,scheduled_date,scheduled_time,assigned_technician_name,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),representative:sales_representatives(id,full_name))';
+    const requestSelect='id,request_number,neighborhood_id,scheduled_date,scheduled_time,installation_team_id,assigned_technician_name,representative_id,status,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),team:installation_teams(id,name),representative:sales_representatives(id,full_name)';
+    const applyDateFilter=q=>{if(filters.date)return q.eq('scheduled_date',filters.date);if(filters.dateFrom)q=q.gte('scheduled_date',filters.dateFrom);if(filters.dateTo)q=q.lte('scheduled_date',filters.dateTo);return q};
+    const fetchPaged=async(table,select)=>{const out=[],pageSize=1000;for(let from=0;;from+=pageSize){let q=applyDateFilter(db().from(table).select(select)).order('scheduled_date',{ascending:true}).range(from,from+pageSize-1);const {data,error}=await q;if(error)return {data:out,error};const page=data||[];out.push(...page);if(page.length<pageSize)break}return {data:out,error:null}};
     const [{data:visits,error:ve},{data:scheduledRequests,error:sre},{data:teams,error:te},{data:reps,error:re}]=await Promise.all([
-      visitsQuery.order('scheduled_date',{ascending:true}),
-      requestsQuery.order('scheduled_date',{ascending:true}),
+      fetchPaged('installation_execution_visits',visitSelect),
+      fetchPaged('installation_requests',requestSelect),
       db().from('installation_teams').select('id,name').order('name'),
       db().from('sales_representatives').select('id,full_name').order('full_name')
     ]);
