@@ -34,24 +34,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.52.4" />
-  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.52.4" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.0" />
+  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.0" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -1290,7 +1290,30 @@
                 </div>
                 <small class="field-hint">يمكن البحث باسم العميل أو رقم الجوال أو رقم العميل.</small>
               </label>
-              <label>العنوان <span class="required-mark">*</span><select id="newInstallationNeighborhoodId" required><option value="">اختر الحي</option></select></label>
+              <label class="installation-geo-field">المنطقة <span class="required-mark">*</span>
+                <div id="newInstallationRegionCombobox" class="geo-searchable-select installation-geo-select" data-installation-geo-scope="new" data-installation-geo-type="region">
+                  <input id="newInstallationRegionId" type="hidden">
+                  <input id="newInstallationRegionSearch" class="geo-searchable-input" type="search" placeholder="ابحث واختر المنطقة" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="newInstallationRegionOptions">
+                  <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة المناطق">⌄</button>
+                  <div id="newInstallationRegionOptions" class="geo-searchable-options hidden" role="listbox"></div>
+                </div>
+              </label>
+              <label class="installation-geo-field">المدينة <span class="required-mark">*</span>
+                <div id="newInstallationCityCombobox" class="geo-searchable-select installation-geo-select is-disabled" data-installation-geo-scope="new" data-installation-geo-type="city">
+                  <input id="newInstallationCityId" type="hidden">
+                  <input id="newInstallationCitySearch" class="geo-searchable-input" type="search" placeholder="اختر المنطقة أولًا" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="newInstallationCityOptions" disabled>
+                  <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة المدن" disabled>⌄</button>
+                  <div id="newInstallationCityOptions" class="geo-searchable-options hidden" role="listbox"></div>
+                </div>
+              </label>
+              <label class="installation-geo-field">الحي <span class="required-mark">*</span>
+                <div id="newInstallationDistrictCombobox" class="geo-searchable-select installation-geo-select is-disabled" data-installation-geo-scope="new" data-installation-geo-type="district">
+                  <input id="newInstallationNeighborhoodId" type="hidden" required>
+                  <input id="newInstallationDistrictSearch" class="geo-searchable-input" type="search" placeholder="اختر المدينة أولًا" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="newInstallationDistrictOptions" disabled>
+                  <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة الأحياء" disabled>⌄</button>
+                  <div id="newInstallationDistrictOptions" class="geo-searchable-options hidden" role="listbox"></div>
+                </div>
+              </label>
               <label>رقم عرض السعر (اختياري)<select id="newInstallationQuotationId"><option value="">بدون عرض سعر</option></select></label>
               <label>رقم طلب العميل (اختياري)<input id="newInstallationCustomerOrderNumber" type="text" maxlength="120" autocomplete="off" placeholder="رقم أمر الشراء أو طلب العميل"></label>
               <label class="full-span">موقع العميل (رابط Google Maps) <span class="optional-mark">اختياري</span><input id="newInstallationCustomerMapUrl" type="url" inputmode="url" maxlength="1000" placeholder="https://maps.app.goo.gl/..." autocomplete="url"><small class="field-hint">الصق رابط مشاركة الموقع من Google Maps ليظهر للفني زر فتح الموقع.</small></label>
@@ -3198,10 +3221,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.52.4"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.52.4"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.52.4"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.52.4"></script>
+  <script src="assets/js/performance-monitor.js?v=18.53.0"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.53.0"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.53.0"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.53.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3395,7 +3418,30 @@
       <div class="dialog-header"><div><h3>تعديل خدمات طلب التركيب</h3><p id="installationServicesEditLabel">—</p></div><button id="closeInstallationServicesEditDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
       <input id="installationServicesEditRequestId" type="hidden">
       <section class="installation-services-edit-context installation-services-edit-context-form" aria-label="بيانات طلب التركيب">
-        <label><span>الحي</span><select id="installationServicesEditNeighborhood" required><option value="">اختر الحي</option></select></label>
+        <label class="installation-geo-field"><span>المنطقة</span>
+          <div id="installationServicesEditRegionCombobox" class="geo-searchable-select installation-geo-select" data-installation-geo-scope="edit" data-installation-geo-type="region">
+            <input id="installationServicesEditRegionId" type="hidden">
+            <input id="installationServicesEditRegionSearch" class="geo-searchable-input" type="search" placeholder="ابحث واختر المنطقة" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="installationServicesEditRegionOptions">
+            <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة المناطق">⌄</button>
+            <div id="installationServicesEditRegionOptions" class="geo-searchable-options hidden" role="listbox"></div>
+          </div>
+        </label>
+        <label class="installation-geo-field"><span>المدينة</span>
+          <div id="installationServicesEditCityCombobox" class="geo-searchable-select installation-geo-select is-disabled" data-installation-geo-scope="edit" data-installation-geo-type="city">
+            <input id="installationServicesEditCityId" type="hidden">
+            <input id="installationServicesEditCitySearch" class="geo-searchable-input" type="search" placeholder="اختر المنطقة أولًا" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="installationServicesEditCityOptions" disabled>
+            <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة المدن" disabled>⌄</button>
+            <div id="installationServicesEditCityOptions" class="geo-searchable-options hidden" role="listbox"></div>
+          </div>
+        </label>
+        <label class="installation-geo-field"><span>الحي</span>
+          <div id="installationServicesEditDistrictCombobox" class="geo-searchable-select installation-geo-select is-disabled" data-installation-geo-scope="edit" data-installation-geo-type="district">
+            <input id="installationServicesEditNeighborhood" type="hidden" required>
+            <input id="installationServicesEditDistrictSearch" class="geo-searchable-input" type="search" placeholder="اختر المدينة أولًا" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="installationServicesEditDistrictOptions" disabled>
+            <button class="geo-searchable-toggle" type="button" aria-label="فتح قائمة الأحياء" disabled>⌄</button>
+            <div id="installationServicesEditDistrictOptions" class="geo-searchable-options hidden" role="listbox"></div>
+          </div>
+        </label>
         <label class="installation-context-location-field"><span>موقع العميل (Google Maps)</span><div class="installation-context-location-control"><input id="installationServicesEditMapUrl" type="url" inputmode="url" placeholder="https://maps.app.goo.gl/..."><a id="installationServicesEditOpenMap" class="installation-context-location-link hidden" href="#" target="_blank" rel="noopener noreferrer">فتح الموقع</a></div></label>
         <label><span>رقم طلب العميل</span><input id="installationServicesEditCustomerOrder" type="text" maxlength="120" placeholder="رقم طلب العميل"></label>
         <label><span>رقم عرض السعر</span><select id="installationServicesEditQuotation"><option value="">بدون عرض سعر</option></select></label>
@@ -3524,58 +3570,58 @@
         </form>
       </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.52.4"></script>
-  <script src="assets/js/offline-session-store.js?v=18.52.4"></script>
-  <script src="assets/js/supabase-client.js?v=18.52.4"></script>
-  <script src="assets/js/permissions.js?v=18.52.4"></script>
-  <script src="assets/js/permission-engine.js?v=18.52.4"></script>
-  <script src="assets/js/data-access-scope.js?v=18.52.4"></script>
-  <script src="assets/js/smart-cache.js?v=18.52.4"></script>
-  <script src="assets/js/sync-engine.js?v=18.52.4"></script>
-  <script src="assets/js/offline-queue.js?v=18.52.4"></script>
-  <script src="assets/js/permissions-service.js?v=18.52.4"></script>
-  <script src="assets/js/auth-session.js?v=18.52.4"></script>
-  <script src="assets/js/reference-data-service.js?v=18.52.4"></script>
-  <script src="assets/js/customers-service.js?v=18.52.4"></script>
-  <script src="assets/js/followups-service.js?v=18.52.4"></script>
-  <script src="assets/js/quotations-service.js?v=18.52.4"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.52.4"></script>
-  <script src="assets/js/users-service.js?v=18.52.4"></script>
-  <script src="assets/js/activity-service.js?v=18.52.4"></script>
-  <script src="assets/js/backup-service.js?v=18.52.4"></script>
-  <script src="assets/js/system-settings-service.js?v=18.52.4"></script>
-  <script src="assets/js/system-health-service.js?v=18.52.4"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.52.4"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.52.4"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.52.4"></script>
-  <script src="assets/js/installations-service.js?v=18.52.4"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.52.4"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.52.4"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.52.4"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.52.4"></script>
+  <script src="assets/js/supabase-config.js?v=18.53.0"></script>
+  <script src="assets/js/offline-session-store.js?v=18.53.0"></script>
+  <script src="assets/js/supabase-client.js?v=18.53.0"></script>
+  <script src="assets/js/permissions.js?v=18.53.0"></script>
+  <script src="assets/js/permission-engine.js?v=18.53.0"></script>
+  <script src="assets/js/data-access-scope.js?v=18.53.0"></script>
+  <script src="assets/js/smart-cache.js?v=18.53.0"></script>
+  <script src="assets/js/sync-engine.js?v=18.53.0"></script>
+  <script src="assets/js/offline-queue.js?v=18.53.0"></script>
+  <script src="assets/js/permissions-service.js?v=18.53.0"></script>
+  <script src="assets/js/auth-session.js?v=18.53.0"></script>
+  <script src="assets/js/reference-data-service.js?v=18.53.0"></script>
+  <script src="assets/js/customers-service.js?v=18.53.0"></script>
+  <script src="assets/js/followups-service.js?v=18.53.0"></script>
+  <script src="assets/js/quotations-service.js?v=18.53.0"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.53.0"></script>
+  <script src="assets/js/users-service.js?v=18.53.0"></script>
+  <script src="assets/js/activity-service.js?v=18.53.0"></script>
+  <script src="assets/js/backup-service.js?v=18.53.0"></script>
+  <script src="assets/js/system-settings-service.js?v=18.53.0"></script>
+  <script src="assets/js/system-health-service.js?v=18.53.0"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.53.0"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.53.0"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.53.0"></script>
+  <script src="assets/js/installations-service.js?v=18.53.0"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.53.0"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.53.0"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.53.0"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.53.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.52.4"></script>
-  <script src="assets/js/export-center.js?v=18.52.4"></script>
-  <script src="assets/js/customer360-engine.js?v=18.52.4"></script>
-  <script src="assets/js/customer360-export.js?v=18.52.4"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.52.4"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.52.4"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.52.4"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.52.4"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.52.4"></script>
-  <script src="assets/js/app.js?v=18.52.4"></script>
-  <script src="assets/js/sales-invoices.js?v=18.52.4"></script>
-  <script src="assets/js/installations-module.js?v=18.52.4"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.52.4"></script>
-  <script src="assets/js/installation-execution.js?v=18.52.4"></script>
-  <script src="assets/js/installation-completion.js?v=18.52.4"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.52.4"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.52.4"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.52.4"></script>
-  <script src="assets/js/mobile.js?v=18.52.4"></script>
-  <script src="assets/js/pwa.js?v=18.52.4"></script>
-  <script src="assets/js/native.js?v=18.52.4"></script>
+  <script src="assets/js/reports-engine.js?v=18.53.0"></script>
+  <script src="assets/js/export-center.js?v=18.53.0"></script>
+  <script src="assets/js/customer360-engine.js?v=18.53.0"></script>
+  <script src="assets/js/customer360-export.js?v=18.53.0"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.53.0"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.53.0"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.53.0"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.53.0"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.53.0"></script>
+  <script src="assets/js/app.js?v=18.53.0"></script>
+  <script src="assets/js/sales-invoices.js?v=18.53.0"></script>
+  <script src="assets/js/installations-module.js?v=18.53.0"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.53.0"></script>
+  <script src="assets/js/installation-execution.js?v=18.53.0"></script>
+  <script src="assets/js/installation-completion.js?v=18.53.0"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.53.0"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.53.0"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.53.0"></script>
+  <script src="assets/js/mobile.js?v=18.53.0"></script>
+  <script src="assets/js/pwa.js?v=18.53.0"></script>
+  <script src="assets/js/native.js?v=18.53.0"></script>
 </body>
 </html>

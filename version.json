@@ -1,13 +1,13 @@
 {
-  "version": "18.52.4",
-  "build": 185204,
+  "version": "18.53.0",
+  "build": 185300,
   "forceUpdate": true,
   "releaseDate": "2026-08-07",
-  "title": "Customer Geographic Dropdown Anchor and Rendering Hotfix",
+  "title": "Installation Address Hierarchy Unification",
   "notes": [
-    "إصلاح تموضع قوائم المنطقة والمدينة والحي داخل نفس عرض الحقل بدون خروج خارج نافذة العميل",
-    "إصلاح ظهور بيانات القوائم داخل منطقة العرض مع Scroll داخلي واضح",
-    "الحفاظ على البحث والربط الديناميكي المنطقة ثم المدينة ثم الحي"
+    "إضافة المنطقة ثم المدينة ثم الحي في طلب تركيب جديد بنفس القوائم القابلة للبحث",
+    "إضافة نفس التسلسل داخل تعديل بيانات الطلب من شاشة الجدولة والإسناد",
+    "ربط المدينة بالمنطقة والحي بالمدينة مع حفظ neighborhood_id المرجعي لمنع التباس الأحياء المتشابهة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-52-4-customer-geographic-dropdown-anchor-rendering-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-53-0-installation-address-hierarchy-unification"
 }

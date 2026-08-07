@@ -1,34 +1,39 @@
-# KYUM CRM — Phase M15.2.2 Customer Geographic Dropdown Anchor & Rendering Hotfix
+# Phase M15.5 — Installation Address Hierarchy Unification
 
-## Baseline
-- Full baseline: `kyum.company-main (6)(6).zip` — version 18.52.2
-- Applied prior stable delta: Phase M15.2.1 — version 18.52.3
+## Root Cause
+شاشة طلب تركيب جديد ونافذة تعديل بيانات الطلب من الجدولة كانتا تختاران الحي مباشرة من كتالوج موحد، لذلك لا يمكن تمييز الأحياء المتشابهة بالاسم بين مدن مختلفة.
 
-## Confirmed root cause
-Phase M15.2.1 positioned the geographic option panel with `position: fixed` while it remained a descendant of the top-layer `dialog`. Chromium can resolve fixed descendants of a dialog/containing block differently from viewport geometry. The JavaScript then injected viewport `left/width/top/bottom` values, while CSS also used logical inset rules. In RTL this produced an oversized white option surface that no longer matched the field width, and the option rows could be painted outside the visible part of that surface.
+## Implementation
+- إضافة تسلسل المنطقة ← المدينة ← الحي في طلب تركيب جديد.
+- إضافة نفس التسلسل في نافذة تعديل بيانات الطلب داخل جدولة وتوزيع التركيبات.
+- القوائم قابلة للبحث وتستخدم نفس نمط الواجهة المعتمد في إضافة العميل.
+- المدينة لا تُتاح قبل اختيار المنطقة، والحي لا يُتاح قبل اختيار المدينة.
+- تغيير المنطقة يمسح المدينة والحي، وتغيير المدينة يمسح الحي.
+- الحفظ يظل يعتمد على `neighborhood_id` المرجعي؛ المنطقة والمدينة تُستنتجان من علاقة الحي ولا توجد حاجة لتكرار مفاتيحها في طلب التركيب.
+- تحميل المناطق والمدن والأحياء يتم كاملًا عبر pagination من Supabase.
+- عند تعديل طلب موجود، تُستعاد المنطقة والمدينة والحي من `neighborhood_id` الحالي.
 
-## Repair
-- Removed viewport-coordinate positioning for desktop geographic dropdowns.
-- Anchored every option panel to its own combobox with `position:absolute`.
-- Width is now constrained exactly by the field (`left:0; right:0; max-width:100%`).
-- Up/down opening still uses measured available dialog space, but only toggles relative top/bottom placement and max-height.
-- Removed `contain: layout paint` from the option panel.
-- Added explicit text color, horizontal overflow protection, and predictable box sizing.
-- Mobile uses the same field-anchored behavior instead of a full-width fixed bottom sheet.
+## Modified Files
+- index.html
+- assets/js/installations-module.js
+- assets/js/installations-service.js
+- assets/css/installation-requests.css
+- assets/css/installation-request-inline-dialogs.css
+- assets/js/pwa.js
+- service-worker.js
+- package.json
+- version.json
+- PHASE_REPORT.md
 
-## Regression boundaries
-No customer save logic, geographic catalog queries, Supabase pagination, RLS, permissions, installation logic, reports, or existing data were changed.
+## Regression Scope
+- إضافة طلب تركيب جديد.
+- تعديل طلب تركيب من شاشة طلبات التركيبات.
+- تعديل بيانات الطلب من شاشة جدولة وتوزيع التركيبات.
+- إنشاء طلب من عرض سعر مقبول.
+- حفظ الخدمات والأسعار ورقم طلب العميل وموقع Google Maps.
+- شاشة إضافة العميل الجغرافية لم يتم تعديل منطقها.
 
-## Manual verification
-1. Open Add Customer and Region dropdown.
-2. Confirm popup width equals Region field width.
-3. Confirm region names are visible and searchable.
-4. Select a region and verify only its cities appear.
-5. Select a city and verify only its districts appear.
-6. Scroll the dialog and repeat near the bottom to verify upward opening.
-7. Repeat in Edit Customer, dark mode, and mobile.
-
-## Release
-- Version: 18.52.4
-- Build: 185204
-- Cache: `kyum-crm-pwa-18-52-4-customer-geographic-dropdown-anchor-rendering-hotfix`
+## Version
+- Version: 18.53.0
+- Build: 185300
+- Cache: `kyum-crm-pwa-18-53-0-installation-address-hierarchy-unification`

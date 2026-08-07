@@ -6,7 +6,7 @@
   const money = value => `SAR ${Number(value || 0).toFixed(2)}`;
 
   let rows = [];
-  let opts = { customers: [], quotations: [], neighborhoods: [], serviceTypes: [] };
+  let opts = { customers: [], quotations: [], regions: [], cities: [], neighborhoods: [], serviceTypes: [] };
   let optionsLoaded = false;
   let editingRequestId = null;
   const QUOTATION_PREFILL_KEY = "kyum:installation:quotation-prefill";
@@ -119,12 +119,16 @@
   }
 
   function matchNeighborhoodId(customer) {
-    const candidates = [customer?.district, customer?.city].map(normalizeArabicText).filter(Boolean);
-    if (!candidates.length) return "";
-    const exact = opts.neighborhoods.find(item => candidates.includes(normalizeArabicText(item.name)));
-    if (exact) return exact.id;
-    const partial = opts.neighborhoods.find(item => candidates.some(value => value.includes(normalizeArabicText(item.name)) || normalizeArabicText(item.name).includes(value)));
-    return partial?.id || "";
+    const districtName=normalizeArabicText(customer?.district||"");
+    const cityName=normalizeArabicText(customer?.city||"");
+    const regionName=normalizeArabicText(customer?.region||"");
+    if(!districtName)return "";
+    const region=regionName?opts.regions.find(item=>normalizeArabicText(item.name)===regionName):null;
+    const city=cityName?opts.cities.find(item=>normalizeArabicText(item.name)===cityName&&(!region||String(item.region_id)===String(region.id))):null;
+    const exact=opts.neighborhoods.find(item=>normalizeArabicText(item.name)===districtName&&(!city||String(item.city_id)===String(city.id))&&(!region||String(item.region_id)===String(region.id)));
+    if(exact)return exact.id;
+    const candidates=opts.neighborhoods.filter(item=>normalizeArabicText(item.name)===districtName);
+    return candidates.length===1?candidates[0].id:"";
   }
 
   async function fetchQuotationPrefill(quotationId) {
@@ -134,7 +138,7 @@
       .select(`
         id, quotation_number, customer_order_number, customer_id, representative_id,
         status, amount, description, notes, installation_request_id,
-        customer:customers(id, customer_number, customer_name, phone, city, district, representative_id)
+        customer:customers(id, customer_number, customer_name, phone, region, city, district, representative_id)
       `)
       .eq("id", quotationId)
       .maybeSingle();
@@ -172,7 +176,7 @@
 
       neighborhoodOptions();
       const neighborhoodId = matchNeighborhoodId(customer);
-      if (neighborhoodId && $("newInstallationNeighborhoodId")) $("newInstallationNeighborhoodId").value = neighborhoodId;
+      if (neighborhoodId) setInstallationGeoFromNeighborhood('new',neighborhoodId);
 
       const notes = [quotation.description, quotation.notes].map(value => String(value || "").trim()).filter(Boolean).join("\n");
       if (notes && $("newInstallationNotes") && !$("newInstallationNotes").value.trim()) $("newInstallationNotes").value = notes;
@@ -219,7 +223,7 @@
 
   function reportOptionLoadWarnings(data) {
     const errors = data?.errors || {};
-    const labels = { customers: "العملاء", quotations: "عروض الأسعار", neighborhoods: "الأحياء", serviceTypes: "الخدمات" };
+    const labels = { customers: "العملاء", quotations: "عروض الأسعار", regions: "المناطق", cities: "المدن", neighborhoods: "الأحياء", serviceTypes: "الخدمات" };
     const failed = Object.keys(errors).map(key => labels[key] || key);
     const target = $("newInstallationRequestFormStatus");
     if (!failed.length) {
@@ -250,13 +254,60 @@
     ).join("");
   }
 
-  function neighborhoodOptions() {
-    const node = $("newInstallationNeighborhoodId");
-    if (!node) return;
-    node.innerHTML = '<option value="">اختر الحي</option>' + opts.neighborhoods.map(item =>
-      `<option value="${esc(item.id)}">${esc(item.name)}</option>`
-    ).join("");
+  function normalizeInstallationGeoSearch(value){return normalizeArabicText(value).normalize("NFKD").replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
+  function installationGeoIds(scope,type){
+    const prefix=scope==='edit'?'installationServicesEdit':'newInstallation';
+    const part=type==='district'?'District':type[0].toUpperCase()+type.slice(1);
+    return {wrapper:$(prefix+part+'Combobox'),hidden:$(type==='district'?(scope==='edit'?'installationServicesEditNeighborhood':'newInstallationNeighborhoodId'):prefix+part+'Id'),search:$(prefix+part+'Search'),options:$(prefix+part+'Options')};
   }
+  function installationGeoCatalog(type){return type==='region'?opts.regions:type==='city'?opts.cities:opts.neighborhoods}
+  function installationGeoRows(scope,type){
+    const regionId=installationGeoIds(scope,'region').hidden?.value||'';
+    const cityId=installationGeoIds(scope,'city').hidden?.value||'';
+    if(type==='region')return opts.regions||[];
+    if(type==='city')return regionId?(opts.cities||[]).filter(x=>String(x.region_id)===String(regionId)):[];
+    return cityId?(opts.neighborhoods||[]).filter(x=>String(x.city_id)===String(cityId)):[];
+  }
+  function closeInstallationGeo(scope,type){const {wrapper,search,options}=installationGeoIds(scope,type);if(!wrapper||!search||!options)return;wrapper.dataset.open='false';search.setAttribute('aria-expanded','false');options.classList.add('hidden')}
+  function closeAllInstallationGeo(exceptScope='',exceptType=''){['new','edit'].forEach(scope=>['region','city','district'].forEach(type=>{if(scope!==exceptScope||type!==exceptType)closeInstallationGeo(scope,type)}))}
+  function renderInstallationGeoOptions(scope,type,query=''){
+    const {hidden,options}=installationGeoIds(scope,type);if(!options)return;
+    const q=normalizeInstallationGeoSearch(query);
+    const rows=installationGeoRows(scope,type).filter(row=>!q||normalizeInstallationGeoSearch(row.name).includes(q)).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar')).slice(0,300);
+    options.innerHTML=rows.length?rows.map(row=>`<button type="button" class="geo-searchable-option${String(hidden?.value||'')===String(row.id)?' is-selected':''}" role="option" aria-selected="${String(hidden?.value||'')===String(row.id)}" data-installation-geo-id="${esc(row.id)}">${esc(row.name)}</button>`).join(''):'<div class="geo-searchable-empty">لا توجد نتائج مطابقة.</div>';
+  }
+  function openInstallationGeo(scope,type){const {wrapper,search,options}=installationGeoIds(scope,type);if(!wrapper||!search||!options||search.disabled)return;closeAllInstallationGeo(scope,type);renderInstallationGeoOptions(scope,type,search.value);wrapper.dataset.open='true';search.setAttribute('aria-expanded','true');options.classList.remove('hidden')}
+  function setInstallationGeoEnabled(scope,type,enabled,placeholder){const {wrapper,search}=installationGeoIds(scope,type);if(!wrapper||!search)return;search.disabled=!enabled;wrapper.classList.toggle('is-disabled',!enabled);wrapper.querySelector('.geo-searchable-toggle')?.toggleAttribute('disabled',!enabled);if(placeholder)search.placeholder=placeholder}
+  function setInstallationGeoSelection(scope,type,id,{cascade=true,close=true}={}){
+    const {hidden,search}=installationGeoIds(scope,type);if(!hidden||!search)return;
+    const row=installationGeoCatalog(type).find(x=>String(x.id)===String(id||''));hidden.value=row?String(row.id):'';search.value=row?String(row.name||''):'';search.dataset.selectedId=row?String(row.id):'';search.setCustomValidity('');
+    if(type==='region'&&cascade){setInstallationGeoSelection(scope,'city','',{cascade:false,close:false});setInstallationGeoSelection(scope,'district','',{cascade:false,close:false});setInstallationGeoEnabled(scope,'city',!!row,row?'ابحث واختر المدينة':'اختر المنطقة أولًا');setInstallationGeoEnabled(scope,'district',false,'اختر المدينة أولًا')}
+    if(type==='city'&&cascade){setInstallationGeoSelection(scope,'district','',{cascade:false,close:false});setInstallationGeoEnabled(scope,'district',!!row,row?'ابحث واختر الحي':'اختر المدينة أولًا')}
+    if(close)closeInstallationGeo(scope,type);
+  }
+  function setInstallationGeoFromNeighborhood(scope,neighborhoodId=''){
+    const district=(opts.neighborhoods||[]).find(x=>String(x.id)===String(neighborhoodId||''));
+    let region=district?(opts.regions||[]).find(x=>String(x.id)===String(district.region_id||'')):null;
+    if(!region&&district?.region){const rn=normalizeArabicText(district.region);region=(opts.regions||[]).find(x=>normalizeArabicText(x.name)===rn)||null}
+    let city=district?(opts.cities||[]).find(x=>String(x.id)===String(district.city_id||'')):null;
+    if(!city&&district?.city){const cn=normalizeArabicText(district.city);city=(opts.cities||[]).find(x=>normalizeArabicText(x.name)===cn&&(!region||String(x.region_id)===String(region.id)))||null}
+    if(!region&&city)region=(opts.regions||[]).find(x=>String(x.id)===String(city.region_id||''))||null;
+    setInstallationGeoSelection(scope,'region',region?.id||'',{cascade:true,close:false});
+    setInstallationGeoSelection(scope,'city',city?.id||'',{cascade:true,close:false});
+    setInstallationGeoSelection(scope,'district',district?.id||'',{cascade:false,close:false});
+    setInstallationGeoEnabled(scope,'city',!!region,region?'ابحث واختر المدينة':'اختر المنطقة أولًا');
+    setInstallationGeoEnabled(scope,'district',!!city,city?'ابحث واختر الحي':'اختر المدينة أولًا');
+  }
+  function bindInstallationGeo(scope){
+    ['region','city','district'].forEach(type=>{const {wrapper,hidden,search,options}=installationGeoIds(scope,type);if(!wrapper||wrapper.dataset.installationGeoBound)return;wrapper.dataset.installationGeoBound='1';
+      search.addEventListener('focus',()=>openInstallationGeo(scope,type));
+      search.addEventListener('input',()=>{hidden.value='';renderInstallationGeoOptions(scope,type,search.value);openInstallationGeo(scope,type)});
+      search.addEventListener('keydown',event=>{if(event.key==='Escape')closeInstallationGeo(scope,type);if(event.key==='ArrowDown'){event.preventDefault();openInstallationGeo(scope,type);options.querySelector('.geo-searchable-option')?.focus()}});
+      wrapper.querySelector('.geo-searchable-toggle')?.addEventListener('click',()=>wrapper.dataset.open==='true'?closeInstallationGeo(scope,type):openInstallationGeo(scope,type));
+      options.addEventListener('click',event=>{const button=event.target.closest('.geo-searchable-option');if(button)setInstallationGeoSelection(scope,type,button.dataset.installationGeoId)});
+    });
+  }
+  function neighborhoodOptions(){bindInstallationGeo('new');bindInstallationGeo('edit');}
 
   function serviceTypeOptions(selectedId = "") {
     return '<option value="">اختر نوع الخدمة</option>' + opts.serviceTypes.map(item =>
@@ -338,6 +389,7 @@
     syncCustomerSearch("");
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
+    if(!$('newInstallationNeighborhoodId')?.value)setInstallationGeoFromNeighborhood('new','');
     hydrateServiceRows();
     reportOptionLoadWarnings(opts);
   }
@@ -383,7 +435,7 @@
       quotationOptions(row.customerId, "newInstallationQuotationId", row.quotationId || "");
       $("newInstallationQuotationId").value = row.quotationId || "";
       $("newInstallationCustomerOrderNumber").value = row.customerOrderNumber || "";
-      $("newInstallationNeighborhoodId").value = row.neighborhoodId || "";
+      setInstallationGeoFromNeighborhood('new', row.neighborhoodId || '');
       $("newInstallationCustomerMapUrl").value = row.customerMapUrl || "";
       $("newInstallationPriority").value = row.priority || "عادية";
       $("newInstallationNotes").value = row.notes || "";
@@ -446,21 +498,22 @@
   function inlineQuotationOptions(customerId,selected=""){const rows=opts.quotations.filter(item=>String(item.customer_id||'')===String(customerId||'')&&(item.status==='مقبول'||String(item.id)===String(selected)));return '<option value="">بدون عرض سعر</option>'+rows.map(item=>`<option value="${esc(item.id)}" ${String(item.id)===String(selected)?'selected':''}>${esc(item.quotation_number||'عرض سعر')}</option>`).join('')}
   function syncInlineMapLink(){const input=$("installationServicesEditMapUrl"),link=$("installationServicesEditOpenMap");if(!input||!link)return;const value=String(input.value||'').trim();if(/^https:\/\//i.test(value)){link.href=value;link.classList.remove('hidden')}else{link.href='#';link.classList.add('hidden')}}
   async function ensureInlineEditOptions(customerId){
-    const needsNeighborhoods=!opts.neighborhoods?.length,needsServices=!opts.serviceTypes?.length;
+    const needsNeighborhoods=!opts.neighborhoods?.length,needsGeo=!opts.regions?.length||!opts.cities?.length,needsServices=!opts.serviceTypes?.length;
     const hasCustomerQuotes=(opts.quotations||[]).some(item=>String(item.customer_id||'')===String(customerId||''));
-    if(!needsNeighborhoods&&!needsServices&&hasCustomerQuotes)return;
+    if(!needsNeighborhoods&&!needsGeo&&!needsServices&&hasCustomerQuotes)return;
     const data=await window.InstallationsServiceSafe.requestEditOptions(customerId);
-    if(needsNeighborhoods)opts.neighborhoods=data.neighborhoods||[];
+    if(data.regions?.length)opts.regions=data.regions;
+    if(data.cities?.length)opts.cities=data.cities;
+    if(needsNeighborhoods||data.neighborhoods?.length)opts.neighborhoods=data.neighborhoods||opts.neighborhoods||[];
     if(needsServices)opts.serviceTypes=data.serviceTypes||[];
+    neighborhoodOptions();
     const others=(opts.quotations||[]).filter(item=>String(item.customer_id||'')!==String(customerId||''));
     opts.quotations=[...others,...(data.quotations||[])];
   }
   function renderServicesEditData(row){
     $("installationServicesEditRequestId").value=row.id;
     $("installationServicesEditLabel").textContent=`${row.requestNumber} — ${row.customerName}`;
-    const neighborhood=$("installationServicesEditNeighborhood");
-    neighborhood.innerHTML=inlineNeighborhoodOptions(row.neighborhoodId||'');
-    neighborhood.value=row.neighborhoodId||'';
+    setInstallationGeoFromNeighborhood('edit',row.neighborhoodId||'');
     $("installationServicesEditMapUrl").value=row.customerMapUrl||'';
     $("installationServicesEditCustomerOrder").value=row.customerOrderNumber||'';
     const quotation=$("installationServicesEditQuotation");
@@ -504,6 +557,7 @@
     form.reset();
     quotationOptions("", "newInstallationQuotationId");
     neighborhoodOptions();
+    setInstallationGeoFromNeighborhood('new','');
     $("newInstallationServicesBody").innerHTML = "";
     addServiceRow();
     $("newInstallationRequestHeading").textContent = "طلب تركيب جديد";
@@ -607,6 +661,10 @@
       if (!option) return;
       syncCustomerSearch(option.dataset.installationCustomerId);
       quotationOptions(option.dataset.installationCustomerId, "newInstallationQuotationId");
+      const selectedCustomer=opts.customers.find(item=>String(item.id)===String(option.dataset.installationCustomerId));
+      const matchedNeighborhood=matchNeighborhoodId(selectedCustomer);
+      if(matchedNeighborhood)setInstallationGeoFromNeighborhood('new',matchedNeighborhood);
+      else setInstallationGeoFromNeighborhood('new','');
       closeCustomerResults();
     });
     document.addEventListener("click", event => {
@@ -657,13 +715,15 @@
 
     $("closeInstallationRequestViewDialog")?.addEventListener("click",()=>$("installationRequestViewDialog").close());
     $("closeInstallationRequestViewFooter")?.addEventListener("click",()=>$("installationRequestViewDialog").close());
+    document.addEventListener('click',event=>{if(!event.target.closest('.installation-geo-select'))closeAllInstallationGeo()});
+    $("installationServicesEditDialog")?.addEventListener('close',()=>closeAllInstallationGeo());
     $("closeInstallationServicesEditDialog")?.addEventListener("click",()=>$("installationServicesEditDialog").close());
     $("cancelInstallationServicesEdit")?.addEventListener("click",()=>$("installationServicesEditDialog").close());
     $("addInstallationInlineService")?.addEventListener("click",()=>addInlineServiceRow());
     $("installationServicesEditBody")?.addEventListener("input",event=>{const row=event.target.closest('.installation-inline-service-row');if(event.target.matches('.inline-service-type')){const service=opts.serviceTypes.find(item=>item.id===event.target.value);if(service&&row)row.querySelector('.inline-service-price').value=Number(service.default_price||0).toFixed(2)}recalculateInlineServices()});
     $("installationServicesEditBody")?.addEventListener("click",event=>{const btn=event.target.closest('.inline-service-remove');if(!btn)return;const all=$("installationServicesEditBody").querySelectorAll('.installation-inline-service-row');if(all.length===1)return status($("installationServicesEditStatus"),'يجب أن يحتوي الطلب على خدمة واحدة على الأقل.','error');btn.closest('tr').remove();recalculateInlineServices()});
     $("installationServicesEditMapUrl")?.addEventListener("input",syncInlineMapLink);
-    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");setSaveState(btn,'saving','حفظ التعديلات');try{const requestId=$("installationServicesEditRequestId").value;await window.InstallationsServiceSafe.updateRequestContextServices(requestId,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});const fresh=await window.InstallationsServiceSafe.requestEditDetail(requestId);const index=rows.findIndex(item=>item.id===requestId);if(index>=0)rows[index]=fresh;setSaveState(btn,'saved');window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:requestId,row:fresh}}));await new Promise(r=>setTimeout(r,350));$("installationServicesEditDialog").close();render();load().catch(()=>{})}catch(error){setSaveState(btn,'error');status($("installationServicesEditStatus"),error.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ التعديلات')}});
+    $("installationServicesEditForm")?.addEventListener("submit",async event=>{event.preventDefault();const services=collectInlineServices();if(!services.length||services.some(x=>!x.serviceTypeId||!Number.isInteger(x.quantity)||x.quantity<1||!Number.isFinite(x.unitPrice)||x.unitPrice<0))return status($("installationServicesEditStatus"),'راجع الخدمة والعدد والسعر في جميع البنود.','error');const neighborhoodId=$("installationServicesEditNeighborhood").value;if(!$("installationServicesEditRegionId").value)return status($("installationServicesEditStatus"),'اختر المنطقة أولًا.','error');if(!$("installationServicesEditCityId").value)return status($("installationServicesEditStatus"),'اختر المدينة أولًا.','error');if(!neighborhoodId)return status($("installationServicesEditStatus"),'اختر الحي الخاص بطلب التركيب.','error');const btn=$("saveInstallationServicesEdit");setSaveState(btn,'saving','حفظ التعديلات');try{const requestId=$("installationServicesEditRequestId").value;await window.InstallationsServiceSafe.updateRequestContextServices(requestId,{neighborhoodId,customerMapUrl:$("installationServicesEditMapUrl").value,customerOrderNumber:$("installationServicesEditCustomerOrder").value,quotationId:$("installationServicesEditQuotation").value,services});const fresh=await window.InstallationsServiceSafe.requestEditDetail(requestId);const index=rows.findIndex(item=>item.id===requestId);if(index>=0)rows[index]=fresh;setSaveState(btn,'saved');window.dispatchEvent(new CustomEvent('kyum-installation-services-updated',{detail:{id:requestId,row:fresh}}));await new Promise(r=>setTimeout(r,350));$("installationServicesEditDialog").close();render();load().catch(()=>{})}catch(error){setSaveState(btn,'error');status($("installationServicesEditStatus"),error.message,'error');await new Promise(r=>setTimeout(r,900))}finally{setSaveState(btn,'idle','حفظ التعديلات')}});
     window.addEventListener('kyum-installation-request-view',async event=>{const id=event.detail?.id,row=event.detail?.row||currentRow(id);if(row)return renderRequestView(row);if(!id)return;try{await load();renderRequestView(currentRow(id))}catch(error){status($("installationRequestsStatus"),error.message,'error')}});
     window.addEventListener('kyum-installation-services-edit',event=>{const id=event.detail?.id;if(id)openServicesEdit(id)});
     window.addEventListener('kyum-installation-services-updated',()=>load());
@@ -688,7 +748,9 @@
         services
       };
       if (!payload.customerId) return status($("newInstallationRequestFormStatus"), "اختر العميل.", "error");
-      if (!payload.neighborhoodId) return status($("newInstallationRequestFormStatus"), "اختر العنوان.", "error");
+      if (!$('newInstallationRegionId').value) return status($("newInstallationRequestFormStatus"), "اختر المنطقة أولًا.", "error");
+      if (!$('newInstallationCityId').value) return status($("newInstallationRequestFormStatus"), "اختر المدينة أولًا.", "error");
+      if (!payload.neighborhoodId) return status($("newInstallationRequestFormStatus"), "اختر الحي.", "error");
       if (!services.length || services.some(service => !service.serviceTypeId || !Number.isInteger(service.quantity) || service.quantity < 1 || !Number.isFinite(service.unitPrice) || service.unitPrice < 0)) {
         return status($("newInstallationRequestFormStatus"), "راجع نوع الخدمة والعدد والسعر في جميع الخدمات.", "error");
       }

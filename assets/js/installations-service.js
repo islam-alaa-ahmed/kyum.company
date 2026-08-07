@@ -6,12 +6,12 @@
   async function list(){requireAction('view');const [data,serviceRows]=await Promise.all([fetchPaged((from,to)=>db().from('installation_requests').select('*,customer:customers(id,customer_name,phone,address,city,district,representative_id),quotation:quotations!installation_requests_quotation_id_fkey(id,quotation_number),representative:sales_representatives(id,full_name)').order('created_at',{ascending:false}).range(from,to)),fetchPaged((from,to)=>db().from('installation_request_services').select('installation_request_id,quantity,unit_price,line_total,service:installation_service_types(id,name)').range(from,to),1000)]);const byRequest=new Map();serviceRows.forEach(x=>{const arr=byRequest.get(x.installation_request_id)||[];arr.push({serviceTypeId:x.service?.id||'',serviceName:x.service?.name||'',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)});byRequest.set(x.installation_request_id,arr)});return data.map(row=>normalize({...row,services:byRequest.get(row.id)||[]}))}
   async function loadInstallationCustomers(){
     try {
-      return await fetchPaged((from,to)=>db().from('customers').select('id,customer_number,customer_name,phone,address,city,district,representative_id').order('customer_name').range(from,to));
+      return await fetchPaged((from,to)=>db().from('customers').select('id,customer_number,customer_name,phone,address,region,city,district,representative_id').order('customer_name').range(from,to));
     } catch (error) {
       const message=String(error?.message||'').toLowerCase();
       const schemaMismatch=message.includes('customer_number')&&(message.includes('column')||message.includes('schema cache')||message.includes('does not exist'));
       if(!schemaMismatch) throw error;
-      const rows=await fetchPaged((from,to)=>db().from('customers').select('id,customer_name,phone,address,city,district,representative_id').order('customer_name').range(from,to));
+      const rows=await fetchPaged((from,to)=>db().from('customers').select('id,customer_name,phone,address,region,city,district,representative_id').order('customer_name').range(from,to));
       return rows.map(row=>({...row,customer_number:''}));
     }
   }
@@ -19,12 +19,14 @@
     const tasks={
       customers:loadInstallationCustomers(),
       quotations:fetchPaged((from,to)=>db().from('quotations').select('id,quotation_number,customer_order_number,customer_id,status,amount,installation_request_id').eq('status','مقبول').order('quotation_date',{ascending:false}).range(from,to)),
-      neighborhoods:fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,name').eq('is_active',true).order('name').range(from,to)),
+      regions:fetchPaged((from,to)=>db().from('installation_regions').select('id,name,is_active').eq('is_active',true).order('name').range(from,to)),
+      cities:fetchPaged((from,to)=>db().from('installation_cities').select('id,region_id,name,is_active').eq('is_active',true).order('name').range(from,to)),
+      neighborhoods:fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,region_id,city_id,name,city,region,is_active').eq('is_active',true).order('name').range(from,to)),
       serviceTypes:fetchPaged((from,to)=>db().from('installation_service_types').select('id,name,default_price').eq('is_active',true).order('name').range(from,to))
     };
     const keys=Object.keys(tasks);
     const settled=await Promise.allSettled(keys.map(key=>tasks[key]));
-    const result={customers:[],quotations:[],neighborhoods:[],serviceTypes:[],errors:{}};
+    const result={customers:[],quotations:[],regions:[],cities:[],neighborhoods:[],serviceTypes:[],errors:{}};
     settled.forEach((entry,index)=>{
       const key=keys[index];
       if(entry.status==='fulfilled') result[key]=entry.value;
@@ -93,12 +95,14 @@
 
   async function requestEditOptions(customerId){
     const tasks=[
-      fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,name').eq('is_active',true).order('name').range(from,to)),
+      fetchPaged((from,to)=>db().from('installation_regions').select('id,name,is_active').eq('is_active',true).order('name').range(from,to)),
+      fetchPaged((from,to)=>db().from('installation_cities').select('id,region_id,name,is_active').eq('is_active',true).order('name').range(from,to)),
+      fetchPaged((from,to)=>db().from('installation_neighborhoods').select('id,region_id,city_id,name,city,region,is_active').eq('is_active',true).order('name').range(from,to)),
       fetchPaged((from,to)=>db().from('installation_service_types').select('id,name,default_price').eq('is_active',true).order('name').range(from,to)),
       customerId?fetchPaged((from,to)=>db().from('quotations').select('id,quotation_number,customer_order_number,customer_id,status,amount,installation_request_id').eq('customer_id',customerId).eq('status','مقبول').order('quotation_date',{ascending:false}).range(from,to)):Promise.resolve([])
     ];
-    const [neighborhoods,serviceTypes,quotations]=await Promise.all(tasks);
-    return {neighborhoods,serviceTypes,quotations};
+    const [regions,cities,neighborhoods,serviceTypes,quotations]=await Promise.all(tasks);
+    return {regions,cities,neighborhoods,serviceTypes,quotations};
   }
 
   async function updateRequestContextServices(requestId,payload={}){
