@@ -1,13 +1,13 @@
 {
-  "version": "18.53.8",
-  "build": 185307,
+  "version": "18.53.9",
+  "build": 185308,
   "forceUpdate": true,
-  "releaseDate": "2026-08-07",
-  "title": "Enterprise Geographic Certification & Regression Audit",
+  "releaseDate": "2026-08-08",
+  "title": "Installation Summary Grouped Execution Timeline",
   "notes": [
-    "اعتماد نظام العناوين الجغرافي الموحد بعد فحص تكاملي للمناطق والمدن والأحياء عبر العملاء والتركيبات والاستيراد",
-    "تسجيل Geographic Address Runtime رسميًا ضمن Enterprise Offline Policy مع الحفاظ على Smart Cache وOffline stale fallback",
-    "تشغيل Regression Audit للصلاحيات وOffline Runtime وCache First وMobile مع توثيق الديون السابقة الموجودة قبل M15 بدون توسيع النطاق"
+    "إضافة مراحل تنفيذ جميع طلبات التاريخ المحدد أسفل ملخص التركيبات مع عرض الطلبات تحت بعضها ومقسمة حسب فرقة التركيبات",
+    "إعادة استخدام أوقات مراحل التنفيذ الأصلية من الطلب بدون تغيير Workflow التنفيذ أو التأكيد",
+    "الحفاظ على فلاتر التاريخ والمندوب والفرق ومنطق Single-Day وMulti-Day ومصاريف التركيب وصافي الربح"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-8-installation-summary-profit-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-53-9-installation-summary-execution-timeline"
 }

@@ -395,8 +395,8 @@
   async function installationSummaryReport(filters={}){
     requireAction('view','installationReports');
     const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set();
-    let visitsQuery=db().from('installation_execution_visits').select('id,installation_request_id,scheduled_date,installation_team_id,status,team:installation_teams(id,name),request:installation_requests(id,representative_id,representative:sales_representatives(id,full_name))');
-    let requestsQuery=db().from('installation_requests').select('id,scheduled_date,installation_team_id,representative_id,team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
+    let visitsQuery=db().from('installation_execution_visits').select('id,installation_request_id,scheduled_date,scheduled_time,installation_team_id,technician_name,status,team:installation_teams(id,name),request:installation_requests(id,request_number,representative_id,status,scheduled_date,scheduled_time,assigned_technician_name,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),representative:sales_representatives(id,full_name))');
+    let requestsQuery=db().from('installation_requests').select('id,request_number,scheduled_date,scheduled_time,installation_team_id,assigned_technician_name,representative_id,status,total_services_amount,on_route_at,map_opened_at,arrived_at,started_at,completed_at,customer:customers(id,customer_name,phone),team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
     if(filters.date){visitsQuery=visitsQuery.eq('scheduled_date',filters.date);requestsQuery=requestsQuery.eq('scheduled_date',filters.date)}
     const [{data:visits,error:ve},{data:scheduledRequests,error:sre},{data:teams,error:te},{data:reps,error:re}]=await Promise.all([
       visitsQuery.order('scheduled_date',{ascending:true}),
@@ -422,7 +422,7 @@
       requestsWithVisits=new Set((anyVisits||[]).map(v=>String(v.installation_request_id||'')).filter(Boolean));
     }
     const singleDayRequests=scopedRequests.filter(r=>!requestsWithVisits.has(String(r.id||'')));
-    if(!scopedVisits.length&&!singleDayRequests.length)return {rows:[],summary:{teams:0,visits:0,quantity:0,value:0,expenses:0,profit:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+    if(!scopedVisits.length&&!singleDayRequests.length)return {rows:[],executionGroups:[],summary:{teams:0,visits:0,quantity:0,value:0,expenses:0,profit:0,average:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
 
     const visitIds=scopedVisits.map(v=>v.id).filter(Boolean);
     const requestIds=[...new Set([...scopedVisits.map(v=>v.installation_request_id),...singleDayRequests.map(r=>r.id)].filter(Boolean))];
@@ -461,8 +461,26 @@
     }
 
     const rows=[...grouped.values()].map(team=>({id:team.id,name:team.name,visits:team.visitIds.size,quantity:team.quantity,value:team.value,expenses:team.expenses,profit:team.profit,average:team.quantity?team.value/team.quantity:0,services:[...team.services.values()].map(x=>({...x,average:x.quantity?x.value/x.quantity:0})).sort((a,b)=>b.value-a.value)})).sort((a,b)=>b.value-a.value);
+    const executionGrouped=new Map();
+    const pushExecution=(teamId,teamName,entryKey,request,scheduledDate,scheduledTime,technicianName,services)=>{
+      teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';
+      const normalizedServices=(services||[]).filter(x=>Number(x.quantity||0)>0).map(x=>({name:x.name||'خدمة غير محددة',quantity:Number(x.quantity||0),value:Number(x.value||0),expenses:Number(x.expenses||0),profit:Number(x.profit||0)}));
+      const value=normalizedServices.reduce((a,x)=>a+x.value,0),expenses=normalizedServices.reduce((a,x)=>a+x.expenses,0);
+      const item={entryKey,requestId:request?.id||'',requestNumber:request?.request_number||'',customerName:request?.customer?.customer_name||'',customerPhone:request?.customer?.phone||'',representativeName:request?.representative?.full_name||'',teamId,teamName,technicianName:technicianName||request?.assigned_technician_name||'',scheduledDate:scheduledDate||request?.scheduled_date||'',scheduledTime:String(scheduledTime||request?.scheduled_time||'').slice(0,5),status:request?.status||'',services:normalizedServices,value,expenses,profit:value-expenses,onRouteAt:request?.on_route_at||'',mapOpenedAt:request?.map_opened_at||'',arrivedAt:request?.arrived_at||'',startedAt:request?.started_at||'',completedAt:request?.completed_at||''};
+      let group=executionGrouped.get(teamId);if(!group){group={id:teamId,name:teamName,orders:[]};executionGrouped.set(teamId,group)}group.orders.push(item);
+    };
+    for(const visit of scopedVisits){
+      const serviceLines=[];
+      for(const line of visitLines||[]){if(String(line.visit_id)!==String(visit.id))continue;const service=serviceMap.get(line.request_service_id);if(!service)continue;const quantity=Number(line.scheduled_quantity||0);if(quantity<=0)continue;const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0)),unitCost=Number(service.service?.default_cost||0);serviceLines.push({name:service.service?.name,quantity,value:quantity*unitPrice,expenses:quantity*unitCost,profit:quantity*(unitPrice-unitCost)})}
+      pushExecution(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,visit.request,visit.scheduled_date,visit.scheduled_time,visit.technician_name,serviceLines);
+    }
+    for(const request of singleDayRequests){
+      const serviceLines=(servicesByRequest.get(String(request.id||''))||[]).map(service=>{const quantity=Number(service.quantity||0),unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0)),unitCost=Number(service.service?.default_cost||0);return {name:service.service?.name,quantity,value:quantity*unitPrice,expenses:quantity*unitCost,profit:quantity*(unitPrice-unitCost)}});
+      pushExecution(request.installation_team_id,request.team?.name,'request:'+request.id,request,request.scheduled_date,request.scheduled_time,request.assigned_technician_name,serviceLines);
+    }
+    const executionGroups=[...executionGrouped.values()].map(group=>({...group,orders:group.orders.sort((a,b)=>String(a.scheduledTime||'').localeCompare(String(b.scheduledTime||''))||String(a.requestNumber||'').localeCompare(String(b.requestNumber||''),'ar'))})).sort((a,b)=>a.name.localeCompare(b.name,'ar'));
     const totalQuantity=rows.reduce((a,x)=>a+x.quantity,0),totalValue=rows.reduce((a,x)=>a+x.value,0),totalExpenses=rows.reduce((a,x)=>a+x.expenses,0),totalProfit=totalValue-totalExpenses;
-    return {rows,summary:{teams:rows.length,visits:scopedVisits.length+singleDayRequests.length,quantity:totalQuantity,value:totalValue,expenses:totalExpenses,profit:totalProfit,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
+    return {rows,executionGroups,summary:{teams:rows.length,visits:scopedVisits.length+singleDayRequests.length,quantity:totalQuantity,value:totalValue,expenses:totalExpenses,profit:totalProfit,average:totalQuantity?totalValue/totalQuantity:0},teams:(teams||[]).map(x=>({id:x.id,name:x.name})),representatives:(reps||[]).map(x=>({id:x.id,name:x.full_name}))};
   }
 
   async function settingsCatalog(){requireAction('view','installationSettings');const [services,teams,neighborhoods,regions,cities]=await Promise.all([db().from('installation_service_types').select('*').order('name'),db().from('installation_teams').select('*').order('name'),db().from('installation_neighborhoods').select('*').order('name'),db().from('installation_regions').select('id,name,is_active').order('name'),db().from('installation_cities').select('id,region_id,name,is_active').order('name')]);if(services.error)throw new Error('تعذر تحميل الخدمات: '+services.error.message);if(teams.error)throw new Error('تعذر تحميل فرق التركيبات: '+teams.error.message);if(neighborhoods.error)throw new Error('تعذر تحميل الأحياء: '+neighborhoods.error.message);if(regions.error||cities.error)throw new Error('تعذر تحميل المناطق والمدن. شغّل Migration المرحلة أولًا.');return {services:services.data||[],teams:teams.data||[],neighborhoods:neighborhoods.data||[],regions:regions.data||[],cities:cities.data||[]}}
