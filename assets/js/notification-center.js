@@ -1,0 +1,28 @@
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let config=null,notifications=[],unsub=null;
+function roleLabel(r){return window.CustomerPermissions?.roleLabels?.[r]||r}
+function selectedSet(ev,type){return new Set((config?.rules||[]).filter(r=>r.event_key===ev.event_key&&r.recipient_type===type).map(r=>type==='role'?r.role_key:r.user_id))}
+function renderConfig(){const root=$('notificationMatrixRows');if(!root||!config)return;$('notificationMasterEnabled').checked=config.system?.is_enabled!==false;const roles=[...new Set(config.users.map(u=>u.role).filter(Boolean))];root.innerHTML=config.events.map(ev=>{const rs=selectedSet(ev,'role'),us=selectedSet(ev,'user'),owner=(config.rules||[]).some(r=>r.event_key===ev.event_key&&r.recipient_type==='request_owner');return `<tr data-notification-event="${esc(ev.event_key)}"><td><strong>${esc(ev.event_name)}</strong><small>${esc(ev.module_name||'التركيبات')}</small></td><td><input class="matrix-toggle" data-field="enabled" type="checkbox" ${ev.is_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="inApp" type="checkbox" ${ev.in_app_enabled?'checked':''}></td><td><span class="phase-two-badge">المرحلة التالية</span></td><td><input class="matrix-toggle" data-field="owner" type="checkbox" ${owner?'checked':''}></td><td><select data-field="roles" multiple>${roles.map(r=>`<option value="${esc(r)}" ${rs.has(r)?'selected':''}>${esc(roleLabel(r))}</option>`).join('')}</select></td><td><select data-field="users" multiple>${config.users.map(u=>`<option value="${esc(u.id)}" ${us.has(u.id)?'selected':''}>${esc(u.full_name||u.email||u.id)}</option>`).join('')}</select></td></tr>`}).join('')}
+function collect(){return{masterEnabled:$('notificationMasterEnabled')?.checked!==false,events:[...document.querySelectorAll('[data-notification-event]')].map(row=>({eventKey:row.dataset.notificationEvent,enabled:row.querySelector('[data-field="enabled"]')?.checked,inApp:row.querySelector('[data-field="inApp"]')?.checked,push:false,owner:row.querySelector('[data-field="owner"]')?.checked,roles:[...row.querySelector('[data-field="roles"]')?.selectedOptions||[]].map(o=>o.value),users:[...row.querySelector('[data-field="users"]')?.selectedOptions||[]].map(o=>o.value)}))}}
+async function loadConfig(force=false){if(config&&!force){renderConfig();return}const status=$('notificationCenterStatus');try{status.textContent='جاري تحميل مركز الإشعارات...';status.classList.remove('hidden');config=await window.NotificationCenterService.loadConfig();renderConfig();status.classList.add('hidden')}catch(e){status.textContent=e.message;status.dataset.type='error'}}
+async function save(){const status=$('notificationCenterStatus');try{status.textContent='جاري الحفظ...';status.classList.remove('hidden');config=await window.NotificationCenterService.saveConfig(collect());renderConfig();status.textContent='تم حفظ مصفوفة الإشعارات بنجاح.';status.dataset.type='success';setTimeout(()=>status.classList.add('hidden'),2500)}catch(e){status.textContent=e.message;status.dataset.type='error'}}
+function relative(ts){const d=Math.max(0,Date.now()-new Date(ts).getTime()),m=Math.floor(d/60000);if(m<1)return'الآن';if(m<60)return`منذ ${m} دقيقة`;const h=Math.floor(m/60);if(h<24)return`منذ ${h} ساعة`;return new Date(ts).toLocaleDateString('ar-SA')}
+function renderBell(){const list=$('notificationDropdownList'),badge=$('notificationUnreadBadge');const unread=notifications.filter(n=>!n.is_read).length;if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',!unread)}if(list)list.innerHTML=notifications.length?notifications.slice(0,20).map(n=>`<button class="notification-item ${n.is_read?'':'unread'}" type="button" data-notification-id="${n.id}" data-target-view="${esc(n.target_view||'')}"><strong>${esc(n.title)}</strong><span>${esc(n.body)}</span><small>${relative(n.created_at)}</small></button>`).join(''):'<div class="notification-empty">لا توجد إشعارات.</div>'}
+async function refresh(){try{notifications=await window.NotificationCenterService.listMine(50);renderBell()}catch(e){console.warn(e)}}
+async function openNotification(btn){await window.NotificationCenterService.markRead(btn.dataset.notificationId);const target=btn.dataset.targetView;if(target)document.querySelector(`.nav-item[data-view="${CSS.escape(target)}"]`)?.click();$('notificationDropdown')?.classList.add('hidden');refresh()}
+function startRealtime(){if(!window.CustomerAuth?.getState?.().profile)return;unsub?.();unsub=window.NotificationCenterService.subscribe(n=>{notifications.unshift(n);renderBell()});refresh()}
+function init(){
+ $('notificationBellBtn')?.addEventListener('click',()=>{$('notificationDropdown')?.classList.toggle('hidden');refresh()});
+ $('notificationMarkAllRead')?.addEventListener('click',async()=>{await window.NotificationCenterService.markAllRead();refresh()});
+ $('notificationDropdownList')?.addEventListener('click',e=>{const b=e.target.closest('[data-notification-id]');if(b)openNotification(b)});
+ $('saveNotificationCenterBtn')?.addEventListener('click',save);
+ window.addEventListener('kyum-view-changed',e=>{if(e.detail?.view==='notificationCenter')loadConfig(true)});
+ window.addEventListener('customer-auth-ready',startRealtime);
+ window.addEventListener('kyum-auth-state-changed',startRealtime);
+ setInterval(()=>{if(window.CustomerAuth?.getState?.().profile)refresh()},60000);setTimeout(startRealtime,0);
+}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+window.NotificationCenterUI=Object.freeze({loadConfig,refresh});
+})();

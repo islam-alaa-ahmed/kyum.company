@@ -42,6 +42,7 @@
     Object.freeze({ selector: "#createBackupBtn,#restoreBackupBtn", screen: "backups", action: "add" }),
     Object.freeze({ selector: "#downloadBackupBtn", screen: "backups", action: "export" }),
     Object.freeze({ selector: "#saveSystemSettingsBtn", screen: "systemSettings", action: "edit" }),
+    Object.freeze({ selector: "#saveNotificationCenterBtn", screen: "notificationCenter", action: "edit" }),
     Object.freeze({ selector: "[data-add-reference]", screen: "settings", action: "add" })
   ]);
 
@@ -50,7 +51,7 @@
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
     "installations-management": Object.freeze(["installationsOverview", "installationRequestNew", "installationRequests", "installationSchedule", "installationExecution", "installationCompletion", "installationExceptions", "installationReports", "installationSettings"]),
     "reports-analytics": Object.freeze(["reportsOverview", "dailyPerformanceReport"]),
-    "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "systemSettings", "aboutApp"])
+    "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "notificationCenter", "systemSettings", "aboutApp"])
   });
 
   function legacyPermissions() {

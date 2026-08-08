@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-19-completion-handoff-remaining-routing-m15-11-2";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-20-notification-center-m15-12-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -30,6 +30,7 @@ const CORE_APP_SHELL = [
   "./assets/css/mobile-theme-canonical.css",
   "./assets/css/sales-invoices.css",
   "./assets/css/global-typography-certification.css",
+  "./assets/css/notification-center.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/geographic-address.js",
@@ -43,6 +44,7 @@ const CORE_APP_SHELL = [
   "./assets/js/offline-queue.js",
   "./assets/js/sync-recovery-center.js",
   "./assets/js/permissions-service.js",
+  "./assets/js/notification-center-service.js",
   "./assets/js/auth-session.js",
   "./assets/js/reference-data-service.js",
   "./assets/js/customers-service.js",
@@ -53,6 +55,7 @@ const CORE_APP_SHELL = [
   "./assets/js/sales-invoices-service.js",
   "./assets/js/installations-service-contract.js",
   "./assets/js/app.js",
+  "./assets/js/notification-center.js",
   "./assets/js/installations-module.js",
   "./assets/js/installation-scheduling.js",
   "./assets/js/installation-execution.js",

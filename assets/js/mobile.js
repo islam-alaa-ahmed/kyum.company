@@ -1230,6 +1230,7 @@
     ["representatives", "المندوبون"],
     ["settings", "البيانات المرجعية"],
     ["backups", "النسخ الاحتياطي"],
+    ["notificationCenter", "مركز الإشعارات"],
     ["systemSettings", "الإعدادات"]
   ];
 
@@ -1239,6 +1240,7 @@
     permissionsView: { title: "إدارة الصلاحيات", note: "صلاحيات الأدوار على مستوى الشاشات" },
     settingsView: { title: "البيانات المرجعية", note: "الاهتمامات والأسباب والعملاء", filters: ".reference-data-toolbar" },
     backupsView: { title: "النسخ الاحتياطي", note: "التصدير والفحص والاستعادة الآمنة", labels: ["التاريخ","النوع","الحالة","المستخدم","الملف","التفاصيل"] },
+    notificationCenterView: { title: "مركز الإشعارات", note: "تفعيل الأحداث وتحديد المستلمين" },
     systemSettingsView: { title: "إعدادات النظام", note: "بيانات الشركة والإعدادات العامة" }
   };
 
