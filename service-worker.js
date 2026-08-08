@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-16-service-analytics-structure-s4-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-17-multi-day-execution-visit-isolation-m15-11";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
