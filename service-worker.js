@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-25-notification-matrix-save-column-select-all-m15-12-2-4";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-27-daily-activity-filtered-pdf-exports-m15-13";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

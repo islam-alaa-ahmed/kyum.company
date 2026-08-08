@@ -1,13 +1,13 @@
 {
-  "version": "18.53.26",
-  "build": 185324,
+  "version": "18.53.27",
+  "build": 185327,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Notification Matrix Save + Column Select-All — Phase M15.12.2.4",
+  "title": "Daily Activity Date Accuracy + Filtered PDF Exports — Phase M15.13",
   "notes": [
-    "إصلاح حفظ مصفوفة الإشعارات بإرسال event_name وباقي بيانات الحدث المطلوبة أثناء upsert",
-    "إضافة تحديد الكل/إلغاء الكل من رأس أعمدة التفعيل وداخل البرنامج وPush وصاحب الطلب وإرسال للدور المحدد",
-    "توضيح وظيفة استلام الدور بتسمية إرسال للدور المحدد مع الحفاظ على التوزيع الديناميكي حسب الدور المختار"
+    "إصلاح خط سير الموظف ليعرض أحداث يوم التقرير فقط وفق توقيت السعودية مع استبعاد تنبيهات الأيام الأخرى.",
+    "فرض تحميل حديث لخط سير الموظف عند طلب التقرير بدل الاعتماد على Snapshot قديمة من الكاش.",
+    "إضافة تصدير PDF وإرسال واتساب PDF لشاشتي المتابعات وعروض الأسعار مع الالتزام بكامل الفلاتر المحددة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-25-notification-matrix-save-column-select-all-m15-12-2-4"
+  "cacheToken": "kyum-crm-pwa-18-53-27-daily-activity-filtered-pdf-exports-m15-13"
 }

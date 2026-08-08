@@ -16,6 +16,21 @@
       .toISOString().slice(0, 10);
   }
 
+  // Reports are defined by the Saudi business day, not by the browser/UTC timezone.
+  function riyadhDayRange(workDate) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(workDate || ""));
+    if (!match) throw new Error("تاريخ التقرير غير صالح.");
+    const y = Number(match[1]);
+    const m = Number(match[2]);
+    const d = Number(match[3]);
+    const next = new Date(Date.UTC(y, m - 1, d + 1));
+    const nextDate = `${next.getUTCFullYear()}-${String(next.getUTCMonth()+1).padStart(2,"0")}-${String(next.getUTCDate()).padStart(2,"0")}`;
+    return {
+      from: `${workDate}T00:00:00+03:00`,
+      to: `${nextDate}T00:00:00+03:00`
+    };
+  }
+
   function authState() {
     return window.CustomerAuth?.getState?.() || {};
   }
@@ -106,9 +121,7 @@
   }
 
   async function listAudit(workDate, limit = 1000) {
-    const from = `${workDate}T00:00:00`;
-    const toDate = new Date(`${workDate}T00:00:00`);
-    toDate.setDate(toDate.getDate() + 1);
+    const { from, to } = riyadhDayRange(workDate);
 
     const { data, error } = await client()
       .from("audit_logs")
@@ -117,7 +130,7 @@
         user:user_profiles!audit_logs_user_profile_fkey(full_name,role,representative_id)
       `)
       .gte("created_at", from)
-      .lt("created_at", toDate.toISOString())
+      .lt("created_at", to)
       .order("created_at", { ascending: false })
       .limit(limit);
 
@@ -146,7 +159,7 @@
       .select(`
         id,alert_id,action_type,note,action_by,created_at,
         user:user_profiles!daily_alert_actions_user_profile_fkey(full_name,role),
-        alert:daily_alerts!daily_alert_actions_alert_id_fkey(
+        alert:daily_alerts!daily_alert_actions_alert_id_fkey!inner(
           work_date,title,alert_type,severity,user_id,representative_id
         )
       `)
@@ -162,9 +175,7 @@
 
 
   async function listBusinessEvents(workDate, limit = 2000) {
-    const from = `${workDate}T00:00:00`;
-    const toDate = new Date(`${workDate}T00:00:00`);
-    toDate.setDate(toDate.getDate() + 1);
+    const { from, to } = riyadhDayRange(workDate);
     const { data, error } = await client()
       .from("business_activity_events")
       .select(`
@@ -174,7 +185,7 @@
         user:user_profiles!business_activity_events_user_id_fkey(full_name,role,representative_id)
       `)
       .gte("occurred_at", from)
-      .lt("occurred_at", toDate.toISOString())
+      .lt("occurred_at", to)
       .order("occurred_at", { ascending: false })
       .limit(limit);
     if (error) {
@@ -249,7 +260,7 @@
     return labels[action] || action || "نشاط";
   }
 
-  function buildTimeline({ sessions, auditLogs, taskEvents, alertEvents, businessEvents }) {
+  function buildTimeline({ workDate, sessions, auditLogs, taskEvents, alertEvents, businessEvents }) {
     const events = [];
 
     sessions.forEach(session => {
@@ -336,7 +347,9 @@
       });
     });
 
-    alertEvents.forEach(item => {
+    alertEvents
+      .filter(item => String(item.alert?.work_date || "") === String(workDate || ""))
+      .forEach(item => {
       events.push({
         id: `alert-${item.id}`,
         userId: item.action_by,
@@ -369,7 +382,7 @@
 
     return {
       sessions,
-      timeline: buildTimeline({ sessions, auditLogs, taskEvents, alertEvents, businessEvents })
+      timeline: buildTimeline({ workDate, sessions, auditLogs, taskEvents, alertEvents, businessEvents })
     };
   }
 

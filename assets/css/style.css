@@ -11369,3 +11369,14 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
   #customerDialog .geo-searchable-input{min-height:52px}
 }
 
+
+
+/* Phase M15.13 — Filter-aware report export actions */
+.report-export-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.report-export-actions .primary-btn,.report-export-actions .secondary-btn{white-space:nowrap}
+@media (max-width:767px){
+  #followupsView>.actions-row,#quotationsView>.actions-row{align-items:stretch;gap:12px}
+  #followupsView>.actions-row>.report-export-actions,#quotationsView>.actions-row>.report-export-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #followupsView>.actions-row>.report-export-actions .followup-manage-action,#quotationsView>.actions-row>.report-export-actions .quotation-manage-action{grid-column:1/-1}
+  #followupsView>.actions-row>.report-export-actions button,#quotationsView>.actions-row>.report-export-actions button{width:100%;min-height:44px}
+}

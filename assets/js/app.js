@@ -5659,6 +5659,127 @@ async function sendDailyPerformanceWhatsappPdf(event) {
 }
 
 
+
+function filteredReportControlLabel(id, fallback = "الكل") {
+  const control = document.getElementById(id);
+  if (!control) return fallback;
+  if (control.tagName === "SELECT") return control.options?.[control.selectedIndex]?.textContent?.trim() || fallback;
+  return control.value?.trim() || fallback;
+}
+
+function reportFileSafe(value) {
+  return String(value || "report").replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "") || "report";
+}
+
+async function createFilteredListPdfFile(config) {
+  if (!window.html2canvas || !window.jspdf?.jsPDF) throw new Error("تعذر تحميل أدوات إنشاء ملف PDF.");
+  const rows = Array.isArray(config.rows) ? config.rows : [];
+  const generatedAt = new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Riyadh" }).format(new Date());
+  const host = document.createElement("section");
+  host.setAttribute("dir", "rtl");
+  host.style.cssText = "position:fixed;left:-20000px;top:0;width:1400px;background:#fff;color:#111827;padding:28px;font-family:Tahoma,Arial,sans-serif;z-index:-1";
+  const meta = (config.filters || []).map(([label,value]) => `<div><strong style="color:#f4bd3c">${dailyPerformancePdfEscape(label)}:</strong> ${dailyPerformancePdfEscape(value || "الكل")}</div>`).join("");
+  const head = config.columns.map(col => `<th>${dailyPerformancePdfEscape(col.label)}</th>`).join("");
+  const body = rows.length ? rows.map(row => `<tr>${config.columns.map(col => `<td>${dailyPerformancePdfEscape(typeof col.value === "function" ? col.value(row) : row?.[col.value] ?? "—")}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${config.columns.length}" style="padding:30px;text-align:center">لا توجد بيانات مطابقة للفلاتر المحددة.</td></tr>`;
+  host.innerHTML = `
+    <header style="display:grid;grid-template-columns:180px 1fr 360px;align-items:center;gap:20px;padding:18px 22px;border-radius:20px;background:linear-gradient(135deg,#06192c,#0a3651);color:#fff;margin-bottom:18px">
+      <img src="assets/images/kyum-header-logo.png" alt="KYUM" style="width:165px;max-height:78px;object-fit:contain;border-radius:12px">
+      <div style="text-align:center"><h1 style="margin:0 0 6px;font-size:30px">${dailyPerformancePdfEscape(config.title)}</h1><p style="margin:0;color:#d5e3ee;font-size:15px">${dailyPerformancePdfEscape(config.subtitle)}</p></div>
+      <div style="font-size:12px;line-height:1.9;border-right:1px solid rgba(255,255,255,.25);padding-right:18px">${meta}<div><strong style="color:#f4bd3c">عدد النتائج:</strong> ${rows.length}</div><div><strong style="color:#f4bd3c">وقت التصدير:</strong> ${dailyPerformancePdfEscape(generatedAt)}</div></div>
+    </header>
+    <table style="width:100%;border-collapse:collapse;table-layout:auto;background:#fff">
+      <thead><tr>${head}</tr></thead><tbody>${body}</tbody>
+    </table>`;
+  host.querySelectorAll("th").forEach(el => el.style.cssText="border:1px solid #cbd5e1;padding:9px 7px;background:#1f5cae;color:#fff;font-size:12px;text-align:right");
+  host.querySelectorAll("td").forEach(el => el.style.cssText="border:1px solid #dbe3ea;padding:8px 7px;color:#111827;font-size:11px;text-align:right;vertical-align:top;white-space:normal");
+  document.body.appendChild(host);
+  try {
+    const canvas = await window.html2canvas(host,{scale:1.25,useCORS:true,backgroundColor:"#ffffff",logging:false,windowWidth:1400,scrollX:0,scrollY:0});
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:"landscape",unit:"mm",format:"a4",compress:true});
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight(), margin=6;
+    const iw=pw-margin*2, ih=canvas.height*iw/canvas.width, usable=ph-margin*2;
+    const data=canvas.toDataURL("image/jpeg",0.93); let offset=0;
+    while(offset<ih){ if(offset>0) pdf.addPage(); pdf.addImage(data,"JPEG",margin,margin-offset,iw,ih,undefined,"FAST"); offset+=usable; }
+    return new File([pdf.output("blob")],`${config.fileName}.pdf`,{type:"application/pdf"});
+  } finally { host.remove(); }
+}
+
+function followupReportConfig() {
+  const rows = filteredFollowups();
+  return {
+    title:"تقرير المتابعات",
+    subtitle:"التقرير يعكس الفلاتر المحددة في شاشة المتابعات",
+    fileName:`kyum-followups-${new Date().toISOString().slice(0,10)}`,
+    rows,
+    filters:[
+      ["البحث", filteredReportControlLabel("followupSearch","بدون بحث")],
+      ["الحالة", filteredReportControlLabel("followupStatusFilter")],
+      ["المندوب", filteredReportControlLabel("followupRepFilter")]
+    ],
+    columns:[
+      {label:"العميل",value:r=>customerById(r.customerId)?.name || r.customerName || "—"},
+      {label:"رقم العميل",value:r=>customerById(r.customerId)?.phone || r.customerPhone || "—"},
+      {label:"تاريخ التواصل",value:r=>formatDate(r.contactDate)},
+      {label:"طريقة التواصل",value:"method"},
+      {label:"المندوب",value:r=>r.representative || "—"},
+      {label:"نتيجة التواصل",value:r=>r.result || "—"},
+      {label:"عرض السعر",value:r=>r.quotationNumber || "—"},
+      {label:"المتابعة القادمة",value:r=>formatDate(r.nextFollowupDate)},
+      {label:"الحالة",value:r=>statusLabel(followupStatus(r))}
+    ]
+  };
+}
+
+function quotationReportConfig() {
+  const rows = filteredQuotations();
+  return {
+    title:"تقرير عروض الأسعار",
+    subtitle:"التقرير يعكس الفلاتر المحددة في شاشة عروض الأسعار",
+    fileName:`kyum-quotations-${new Date().toISOString().slice(0,10)}`,
+    rows,
+    filters:[
+      ["البحث", filteredReportControlLabel("quotationSearch","بدون بحث")],
+      ["الحالة", filteredReportControlLabel("quotationStatusFilter")],
+      ["حالة التحويل", filteredReportControlLabel("quotationWorkflowFilter")],
+      ["المندوب", filteredReportControlLabel("quotationRepFilter")]
+    ],
+    columns:[
+      {label:"رقم العرض",value:r=>r.code || "—"},
+      {label:"رقم طلب العميل",value:r=>r.customerOrderNumber || "—"},
+      {label:"العميل",value:r=>customerById(r.customerId)?.name || r.customerName || "—"},
+      {label:"رقم العميل",value:r=>customerById(r.customerId)?.phone || r.customerPhone || "—"},
+      {label:"المندوب",value:r=>r.representative || "—"},
+      {label:"تاريخ العرض",value:r=>formatDate(r.quotationDate)},
+      {label:"القيمة",value:r=>formatCurrency(r.amount)},
+      {label:"الحالة",value:r=>canonicalQuotationStatus(r.status)},
+      {label:"تاريخ الانتهاء",value:r=>formatDate(r.expiryDate)},
+      {label:"سبب الرفض",value:r=>r.rejectionReason || "—"}
+    ]
+  };
+}
+
+async function runFilteredListPdf(button, configFactory, share) {
+  const original = button?.textContent || (share ? "إرسال التقرير واتساب PDF" : "تصدير PDF");
+  if (button?.disabled) return;
+  try {
+    if(button){button.disabled=true;button.textContent="جاري تجهيز PDF...";}
+    const config=configFactory();
+    const file=await createFilteredListPdfFile(config);
+    if(share){
+      const message=`${config.title}\nعدد النتائج: ${config.rows.length}\nمرفق التقرير بصيغة PDF وفق الفلاتر المحددة.`;
+      const shareData={title:config.title,text:message,files:[file]};
+      if(navigator.share && (!navigator.canShare || navigator.canShare(shareData))){ if(button) button.textContent="تم تجهيز التقرير"; await navigator.share(shareData); }
+      else { downloadDailyPerformancePdfFile(file); window.open(`https://wa.me/?text=${encodeURIComponent(message+"\nتم تنزيل ملف PDF على الجهاز لإرفاقه بالمحادثة.")}`,"_blank","noopener,noreferrer"); }
+    } else {
+      downloadDailyPerformancePdfFile(file);
+    }
+    if(button) button.textContent="تم التجهيز";
+  } catch(error){
+    if(error?.name!=="AbortError") alert(error?.message || "تعذر تجهيز التقرير.");
+  } finally { setTimeout(()=>{if(button){button.disabled=false;button.textContent=original;}},1200); }
+}
+
 async function createDailyActivityPdfFile() {
   if (!dailyActivitySnapshot) throw new Error("حمّل تقرير الأداء اليومي أولًا.");
   const employeeSelect = document.getElementById("dailyActivityEmployeeFilter");
@@ -5980,7 +6101,8 @@ async function loadDailyActivityReport() {
 
   try {
     dailyActivitySnapshot = await window.DailyActivityService.load(
-      dailyPerformanceSelectedDate()
+      dailyPerformanceSelectedDate(),
+      { force: true }
     );
     populateDailyActivityEmployees();
     renderDailyAttendance();
@@ -7848,6 +7970,11 @@ document.getElementById("customersTableBody").addEventListener("click", event =>
   if (detailsId) showCustomerDetails(detailsId);
   if (addFollowupCustomerId) openFollowupDialog(addFollowupCustomerId);
 });
+
+document.getElementById("exportFollowupsPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, followupReportConfig, false));
+document.getElementById("sendFollowupsWhatsappPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, followupReportConfig, true));
+document.getElementById("exportQuotationsPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, quotationReportConfig, false));
+document.getElementById("sendQuotationsWhatsappPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, quotationReportConfig, true));
 
 document.getElementById("followupsTableBody").addEventListener("click", event => {
   const editId = event.target.dataset.editFollowup;
