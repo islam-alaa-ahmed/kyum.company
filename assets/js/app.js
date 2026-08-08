@@ -232,6 +232,7 @@ const views = {
   systemHealth: document.getElementById("systemHealthView"),
   reportsOverview: document.getElementById("reportsOverviewView"),
   dailyPerformanceReport: document.getElementById("dailyPerformanceReportView"),
+  notificationCenter: document.getElementById("notificationCenterView"),
   systemSettings: document.getElementById("systemSettingsView"),
   aboutApp: document.getElementById("aboutAppView")
 };
@@ -261,6 +262,7 @@ const pageMeta = {
   systemHealth: ["مراقبة النظام", "الحالة الصحية والأمان والأداء التشغيلي"],
   reportsOverview: ["مركز التقارير", "تحليلات العملاء والمتابعات والعروض وأداء المندوبين"],
   dailyPerformanceReport: ["تقرير الأداء اليومي", "متابعة تنفيذ المهام والنشاط اليومي للموظفين"],
+  notificationCenter: ["مركز الإشعارات", "إدارة الأحداث والمستلمين وقنوات الإشعار"],
   systemSettings: ["إعدادات النظام", "الخيارات العامة وبيانات الشركة"],
   aboutApp: ["حول التطبيق", "معلومات الإصدار وحالة التحديثات"]
 };
@@ -1304,6 +1306,9 @@ function switchView(requestedName, options = {}) {
   }
   if (name === "dailyPerformanceReport") {
     loadDailyPerformanceReport(true);
+  }
+  if (name === "notificationCenter") {
+    window.NotificationCenterUI?.loadConfig?.(true);
   }
   if (name === "systemSettings") {
     loadSystemSettings();

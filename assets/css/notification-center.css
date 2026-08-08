@@ -71,3 +71,72 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
     max-height:calc(100dvh - var(--kyum-stable-header-height,84px) - env(safe-area-inset-top) - 28px)!important;
   }
 }
+
+
+/* Phase M15.12.2.2 — Notification Center Navigation & Mobile Bell Interaction Hotfix */
+@media (max-width:767px),
+       (pointer:coarse) and (max-device-width:1024px),
+       (hover:none) and (max-device-width:1024px){
+  /* Keep the mobile brand visually centered while reserving a real, touchable
+     action lane for both Notifications and Theme. No absolute overlap. */
+  #appHeader.topbar{
+    grid-template-columns:96px minmax(0,1fr) 96px!important;
+    grid-template-areas:"menu brand actions"!important;
+  }
+  #appHeader .sidebar-menu-launcher{
+    justify-self:start!important;
+  }
+  #appHeader .topbar-user-actions{
+    position:relative!important;
+    grid-area:actions!important;
+    width:96px!important;
+    min-width:96px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:10px!important;
+    overflow:visible!important;
+    z-index:8!important;
+    pointer-events:auto!important;
+  }
+  #appHeader .notification-bell-wrap{
+    position:relative!important;
+    inset:auto!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    flex:0 0 44px!important;
+    width:44px!important;
+    height:44px!important;
+    display:block!important;
+    z-index:9!important;
+    pointer-events:auto!important;
+  }
+  #appHeader .notification-bell-btn{
+    position:relative!important;
+    z-index:2!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+    -webkit-tap-highlight-color:transparent!important;
+  }
+  #appHeader .theme-toggle-button,
+  #appHeader .theme-toggle-button.is-visible{
+    position:relative!important;
+    z-index:1!important;
+    flex:0 0 42px!important;
+    margin:0!important;
+  }
+  #appHeader .notification-dropdown{
+    z-index:2140!important;
+    top:calc(var(--kyum-stable-header-height,84px) + env(safe-area-inset-top) + 10px)!important;
+  }
+}
+
+@media (max-width:390px){
+  #appHeader.topbar{
+    grid-template-columns:92px minmax(0,1fr) 92px!important;
+    padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))!important;
+  }
+  #appHeader .topbar-user-actions{width:92px!important;min-width:92px!important;gap:6px!important}
+}

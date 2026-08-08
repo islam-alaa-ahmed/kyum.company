@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-22-notification-bell-m15-12-2-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-23-notification-center-nav-mobile-bell-m15-12-2-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

@@ -19,7 +19,13 @@ function startRealtime(){if(!window.CustomerAuth?.getState?.().profile)return;un
 async function enablePush(){const status=$('notificationCenterStatus');try{status.textContent='جاري تفعيل Push لهذا الجهاز...';status.classList.remove('hidden');await window.NotificationCenterService.enablePush();status.textContent='تم تفعيل إشعارات Push لهذا الجهاز.';status.dataset.type='success';await renderPushStatus()}catch(e){status.textContent=e.message;status.dataset.type='error'}}
 async function disablePush(){const status=$('notificationCenterStatus');try{await window.NotificationCenterService.disablePush();status.textContent='تم إيقاف Push على هذا الجهاز.';status.dataset.type='success';status.classList.remove('hidden');await renderPushStatus()}catch(e){status.textContent=e.message;status.dataset.type='error'}}
 function init(){
- $('notificationBellBtn')?.addEventListener('click',()=>{$('notificationDropdown')?.classList.toggle('hidden');refresh()});
+ const bell=$('notificationBellBtn'),dropdown=$('notificationDropdown');let lastTouchToggle=0;
+ const toggleBell=()=>{if(!dropdown)return;dropdown.classList.toggle('hidden');bell?.setAttribute('aria-expanded',String(!dropdown.classList.contains('hidden')));refresh()};
+ bell?.setAttribute('aria-haspopup','dialog');bell?.setAttribute('aria-expanded','false');
+ bell?.addEventListener('touchend',e=>{lastTouchToggle=Date.now();e.preventDefault();e.stopPropagation();toggleBell()},{passive:false});
+ bell?.addEventListener('click',e=>{e.stopPropagation();if(Date.now()-lastTouchToggle<650)return;toggleBell()});
+ dropdown?.addEventListener('click',e=>e.stopPropagation());
+ document.addEventListener('click',()=>{if(dropdown&&!dropdown.classList.contains('hidden')){dropdown.classList.add('hidden');bell?.setAttribute('aria-expanded','false')}});
  $('notificationMarkAllRead')?.addEventListener('click',async()=>{await window.NotificationCenterService.markAllRead();refresh()});
  $('notificationDropdownList')?.addEventListener('click',e=>{const b=e.target.closest('[data-notification-id]');if(b)openNotification(b)});
  $('saveNotificationCenterBtn')?.addEventListener('click',save);$('notificationEnablePushBtn')?.addEventListener('click',enablePush);$('notificationDisablePushBtn')?.addEventListener('click',disablePush);
