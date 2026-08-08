@@ -3690,3 +3690,22 @@ html.is-offline body::before {
   #customersView tbody td[data-mobile-field="actions"] { grid-column: 1 !important; }
   #customersView .row-actions { grid-template-columns: 1fr !important; }
 }
+
+
+/* Phase M15.13.6 — Mobile notification interaction & customer card parity */
+@media (max-width:767px), (pointer:coarse) and (max-device-width:1024px), (hover:none) and (max-device-width:1024px){
+  /* Match the proven follow-up card reading rhythm: one full-width field per row. */
+  #customersView tbody tr{grid-template-columns:1fr!important;gap:0!important;padding:16px 18px!important}
+  #customersView tbody td{grid-column:1/-1!important;padding:11px 0!important}
+  #customersView tbody td+td{border-top:1px solid var(--border)!important}
+  #customersView tbody td::before{margin-bottom:5px!important;font-size:10px!important}
+  #customersView tbody td[data-mobile-field="name"]{order:-2;padding-top:0!important}
+  #customersView tbody td[data-mobile-field="name"] strong{font-size:18px!important;line-height:1.45!important;color:var(--text)!important}
+  #customersView tbody td[data-mobile-field="phone"]{order:-1;padding:11px 0!important;border-bottom:0!important}
+  #customersView tbody td[data-mobile-field="phone"] strong{font-size:16px!important;color:var(--text)!important}
+  #customersView tbody td[data-mobile-field="actions"]{padding-top:12px!important}
+  #customersView .row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  #customersView .row-actions button,#customersView .row-actions a{min-height:46px!important;border-radius:14px!important;font-size:12px!important}
+  /* Bell must remain an independent touch surface above decorative header layers. */
+  #appHeader .notification-bell-wrap,#appHeader .notification-bell-btn{pointer-events:auto!important;-webkit-user-select:none!important;user-select:none!important}
+}

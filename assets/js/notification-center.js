@@ -83,6 +83,14 @@ function init(){
    lastPointerToggle=Date.now();
    e.preventDefault();e.stopPropagation();toggleBell();
  },{passive:false});
+ // iOS Safari/PWA can omit PointerEvent delivery for absolutely-positioned
+ // header controls. Keep a touchend fallback, while suppressing the synthetic
+ // click/pointer duplicate through the same timestamp guard.
+ bell?.addEventListener('touchend',e=>{
+   if(Date.now()-lastPointerToggle<450)return;
+   lastPointerToggle=Date.now();
+   e.preventDefault();e.stopPropagation();toggleBell();
+ },{passive:false});
  bell?.addEventListener('click',e=>{e.stopPropagation();if(Date.now()-lastPointerToggle<700)return;toggleBell()});
  dropdown?.addEventListener('click',e=>e.stopPropagation());
  document.addEventListener('click',()=>{if(dropdown&&!dropdown.classList.contains('hidden')){dropdown.classList.add('hidden');bell?.setAttribute('aria-expanded','false')}});

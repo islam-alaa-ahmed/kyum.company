@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-31-mobile-notifications-crm-cards-recovery-m15-13-4";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-31-mobile-notifications-crm-cards-recovery-m15-13-6";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
