@@ -1,14 +1,13 @@
 {
-  "version": "18.53.21",
-  "build": 185321,
+  "version": "18.53.22",
+  "build": 185322,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Enterprise Web Push / External Notifications — Phase M15.12.2",
+  "title": "Notification Bell Header Placement & Emphasis Hotfix — Phase M15.12.2.1",
   "notes": [
-    "تفعيل Web Push خارج البرنامج لنفس مصفوفة مركز الإشعارات بدون مستلمين Hardcoded",
-    "إضافة اشتراك مستقل لكل مستخدم وجهاز مع دعم Desktop وAndroid وPWA وiOS Home Screen وفق دعم المتصفح",
-    "إضافة Push Outbox وEdge Function لإرسال الإشعارات مع تنظيف الاشتراكات المنتهية وإعادة المحاولة",
-    "إضافة Deep Link من إشعار النظام إلى شاشة KYUM المرتبطة مع استمرار إشعارات الجرس داخل البرنامج"
+    "فصل جرس الإشعارات على الموبايل عن زر القائمة وتثبيته بجوار زر الثيم داخل الهيدر بدون تداخل",
+    "زيادة وضوح زر الإشعارات على الديسكتوب بتدرج أزرق وبروز وظل خفيف مع الحفاظ على تصميم الهيدر",
+    "تحسين Badge الإشعارات غير المقروءة وتموضع قائمة الإشعارات على الشاشات الصغيرة بدون تغيير منطق الإشعارات أو Push"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-21-web-push-m15-12-2"
+  "cacheToken": "kyum-crm-pwa-18-53-22-notification-bell-m15-12-2-1"
 }
