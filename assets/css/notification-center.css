@@ -175,3 +175,117 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
 .notification-column-toggle span{line-height:1.25}
 .notification-matrix thead th:not(:first-child){vertical-align:middle;text-align:center}
 @media(max-width:760px){.notification-column-toggle{gap:6px}.notification-column-toggle input{width:19px;height:19px}}
+
+/* Phase M15.12.2.5 — Mobile Header Layout Recovery
+   Restore the certified mobile header positioning model (fixed/absolute controls).
+   The notification bell gets its own physical lane immediately beside Theme,
+   without converting the header or user-actions container into a grid/flex layout. */
+@media (max-width:767px),
+       (pointer:coarse) and (max-device-width:1024px),
+       (hover:none) and (max-device-width:1024px){
+  /* Undo the M15.12.2.2 grid override. The certified mobile header in mobile.css
+     is intentionally display:block with individually positioned controls. */
+  #appHeader.topbar,
+  #appHeader.topbar.is-scrolled,
+  #appHeader.topbar.mobile-header-stable{
+    display:block!important;
+    grid-template-columns:none!important;
+    grid-template-areas:none!important;
+  }
+
+  /* Keep the original mobile behavior where header action children participate
+     directly in the header positioning context. */
+  #appHeader .topbar-user-actions{
+    display:contents!important;
+    position:static!important;
+    width:auto!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+
+  /* Theme remains in its certified far-right position. */
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    position:absolute!important;
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    right:max(14px,env(safe-area-inset-right))!important;
+    left:auto!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    z-index:4!important;
+  }
+
+  /* Notification bell occupies a separate lane 60px to the left of Theme.
+     This preserves an explicit 12px gap between two 48px touch targets. */
+  #appHeader .notification-bell-wrap{
+    position:absolute!important;
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    right:calc(max(14px,env(safe-area-inset-right)) + 60px)!important;
+    bottom:auto!important;
+    left:auto!important;
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+    margin:0!important;
+    display:block!important;
+    z-index:7!important;
+    pointer-events:auto!important;
+  }
+
+  #appHeader .notification-bell-btn{
+    width:48px!important;
+    height:48px!important;
+    min-width:48px!important;
+    min-height:48px!important;
+    border-radius:16px!important;
+    margin:0!important;
+    position:relative!important;
+    inset:auto!important;
+    z-index:2!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+  }
+
+  #appHeader .notification-dropdown{
+    position:fixed!important;
+    top:calc(var(--kyum-stable-header-height,96px) + env(safe-area-inset-top) + 10px)!important;
+    right:max(12px,env(safe-area-inset-right))!important;
+    left:max(12px,env(safe-area-inset-left))!important;
+    width:auto!important;
+    max-height:calc(100dvh - var(--kyum-stable-header-height,96px) - env(safe-area-inset-top) - 28px)!important;
+    z-index:2140!important;
+  }
+}
+
+@media (max-width:360px){
+  /* Compact phones keep the same relationship with slightly smaller targets,
+     matching the existing compact header rules. */
+  #appHeader #themeToggleButton,
+  #appHeader #themeToggleButton.is-visible{
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    right:max(10px,env(safe-area-inset-right))!important;
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  #appHeader .notification-bell-wrap{
+    top:calc(env(safe-area-inset-top) + 24px)!important;
+    right:calc(max(10px,env(safe-area-inset-right)) + 54px)!important;
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  #appHeader .notification-bell-btn{
+    width:44px!important;
+    height:44px!important;
+    min-width:44px!important;
+    min-height:44px!important;
+    border-radius:15px!important;
+  }
+}
