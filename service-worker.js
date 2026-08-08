@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-18-execution-visit-canonicalization-m15-11-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-19-completion-handoff-remaining-routing-m15-11-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

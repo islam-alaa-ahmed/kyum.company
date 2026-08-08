@@ -43,24 +43,45 @@
       <small class="installation-quantity-result"></small>
     </article>`;
   }
-  function syncQuantityResults(){
-    let remaining=0;
+  function quantityDecision(){
+    let remaining=0,mismatch=false,shortfall=0;
     document.querySelectorAll(".installation-confirmed-qty").forEach(input=>{
-      const max=Number(input.dataset.remaining||0),value=Math.max(0,Number(input.value||0));
-      const line=input.closest(".installation-quantity-line"),after=Math.max(max-value,0);
+      const max=Number(input.dataset.remaining||0),scheduled=Number(input.dataset.scheduled||0),value=Math.max(0,Number(input.value||0));
+      const after=Math.max(max-value,0);
       remaining+=after;
-      line?.querySelector(".installation-quantity-result")?.replaceChildren(document.createTextNode(`المتبقي بعد الاعتماد: ${after}`));
+      if(value!==scheduled)mismatch=true;
+      shortfall+=Math.max(scheduled-value,0);
+      input.closest(".installation-quantity-line")?.querySelector(".installation-quantity-result")?.replaceChildren(document.createTextNode(`المتبقي بعد الاعتماد: ${after}`));
     });
-    $("installationQuantityRemainingTotal").textContent=String(remaining);
-    const hasRemaining=remaining>0;
-    $("installationQuantityRemainingActionWrap").classList.toggle("hidden",!hasRemaining);
-    if(!hasRemaining)$("installationQuantityRemainingAction").value="completed";
+    return {remaining,mismatch,shortfall};
+  }
+  function fillRemainingActions(decision){
+    const select=$("installationQuantityRemainingAction");if(!select)return;
+    const next=quantityCurrent?.nextScheduledVisit||null;
+    if(decision.remaining<=0){select.innerHTML='<option value="completed">تم تنفيذ كامل الكمية</option>';select.value="completed";return;}
+    if(!decision.mismatch&&next){select.innerHTML='<option value="preserve_existing">الموعد المجدول التالي مستمر كما هو</option>';select.value="preserve_existing";return;}
+    let html='';
+    if(next)html+=`<option value="append_to_next_visit">إضافة فرق الكمية إلى الموعد المجدول ${esc(next.scheduledDate)} ${esc(next.scheduledTime)}</option>`;
+    html+='<option value="return_to_schedule">إعادة فرق الكمية إلى شاشة الجدولة</option>';
+    select.innerHTML=html;select.value=next?"append_to_next_visit":"return_to_schedule";
+  }
+  function syncQuantityResults(){
+    const decision=quantityDecision();
+    $("installationQuantityRemainingTotal").textContent=String(decision.remaining);
+    fillRemainingActions(decision);
+    const next=quantityCurrent?.nextScheduledVisit||null;
+    const requiresChoice=decision.remaining>0&&(decision.mismatch||!next);
+    $("installationQuantityRemainingActionWrap").classList.toggle("hidden",!requiresChoice);
+    const note=$("installationQuantityScheduleLaterNote");
+    if(note){note.classList.toggle("hidden",requiresChoice||decision.remaining<=0);note.textContent=decision.remaining>0&&next?`سيظل الموعد التالي ${next.scheduledDate} ${next.scheduledTime} كما هو لأن الكمية المنفذة مطابقة للكمية المجدولة لهذه الزيارة.`:"";}
     syncQuantityAction();
   }
   function syncQuantityAction(){
-    const action=$("installationQuantityRemainingAction").value;
-    $("installationQuantityRescheduleFields").classList.toggle("hidden",action!=="reschedule_now");
-    $("installationQuantityScheduleLaterNote").classList.toggle("hidden",action!=="schedule_later");
+    const action=$("installationQuantityRemainingAction")?.value||"completed";
+    $("installationQuantityRescheduleFields")?.classList.add("hidden");
+    const note=$("installationQuantityScheduleLaterNote");
+    if(note&&action==="return_to_schedule"){note.classList.remove("hidden");note.textContent="سيتم إعادة فرق الكمية فقط إلى شاشة الجدولة، مع الحفاظ على أي موعد مجدول مسبقًا لنفس الطلب.";}
+    else if(note&&action==="append_to_next_visit"){const next=quantityCurrent?.nextScheduledVisit;note.classList.remove("hidden");note.textContent=next?`سيتم إضافة فرق الكمية إلى الموعد المجدول ${next.scheduledDate} ${next.scheduledTime} لنفس الطلب.`:"";}
   }
   async function openQuantityConfirmation(r){
     if(!can("edit","installationCompletion"))return;
@@ -68,7 +89,7 @@
     await ensureQuantityTeams();
     $("installationQuantityRequestLabel").textContent=`${r.requestNumber} — ${r.customerName}`;
     $("installationQuantityLines").innerHTML=(r.quantities||[]).map(quantityLineHtml).join("")||'<p class="empty-state">لا توجد خدمات قابلة للتأكيد.</p>';
-    $("installationQuantityRemainingAction").value="schedule_later";
+    $("installationQuantityRemainingAction").value="return_to_schedule";
     $("installationQuantityRescheduleDate").value=today();
     $("installationQuantityRescheduleTime").value="10:00";
     $("installationQuantityRescheduleTeam").value=r.teamId||"";
@@ -112,18 +133,10 @@
         if(!lines.length)throw new Error("لا توجد خدمات لاعتمادها.");
         lines.forEach(x=>{const source=quantityCurrent.quantities.find(q=>q.requestServiceId===x.requestServiceId);if(x.executedQuantity<0||x.executedQuantity>Number(source?.remainingQuantity||0))throw new Error("الكمية المنفذة يجب ألا تتجاوز المتبقي من الطلب.");});
         const remaining=lines.reduce((n,x)=>{const source=quantityCurrent.quantities.find(q=>q.requestServiceId===x.requestServiceId);return n+Math.max(Number(source?.remainingQuantity||0)-x.executedQuantity,0)},0);
-        let action=remaining===0?"completed":$("installationQuantityRemainingAction").value;
+        const decision=quantityDecision();
+        let action=remaining===0?"completed":($("installationQuantityRemainingAction")?.value||"return_to_schedule");
+        if(remaining>0&&!decision.mismatch&&quantityCurrent.nextScheduledVisit)action="preserve_existing";
         let schedule=null;
-        if(action==="reschedule_now"){
-          schedule={
-            scheduledDate:$("installationQuantityRescheduleDate").value,
-            scheduledTime:$("installationQuantityRescheduleTime").value,
-            teamId:$("installationQuantityRescheduleTeam").value,
-            technicianName:$("installationQuantityRescheduleTechnician").value.trim(),
-            assignmentNotes:"استكمال الكمية المتبقية بعد تأكيد التنفيذ"
-          };
-          if(!schedule.scheduledDate||!schedule.scheduledTime||!schedule.teamId||!schedule.technicianName)throw new Error("أكمل بيانات إعادة الجدولة.");
-        }
         status($("installationQuantityConfirmationStatus"),"جاري اعتماد التنفيذ الفعلي...");
         await window.InstallationsServiceSafe.confirmActualQuantities({
           id:quantityCurrent.id,visitId:quantityCurrent.visitId||null,lines,remainingAction:action,schedule,

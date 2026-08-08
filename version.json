@@ -1,14 +1,14 @@
 {
-  "version": "18.53.18",
-  "build": 185318,
+  "version": "18.53.19",
+  "build": 185319,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Execution Visit Canonicalization — Phase M15.11.1",
+  "title": "Completion Handoff & Remaining Quantity Routing — Phase M15.11.2",
   "notes": [
-    "تحويل الجدولة الأحادية إلى Visit مستقلة فور حفظ الجدولة",
-    "ترحيل حالة التنفيذ الحالية القديمة من الطلب الأب إلى الزيارة الصحيحة",
-    "منع اكتمال زيارة واحدة من إكمال الطلب الأب قبل تأكيد الكميات",
-    "منع Timeline الطلب الأب من تلويث الزيارات الجديدة أو اللاحقة"
+    "نقل الزيارة المنتهية مباشرة من الطلب الحالي إلى تأكيد الانتهاء",
+    "منع أي Timeline قديم غير مختار من الظهور كطلب حالي",
+    "إضافة خيار ضم فرق الكمية إلى الموعد المجدول التالي",
+    "إضافة خيار إعادة فرق الكمية إلى شاشة الجدولة مع الحفاظ على المواعيد القائمة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-18-execution-visit-canonicalization-m15-11-1"
+  "cacheToken": "kyum-crm-pwa-18-53-19-completion-handoff-remaining-routing-m15-11-2"
 }
