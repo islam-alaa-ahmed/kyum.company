@@ -4,7 +4,7 @@ window.CustomerPermissions = {
     sales_manager: "مدير المبيعات",
     sales_supervisor: "مشرف المبيعات",
     sales_representative: "مندوب مبيعات",
-    customer_service: "خدمة العملاء",
+    customer_service: "مشرف التركيبات",
     viewer: "فني تركيبات"
   },
   roleOptions: ["super_admin","sales_manager","sales_supervisor","sales_representative","customer_service","viewer"],
