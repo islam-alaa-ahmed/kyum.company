@@ -140,3 +140,30 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
   }
   #appHeader .topbar-user-actions{width:92px!important;min-width:92px!important;gap:6px!important}
 }
+
+/* Phase M15.12.2.3 — Role-First Notification Matrix */
+.notification-role-filter{
+  display:grid;
+  grid-template-columns:minmax(180px,280px) minmax(0,1fr);
+  grid-template-areas:"label note" "select note";
+  gap:7px 18px;
+  align-items:center;
+  margin:0 0 16px;
+  padding:14px 16px;
+  border:1px solid rgba(37,99,235,.18);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(37,99,235,.07),rgba(14,165,233,.025));
+}
+.notification-role-filter label{grid-area:label;font-weight:800;color:var(--text,#0f172a)}
+.notification-role-filter select{grid-area:select;width:100%;min-height:44px;border-radius:12px;padding-inline:12px;font:inherit;background:var(--surface,#fff);color:inherit;border:1px solid var(--border-color,#cbd5e1)}
+.notification-role-filter-note{grid-area:note;color:var(--muted,#64748b);font-size:13px;line-height:1.7}
+.notification-matrix{min-width:860px}
+.notification-role-recipient-cell{min-width:180px}
+.notification-role-recipient-cell .matrix-toggle{vertical-align:middle;margin-inline-end:8px}
+.notification-role-recipient-cell span{font-weight:700;vertical-align:middle}
+.notification-matrix th:nth-child(6),.notification-matrix td:nth-child(6){text-align:center}
+@media(max-width:760px){
+  .notification-role-filter{grid-template-columns:1fr;grid-template-areas:"label" "select" "note";gap:8px}
+  .notification-role-filter-note{font-size:12px}
+  .notification-matrix{min-width:820px}
+}

@@ -1,13 +1,13 @@
 {
-  "version": "18.53.23",
+  "version": "18.53.24",
   "build": 185323,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Notification Center Navigation & Mobile Bell Interaction Hotfix — Phase M15.12.2.2",
+  "title": "Role-First Notification Matrix — Phase M15.12.2.3",
   "notes": [
     "تسجيل مركز الإشعارات داخل Navigation Router وبيانات الصفحة لضمان فتحه من قائمة الإعدادات على الديسكتوب والموبايل",
     "إصلاح استجابة جرس الإشعارات للمس على الموبايل مع Touch fallback وحالة aria-expanded وإغلاق القائمة عند الضغط خارجها",
     "فصل جرس الإشعارات وزر Light/Dark في مساحة أزرار حقيقية داخل الهيدر بدون absolute overlap مع الحفاظ على مركزية الهوية"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-23-notification-center-nav-mobile-bell-m15-12-2-2"
+  "cacheToken": "kyum-crm-pwa-18-53-24-notification-role-first-matrix-m15-12-2-3"
 }

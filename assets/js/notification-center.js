@@ -1,14 +1,54 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let config=null,notifications=[],unsub=null;
+let config=null,notifications=[],unsub=null,selectedRoleKey='';
 function roleLabel(r){return window.CustomerPermissions?.roleLabels?.[r]||r}
+function availableRoles(){
+  const canonical=Array.isArray(window.CustomerPermissions?.roleOptions)?window.CustomerPermissions.roleOptions:[];
+  const fromUsers=(config?.users||[]).map(u=>u.role).filter(Boolean);
+  return [...new Set([...canonical,...fromUsers])].filter(Boolean);
+}
 function selectedSet(ev,type){return new Set((config?.rules||[]).filter(r=>r.event_key===ev.event_key&&r.recipient_type===type).map(r=>type==='role'?r.role_key:r.user_id))}
-function renderConfig(){const root=$('notificationMatrixRows');if(!root||!config)return;$('notificationMasterEnabled').checked=config.system?.is_enabled!==false;const roles=[...new Set(config.users.map(u=>u.role).filter(Boolean))];root.innerHTML=config.events.map(ev=>{const rs=selectedSet(ev,'role'),us=selectedSet(ev,'user'),owner=(config.rules||[]).some(r=>r.event_key===ev.event_key&&r.recipient_type==='request_owner');return `<tr data-notification-event="${esc(ev.event_key)}"><td><strong>${esc(ev.event_name)}</strong><small>${esc(ev.module_name||'التركيبات')}</small></td><td><input class="matrix-toggle" data-field="enabled" type="checkbox" ${ev.is_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="inApp" type="checkbox" ${ev.in_app_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="push" type="checkbox" ${ev.push_enabled?'checked':''} title="إرسال Push خارج البرنامج للأجهزة المشتركة"></td><td><input class="matrix-toggle" data-field="owner" type="checkbox" ${owner?'checked':''}></td><td><select data-field="roles" multiple>${roles.map(r=>`<option value="${esc(r)}" ${rs.has(r)?'selected':''}>${esc(roleLabel(r))}</option>`).join('')}</select></td><td><select data-field="users" multiple>${config.users.map(u=>`<option value="${esc(u.id)}" ${us.has(u.id)?'selected':''}>${esc(u.full_name||u.email||u.id)}</option>`).join('')}</select></td></tr>`}).join('')}
-function collect(){return{masterEnabled:$('notificationMasterEnabled')?.checked!==false,events:[...document.querySelectorAll('[data-notification-event]')].map(row=>({eventKey:row.dataset.notificationEvent,enabled:row.querySelector('[data-field="enabled"]')?.checked,inApp:row.querySelector('[data-field="inApp"]')?.checked,push:row.querySelector('[data-field="push"]')?.checked,owner:row.querySelector('[data-field="owner"]')?.checked,roles:[...row.querySelector('[data-field="roles"]')?.selectedOptions||[]].map(o=>o.value),users:[...row.querySelector('[data-field="users"]')?.selectedOptions||[]].map(o=>o.value)}))}}
+function ownerEnabled(ev){return (config?.rules||[]).some(r=>r.event_key===ev.event_key&&r.recipient_type==='request_owner')}
+function syncCurrentRoleDraft(){
+  if(!config||!selectedRoleKey)return;
+  const rows=[...document.querySelectorAll('[data-notification-event]')];
+  if(!rows.length)return;
+  rows.forEach(row=>{
+    const eventKey=row.dataset.notificationEvent, ev=config.events.find(x=>x.event_key===eventKey);
+    if(ev){
+      ev.is_enabled=!!row.querySelector('[data-field="enabled"]')?.checked;
+      ev.in_app_enabled=!!row.querySelector('[data-field="inApp"]')?.checked;
+      ev.push_enabled=!!row.querySelector('[data-field="push"]')?.checked;
+    }
+    config.rules=(config.rules||[]).filter(r=>!(r.event_key===eventKey&&((r.recipient_type==='role'&&r.role_key===selectedRoleKey)||r.recipient_type==='request_owner')));
+    if(row.querySelector('[data-field="roleRecipient"]')?.checked)config.rules.push({event_key:eventKey,recipient_type:'role',role_key:selectedRoleKey,is_active:true});
+    if(row.querySelector('[data-field="owner"]')?.checked)config.rules.push({event_key:eventKey,recipient_type:'request_owner',is_active:true});
+  });
+}
+function renderRoleSelect(){
+  const select=$('notificationRoleSelect');if(!select)return;
+  const roles=availableRoles();
+  if(!selectedRoleKey||!roles.includes(selectedRoleKey))selectedRoleKey=roles[0]||'';
+  select.innerHTML=roles.map(r=>`<option value="${esc(r)}" ${r===selectedRoleKey?'selected':''}>${esc(roleLabel(r))}</option>`).join('');
+  select.disabled=!roles.length;
+}
+function renderConfig(){
+  const root=$('notificationMatrixRows');if(!root||!config)return;
+  $('notificationMasterEnabled').checked=config.system?.is_enabled!==false;
+  renderRoleSelect();
+  root.innerHTML=config.events.map(ev=>{
+    const roles=selectedSet(ev,'role');
+    return `<tr data-notification-event="${esc(ev.event_key)}"><td><strong>${esc(ev.event_name)}</strong><small>${esc(ev.module_name||'التركيبات')}</small></td><td><input class="matrix-toggle" data-field="enabled" type="checkbox" ${ev.is_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="inApp" type="checkbox" ${ev.in_app_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="push" type="checkbox" ${ev.push_enabled?'checked':''} title="إرسال Push خارج البرنامج للأجهزة المشتركة"></td><td><input class="matrix-toggle" data-field="owner" type="checkbox" ${ownerEnabled(ev)?'checked':''}></td><td class="notification-role-recipient-cell"><input class="matrix-toggle" data-field="roleRecipient" type="checkbox" ${selectedRoleKey&&roles.has(selectedRoleKey)?'checked':''}><span>${esc(selectedRoleKey?roleLabel(selectedRoleKey):'لا يوجد دور')}</span></td></tr>`;
+  }).join('');
+}
+function collect(){
+  syncCurrentRoleDraft();
+  return {masterEnabled:$('notificationMasterEnabled')?.checked!==false,events:(config?.events||[]).map(ev=>({eventKey:ev.event_key,enabled:!!ev.is_enabled,inApp:!!ev.in_app_enabled,push:!!ev.push_enabled,owner:ownerEnabled(ev),roles:[...selectedSet(ev,'role')],users:[]}))};
+}
 async function renderPushStatus(){const box=$('notificationPushStatus'),enable=$('notificationEnablePushBtn'),disable=$('notificationDisablePushBtn');if(!box)return;try{const s=await window.NotificationCenterService.getPushStatus();let label='غير مدعوم على هذا الجهاز';if(s.supported&&!s.configured)label='الخادم غير مهيأ بمفاتيح Web Push';else if(s.supported&&s.permission==='denied')label='الإشعارات محظورة من إعدادات المتصفح';else if(s.subscribed)label='Push مفعّل على هذا الجهاز';else if(s.supported)label='Push غير مفعّل على هذا الجهاز';box.textContent=label;box.dataset.state=s.subscribed?'active':(s.supported?'ready':'unsupported');if(enable)enable.disabled=!s.supported||!s.configured||s.permission==='denied'||s.subscribed;if(disable)disable.disabled=!s.subscribed}catch(e){box.textContent=e.message;box.dataset.state='error'}}
 async function loadConfig(force=false){if(config&&!force){renderConfig();renderPushStatus();return}const status=$('notificationCenterStatus');try{status.textContent='جاري تحميل مركز الإشعارات...';status.classList.remove('hidden');config=await window.NotificationCenterService.loadConfig();renderConfig();await renderPushStatus();status.classList.add('hidden')}catch(e){status.textContent=e.message;status.dataset.type='error'}}
-async function save(){const status=$('notificationCenterStatus');try{status.textContent='جاري الحفظ...';status.classList.remove('hidden');config=await window.NotificationCenterService.saveConfig(collect());renderConfig();status.textContent='تم حفظ مصفوفة الإشعارات وقنواتها بنجاح.';status.dataset.type='success';setTimeout(()=>status.classList.add('hidden'),2500)}catch(e){status.textContent=e.message;status.dataset.type='error'}}
+async function save(){const status=$('notificationCenterStatus');try{status.textContent='جاري الحفظ...';status.classList.remove('hidden');config=await window.NotificationCenterService.saveConfig(collect());renderConfig();status.textContent=`تم حفظ مصفوفة الإشعارات للدور ${roleLabel(selectedRoleKey)} بنجاح.`;status.dataset.type='success';setTimeout(()=>status.classList.add('hidden'),2500)}catch(e){status.textContent=e.message;status.dataset.type='error'}}
 function relative(ts){const d=Math.max(0,Date.now()-new Date(ts).getTime()),m=Math.floor(d/60000);if(m<1)return'الآن';if(m<60)return`منذ ${m} دقيقة`;const h=Math.floor(m/60);if(h<24)return`منذ ${h} ساعة`;return new Date(ts).toLocaleDateString('ar-SA')}
 function renderBell(){const list=$('notificationDropdownList'),badge=$('notificationUnreadBadge');const unread=notifications.filter(n=>!n.is_read).length;if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',!unread)}if(list)list.innerHTML=notifications.length?notifications.slice(0,20).map(n=>`<button class="notification-item ${n.is_read?'':'unread'}" type="button" data-notification-id="${n.id}" data-target-view="${esc(n.target_view||'')}"><strong>${esc(n.title)}</strong><span>${esc(n.body)}</span><small>${relative(n.created_at)}</small></button>`).join(''):'<div class="notification-empty">لا توجد إشعارات.</div>'}
 async function refresh(){try{notifications=await window.NotificationCenterService.listMine(50);renderBell()}catch(e){console.warn(e)}}
@@ -28,6 +68,7 @@ function init(){
  document.addEventListener('click',()=>{if(dropdown&&!dropdown.classList.contains('hidden')){dropdown.classList.add('hidden');bell?.setAttribute('aria-expanded','false')}});
  $('notificationMarkAllRead')?.addEventListener('click',async()=>{await window.NotificationCenterService.markAllRead();refresh()});
  $('notificationDropdownList')?.addEventListener('click',e=>{const b=e.target.closest('[data-notification-id]');if(b)openNotification(b)});
+ $('notificationRoleSelect')?.addEventListener('change',e=>{syncCurrentRoleDraft();selectedRoleKey=e.target.value;renderConfig()});
  $('saveNotificationCenterBtn')?.addEventListener('click',save);$('notificationEnablePushBtn')?.addEventListener('click',enablePush);$('notificationDisablePushBtn')?.addEventListener('click',disablePush);
  window.addEventListener('kyum-view-changed',e=>{if(e.detail?.view==='notificationCenter')loadConfig(true)});
  window.addEventListener('customer-auth-ready',startRealtime);window.addEventListener('kyum-auth-state-changed',startRealtime);
