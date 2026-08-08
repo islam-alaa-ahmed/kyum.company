@@ -291,8 +291,18 @@
     return record;
   }
 
+  async function requireTaskEditPermission(taskKey) {
+    const definitions = await listDefinitions();
+    const definition = definitions.find(item => item.taskKey === taskKey);
+    const permissionKey = definition?.permissionKey || "";
+    if (!permissionKey || !window.CustomerPermissions?.canScreen?.(permissionKey, "edit")) {
+      throw new Error(`Permission denied: ${permissionKey || taskKey}.edit`);
+    }
+    return definition;
+  }
+
   async function setTaskState(taskKey, completed, workDate = todayIso(), context = {}) {
-    requirePermission("edit");
+    await requireTaskEditPermission(taskKey);
     const queueTaskState = async () => {
       const state = authState();
       const now = new Date().toISOString();
