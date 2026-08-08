@@ -1,13 +1,13 @@
 {
-  "version": "18.53.32",
-  "build": 185332,
+  "version": "18.53.33",
+  "build": 185333,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Mobile Bell & Customer Card Verified Recovery — Phase M15.13.6R",
+  "title": "Update Loop Recovery — Phase M15.13.6R.1",
   "notes": [
-    "إصلاح فتح جرس الإشعارات على iPhone/PWA بمعالجة Capture-level للمس قبل طبقات الهيدر.",
-    "إعادة كارت العملاء إلى نفس إيقاع كروت المتابعات: بيانات ثانوية بعمودين وعناصر رئيسية بعرض كامل.",
-    "رفع Cache Token لضمان تحميل CSS وJavaScript الجديدين على الموبايل."
+    "توحيد إصدار PWA runtime مع version.json وService Worker لإيقاف حلقة التحديث وإعادة التحميل.",
+    "رفع Cache Token لإجبار الأجهزة على استلام ملف pwa.js الصحيح مرة واحدة فقط.",
+    "لا تغييرات على Business Logic أو البيانات أو الشاشات."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-32-mobile-bell-customer-card-verified-recovery-m15-13-6r"
+  "cacheToken": "kyum-crm-pwa-18-53-33-update-loop-recovery-m15-13-6r1"
 }
