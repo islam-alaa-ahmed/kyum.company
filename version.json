@@ -1,13 +1,13 @@
 {
-  "version": "18.53.34",
-  "build": 185334,
+  "version": "18.53.35",
+  "build": 185335,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Mobile Bell Portal & Customer Card Recovery — Phase M15.13.7",
+  "title": "Dedicated Mobile Customer Cards — Phase M15.13.8",
   "notes": [
-    "إخراج قائمة جرس الإشعارات من حاوية الهيدر المقصوصة على الموبايل لضمان ظهورها فوق الصفحة.",
-    "ربط خلايا العملاء بعلامات Mobile صريحة وإعادة تنسيق الكارت بنفس إيقاع كارت المتابعات.",
-    "لا تغييرات على Business Logic أو البيانات أو صلاحيات Desktop."
+    "إضافة Render مستقل لكروت العملاء على الموبايل بدل تحويل جدول الديسكتوب.",
+    "مطابقة بنية الكارت مع كروت المتابعات مع الحفاظ على جدول الديسكتوب بدون تغيير.",
+    "لا تغييرات على Business Logic أو قاعدة البيانات."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-34-mobile-bell-customer-card-m15-13-7"
+  "cacheToken": "kyum-crm-pwa-18-53-35-mobile-customer-cards-m15-13-8"
 }

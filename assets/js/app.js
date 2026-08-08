@@ -3460,6 +3460,7 @@ function filteredCustomers() {
 function renderCustomers() {
   const allRows = filteredCustomers();
   const body = document.getElementById("customersTableBody");
+  const mobileCards = document.getElementById("customersMobileCards");
   const pageCount = Math.max(1, Math.ceil(allRows.length / CUSTOMERS_PAGE_SIZE));
 
   if (customersPage > pageCount) customersPage = pageCount;
@@ -3470,9 +3471,9 @@ function renderCustomers() {
   addButton?.classList.toggle("hidden", !canManageCustomers("add"));
 
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="10" class="empty-state">${
-      customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء..."
-    }</td></tr>`;
+    const emptyMessage = customersLoaded ? "لا توجد نتائج مطابقة." : "جاري تحميل بيانات العملاء...";
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${emptyMessage}</td></tr>`;
+    if (mobileCards) mobileCards.innerHTML = `<div class="customer-mobile-empty">${emptyMessage}</div>`;
   } else {
     body.innerHTML = rows.map(customer => `
       <tr>
@@ -3500,6 +3501,52 @@ function renderCustomers() {
           </div>
         </td>
       </tr>`).join("");
+
+    if (mobileCards) {
+      mobileCards.innerHTML = rows.map(customer => {
+        const interests = customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—";
+        const city = customer.city ? escapeHtml(customer.city) : "—";
+        return `
+          <article class="customer-mobile-card" data-customer-id="${escapeHtml(customer.id)}">
+            <header class="customer-mobile-card-head">
+              <div>
+                <span class="customer-mobile-kicker">اسم العميل</span>
+                <strong class="customer-mobile-name">${escapeHtml(customer.name)}</strong>
+                <small class="customer-mobile-city">${city}</small>
+              </div>
+              <span class="customer-mobile-type badge">${escapeHtml(customer.type)}</span>
+            </header>
+
+            <div class="customer-mobile-phone-row">
+              <div>
+                <span>رقم العميل</span>
+                <strong>${escapeHtml(customer.phone || "—")}</strong>
+                ${customer.customerNumber ? `<small>${escapeHtml(customer.customerNumber)}</small>` : ""}
+              </div>
+              <div class="customer-mobile-quick-actions">
+                ${customer.phone ? `<a class="mobile-customer-call" href="tel:${escapeHtml(customer.phone)}" aria-label="اتصال بالعميل">اتصال</a>` : ""}
+                ${customer.phone ? `<a class="mobile-customer-whatsapp" href="https://wa.me/${normalizePhone(customer.phone)}" target="_blank" rel="noopener" aria-label="واتساب العميل">واتساب</a>` : ""}
+              </div>
+            </div>
+
+            <div class="customer-mobile-details">
+              <div><span>اسم المسؤول</span><strong>${customer.type === "شركة" ? escapeHtml(customer.contactPersonName || "—") : "—"}</strong></div>
+              <div><span>المندوب</span><strong>${escapeHtml(customer.representative || "—")}</strong></div>
+              <div><span>تاريخ التواصل</span><strong>${formatDate(customer.contactDate)}</strong></div>
+              <div><span>رقم عرض السعر</span><strong>${escapeHtml(customer.quotationNumber || "—")}</strong></div>
+              <div class="customer-mobile-wide"><span>مجال الاهتمام</span><div class="customer-mobile-badges">${interests}</div></div>
+              <div class="customer-mobile-wide"><span>سبب عدم البيع</span><strong>${escapeHtml(customer.noSaleReason || "—")}</strong></div>
+            </div>
+
+            <footer class="customer-mobile-card-actions row-actions">
+              <button class="edit-btn" data-details="${customer.id}">عرض</button>
+              ${canManageFollowups("add") ? `<button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>` : ""}
+              ${canManageCustomers() ? `<button class="edit-btn" data-edit="${customer.id}">تعديل</button>` : ""}
+              ${canDeleteCustomers() ? `<button class="delete-btn" data-delete="${customer.id}">حذف</button>` : ""}
+            </footer>
+          </article>`;
+      }).join("");
+    }
   }
 
   const info = document.getElementById("customersPaginationInfo");
