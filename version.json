@@ -1,14 +1,14 @@
 {
-  "version": "18.53.17",
-  "build": 185317,
+  "version": "18.53.18",
+  "build": 185318,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Multi-Day Execution Visit Isolation — Phase M15.11",
+  "title": "Execution Visit Canonicalization — Phase M15.11.1",
   "notes": [
-    "فصل حالة ومراحل التنفيذ لكل زيارة في الطلبات متعددة الأيام",
-    "إضافة رقم تنفيذ مستقل لكل زيارة مع الحفاظ على رقم الطلب الأب",
-    "منع اكتمال زيارة أولى من نقل أوقات التنفيذ إلى الزيارة التالية",
-    "ربط تأكيد الكميات بزيارة التنفيذ الصحيحة"
+    "تحويل الجدولة الأحادية إلى Visit مستقلة فور حفظ الجدولة",
+    "ترحيل حالة التنفيذ الحالية القديمة من الطلب الأب إلى الزيارة الصحيحة",
+    "منع اكتمال زيارة واحدة من إكمال الطلب الأب قبل تأكيد الكميات",
+    "منع Timeline الطلب الأب من تلويث الزيارات الجديدة أو اللاحقة"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-17-multi-day-execution-visit-isolation-m15-11"
+  "cacheToken": "kyum-crm-pwa-18-53-18-execution-visit-canonicalization-m15-11-1"
 }
