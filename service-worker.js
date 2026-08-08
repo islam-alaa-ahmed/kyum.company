@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-20-notification-center-m15-12-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-21-web-push-m15-12-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -262,4 +262,41 @@ self.addEventListener("fetch", event => {
 
 self.addEventListener("message", event => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+// Phase M15.12.2 — Web Push / External Notifications
+self.addEventListener("push", event => {
+  event.waitUntil((async () => {
+    let payload = {};
+    try { payload = event.data ? event.data.json() : {}; } catch (_) { payload = { body: event.data?.text?.() || "" }; }
+    const title = payload.title || "KYUM CRM";
+    await self.registration.showNotification(title, {
+      body: payload.body || "لديك إشعار جديد.",
+      icon: payload.icon || "./assets/images/android-chrome-192x192.png",
+      badge: payload.badge || "./assets/images/favicon-48x48.png",
+      tag: payload.tag || undefined,
+      renotify: false,
+      data: payload.data || {},
+    });
+  })());
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const data = event.notification.data || {};
+    const targetUrl = new URL("./", self.registration.scope);
+    if (data.targetView) targetUrl.searchParams.set("notificationView", data.targetView);
+    if (data.notificationId) targetUrl.searchParams.set("notificationId", data.notificationId);
+    if (data.requestId) targetUrl.searchParams.set("requestId", data.requestId);
+    if (data.visitId) targetUrl.searchParams.set("visitId", data.visitId);
+
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const existing = windows.find(client => new URL(client.url).origin === targetUrl.origin);
+    if (existing) {
+      existing.postMessage({ type: "OPEN_NOTIFICATION_TARGET", targetView: data.targetView || "", notificationId: data.notificationId || "", requestId: data.requestId || "", visitId: data.visitId || "" });
+      return existing.focus();
+    }
+    return self.clients.openWindow(targetUrl.href);
+  })());
 });

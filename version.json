@@ -1,14 +1,14 @@
 {
-  "version": "18.53.20",
-  "build": 185320,
+  "version": "18.53.21",
+  "build": 185321,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Enterprise Notification Center & Dynamic Recipient Matrix — Phase M15.12.1",
+  "title": "Enterprise Web Push / External Notifications — Phase M15.12.2",
   "notes": [
-    "إضافة مركز إشعارات جديد داخل الإعدادات والخصوصية بمصفوفة مستلمين ديناميكية حسب صاحب الطلب أو الأدوار أو المستخدمين",
-    "تفعيل إشعارات داخل البرنامج عبر جرس الهيدر للموبايل والديسكتوب مع حالة مقروء وغير مقروء وفتح الشاشة المرتبطة",
-    "ربط أحداث دورة حياة طلبات التركيبات بمحرّك إشعارات مركزي بدون Hardcoded recipients",
-    "الحفاظ على اسم الدور الظاهر مشرف التركيبات مع إبقاء المفتاح الداخلي customer_service دون تغيير"
+    "تفعيل Web Push خارج البرنامج لنفس مصفوفة مركز الإشعارات بدون مستلمين Hardcoded",
+    "إضافة اشتراك مستقل لكل مستخدم وجهاز مع دعم Desktop وAndroid وPWA وiOS Home Screen وفق دعم المتصفح",
+    "إضافة Push Outbox وEdge Function لإرسال الإشعارات مع تنظيف الاشتراكات المنتهية وإعادة المحاولة",
+    "إضافة Deep Link من إشعار النظام إلى شاشة KYUM المرتبطة مع استمرار إشعارات الجرس داخل البرنامج"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-20-notification-center-m15-12-1"
+  "cacheToken": "kyum-crm-pwa-18-53-21-web-push-m15-12-2"
 }
