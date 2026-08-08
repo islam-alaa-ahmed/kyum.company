@@ -1,13 +1,13 @@
 {
-  "version": "18.53.30",
-  "build": 185330,
+  "version": "18.53.31",
+  "build": 185331,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Geographic Reports Vertical Dynamic Layout — Phase M15.13.3",
+  "title": "Mobile Notifications & CRM Cards Recovery — Phase M15.13.4",
   "notes": [
-    "إعادة ترتيب تقارير التحليل الجغرافي للخدمات رأسيًا بحيث يظهر كل تقرير أسفل السابق.",
-    "إلغاء الارتفاع الأقصى الثابت لجداول التحليل الجغرافي لتتمدد تلقائيًا حسب عدد الصفوف دون تداخل.",
-    "حصر التمرير الأفقي داخل كل جدول عند ضيق العرض مع الحفاظ على Responsive وعدم تغيير بيانات التقرير أو الفلاتر."
+    "إصلاح فتح جرس الإشعارات في نسخة الموبايل باستخدام Pointer Events موثوقة داخل PWA.",
+    "إعادة تنسيق كارت العميل على الموبايل بنفس إيقاع كارت المتابعة مع توزيع الحقول ديناميكيًا.",
+    "إصلاح الجزء العلوي من شاشة المتابعات لمنع انكماش النص رأسيًا وترتيب أزرار التصدير والإضافة بدون تداخل."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-30-geographic-reports-vertical-dynamic-layout-m15-13-3"
+  "cacheToken": "kyum-crm-pwa-18-53-31-mobile-notifications-crm-cards-recovery-m15-13-4"
 }
