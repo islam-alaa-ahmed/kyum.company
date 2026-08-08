@@ -74,7 +74,20 @@ async function enablePush(){const status=$('notificationCenterStatus');try{statu
 async function disablePush(){const status=$('notificationCenterStatus');try{await window.NotificationCenterService.disablePush();status.textContent='تم إيقاف Push على هذا الجهاز.';status.dataset.type='success';status.classList.remove('hidden');await renderPushStatus()}catch(e){status.textContent=e.message;status.dataset.type='error'}}
 function init(){
  const bell=$('notificationBellBtn'),dropdown=$('notificationDropdown');let lastBellToggle=0;
- const toggleBell=()=>{if(!dropdown)return;dropdown.classList.toggle('hidden');bell?.setAttribute('aria-expanded',String(!dropdown.classList.contains('hidden')));refresh()};
+ const dropdownHome=dropdown?.parentElement||null;
+ const mobileBellMq=window.matchMedia?.('(max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px)');
+ const syncDropdownPortal=()=>{
+   if(!dropdown)return;
+   const mobile=!!mobileBellMq?.matches;
+   if(mobile&&dropdown.parentElement!==document.body){
+     dropdown.classList.add('notification-dropdown-mobile-portal');
+     document.body.appendChild(dropdown);
+   }else if(!mobile&&dropdownHome&&dropdown.parentElement!==dropdownHome){
+     dropdown.classList.remove('notification-dropdown-mobile-portal');
+     dropdownHome.appendChild(dropdown);
+   }
+ };
+ const toggleBell=()=>{if(!dropdown)return;syncDropdownPortal();dropdown.classList.toggle('hidden');bell?.setAttribute('aria-expanded',String(!dropdown.classList.contains('hidden')));refresh()};
  const isBellTarget=target=>!!target?.closest?.('#notificationBellBtn');
  const handleMobileBell=e=>{
    if(!isBellTarget(e.target))return;
@@ -84,6 +97,9 @@ function init(){
    e.preventDefault();e.stopImmediatePropagation?.();e.stopPropagation();toggleBell();
  };
  bell?.setAttribute('aria-haspopup','dialog');bell?.setAttribute('aria-expanded','false');
+ syncDropdownPortal();
+ mobileBellMq?.addEventListener?.('change',()=>{dropdown?.classList.add('hidden');bell?.setAttribute('aria-expanded','false');syncDropdownPortal()});
+ window.addEventListener('orientationchange',()=>setTimeout(syncDropdownPortal,80));
  // Capture-phase delegation is intentional: iOS Safari/PWA may have positioned
  // header layers or synthetic click handling that prevents the button's own
  // bubbling listener from receiving the tap. Intercept the actual touch/pointer

@@ -1,13 +1,13 @@
 {
-  "version": "18.53.33",
-  "build": 185333,
+  "version": "18.53.34",
+  "build": 185334,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Update Loop Recovery — Phase M15.13.6R.1",
+  "title": "Mobile Bell Portal & Customer Card Recovery — Phase M15.13.7",
   "notes": [
-    "توحيد إصدار PWA runtime مع version.json وService Worker لإيقاف حلقة التحديث وإعادة التحميل.",
-    "رفع Cache Token لإجبار الأجهزة على استلام ملف pwa.js الصحيح مرة واحدة فقط.",
-    "لا تغييرات على Business Logic أو البيانات أو الشاشات."
+    "إخراج قائمة جرس الإشعارات من حاوية الهيدر المقصوصة على الموبايل لضمان ظهورها فوق الصفحة.",
+    "ربط خلايا العملاء بعلامات Mobile صريحة وإعادة تنسيق الكارت بنفس إيقاع كارت المتابعات.",
+    "لا تغييرات على Business Logic أو البيانات أو صلاحيات Desktop."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-33-update-loop-recovery-m15-13-6r1"
+  "cacheToken": "kyum-crm-pwa-18-53-34-mobile-bell-customer-card-m15-13-7"
 }

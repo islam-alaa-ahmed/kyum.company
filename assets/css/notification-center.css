@@ -299,3 +299,27 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
   #appHeader #notificationDropdown{pointer-events:auto!important;z-index:2147483000!important;visibility:visible}
   #appHeader #notificationDropdown.hidden{display:none!important}
 }
+
+
+/* Phase M15.13.7 — Mobile bell dropdown portal recovery.
+   The fixed mobile header is intentionally overflow:hidden + contain:paint; therefore
+   the dropdown is portaled to body on mobile so it cannot be clipped by the header. */
+@media (max-width:767px),
+       (pointer:coarse) and (max-device-width:1024px),
+       (hover:none) and (max-device-width:1024px){
+  body > #notificationDropdown.notification-dropdown-mobile-portal{
+    position:fixed!important;
+    top:calc(var(--kyum-stable-header-height,90px) + env(safe-area-inset-top) + 8px)!important;
+    right:max(12px,env(safe-area-inset-right))!important;
+    left:max(12px,env(safe-area-inset-left))!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:calc(100dvh - var(--kyum-stable-header-height,90px) - env(safe-area-inset-top) - 28px)!important;
+    overflow:auto!important;
+    z-index:2147483000!important;
+    pointer-events:auto!important;
+    visibility:visible!important;
+    transform:none!important;
+  }
+  body > #notificationDropdown.notification-dropdown-mobile-portal.hidden{display:none!important}
+}

@@ -3476,22 +3476,22 @@ function renderCustomers() {
   } else {
     body.innerHTML = rows.map(customer => `
       <tr>
-        <td>
+        <td data-mobile-field="phone" data-mobile-label="رقم العميل">
           <strong>${escapeHtml(customer.phone || "—")}</strong>
           ${customer.customerNumber ? `<br><small>${escapeHtml(customer.customerNumber)}</small>` : ""}
         </td>
-        <td>
+        <td data-mobile-field="name" data-mobile-label="اسم العميل">
           <strong>${escapeHtml(customer.name)}</strong><br>
           <small>${customer.city ? escapeHtml(customer.city) : ""}</small>
         </td>
-        <td>${customer.type === "شركة" ? escapeHtml(customer.contactPersonName || "—") : "—"}</td>
-        <td><span class="badge">${escapeHtml(customer.type)}</span></td>
-        <td>${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—"}</td>
-        <td>${escapeHtml(customer.representative || "—")}</td>
-        <td>${formatDate(customer.contactDate)}</td>
-        <td>${escapeHtml(customer.quotationNumber || "—")}</td>
-        <td>${escapeHtml(customer.noSaleReason || "—")}</td>
-        <td>
+        <td data-mobile-field="contact" data-mobile-label="اسم المسؤول">${customer.type === "شركة" ? escapeHtml(customer.contactPersonName || "—") : "—"}</td>
+        <td data-mobile-field="type" data-mobile-label="التصنيف"><span class="badge">${escapeHtml(customer.type)}</span></td>
+        <td data-mobile-field="interests" data-mobile-label="مجال الاهتمام">${customer.interests.map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "—"}</td>
+        <td data-mobile-field="representative" data-mobile-label="المندوب">${escapeHtml(customer.representative || "—")}</td>
+        <td data-mobile-field="date" data-mobile-label="تاريخ التواصل">${formatDate(customer.contactDate)}</td>
+        <td data-mobile-field="quotation" data-mobile-label="رقم عرض السعر">${escapeHtml(customer.quotationNumber || "—")}</td>
+        <td data-mobile-field="reason" data-mobile-label="سبب عدم البيع">${escapeHtml(customer.noSaleReason || "—")}</td>
+        <td data-mobile-field="actions" data-mobile-label="الإجراءات">
           <div class="row-actions">
             <button class="edit-btn" data-details="${customer.id}">عرض</button>
             ${canManageFollowups("add") ? `<button class="edit-btn" data-add-followup="${customer.id}">متابعة</button>` : ""}

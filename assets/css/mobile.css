@@ -3754,3 +3754,73 @@ html.is-offline body::before {
   #customersView .row-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
   #customersView .row-actions button,#customersView .row-actions a{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:40px!important;padding:8px 9px!important;border-radius:12px!important;font-size:10px!important;font-weight:900!important;text-decoration:none!important}
 }
+
+
+/* Phase M15.13.7 — Canonical mobile customer cards.
+   These selectors now bind to explicit data-mobile-field markers emitted by renderCustomers(). */
+@media (max-width:767px),
+       (pointer:coarse) and (max-device-width:1024px),
+       (hover:none) and (max-device-width:1024px){
+  #customersView tbody tr{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px 16px!important;
+    padding:18px 16px!important;
+  }
+  #customersView tbody td[data-mobile-field]{
+    display:block!important;
+    min-width:0!important;
+    padding:0!important;
+    border:0!important;
+    text-align:right!important;
+  }
+  #customersView tbody td[data-mobile-field]::before{
+    content:attr(data-mobile-label)!important;
+    display:block!important;
+    margin:0 0 5px!important;
+    color:var(--muted)!important;
+    font-size:11px!important;
+    font-weight:800!important;
+    line-height:1.35!important;
+  }
+  #customersView tbody td[data-mobile-field="name"]{
+    grid-column:1/-1!important;
+    order:1!important;
+    padding-bottom:12px!important;
+    border-bottom:1px solid var(--border)!important;
+  }
+  #customersView tbody td[data-mobile-field="name"] strong{font-size:19px!important;line-height:1.4!important}
+  #customersView tbody td[data-mobile-field="name"] small{display:block!important;margin-top:3px!important;font-size:12px!important;color:var(--muted)!important}
+  #customersView tbody td[data-mobile-field="phone"]{
+    grid-column:1/-1!important;
+    order:2!important;
+    padding-bottom:12px!important;
+    border-bottom:1px solid var(--border)!important;
+    color:var(--text)!important;
+  }
+  #customersView tbody td[data-mobile-field="phone"] strong{font-size:18px!important;letter-spacing:.2px!important}
+  #customersView tbody td[data-mobile-field="phone"] small{font-size:13px!important;color:var(--muted)!important}
+  #customersView tbody td[data-mobile-field="contact"]{order:3!important}
+  #customersView tbody td[data-mobile-field="type"]{order:4!important}
+  #customersView tbody td[data-mobile-field="interests"]{order:5!important}
+  #customersView tbody td[data-mobile-field="representative"]{order:6!important}
+  #customersView tbody td[data-mobile-field="date"]{order:7!important}
+  #customersView tbody td[data-mobile-field="quotation"]{order:8!important}
+  #customersView tbody td[data-mobile-field="reason"]{grid-column:1/-1!important;order:9!important}
+  #customersView tbody td[data-mobile-field="actions"]{
+    grid-column:1/-1!important;
+    order:10!important;
+    padding-top:12px!important;
+    border-top:1px solid var(--border)!important;
+  }
+  #customersView .row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  #customersView .row-actions button,#customersView .row-actions a{min-height:44px!important;font-size:12px!important;border-radius:13px!important}
+}
+@media (max-width:340px){
+  #customersView tbody tr{grid-template-columns:1fr!important}
+  #customersView tbody td[data-mobile-field]{grid-column:1!important}
+  #customersView tbody td[data-mobile-field="name"],
+  #customersView tbody td[data-mobile-field="phone"],
+  #customersView tbody td[data-mobile-field="reason"],
+  #customersView tbody td[data-mobile-field="actions"]{grid-column:1!important}
+  #customersView .row-actions{grid-template-columns:1fr!important}
+}
