@@ -218,16 +218,23 @@
 
   async function schedulePlan(requestId){
     requireAction('view','installationSchedule');
-    const [{data:visits,error},{data:requestServices,error:serviceError}]=await Promise.all([
+    const [{data:visits,error},{data:requestServices,error:serviceError},{data:confirmedVisits,error:confirmedVisitError}]=await Promise.all([
       db().from('installation_execution_visits').select('id,visit_no,scheduled_date,scheduled_time,installation_team_id,technician_name,status').eq('installation_request_id',requestId).in('status',['بانتظار الجدولة','مجدولة','قيد التنفيذ','بانتظار التأكيد']).order('visit_no'),
-      db().from('installation_request_services').select('id,quantity,unit_price,line_total,service:installation_service_types(id,name)').eq('installation_request_id',requestId).order('id')
+      db().from('installation_request_services').select('id,quantity,unit_price,line_total,service:installation_service_types(id,name)').eq('installation_request_id',requestId).order('id'),
+      db().from('installation_execution_visits').select('id').eq('installation_request_id',requestId).eq('status','مؤكدة')
     ]);
     if(error&&error.code!=='42P01')throw new Error('تعذر تحميل خطة الزيارات: '+error.message);
     if(serviceError)throw new Error('تعذر تحميل خدمات الطلب: '+serviceError.message);
-    const ids=(visits||[]).map(x=>x.id);let lines=[];
+    if(confirmedVisitError&&confirmedVisitError.code!=='42P01')throw new Error('تعذر تحميل سجل التنفيذ المؤكد: '+confirmedVisitError.message);
+    const ids=(visits||[]).map(x=>x.id),confirmedIds=(confirmedVisits||[]).map(x=>x.id);let lines=[],confirmedLines=[];
     if(ids.length){const result=await db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity').in('visit_id',ids);if(result.error&&result.error.code!=='42P01')throw new Error('تعذر تحميل توزيع كميات الزيارات: '+result.error.message);lines=result.data||[];}
+    if(confirmedIds.length){const result=await db().from('installation_execution_visit_services').select('visit_id,request_service_id,executed_quantity').in('visit_id',confirmedIds);if(result.error&&result.error.code!=='42P01')throw new Error('تعذر تحميل الكميات المنفذة المؤكدة: '+result.error.message);confirmedLines=result.data||[];}
+    const executedByService=new Map();
+    confirmedLines.forEach(x=>executedByService.set(String(x.request_service_id),Number(executedByService.get(String(x.request_service_id))||0)+Number(x.executed_quantity||0)));
+    const hasConfirmed=confirmedIds.length>0;
     return {
-      services:(requestServices||[]).map(x=>({id:x.id,name:x.service?.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)})),
+      hasConfirmedExecution:hasConfirmed,
+      services:(requestServices||[]).map(x=>{const original=Number(x.quantity||0),executed=Number(executedByService.get(String(x.id))||0),remaining=hasConfirmed?Math.max(original-executed,0):original;return {id:x.id,name:x.service?.name||'خدمة',quantity:remaining,originalQuantity:original,confirmedExecutedQuantity:executed,unitPrice:Number(x.unit_price||0),lineTotal:remaining*Number(x.unit_price||0)}}).filter(x=>x.quantity>0),
       visits:(visits||[]).map(v=>({...v,scheduled_time:String(v.scheduled_time||'').slice(0,5),lines:lines.filter(x=>x.visit_id===v.id).map(x=>({requestServiceId:x.request_service_id,quantity:Number(x.scheduled_quantity||0)}))}))
     };
   }
