@@ -75,10 +75,21 @@
     if(note&&action==="return_to_schedule"){note.classList.remove("hidden");note.textContent="سيتم إعادة فرق الكمية فقط إلى شاشة الجدولة، مع الحفاظ على أي موعد مجدول مسبقًا لنفس الطلب.";}
     else if(note&&action==="append_to_next_visit"){const next=quantityCurrent?.nextScheduledVisit;note.classList.remove("hidden");note.textContent=next?`سيتم إضافة فرق الكمية إلى الموعد المجدول ${next.scheduledDate} ${next.scheduledTime} لنفس الطلب.`:"";}
   }
+  function requireQuantityDialog(){
+    const ids=[
+      "installationQuantityConfirmationDialog","installationQuantityConfirmationForm","installationQuantityRequestLabel",
+      "installationQuantityLines","installationQuantityRemainingTotal","installationQuantityRemainingActionWrap",
+      "installationQuantityRemainingAction","installationQuantityRescheduleDate","installationQuantityRescheduleTime",
+      "installationQuantityConfirmationNotes","installationQuantityConfirmationStatus","saveInstallationQuantityConfirmation"
+    ];
+    const missing=ids.filter(id=>!$(id));
+    if(missing.length)throw new Error(`تعذر فتح نافذة تأكيد الكمية: عناصر الواجهة غير مكتملة (${missing.join(", ")}).`);
+  }
   async function openQuantityConfirmation(r){
     if(!can("edit","installationCompletion"))return;
+    requireQuantityDialog();
     quantityCurrent=r;
-    $("installationQuantityRequestLabel").textContent=`${r.requestNumber} — ${r.customerName}`;
+    $("installationQuantityRequestLabel").textContent=`${r.executionNumber||r.requestNumber} — ${r.customerName}`;
     $("installationQuantityLines").innerHTML=(r.quantities||[]).map(quantityLineHtml).join("")||'<p class="empty-state">لا توجد خدمات قابلة للتأكيد.</p>';
     $("installationQuantityRemainingAction").value="return_to_schedule";
     $("installationQuantityRescheduleDate").value=today();
