@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-38-confirmed-history-append-reschedule-m15-13-11";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-39-confirmed-quantity-invoice-flow-m15-13-12";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
