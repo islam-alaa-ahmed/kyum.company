@@ -1,13 +1,13 @@
 {
-  "version": "18.53.27",
-  "build": 185327,
+  "version": "18.53.28",
+  "build": 185328,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Daily Activity Date Accuracy + Filtered PDF Exports — Phase M15.13",
+  "title": "Installation Completion Quantity Dialog Permission Hotfix — Phase M15.13.1",
   "notes": [
-    "إصلاح خط سير الموظف ليعرض أحداث يوم التقرير فقط وفق توقيت السعودية مع استبعاد تنبيهات الأيام الأخرى.",
-    "فرض تحميل حديث لخط سير الموظف عند طلب التقرير بدل الاعتماد على Snapshot قديمة من الكاش.",
-    "إضافة تصدير PDF وإرسال واتساب PDF لشاشتي المتابعات وعروض الأسعار مع الالتزام بكامل الفلاتر المحددة."
+    "فصل فتح نافذة تأكيد الكمية المنفذة عن صلاحية شاشة جدولة التركيبات.",
+    "إزالة التحميل المسبق لفرق الجدولة من مسار فتح التأكيد؛ يتم استخدام مسار إعادة الجدولة فقط عند الحاجة.",
+    "إظهار خطأ واضح إذا تعذر فتح نافذة التأكيد بدل فشل صامت."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-27-daily-activity-filtered-pdf-exports-m15-13"
+  "cacheToken": "kyum-crm-pwa-18-53-28-installation-completion-quantity-dialog-hotfix-m15-13-1"
 }

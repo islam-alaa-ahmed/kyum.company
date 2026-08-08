@@ -4,7 +4,6 @@
   let current=null;
   let mode="installation";
   let quantityCurrent=null;
-  let quantityTeams=[];
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const money=v=>new Intl.NumberFormat("ar-SA-u-nu-latn",{style:"currency",currency:"SAR",minimumFractionDigits:2}).format(Number(v||0));
@@ -20,13 +19,6 @@
   function setMode(next){mode=next;const installation=mode==="installation";$("installationCompletionDialogTitle").textContent="تحويل إلى فاتورة";$("installationCompletionWorkSection").classList.toggle("hidden",!installation);$("installationEvidenceSection").classList.toggle("hidden",!installation);$("installationCompletionExistingFiles").classList.toggle("hidden",!installation);$("printInstallationCompletion").classList.add("hidden");$("installationCompletionWorkSummary").required=installation;$("installationCompletionRecipientName").required=installation;$("installationCompletionDeliveryAuthorization").required=false;$("saveInstallationCompletion").textContent="حفظ وتحويل إلى فاتورة"}
   async function showFiles(r){const box=$("installationCompletionExistingFiles");const labels={before:"قبل التركيب",after:"بعد التركيب",delivery_authorization:"إذن تسليم العميل",signature:"توقيع عميل قديم"};box.innerHTML=r.files?.length?r.files.map(f=>`<div class="installation-existing-file"><strong>${esc(labels[f.file_kind]||"مرفق")}</strong><small>${esc(f.original_name||"مرفق")}</small><button class="secondary-btn" type="button" data-open-installation-file="${esc(f.storage_path)}">فتح</button></div>`).join(""):"<p>لا توجد مرفقات محفوظة.</p>"}
 
-  async function ensureQuantityTeams(){
-    if(quantityTeams.length)return quantityTeams;
-    quantityTeams=await window.InstallationsServiceSafe.scheduleTeams();
-    const el=$("installationQuantityRescheduleTeam");
-    if(el)el.innerHTML='<option value="">اختر الفرقة</option>'+quantityTeams.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
-    return quantityTeams;
-  }
   function quantityLineHtml(x){
     const scheduled=Number(x.scheduledCurrentQuantity||x.remainingQuantity||0);
     return `<article class="installation-quantity-line" data-service-line="${esc(x.requestServiceId)}">
@@ -86,14 +78,13 @@
   async function openQuantityConfirmation(r){
     if(!can("edit","installationCompletion"))return;
     quantityCurrent=r;
-    await ensureQuantityTeams();
     $("installationQuantityRequestLabel").textContent=`${r.requestNumber} — ${r.customerName}`;
     $("installationQuantityLines").innerHTML=(r.quantities||[]).map(quantityLineHtml).join("")||'<p class="empty-state">لا توجد خدمات قابلة للتأكيد.</p>';
     $("installationQuantityRemainingAction").value="return_to_schedule";
     $("installationQuantityRescheduleDate").value=today();
     $("installationQuantityRescheduleTime").value="10:00";
-    $("installationQuantityRescheduleTeam").value=r.teamId||"";
-    $("installationQuantityRescheduleTechnician").value=r.technicianName||"";
+    if($("installationQuantityRescheduleTeam"))$("installationQuantityRescheduleTeam").value=r.teamId||"";
+    if($("installationQuantityRescheduleTechnician"))$("installationQuantityRescheduleTechnician").value=r.technicianName||"";
     $("installationQuantityConfirmationNotes").value="";
     status($("installationQuantityConfirmationStatus"),"");
     syncQuantityResults();
@@ -110,7 +101,15 @@
     $("resetInstallationCompletionFilters")?.addEventListener("click",()=>{$("installationCompletionSearch").value="";$("installationCompletionRepresentativeFilter").value="";$("installationCompletionDateFrom").value="";$("installationCompletionDateTo").value="";render()});
     $("installationCompletionTableBody")?.addEventListener("click",e=>{
       const confirmBtn=e.target.closest("[data-confirm-installation-quantity]");
-      if(confirmBtn){const r=rows.find(x=>(x.rowKey||x.id)===confirmBtn.dataset.confirmInstallationQuantity);if(r)openQuantityConfirmation(r);return}
+      if(confirmBtn){
+        const r=rows.find(x=>(x.rowKey||x.id)===confirmBtn.dataset.confirmInstallationQuantity);
+        if(r){
+          openQuantityConfirmation(r).catch(err=>{
+            status($("installationCompletionStatus"),err?.message||"تعذر فتح تأكيد الكمية المنفذة.","error");
+          });
+        }
+        return;
+      }
       const b=e.target.closest("[data-installation-completion]");
       if(b){const r=rows.find(x=>(x.rowKey||x.id)===b.dataset.installationCompletion);if(r)openInstallation(r)}
     });
