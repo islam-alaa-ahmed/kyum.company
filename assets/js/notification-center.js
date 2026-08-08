@@ -10,6 +10,19 @@ function availableRoles(){
 }
 function selectedSet(ev,type){return new Set((config?.rules||[]).filter(r=>r.event_key===ev.event_key&&r.recipient_type===type).map(r=>type==='role'?r.role_key:r.user_id))}
 function ownerEnabled(ev){return (config?.rules||[]).some(r=>r.event_key===ev.event_key&&r.recipient_type==='request_owner')}
+const MATRIX_FIELDS=['enabled','inApp','push','owner','roleRecipient'];
+function matrixRows(){return [...document.querySelectorAll('[data-notification-event]')]}
+function syncColumnHeader(field){
+  const head=document.querySelector(`[data-matrix-select-all="${field}"]`);if(!head)return;
+  const boxes=matrixRows().map(row=>row.querySelector(`[data-field="${field}"]`)).filter(Boolean);
+  if(!boxes.length){head.checked=false;head.indeterminate=false;return}
+  const checked=boxes.filter(box=>box.checked).length;head.checked=checked===boxes.length;head.indeterminate=checked>0&&checked<boxes.length;
+}
+function syncAllColumnHeaders(){MATRIX_FIELDS.forEach(syncColumnHeader)}
+function setColumnChecked(field,checked){
+  matrixRows().forEach(row=>{const box=row.querySelector(`[data-field="${field}"]`);if(box&&!box.disabled)box.checked=checked});
+  syncCurrentRoleDraft();syncColumnHeader(field);
+}
 function syncCurrentRoleDraft(){
   if(!config||!selectedRoleKey)return;
   const rows=[...document.querySelectorAll('[data-notification-event]')];
@@ -41,10 +54,11 @@ function renderConfig(){
     const roles=selectedSet(ev,'role');
     return `<tr data-notification-event="${esc(ev.event_key)}"><td><strong>${esc(ev.event_name)}</strong><small>${esc(ev.module_name||'التركيبات')}</small></td><td><input class="matrix-toggle" data-field="enabled" type="checkbox" ${ev.is_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="inApp" type="checkbox" ${ev.in_app_enabled?'checked':''}></td><td><input class="matrix-toggle" data-field="push" type="checkbox" ${ev.push_enabled?'checked':''} title="إرسال Push خارج البرنامج للأجهزة المشتركة"></td><td><input class="matrix-toggle" data-field="owner" type="checkbox" ${ownerEnabled(ev)?'checked':''}></td><td class="notification-role-recipient-cell"><input class="matrix-toggle" data-field="roleRecipient" type="checkbox" ${selectedRoleKey&&roles.has(selectedRoleKey)?'checked':''}><span>${esc(selectedRoleKey?roleLabel(selectedRoleKey):'لا يوجد دور')}</span></td></tr>`;
   }).join('');
+  syncAllColumnHeaders();
 }
 function collect(){
   syncCurrentRoleDraft();
-  return {masterEnabled:$('notificationMasterEnabled')?.checked!==false,events:(config?.events||[]).map(ev=>({eventKey:ev.event_key,enabled:!!ev.is_enabled,inApp:!!ev.in_app_enabled,push:!!ev.push_enabled,owner:ownerEnabled(ev),roles:[...selectedSet(ev,'role')],users:[]}))};
+  return {masterEnabled:$('notificationMasterEnabled')?.checked!==false,events:(config?.events||[]).map(ev=>({eventKey:ev.event_key,eventName:ev.event_name,moduleName:ev.module_name,targetView:ev.target_view,displayOrder:ev.display_order,enabled:!!ev.is_enabled,inApp:!!ev.in_app_enabled,push:!!ev.push_enabled,owner:ownerEnabled(ev),roles:[...selectedSet(ev,'role')],users:[]}))};
 }
 async function renderPushStatus(){const box=$('notificationPushStatus'),enable=$('notificationEnablePushBtn'),disable=$('notificationDisablePushBtn');if(!box)return;try{const s=await window.NotificationCenterService.getPushStatus();let label='غير مدعوم على هذا الجهاز';if(s.supported&&!s.configured)label='الخادم غير مهيأ بمفاتيح Web Push';else if(s.supported&&s.permission==='denied')label='الإشعارات محظورة من إعدادات المتصفح';else if(s.subscribed)label='Push مفعّل على هذا الجهاز';else if(s.supported)label='Push غير مفعّل على هذا الجهاز';box.textContent=label;box.dataset.state=s.subscribed?'active':(s.supported?'ready':'unsupported');if(enable)enable.disabled=!s.supported||!s.configured||s.permission==='denied'||s.subscribed;if(disable)disable.disabled=!s.subscribed}catch(e){box.textContent=e.message;box.dataset.state='error'}}
 async function loadConfig(force=false){if(config&&!force){renderConfig();renderPushStatus();return}const status=$('notificationCenterStatus');try{status.textContent='جاري تحميل مركز الإشعارات...';status.classList.remove('hidden');config=await window.NotificationCenterService.loadConfig();renderConfig();await renderPushStatus();status.classList.add('hidden')}catch(e){status.textContent=e.message;status.dataset.type='error'}}
@@ -69,6 +83,11 @@ function init(){
  $('notificationMarkAllRead')?.addEventListener('click',async()=>{await window.NotificationCenterService.markAllRead();refresh()});
  $('notificationDropdownList')?.addEventListener('click',e=>{const b=e.target.closest('[data-notification-id]');if(b)openNotification(b)});
  $('notificationRoleSelect')?.addEventListener('change',e=>{syncCurrentRoleDraft();selectedRoleKey=e.target.value;renderConfig()});
+ document.querySelector('.notification-matrix')?.addEventListener('change',e=>{
+   const selectAll=e.target.closest('[data-matrix-select-all]');
+   if(selectAll){setColumnChecked(selectAll.dataset.matrixSelectAll,selectAll.checked);return}
+   const field=e.target.closest('[data-field]')?.dataset.field;if(field&&MATRIX_FIELDS.includes(field)){syncCurrentRoleDraft();syncColumnHeader(field)}
+ });
  $('saveNotificationCenterBtn')?.addEventListener('click',save);$('notificationEnablePushBtn')?.addEventListener('click',enablePush);$('notificationDisablePushBtn')?.addEventListener('click',disablePush);
  window.addEventListener('kyum-view-changed',e=>{if(e.detail?.view==='notificationCenter')loadConfig(true)});
  window.addEventListener('customer-auth-ready',startRealtime);window.addEventListener('kyum-auth-state-changed',startRealtime);

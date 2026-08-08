@@ -1,13 +1,13 @@
 {
-  "version": "18.53.24",
-  "build": 185323,
+  "version": "18.53.25",
+  "build": 185324,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Role-First Notification Matrix — Phase M15.12.2.3",
+  "title": "Notification Matrix Save + Column Select-All — Phase M15.12.2.4",
   "notes": [
-    "تسجيل مركز الإشعارات داخل Navigation Router وبيانات الصفحة لضمان فتحه من قائمة الإعدادات على الديسكتوب والموبايل",
-    "إصلاح استجابة جرس الإشعارات للمس على الموبايل مع Touch fallback وحالة aria-expanded وإغلاق القائمة عند الضغط خارجها",
-    "فصل جرس الإشعارات وزر Light/Dark في مساحة أزرار حقيقية داخل الهيدر بدون absolute overlap مع الحفاظ على مركزية الهوية"
+    "إصلاح حفظ مصفوفة الإشعارات بإرسال event_name وباقي بيانات الحدث المطلوبة أثناء upsert",
+    "إضافة تحديد الكل/إلغاء الكل من رأس أعمدة التفعيل وداخل البرنامج وPush وصاحب الطلب وإرسال للدور المحدد",
+    "توضيح وظيفة استلام الدور بتسمية إرسال للدور المحدد مع الحفاظ على التوزيع الديناميكي حسب الدور المختار"
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-24-notification-role-first-matrix-m15-12-2-3"
+  "cacheToken": "kyum-crm-pwa-18-53-25-notification-matrix-save-column-select-all-m15-12-2-4"
 }

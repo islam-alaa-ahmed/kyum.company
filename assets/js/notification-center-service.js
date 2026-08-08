@@ -24,7 +24,18 @@
     if(!window.CustomerPermissions?.requireAction?.('notificationCenter','edit',{silent:true}))throw new Error('ليس لديك صلاحية تعديل مركز الإشعارات.');
     const uid=profile()?.id||null;
     const {error:sysErr}=await db().from('notification_system_settings').upsert({id:1,is_enabled:payload.masterEnabled!==false,updated_by:uid,updated_at:new Date().toISOString()},{onConflict:'id'});if(sysErr)throw new Error('تعذر حفظ حالة نظام الإشعارات: '+sysErr.message);
-    const eventRows=(payload.events||[]).map(x=>({event_key:x.eventKey,is_enabled:!!x.enabled,in_app_enabled:!!x.inApp,push_enabled:!!x.push,updated_by:uid,updated_at:new Date().toISOString()}));
+    const eventRows=(payload.events||[]).map(x=>({
+      event_key:x.eventKey,
+      event_name:x.eventName,
+      module_name:x.moduleName||'التركيبات',
+      target_view:x.targetView||null,
+      display_order:Number.isFinite(Number(x.displayOrder))?Number(x.displayOrder):0,
+      is_enabled:!!x.enabled,
+      in_app_enabled:!!x.inApp,
+      push_enabled:!!x.push,
+      updated_by:uid,
+      updated_at:new Date().toISOString()
+    }));
     if(eventRows.length){const {error}=await db().from('notification_event_settings').upsert(eventRows,{onConflict:'event_key'});if(error)throw new Error('تعذر حفظ إعدادات الأحداث: '+error.message)}
     const keys=eventRows.map(x=>x.event_key);if(keys.length){const {error}=await db().from('notification_event_recipient_rules').delete().in('event_key',keys);if(error)throw new Error('تعذر تحديث مستلمي الإشعارات: '+error.message)}
     const rows=[];(payload.events||[]).forEach(ev=>{if(ev.owner)rows.push({event_key:ev.eventKey,recipient_type:'request_owner',is_active:true,created_by:uid});(ev.roles||[]).forEach(role=>rows.push({event_key:ev.eventKey,recipient_type:'role',role_key:role,is_active:true,created_by:uid}));(ev.users||[]).forEach(userId=>rows.push({event_key:ev.eventKey,recipient_type:'user',user_id:userId,is_active:true,created_by:uid}))});

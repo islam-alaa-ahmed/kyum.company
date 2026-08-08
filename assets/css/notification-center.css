@@ -167,3 +167,11 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
   .notification-role-filter-note{font-size:12px}
   .notification-matrix{min-width:820px}
 }
+
+
+/* Phase M15.12.2.4 — Notification Matrix Save + Column Select-All Hotfix */
+.notification-column-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;cursor:pointer;user-select:none;white-space:nowrap}
+.notification-column-toggle input{width:17px;height:17px;accent-color:#2563eb;cursor:pointer;flex:0 0 auto}
+.notification-column-toggle span{line-height:1.25}
+.notification-matrix thead th:not(:first-child){vertical-align:middle;text-align:center}
+@media(max-width:760px){.notification-column-toggle{gap:6px}.notification-column-toggle input{width:19px;height:19px}}
