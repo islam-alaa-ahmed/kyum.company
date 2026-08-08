@@ -254,18 +254,21 @@
 
   async function executionWorkspace(){
     requireAction('view','installationExecution');
-    const [requestResult,visitResult,lineResult,currentResult]=await Promise.all([
+    const [requestResult,visitResult,anyVisitResult,lineResult,currentResult]=await Promise.all([
       db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),team:installation_teams(id,name,status),representative:sales_representatives(id,full_name),services:installation_request_services(id,quantity,unit_price,line_total,service_type:installation_service_types(id,name))').or('installation_team_id.not.is.null,assigned_technician_name.not.is.null').order('scheduled_date',{ascending:true,nullsFirst:false}).order('scheduled_time',{ascending:true,nullsFirst:false}),
       db().from('installation_execution_visits').select('id,installation_request_id,visit_no,scheduled_date,scheduled_time,installation_team_id,technician_name,status,selected_for_execution_at,selected_for_execution_by,on_route_at,map_opened_at,arrived_at,started_at,completed_at,execution_notes,team:installation_teams(id,name)').in('status',['مجدولة','قيد التنفيذ','بانتظار التأكيد']).order('scheduled_date',{ascending:true}).order('scheduled_time',{ascending:true}),
+      db().from('installation_execution_visits').select('installation_request_id'),
       db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity'),
       db().rpc('get_current_installation_execution_visit_id')
     ]);
     if(requestResult.error)throw new Error('تعذر تحميل مهام التنفيذ: '+requestResult.error.message);
     if(visitResult.error&&visitResult.error.code!=='42P01')throw new Error('تعذر تحميل زيارات التنفيذ: '+visitResult.error.message);
+    if(anyVisitResult.error&&anyVisitResult.error.code!=='42P01')throw new Error('تعذر التحقق من سجل زيارات التنفيذ: '+anyVisitResult.error.message);
     if(lineResult.error&&lineResult.error.code!=='42P01')throw new Error('تعذر تحميل خدمات زيارات التنفيذ: '+lineResult.error.message);
     if(currentResult.error)throw new Error('تعذر تحديد الطلب الحالي: '+currentResult.error.message);
     const currentVisitId=currentResult.data;
-    const requests=requestResult.data||[],visits=visitResult.data||[],visitLines=lineResult.data||[];
+    const requests=requestResult.data||[],visits=visitResult.data||[],allVisitRefs=anyVisitResult.data||[],visitLines=lineResult.data||[];
+    const requestsWithAnyVisit=new Set(allVisitRefs.map(v=>String(v.installation_request_id||'')).filter(Boolean));
     const lineMap=new Map();
     visitLines.forEach(x=>{const a=lineMap.get(x.visit_id)||[];a.push(x);lineMap.set(x.visit_id,a)});
     const visitsByRequest=new Map();
@@ -276,7 +279,13 @@
     const output=[];
     requests.forEach(r=>{
       const base=normalizeRequest(r),own=visitsByRequest.get(r.id)||[];
-      if(!own.length){output.push({...base,visitSyncMissing:true,selectedForExecutionAt:'',selectedForExecutionBy:'',isCurrentUserSelection:false,mapOpenedAt:'',onRouteAt:'',arrivedAt:'',startedAt:'',completedAt:'',status:['ملغي'].includes(String(base.status||'').trim())?base.status:'مسند'});return;}
+      if(!own.length){
+        // Legacy fallback is allowed only for requests that truly have no execution visits at all.
+        // If historical visits exist but none are active (for example all are confirmed/completed),
+        // the request must stay out of the execution workspace and must never reappear as a new task.
+        if(requestsWithAnyVisit.has(String(r.id)))return;
+        output.push({...base,visitSyncMissing:true,selectedForExecutionAt:'',selectedForExecutionBy:'',isCurrentUserSelection:false,mapOpenedAt:'',onRouteAt:'',arrivedAt:'',startedAt:'',completedAt:'',status:['ملغي'].includes(String(base.status||'').trim())?base.status:'مسند'});return;
+      }
       own.forEach(v=>{
         const allocations=new Map((lineMap.get(v.id)||[]).map(x=>[x.request_service_id,Number(x.scheduled_quantity||0)]));
         const allocated=base.services.map(x=>{const quantity=allocations.has(x.id)?allocations.get(x.id):0;return {...x,quantity,lineTotal:quantity*Number(x.unitPrice||0)}}).filter(x=>x.quantity>0);
