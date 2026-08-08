@@ -1,13 +1,13 @@
 {
-  "version": "18.53.29",
-  "build": 185329,
+  "version": "18.53.30",
+  "build": 185330,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Quantity Confirmation Dialog DOM Recovery — Phase M15.13.2",
+  "title": "Geographic Reports Vertical Dynamic Layout — Phase M15.13.3",
   "notes": [
-    "استعادة نافذة تأكيد الكمية المنفذة وعناصرها المطلوبة داخل DOM.",
-    "إضافة فحص دفاعي واضح لعناصر نافذة تأكيد الكمية قبل استخدامها لمنع أخطاء null الصامتة.",
-    "الحفاظ على منطق اعتماد الكمية والمتبقي وإعادة الجدولة بدون تغيير Business Logic."
+    "إعادة ترتيب تقارير التحليل الجغرافي للخدمات رأسيًا بحيث يظهر كل تقرير أسفل السابق.",
+    "إلغاء الارتفاع الأقصى الثابت لجداول التحليل الجغرافي لتتمدد تلقائيًا حسب عدد الصفوف دون تداخل.",
+    "حصر التمرير الأفقي داخل كل جدول عند ضيق العرض مع الحفاظ على Responsive وعدم تغيير بيانات التقرير أو الفلاتر."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-29-quantity-confirmation-dialog-dom-recovery-m15-13-2"
+  "cacheToken": "kyum-crm-pwa-18-53-30-geographic-reports-vertical-dynamic-layout-m15-13-3"
 }

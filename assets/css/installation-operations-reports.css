@@ -146,16 +146,20 @@
 .installation-service-geographic-kpis>.panel{min-height:94px;display:grid;align-content:center;gap:7px;padding:15px}
 .installation-service-geographic-kpis span{color:var(--text-muted);font-size:.84rem}
 .installation-service-geographic-kpis strong{font-size:1.18rem}
-.installation-service-geographic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-.installation-service-geographic-grid>.panel{padding:15px;display:grid;gap:12px;min-width:0}
+/* Phase M15.13.3 — Geographic analytics vertical + dynamic data layout */
+.installation-service-geographic-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start;width:100%;min-width:0}
+.installation-service-geographic-grid>.panel{padding:16px;display:grid;grid-template-rows:auto auto;gap:12px;min-width:0;width:100%;max-width:100%;align-self:start;overflow:hidden}
 .installation-service-geographic-grid h4,.installation-service-period-comparison h4{margin:0;font-size:1rem}
-.installation-service-geographic-grid .table-scroll{max-height:420px;border:1px solid #b8c4d6;border-radius:12px}
-.installation-service-geographic-grid table{min-width:850px}
+.installation-service-geographic-grid .table-scroll{display:block;width:100%;max-width:100%;max-height:none;height:auto;min-height:0;overflow-x:auto;overflow-y:visible;border:1px solid #b8c4d6;border-radius:12px;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+.installation-service-geographic-grid table{width:100%;min-width:980px;table-layout:auto}
+.installation-service-geographic-grid tbody{height:auto}
+.installation-service-geographic-grid tr{height:auto}
+.installation-service-geographic-grid th,.installation-service-geographic-grid td{vertical-align:middle;white-space:normal;overflow-wrap:anywhere}
 .installation-service-period-comparison{padding:15px;display:grid;gap:12px;min-width:0}
 .installation-service-period-comparison>.installation-report-panel-head{padding:0;margin:0}
 .installation-service-period-comparison>.table-scroll{border:1px solid #b8c4d6;border-radius:12px;overflow:auto}
 .installation-service-period-comparison table{min-width:1580px}
-@media(max-width:1100px){.installation-service-geographic-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-service-geographic-grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.installation-service-geographic-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.installation-service-geographic-head{align-items:start;flex-direction:column}.installation-service-geographic-kpis{grid-template-columns:1fr}}
 
 
