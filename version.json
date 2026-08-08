@@ -1,13 +1,13 @@
 {
-  "version": "18.53.31",
-  "build": 185331,
+  "version": "18.53.32",
+  "build": 185332,
   "forceUpdate": true,
   "releaseDate": "2026-08-08",
-  "title": "Mobile Notifications & CRM Cards Recovery — Phase M15.13.4",
+  "title": "Mobile Bell & Customer Card Verified Recovery — Phase M15.13.6R",
   "notes": [
-    "إصلاح فتح جرس الإشعارات في نسخة الموبايل باستخدام Pointer Events موثوقة داخل PWA.",
-    "إعادة تنسيق كارت العميل على الموبايل بنفس إيقاع كارت المتابعة مع توزيع الحقول ديناميكيًا.",
-    "إصلاح الجزء العلوي من شاشة المتابعات لمنع انكماش النص رأسيًا وترتيب أزرار التصدير والإضافة بدون تداخل."
+    "إصلاح فتح جرس الإشعارات على iPhone/PWA بمعالجة Capture-level للمس قبل طبقات الهيدر.",
+    "إعادة كارت العملاء إلى نفس إيقاع كروت المتابعات: بيانات ثانوية بعمودين وعناصر رئيسية بعرض كامل.",
+    "رفع Cache Token لضمان تحميل CSS وJavaScript الجديدين على الموبايل."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-31-mobile-notifications-crm-cards-recovery-m15-13-4"
+  "cacheToken": "kyum-crm-pwa-18-53-32-mobile-bell-customer-card-verified-recovery-m15-13-6r"
 }

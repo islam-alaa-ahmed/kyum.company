@@ -289,3 +289,13 @@ html[data-theme="dark"] .notification-unread-badge{border-color:#071a2e}
     border-radius:15px!important;
   }
 }
+
+
+/* Phase M15.13.6R — guarantee a real touch surface and visible mobile dropdown. */
+@media (max-width:767px), (pointer:coarse) and (max-device-width:1024px), (hover:none) and (max-device-width:1024px){
+  #appHeader .notification-bell-wrap{pointer-events:auto!important;z-index:90!important}
+  #appHeader #notificationBellBtn{pointer-events:auto!important;z-index:91!important;touch-action:manipulation!important}
+  #appHeader #notificationBellBtn>*{pointer-events:none!important}
+  #appHeader #notificationDropdown{pointer-events:auto!important;z-index:2147483000!important;visibility:visible}
+  #appHeader #notificationDropdown.hidden{display:none!important}
+}

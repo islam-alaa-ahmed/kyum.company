@@ -3692,20 +3692,65 @@ html.is-offline body::before {
 }
 
 
-/* Phase M15.13.6 — Mobile notification interaction & customer card parity */
-@media (max-width:767px), (pointer:coarse) and (max-device-width:1024px), (hover:none) and (max-device-width:1024px){
-  /* Match the proven follow-up card reading rhythm: one full-width field per row. */
-  #customersView tbody tr{grid-template-columns:1fr!important;gap:0!important;padding:16px 18px!important}
-  #customersView tbody td{grid-column:1/-1!important;padding:11px 0!important}
-  #customersView tbody td+td{border-top:1px solid var(--border)!important}
-  #customersView tbody td::before{margin-bottom:5px!important;font-size:10px!important}
-  #customersView tbody td[data-mobile-field="name"]{order:-2;padding-top:0!important}
-  #customersView tbody td[data-mobile-field="name"] strong{font-size:18px!important;line-height:1.45!important;color:var(--text)!important}
-  #customersView tbody td[data-mobile-field="phone"]{order:-1;padding:11px 0!important;border-bottom:0!important}
+/* Phase M15.13.6R — Mobile Bell & Customer Card Verified Recovery */
+@media (max-width: 767px),
+       (pointer: coarse) and (max-device-width: 1024px),
+       (hover: none) and (max-device-width: 1024px) {
+  /* Customers must use the same 2-column information rhythm as follow-up cards. */
+  #customersView .table-card{overflow:visible!important;border:0!important;background:transparent!important;box-shadow:none!important}
+  #customersView table,#customersView tbody{display:block!important;width:100%!important}
+  #customersView thead{display:none!important}
+  #customersView tbody{display:grid!important;gap:12px!important}
+  #customersView tbody tr{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px 14px!important;
+    width:100%!important;
+    padding:15px!important;
+    border:1px solid var(--border)!important;
+    border-radius:20px!important;
+    background:var(--surface)!important;
+    box-shadow:0 10px 28px rgba(15,23,42,.07)!important;
+    overflow:hidden!important;
+  }
+  #customersView tbody tr:has(.empty-state){display:block!important;text-align:center!important}
+  #customersView tbody td{
+    display:block!important;
+    grid-column:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:0!important;
+    border:0!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    font-size:12px!important;
+    line-height:1.55!important;
+  }
+  #customersView tbody td::before{
+    content:attr(data-mobile-label)!important;
+    display:block!important;
+    margin-bottom:3px!important;
+    color:var(--muted)!important;
+    font-size:9px!important;
+    font-weight:800!important;
+  }
+  #customersView tbody td[data-mobile-field="name"],
+  #customersView tbody td[data-mobile-field="phone"],
+  #customersView tbody td[data-mobile-field="reason"],
+  #customersView tbody td[data-mobile-field="actions"]{grid-column:1/-1!important}
+  #customersView tbody td[data-mobile-field="name"]{order:1!important;padding-bottom:9px!important;border-bottom:1px solid var(--border)!important}
+  #customersView tbody td[data-mobile-field="name"] strong{font-size:16px!important;line-height:1.45!important;color:var(--text)!important}
+  #customersView tbody td[data-mobile-field="phone"]{order:2!important;font-size:14px!important;font-weight:800!important;color:var(--primary)!important}
   #customersView tbody td[data-mobile-field="phone"] strong{font-size:16px!important;color:var(--text)!important}
-  #customersView tbody td[data-mobile-field="actions"]{padding-top:12px!important}
-  #customersView .row-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
-  #customersView .row-actions button,#customersView .row-actions a{min-height:46px!important;border-radius:14px!important;font-size:12px!important}
-  /* Bell must remain an independent touch surface above decorative header layers. */
-  #appHeader .notification-bell-wrap,#appHeader .notification-bell-btn{pointer-events:auto!important;-webkit-user-select:none!important;user-select:none!important}
+  #customersView tbody td[data-mobile-field="contact"]{order:3!important}
+  #customersView tbody td[data-mobile-field="type"]{order:4!important}
+  #customersView tbody td[data-mobile-field="interests"]{order:5!important}
+  #customersView tbody td[data-mobile-field="representative"]{order:6!important}
+  #customersView tbody td[data-mobile-field="date"]{order:7!important}
+  #customersView tbody td[data-mobile-field="quotation"]{order:8!important}
+  #customersView tbody td[data-mobile-field="reason"]{order:9!important}
+  #customersView tbody td[data-mobile-field="actions"]{order:10!important;padding-top:10px!important;border-top:1px solid var(--border)!important}
+  #customersView .row-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+  #customersView .row-actions button,#customersView .row-actions a{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:40px!important;padding:8px 9px!important;border-radius:12px!important;font-size:10px!important;font-weight:900!important;text-decoration:none!important}
 }
