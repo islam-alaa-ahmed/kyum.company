@@ -275,6 +275,11 @@
     if(lineResult.error&&lineResult.error.code!=='42P01')throw new Error('تعذر تحميل خدمات زيارات التنفيذ: '+lineResult.error.message);
     if(currentResult.error)throw new Error('تعذر تحديد الطلب الحالي: '+currentResult.error.message);
     const currentVisitId=currentResult.data;
+    // Phase M15.14.6: the technician's active selection is operational state, not private visibility.
+    // Super Admin must be able to observe every visit that is currently selected/in progress,
+    // even when selected_for_execution_by belongs to another user.
+    const executionViewerRole=String(window.CustomerAuth?.getState?.().profile?.role||'').trim();
+    const superAdminExecutionObserver=executionViewerRole==='super_admin';
     const requests=requestResult.data||[],visits=visitResult.data||[],allVisitRefs=anyVisitResult.data||[],visitLines=lineResult.data||[];
     const requestsWithAnyVisit=new Set(allVisitRefs.map(v=>String(v.installation_request_id||'')).filter(Boolean));
     const lineMap=new Map();
@@ -298,7 +303,7 @@
         const allocations=new Map((lineMap.get(v.id)||[]).map(x=>[x.request_service_id,Number(x.scheduled_quantity||0)]));
         const allocated=base.services.map(x=>{const quantity=allocations.has(x.id)?allocations.get(x.id):0;return {...x,quantity,lineTotal:quantity*Number(x.unitPrice||0)}}).filter(x=>x.quantity>0);
         const services=allocated.length?allocated:base.services;
-        output.push({...base,scheduleEntryId:v.id,visitId:v.id,visitNo:Number(v.visit_no||0),executionNumber:`${base.requestNumber}-${String(Number(v.visit_no||0)).padStart(2,'0')}`,scheduledDate:v.scheduled_date||base.scheduledDate,scheduledTime:String(v.scheduled_time||base.scheduledTime||'').slice(0,5),teamId:v.installation_team_id||base.teamId,teamName:v.team?.name||base.teamName,technicianName:v.technician_name||base.technicianName,visitStatus:v.status||'',status:v.completed_at?'مكتمل':(v.started_at?'قيد التنفيذ':(v.arrived_at?'وصل إلى العميل':(v.on_route_at?'في الطريق':'مسند'))),selectedForExecutionAt:v.selected_for_execution_at||'',selectedForExecutionBy:v.selected_for_execution_by||'',isCurrentUserSelection:Boolean(currentVisitId&&String(v.id)===String(currentVisitId)),onRouteAt:v.on_route_at||'',mapOpenedAt:v.map_opened_at||'',arrivedAt:v.arrived_at||'',startedAt:v.started_at||'',completedAt:v.completed_at||'',executionNotes:v.execution_notes||'',services,totalServicesCount:services.reduce((a,x)=>a+Number(x.quantity||0),0),totalServicesAmount:services.reduce((a,x)=>a+Number(x.lineTotal||0),0)});
+        output.push({...base,scheduleEntryId:v.id,visitId:v.id,visitNo:Number(v.visit_no||0),executionNumber:`${base.requestNumber}-${String(Number(v.visit_no||0)).padStart(2,'0')}`,scheduledDate:v.scheduled_date||base.scheduledDate,scheduledTime:String(v.scheduled_time||base.scheduledTime||'').slice(0,5),teamId:v.installation_team_id||base.teamId,teamName:v.team?.name||base.teamName,technicianName:v.technician_name||base.technicianName,visitStatus:v.status||'',status:v.completed_at?'مكتمل':(v.started_at?'قيد التنفيذ':(v.arrived_at?'وصل إلى العميل':(v.on_route_at?'في الطريق':'مسند'))),selectedForExecutionAt:v.selected_for_execution_at||'',selectedForExecutionBy:v.selected_for_execution_by||'',isCurrentUserSelection:Boolean((currentVisitId&&String(v.id)===String(currentVisitId))||(superAdminExecutionObserver&&v.selected_for_execution_at)),onRouteAt:v.on_route_at||'',mapOpenedAt:v.map_opened_at||'',arrivedAt:v.arrived_at||'',startedAt:v.started_at||'',completedAt:v.completed_at||'',executionNotes:v.execution_notes||'',services,totalServicesCount:services.reduce((a,x)=>a+Number(x.quantity||0),0),totalServicesAmount:services.reduce((a,x)=>a+Number(x.lineTotal||0),0)});
       });
     });
     return output;
