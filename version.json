@@ -1,5 +1,5 @@
 {
-  "version": "18.53.40",
+  "version": "18.53.41",
   "build": 185340,
   "forceUpdate": true,
   "releaseDate": "2026-08-09",
@@ -9,5 +9,5 @@
     "إدارة إجمالي التكلفة السنوية للفنيين وتوليد تكلفة شهرية افتراضية قابلة للتعديل لكل شهر دون تغيير بقية الشهور.",
     "توزيع الفنيين على فرق التركيبات حسب الشهر واحتساب تكلفة كل فرقة تلقائيًا مع دعم بنود تكلفة ديناميكية."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-40-installation-department-cost-center-m15-14"
+  "cacheToken": "kyum-crm-pwa-18-53-41-independent-cost-technicians-teams-m15-14-1"
 }
