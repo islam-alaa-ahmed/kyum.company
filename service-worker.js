@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-39-confirmed-quantity-invoice-flow-m15-13-12";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-40-installation-department-cost-center-m15-14";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -27,6 +27,7 @@ const CORE_APP_SHELL = [
   "./assets/css/installation-completion.css",
   "./assets/css/installation-operations-reports.css",
   "./assets/css/installation-dashboard-settings.css",
+  "./assets/css/installation-costs.css",
   "./assets/css/mobile-theme-canonical.css",
   "./assets/css/sales-invoices.css",
   "./assets/css/global-typography-certification.css",
@@ -63,6 +64,7 @@ const CORE_APP_SHELL = [
   "./assets/js/installation-operations-reports.js",
   "./assets/js/installation-dashboard-settings.js",
   "./assets/js/installation-settings-management.js",
+  "./assets/js/installation-costs.js",
   "./assets/js/mobile.js",
   "./assets/js/pwa.js"
 ];

@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8');
+const checks=[];const ok=(name,cond)=>{if(!cond)throw new Error(`FAIL: ${name}`);checks.push(name)};
+const html=read('index.html'),app=read('assets/js/app.js'),perm=read('assets/js/permission-engine.js'),svc=read('assets/js/installations-service.js'),ui=read('assets/js/installation-costs.js'),sw=read('service-worker.js'),mig=read('supabase/migrations/phase_m15_14_installation_department_cost_center.sql');
+ok('sidebar cost center view',html.includes('data-view="installationCosts"')&&html.includes('id="installationCostsView"'));
+ok('annual and monthly UI',html.includes('installationCostAnnualDialog')&&ui.includes('saveInstallationCostAnnual')&&ui.includes('saveInstallationCostMonth'));
+ok('dynamic categories',ui.includes('saveInstallationCostCategory')&&mig.includes('installation_cost_categories'));
+ok('team monthly assignment',ui.includes('saveInstallationCostTeamAssignment')&&mig.includes('installation_cost_team_assignments'));
+ok('default five cost categories',['الراتب','رسوم الإقامة','التأمين الطبي','التأمين الاجتماعي','الإيجار'].every(x=>mig.includes(x)));
+ok('permission-driven screen',perm.includes('"installationCosts"')&&mig.includes("has_screen_permission('installationCosts'"));
+ok('monthly override isolation',mig.includes('installation_technician_monthly_costs')&&ui.includes('استعادة تكلفة الشهر من الإجمالي'));
+ok('previous month copy',svc.includes('copyPreviousInstallationCostMonth')&&ui.includes('copyPreviousInstallationCostMonth'));
+ok('app navigation metadata',app.includes('installationCosts: document.getElementById("installationCostsView")')&&app.includes('تكلفة قسم التركيبات'));
+ok('offline shell assets',sw.includes('./assets/js/installation-costs.js')&&sw.includes('./assets/css/installation-costs.css'));
+console.log(`Phase M15.14: ${checks.length}/${checks.length} PASS`);

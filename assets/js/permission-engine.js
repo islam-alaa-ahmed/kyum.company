@@ -49,7 +49,7 @@
   const DEFAULT_NAVIGATION_GROUPS = Object.freeze({
     "main-navigation": Object.freeze(["dashboard", "dailyOperations"]),
     "customer-management": Object.freeze(["customers", "followups", "quotations", "representatives", "settings"]),
-    "installations-management": Object.freeze(["installationsOverview", "installationRequestNew", "installationRequests", "installationSchedule", "installationExecution", "installationCompletion", "installationExceptions", "installationReports", "installationSettings"]),
+    "installations-management": Object.freeze(["installationsOverview", "installationRequestNew", "installationRequests", "installationSchedule", "installationExecution", "installationCompletion", "installationExceptions", "installationReports", "installationCosts", "installationSettings"]),
     "reports-analytics": Object.freeze(["reportsOverview", "dailyPerformanceReport"]),
     "settings-privacy": Object.freeze(["users", "permissions", "activityLog", "backups", "systemHealth", "notificationCenter", "systemSettings", "aboutApp"])
   });
