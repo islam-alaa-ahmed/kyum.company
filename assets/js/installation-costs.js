@@ -20,6 +20,10 @@
   }
   function effective(tid,cid,m){const k=key(tid,cid);return m.monthly.has(k)?m.monthly.get(k):round((m.annual.get(k)||0)/12)}
   function techTotal(t,m,mode=state.mode){return (state.data?.categories||[]).reduce((sum,c)=>sum+(mode==='annual'?(m.annual.get(key(t.id,c.id))||0):effective(t.id,c.id,m)),0)}
+  function periodDays(mode=state.mode){const p=selectedPeriod();return mode==='annual'?(new Date(p.year,1,29).getMonth()===1?366:365):new Date(p.year,p.month,0).getDate()}
+  function dailyCost(total,mode=state.mode){return round(Number(total||0)/Math.max(1,periodDays(mode)))}
+  function membershipCount(tid,m){return Math.max(1,m.memberships.get(String(tid))?.size||0)}
+  function allocatedTechTotal(t,m,mode=state.mode){return round(techTotal(t,m,mode)/membershipCount(t.id,m))}
   function periodLabel(){const p=selectedPeriod();return state.mode==='annual'?`سنة ${p.year}`:`${$('installationCostsMonth')?.selectedOptions?.[0]?.textContent||p.month} ${p.year}`}
   function visibleTechnicians(){const p=selectedPeriod();return (state.data?.technicians||[]).filter(t=>{if(t.is_active!==false)return true;if(!t.inactive_at)return false;const d=new Date(String(t.inactive_at)+'T00:00:00');if(Number.isNaN(d.getTime()))return false;return state.mode==='annual'?d.getFullYear()>=p.year:(d.getFullYear()>p.year||(d.getFullYear()===p.year&&d.getMonth()+1>=p.month))})}
 
@@ -42,6 +46,8 @@
     $('installationCostsKpiAnnual').textContent=money(annual);$('installationCostsKpiMonth').textContent=money(monthly);
     const activeTotal=state.mode==='annual'?annual:monthly;$('installationCostsKpiAverageTeam').textContent=money(teams.length?activeTotal/teams.length:0);
     const lab=$('installationCostsKpiAverageTeamLabel');if(lab)lab.textContent=`متوسط تكلفة الفرقة — ${state.mode==='annual'?'سنوي':'شهري'}`;
+    const dayKpi=$('installationCostsKpiDay');if(dayKpi)dayKpi.textContent=money(dailyCost(activeTotal));
+    const dayLab=$('installationCostsKpiDayLabel');if(dayLab)dayLab.textContent=`تكلفة اليوم — ${state.mode==='annual'?'من السنوي':'من الشهر'}`;
   }
   function renderTechnicians(m){
     const d=state.data||{},cats=d.categories||[],techs=visibleTechnicians(),editable=can('edit'),deletable=can('delete');
@@ -57,8 +63,10 @@
   function renderTeams(m){
     const d=state.data||{},teams=d.teams||[],techs=visibleTechnicians(),membership=m.memberships;
     $('installationCostTeamsGrid').innerHTML=teams.length?teams.map(team=>{
-      const members=techs.filter(t=>membership.get(String(t.id))?.has(String(team.id)));const total=members.reduce((s,t)=>s+techTotal(t,m),0);
-      return `<article class="panel installation-cost-team-card"><div class="installation-cost-team-card-head"><div><h4>${esc(team.name)}</h4><span>${members.length} موظف</span></div><strong>${money(total)}</strong></div><div class="installation-cost-team-members">${members.length?members.map(t=>`<div><span>${esc(t.name)}</span><strong>${money(techTotal(t,m))}</strong></div>`).join(''):'<p class="empty-cell">لا يوجد موظفون داخل الفرقة.</p>'}</div><div class="installation-cost-team-actions"><button class="ghost-btn" type="button" data-cost-team-edit="${esc(team.id)}">تعديل الاسم</button>${can('delete')?`<button class="danger-btn" type="button" data-cost-team-delete="${esc(team.id)}">حذف الفرقة</button>`:''}</div></article>`;
+      const members=techs.filter(t=>membership.get(String(t.id))?.has(String(team.id)));
+      const total=round(members.reduce((s,t)=>s+allocatedTechTotal(t,m),0));
+      const day= dailyCost(total);
+      return `<article class="panel installation-cost-team-card"><div class="installation-cost-team-card-head"><div><h4>${esc(team.name)}</h4><span>${members.length} موظف</span></div><strong>${money(total)}</strong></div><div class="installation-cost-team-members">${members.length?members.map(t=>{const teamsCount=membershipCount(t.id,m),share=allocatedTechTotal(t,m);return `<div><span>${esc(t.name)}${teamsCount>1?` <small>(${teamsCount} فرق)</small>`:''}</span><strong>${money(share)}</strong></div>`}).join(''):'<p class="empty-cell">لا يوجد موظفون داخل الفرقة.</p>'}</div><div class="installation-cost-team-daily"><span>تكلفة اليوم</span><strong>${money(day)}</strong></div><div class="installation-cost-team-actions"><button class="ghost-btn" type="button" data-cost-team-edit="${esc(team.id)}">تعديل الاسم</button>${can('delete')?`<button class="danger-btn" type="button" data-cost-team-delete="${esc(team.id)}">حذف الفرقة</button>`:''}</div></article>`;
     }).join(''):'<div class="panel installation-cost-empty-team"><p>لم يتم إنشاء فرق تكلفة بعد.</p></div>';
     const unassigned=techs.filter(t=>!(membership.get(String(t.id))?.size));$('installationCostsUnassigned').innerHTML=unassigned.length?`<strong>غير موزعين على فرق:</strong> ${unassigned.map(t=>esc(t.name)).join('، ')}`:'<span>كل الموظفين موزعون على فرقة واحدة على الأقل.</span>';
   }
