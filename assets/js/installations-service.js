@@ -570,7 +570,7 @@
     requireAction('view','installationCosts');
     const costMonth=installationCostMonthKey(year,month);
     const [{data:technicians,error:techError},{data:categories,error:categoryError},{data:annual,error:annualError},{data:monthly,error:monthlyError},{data:teams,error:teamError},{data:memberships,error:membershipError}]=await Promise.all([
-      db().from('installation_cost_technicians').select('id,name,is_active,sort_order').eq('is_active',true).order('sort_order').order('name'),
+      db().from('installation_cost_technicians').select('id,name,is_active,inactive_at,sort_order').order('sort_order').order('name'),
       db().from('installation_cost_categories').select('id,name,is_system,sort_order,is_active').eq('is_active',true).order('sort_order').order('name'),
       db().from('installation_technician_annual_costs').select('id,fiscal_year,technician_id,category_id,annual_total').eq('fiscal_year',Number(year)),
       db().from('installation_technician_monthly_costs').select('id,cost_month,technician_id,category_id,amount,is_override').eq('cost_month',costMonth),
@@ -582,7 +582,7 @@
   }
   async function saveInstallationCostTechnician(payload){
     requireAction(payload.id?'edit':'add','installationCosts');const name=String(payload.name||'').trim();if(!name)throw new Error('اكتب اسم الموظف.');
-    const {data,error}=await db().rpc('save_installation_cost_technician',{p_id:payload.id||null,p_name:name});if(error)throw new Error('تعذر حفظ الموظف: '+error.message);return data;
+    const {data,error}=await db().rpc('save_installation_cost_technician',{p_id:payload.id||null,p_name:name,p_inactive_at:payload.inactiveAt||null});if(error)throw new Error('تعذر حفظ الموظف: '+error.message);return data;
   }
   async function removeInstallationCostTechnician(id){requireAction('delete','installationCosts');const {error}=await db().rpc('delete_installation_cost_technician',{p_id:id});if(error)throw new Error('تعذر حذف الموظف: '+error.message)}
   async function saveInstallationCostTeam(payload){
@@ -590,10 +590,11 @@
   }
   async function removeInstallationCostTeam(id){requireAction('delete','installationCosts');const {error}=await db().from('installation_cost_teams').delete().eq('id',id);if(error)throw new Error('تعذر حذف الفرقة: '+error.message)}
   async function saveInstallationCostTeamMembers(payload){
-    requireAction('edit','installationCosts');const teamId=payload.teamId,ids=[...new Set((payload.technicianIds||[]).filter(Boolean))];if(!teamId)throw new Error('الفرقة غير محددة.');
-    const {error:clearError}=await db().from('installation_cost_team_members').delete().eq('team_id',teamId);if(clearError)throw new Error('تعذر تحديث أعضاء الفرقة: '+clearError.message);
-    if(ids.length){await Promise.all(ids.map(async technicianId=>{const {error}=await db().from('installation_cost_team_members').upsert({team_id:teamId,technician_id:technicianId,updated_at:new Date().toISOString()},{onConflict:'technician_id'});if(error)throw error})).catch(e=>{throw new Error('تعذر حفظ أعضاء الفرقة: '+e.message)})}
+    requireAction('edit','installationCosts');const assignments=(payload.assignments||[]).filter(x=>x?.teamId&&x?.technicianId);
+    const {error:clearError}=await db().from('installation_cost_team_members').delete().neq('id','00000000-0000-0000-0000-000000000000');if(clearError)throw new Error('تعذر تحديث توزيع الموظفين: '+clearError.message);
+    if(assignments.length){const rows=assignments.map(x=>({team_id:x.teamId,technician_id:x.technicianId,updated_at:new Date().toISOString()}));const {error}=await db().from('installation_cost_team_members').insert(rows);if(error)throw new Error('تعذر حفظ توزيع الموظفين: '+error.message)}
   }
+  async function toggleInstallationCostTechnician(payload){requireAction('edit','installationCosts');const {error}=await db().rpc('toggle_installation_cost_technician',{p_id:payload.id,p_is_active:!!payload.isActive,p_inactive_at:payload.inactiveAt||null});if(error)throw new Error('تعذر تحديث حالة الموظف: '+error.message)}
   async function saveInstallationCostAnnual(payload){
     requireAction('edit','installationCosts');const record={fiscal_year:Number(payload.year),technician_id:payload.technicianId,category_id:payload.categoryId,annual_total:Number(payload.annualTotal||0),updated_at:new Date().toISOString()};if(!record.technician_id||!record.category_id)throw new Error('بيانات الموظف أو بند التكلفة غير مكتملة.');const {error}=await db().from('installation_technician_annual_costs').upsert(record,{onConflict:'fiscal_year,technician_id,category_id'});if(error)throw new Error('تعذر حفظ إجمالي التكلفة: '+error.message)
   }
@@ -608,6 +609,6 @@
   }
   async function getSettings(){requireAction('view','installationSettings');const {data,error}=await db().from('installation_settings').select('*').eq('id',1).maybeSingle();if(error)throw new Error('تعذر تحميل إعدادات التركيبات: '+error.message);const r=data||{};return {morningLabel:r.morning_label||'صباحية',eveningLabel:r.evening_label||'مسائية',slaDays:Number(r.sla_days??1),defaultPriority:r.default_priority||'عادية',requireCompletionReport:r.require_completion_report!==false}}
   async function saveSettings(payload){requireAction('edit','installationSettings');const record={id:1,morning_label:payload.morningLabel,evening_label:payload.eveningLabel,sla_days:payload.slaDays,default_priority:payload.defaultPriority,require_completion_report:!!payload.requireCompletionReport,updated_at:new Date().toISOString()};const {error}=await db().from('installation_settings').upsert(record,{onConflict:'id'});if(error)throw new Error('تعذر حفظ إعدادات التركيبات: '+error.message)}
-  window.InstallationsService={list,options,requestEditDetail,requestEditOptions,createRequest,updateRequest,updateRequestServices,updateRequestContextServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,schedulePlan,assignMultiDay,cancelSchedule,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,confirmActualQuantities,cancelConfirmedQuantity,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,installationSummaryReport,installationCostWorkspace,saveInstallationCostTechnician,removeInstallationCostTechnician,saveInstallationCostTeam,removeInstallationCostTeam,saveInstallationCostTeamMembers,saveInstallationCostAnnual,saveInstallationCostMonth,clearInstallationCostMonth,saveInstallationCostCategory,removeInstallationCostCategory,copyPreviousInstallationCostMonth,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
+  window.InstallationsService={list,options,requestEditDetail,requestEditOptions,createRequest,updateRequest,updateRequestServices,updateRequestContextServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,schedulePlan,assignMultiDay,cancelSchedule,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,confirmActualQuantities,cancelConfirmedQuantity,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,installationSummaryReport,installationCostWorkspace,saveInstallationCostTechnician,removeInstallationCostTechnician,saveInstallationCostTeam,removeInstallationCostTeam,saveInstallationCostTeamMembers,toggleInstallationCostTechnician,saveInstallationCostAnnual,saveInstallationCostMonth,clearInstallationCostMonth,saveInstallationCostCategory,removeInstallationCostCategory,copyPreviousInstallationCostMonth,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
   window.dispatchEvent(new CustomEvent('kyum-installations-service-ready'));
 })();

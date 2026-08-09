@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-41-independent-cost-technicians-teams-m15-14-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-42-cost-team-matrix-employee-lifecycle-m15-14-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
