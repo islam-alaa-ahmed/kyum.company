@@ -20,8 +20,16 @@
   }
   function effective(tid,cid,m){const k=key(tid,cid);return m.monthly.has(k)?m.monthly.get(k):round((m.annual.get(k)||0)/12)}
   function techTotal(t,m,mode=state.mode){return (state.data?.categories||[]).reduce((sum,c)=>sum+(mode==='annual'?(m.annual.get(key(t.id,c.id))||0):effective(t.id,c.id,m)),0)}
-  function periodDays(mode=state.mode){const p=selectedPeriod();return mode==='annual'?(new Date(p.year,1,29).getMonth()===1?366:365):new Date(p.year,p.month,0).getDate()}
-  function dailyCost(total,mode=state.mode){return round(Number(total||0)/Math.max(1,periodDays(mode)))}
+  function workingDaysInMonth(year,month){
+    const days=new Date(year,month,0).getDate();let working=0;
+    for(let day=1;day<=days;day++){if(new Date(year,month-1,day).getDay()!==5)working++}
+    return Math.max(1,working);
+  }
+  function dailyCost(total,mode=state.mode){
+    const p=selectedPeriod(),workingDays=workingDaysInMonth(p.year,p.month);
+    const monthlyBase=mode==='annual'?Number(total||0)/12:Number(total||0);
+    return round(monthlyBase/workingDays);
+  }
   function membershipCount(tid,m){return Math.max(1,m.memberships.get(String(tid))?.size||0)}
   function allocatedTechTotal(t,m,mode=state.mode){return round(techTotal(t,m,mode)/membershipCount(t.id,m))}
   function periodLabel(){const p=selectedPeriod();return state.mode==='annual'?`سنة ${p.year}`:`${$('installationCostsMonth')?.selectedOptions?.[0]?.textContent||p.month} ${p.year}`}
@@ -47,7 +55,7 @@
     const activeTotal=state.mode==='annual'?annual:monthly;$('installationCostsKpiAverageTeam').textContent=money(teams.length?activeTotal/teams.length:0);
     const lab=$('installationCostsKpiAverageTeamLabel');if(lab)lab.textContent=`متوسط تكلفة الفرقة — ${state.mode==='annual'?'سنوي':'شهري'}`;
     const dayKpi=$('installationCostsKpiDay');if(dayKpi)dayKpi.textContent=money(dailyCost(activeTotal));
-    const dayLab=$('installationCostsKpiDayLabel');if(dayLab)dayLab.textContent=`تكلفة اليوم — ${state.mode==='annual'?'من السنوي':'من الشهر'}`;
+    const dayLab=$('installationCostsKpiDayLabel');if(dayLab)dayLab.textContent=`تكلفة اليوم — على أيام العمل بدون الجمعة`;
   }
   function renderTechnicians(m){
     const d=state.data||{},cats=d.categories||[],techs=visibleTechnicians(),editable=can('edit'),deletable=can('delete');
