@@ -1,13 +1,13 @@
 {
-  "version": "18.53.46",
-  "build": 185346,
+  "version": "18.53.47",
+  "build": 185347,
   "forceUpdate": true,
-  "releaseDate": "2026-08-09",
-  "title": "Installation Execution — Phase M15.14.6",
+  "releaseDate": "2026-08-10",
+  "title": "Installation Execution — Phase M15.14.8",
   "notes": [
-    "إصلاح ظهور الطلب الجاري للسوبر أدمن حتى عندما بدأ الفني التنفيذ من حسابه.",
-    "اعتبار selected_for_execution_at حالة تشغيل مشتركة للسوبر أدمن مع الإبقاء على اختيار الفني الحالي كما هو لباقي الأدوار.",
-    "عدم تغيير مراحل التنفيذ أو بيانات الطلب أو صلاحيات الفنيين والفرق."
+    "إخراج زيارة التنفيذ فور تسجيل completed_at من شاشة تنفيذ التركيبات عند جميع المستخدمين.",
+    "استبعاد حالات بانتظار التأكيد والمؤكدة والملغاة من Execution Workspace قبل أي Super Admin observer logic.",
+    "إضافة حارس واجهة يمنع أي سجل مكتمل أو بانتظار التأكيد من الظهور ضمن الطلب الحالي بعد التحديث."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-45-team-matrix-opaque-surface-m15-14-5"
+  "cacheToken": "kyum-crm-pwa-18-53-47-completed-visits-exit-guard-m15-14-8"
 }

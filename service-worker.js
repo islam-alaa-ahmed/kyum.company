@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-46-super-admin-execution-observer-m15-14-6";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-47-completed-visits-exit-guard-m15-14-8";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
