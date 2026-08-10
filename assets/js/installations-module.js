@@ -72,7 +72,7 @@
     const quotationSelect = $("newInstallationQuotationId");
     if (quotationSelect) {
       const currentLabel = intent.quotationNumber || "عرض السعر المحدد";
-      quotationSelect.innerHTML = `<option value="">بدون عرض سعر</option><option value="${esc(intent.quotationId)}" selected>${esc(currentLabel)}</option>`;
+      quotationSelect.innerHTML = `<option value="">اختر عرض سعر مقبول</option><option value="${esc(intent.quotationId)}" selected>${esc(currentLabel)}</option>`;
       quotationSelect.value = String(intent.quotationId);
     }
 
@@ -249,7 +249,7 @@
     const node = $(selectId);
     if (!node) return;
     const quotes = opts.quotations.filter(quotation => (!customerId || quotation.customer_id === customerId) && quotation.status === 'مقبول' && (!quotation.installation_request_id || String(quotation.id) === String(includeQuotationId)));
-    node.innerHTML = '<option value="">بدون عرض سعر</option>' + quotes.map(quotation =>
+    node.innerHTML = '<option value="">اختر عرض سعر مقبول</option>' + quotes.map(quotation =>
       `<option value="${esc(quotation.id)}">${esc(quotation.quotation_number)}</option>`
     ).join("");
   }
@@ -728,6 +728,15 @@
         services
       };
       if (!payload.customerId) return status($("newInstallationRequestFormStatus"), "اختر العميل.", "error");
+      if (!payload.quotationId) {
+        $("newInstallationQuotationId")?.focus();
+        return status($("newInstallationRequestFormStatus"), "لا يمكن إنشاء طلب تركيب إلا من عرض سعر مقبول.", "error");
+      }
+      const selectedQuotation = opts.quotations.find(item => String(item.id) === String(payload.quotationId));
+      if (!selectedQuotation || selectedQuotation.status !== "مقبول" || selectedQuotation.installation_request_id) {
+        $("newInstallationQuotationId")?.focus();
+        return status($("newInstallationRequestFormStatus"), "اختر عرض سعر مقبولًا وغير محول مسبقًا إلى التركيبات.", "error");
+      }
       if (!payload.customerMapUrl) {
         $("newInstallationCustomerMapUrl")?.focus();
         return status($("newInstallationRequestFormStatus"), "موقع العميل على Google Maps مطلوب لحفظ طلب التركيب.", "error");
@@ -756,10 +765,14 @@
           window.KYUMNavigation?.open?.("installationRequests", { trustedNavigation: true });
         } else {
           const created = await window.InstallationsServiceSafe.createRequest(payload);
-          status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} وإرساله إلى طلبات التركيبات بانتظار المراجعة.`, "success");
+          const createdRequestId = created.id || "";
+          status($("newInstallationRequestFormStatus"), `تم إنشاء الطلب ${created.request_number || ""} ونقله إلى جدولة التركيبات.`, "success");
+          window.dispatchEvent(new CustomEvent("kyum-installation-request-created", { detail: { quotationId: payload.quotationId, requestId: createdRequestId } }));
+          try { await window.QuotationsService?.invalidateCache?.(); } catch (_) {}
           setSaveState(button,"saved");
           await new Promise(r=>setTimeout(r,450));
           resetNewForm({ exitEdit: true });
+          window.KYUMNavigation?.open?.("installationSchedule", { trustedNavigation: true });
         }
       } catch (error) {
         setSaveState(button,"error");

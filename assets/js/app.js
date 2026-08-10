@@ -7070,6 +7070,8 @@ function filteredQuotations() {
 
   return [...quotations]
     .filter(item => {
+      // M15.16: once a quotation enters the installation workflow it must leave the Quotations screen entirely.
+      if (item.installationRequestId) return false;
       const customer = customerById(item.customerId);
       if (!customer) return false;
       const searchable = [
@@ -7091,7 +7093,9 @@ function filteredQuotations() {
 
 function renderQuotations() {
   const workflow = document.getElementById("quotationWorkflowFilter")?.value || "";
-  const workflowRows = quotations.filter(item => !workflow || (workflow === "converted" ? Boolean(item.installationRequestId) : !item.installationRequestId && !item.salesInvoiceId));
+  // M15.16: converted installation quotations are owned by the installation scheduling workflow, not this screen.
+  const visibleQuotationPool = quotations.filter(item => !item.installationRequestId);
+  const workflowRows = visibleQuotationPool.filter(item => !workflow || (workflow === "converted" ? false : !item.salesInvoiceId));
   const totalValue = workflowRows.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const accepted = workflowRows.filter(item => item.status === "مقبول");
   const acceptedValue = accepted.reduce((sum, item) => sum + Number(item.amount || 0), 0);
@@ -8045,6 +8049,24 @@ window.addEventListener("kyum-sales-invoice-created", async () => {
   } catch (error) {
     console.error("Quotation invoice workflow refresh failed:", error);
   }
+});
+
+window.addEventListener("kyum-installation-request-created", async event => {
+  const quotationId = String(event.detail?.quotationId || "");
+  const requestId = String(event.detail?.requestId || "");
+  if (quotationId && requestId) {
+    const item = quotations.find(row => String(row.id) === quotationId);
+    if (item) {
+      item.installationRequestId = requestId;
+      item.installationConvertedAt = new Date().toISOString();
+    }
+  }
+  try {
+    await window.QuotationsService?.invalidateCache?.();
+  } catch (error) {
+    console.warn("Quotation installation workflow cache invalidation skipped:", error);
+  }
+  if (views.quotations?.classList.contains("active")) renderQuotations();
 });
 
 document.getElementById("quotationsTableBody").addEventListener("click", event => {

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-49-mandatory-installation-google-maps-m15-15";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-50-accepted-quotation-installation-handoff-m15-16";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
