@@ -728,6 +728,10 @@
         services
       };
       if (!payload.customerId) return status($("newInstallationRequestFormStatus"), "اختر العميل.", "error");
+      if (!payload.customerMapUrl) {
+        $("newInstallationCustomerMapUrl")?.focus();
+        return status($("newInstallationRequestFormStatus"), "موقع العميل على Google Maps مطلوب لحفظ طلب التركيب.", "error");
+      }
       const geoValidation = installationGeoController('new').validate({ requireRegion: true, requireCity: true, requireDistrict: true });
       if (!geoValidation.valid) {
         installationGeoController('new').elements(geoValidation.field)?.search?.focus();

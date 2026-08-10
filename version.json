@@ -1,13 +1,13 @@
 {
-  "version": "18.53.48",
-  "build": 185348,
+  "version": "18.53.49",
+  "build": 185349,
   "forceUpdate": true,
   "releaseDate": "2026-08-10",
-  "title": "Installation Execution — Phase M15.14.8",
+  "title": "Installation Requests — Phase M15.15",
   "notes": [
-    "إخراج زيارة التنفيذ فور تسجيل completed_at من شاشة تنفيذ التركيبات عند جميع المستخدمين.",
-    "استبعاد حالات بانتظار التأكيد والمؤكدة والملغاة من Execution Workspace قبل أي Super Admin observer logic.",
-    "إضافة حارس واجهة يمنع أي سجل مكتمل أو بانتظار التأكيد من الظهور ضمن الطلب الحالي بعد التحديث."
+    "جعل رابط موقع العميل على Google Maps إلزاميًا عند إنشاء طلب تركيب جديد.",
+    "إضافة تحقق واجهة وخدمة قبل الحفظ مع رسالة واضحة وتركيز الحقل عند النقص.",
+    "إضافة حماية داخل RPC الإنشاء لمنع تجاوز شرط الموقع من أي مسار آخر مع إبقاء الطلبات القديمة قابلة للعرض."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-47-completed-visits-exit-guard-m15-14-8"
+  "cacheToken": "kyum-crm-pwa-18-53-49-mandatory-installation-google-maps-m15-15"
 }
