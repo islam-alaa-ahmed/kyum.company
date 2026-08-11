@@ -285,14 +285,26 @@
     const executionViewerRole=String(window.CustomerAuth?.getState?.().profile?.role||'').trim();
     const superAdminExecutionObserver=executionViewerRole==='super_admin';
     const requests=requestResult.data||[],visits=visitResult.data||[],allVisitRefs=anyVisitResult.data||[],visitLines=lineResult.data||[];
+    // Phase M15.19: technicians may be allowed to execute a request while RLS intentionally
+    // hides the full representative/team reference tables. Fetch only the labels for the
+    // execution requests already in the user's accessible workspace through a scoped RPC.
+    let executionReferenceLabels=new Map();
+    if(requests.length){
+      const {data:referenceRows,error:referenceError}=await db().rpc('get_installation_execution_reference_labels',{p_request_ids:requests.map(r=>r.id)});
+      if(referenceError&&referenceError.code!=='42883')throw new Error('تعذر تحميل بيانات المندوب والفرقة للتنفيذ: '+referenceError.message);
+      (referenceRows||[]).forEach(row=>executionReferenceLabels.set(String(row.request_id),{representativeName:row.representative_name||'',teamName:row.team_name||''}));
+    }
     const requestsWithAnyVisit=new Set(allVisitRefs.map(v=>String(v.installation_request_id||'')).filter(Boolean));
     const lineMap=new Map();
     visitLines.forEach(x=>{const a=lineMap.get(x.visit_id)||[];a.push(x);lineMap.set(x.visit_id,a)});
     const visitsByRequest=new Map();
     visits.forEach(v=>{const a=visitsByRequest.get(v.installation_request_id)||[];a.push(v);visitsByRequest.set(v.installation_request_id,a)});
-    const normalizeRequest=(r)=>({
-      id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',representativeId:r.representative_id||'',representativeName:r.representative?.full_name||'',scheduledDate:r.scheduled_date||'',scheduledTime:String(r.scheduled_time||'').slice(0,5),status:r.status||'مسند',priority:r.priority||'عادية',technicianName:r.assigned_technician_name||'',teamId:r.installation_team_id||'',teamName:r.team?.name||'',installationAddress:r.installation_address||'',customerMapUrl:r.customer_map_url||'',assignmentNotes:r.assignment_notes||'',requestNotes:r.notes||'',displayNotes:r.assignment_notes||r.notes||'',executionNotes:r.execution_notes||'',selectedForExecutionAt:r.selected_for_execution_at||'',selectedForExecutionBy:r.selected_for_execution_by||'',isCurrentUserSelection:false,mapOpenedAt:r.map_opened_at||'',onRouteAt:r.on_route_at||'',arrivedAt:r.arrived_at||'',startedAt:r.started_at||'',completedAt:r.completed_at||'',totalServicesCount:Number(r.total_services_count||0),totalServicesAmount:Number(r.total_services_amount||0),services:(r.services||[]).map(x=>({id:x.id,name:x.service_type?.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)}))
-    });
+    const normalizeRequest=(r)=>{
+      const labels=executionReferenceLabels.get(String(r.id))||{};
+      return {
+      id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',representativeId:r.representative_id||'',representativeName:r.representative?.full_name||labels.representativeName||'',scheduledDate:r.scheduled_date||'',scheduledTime:String(r.scheduled_time||'').slice(0,5),status:r.status||'مسند',priority:r.priority||'عادية',technicianName:r.assigned_technician_name||'',teamId:r.installation_team_id||'',teamName:r.team?.name||labels.teamName||'',installationAddress:r.installation_address||'',customerMapUrl:r.customer_map_url||'',assignmentNotes:r.assignment_notes||'',requestNotes:r.notes||'',displayNotes:r.assignment_notes||r.notes||'',executionNotes:r.execution_notes||'',selectedForExecutionAt:r.selected_for_execution_at||'',selectedForExecutionBy:r.selected_for_execution_by||'',isCurrentUserSelection:false,mapOpenedAt:r.map_opened_at||'',onRouteAt:r.on_route_at||'',arrivedAt:r.arrived_at||'',startedAt:r.started_at||'',completedAt:r.completed_at||'',totalServicesCount:Number(r.total_services_count||0),totalServicesAmount:Number(r.total_services_amount||0),services:(r.services||[]).map(x=>({id:x.id,name:x.service_type?.name||'خدمة',quantity:Number(x.quantity||0),unitPrice:Number(x.unit_price||0),lineTotal:Number(x.line_total||0)}))
+      };
+    };
     const output=[];
     requests.forEach(r=>{
       const base=normalizeRequest(r),own=visitsByRequest.get(r.id)||[];

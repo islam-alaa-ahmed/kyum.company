@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-52-sales-representative-notification-isolation-m15-18";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-53-execution-metadata-suggestion-rotation-m15-19";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
