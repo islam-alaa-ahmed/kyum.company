@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-51-customer-interest-edit-reconciliation-m15-17";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-52-sales-representative-notification-isolation-m15-18";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
