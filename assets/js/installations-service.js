@@ -186,7 +186,7 @@
     requireAction('view','installationSchedule');
     const [{data,error},{data:visits,error:visitError},{data:visitLines,error:lineError}]=await Promise.all([
       db().rpc('get_installation_schedule_global'),
-      db().from('installation_execution_visits').select('id,installation_request_id,visit_no,scheduled_date,scheduled_time,installation_team_id,technician_name,status,team:installation_teams(id,name)').in('status',['بانتظار الجدولة','مجدولة','قيد التنفيذ','بانتظار التأكيد']).order('visit_no'),
+      db().from('installation_execution_visits').select('id,installation_request_id,visit_no,scheduled_date,scheduled_time,installation_team_id,technician_name,status,completed_at,team:installation_teams(id,name)').in('status',['بانتظار الجدولة','مجدولة','قيد التنفيذ','بانتظار التأكيد','مؤكدة']).order('visit_no'),
       db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity')
     ]);
     if(error)throw new Error('تعذر تحميل الرؤية العامة لجدول التركيبات: '+error.message);
@@ -209,9 +209,9 @@
       if(!visitRequestIds.has(row.id)){expanded.push(row);continue;}
       const own=(visits||[]).filter(v=>v.installation_request_id===row.id);
       own.forEach(v=>{
-        // Phase M15.14.8: completed / pending-confirmation visits are terminal for the execution workspace.
-        // They must leave this screen immediately for every role, including Super Admin observers.
-        if(v.completed_at||['بانتظار التأكيد','مؤكدة','ملغاة'].includes(String(v.status||'').trim()))return;
+        // Phase M15.20: scheduling is the historical appointment ledger, not the execution workspace.
+        // Completed / pending-confirmation / confirmed visits must remain visible here; only cancelled visits are excluded.
+        if(String(v.status||'').trim()==='ملغاة')return;
         const allocations=new Map((lineMap.get(v.id)||[]).map(x=>[x.request_service_id,Number(x.scheduled_quantity||0)]));
         const services=row.services.map(x=>{const q=allocations.has(x.id)?allocations.get(x.id):0;return {...x,quantity:q,lineTotal:q*Number(x.unitPrice||0)}}).filter(x=>x.quantity>0);
         expanded.push({...row,scheduleEntryId:v.id,visitId:v.id,visitNo:Number(v.visit_no||0),executionNumber:`${row.requestNumber}-${String(Number(v.visit_no||0)).padStart(2,'0')}`,scheduledDate:v.scheduled_date||'',scheduledTime:String(v.scheduled_time||'').slice(0,5),teamId:v.installation_team_id||row.teamId,teamName:v.team?.name||row.teamName,technicianName:v.technician_name||row.technicianName,status:v.status||row.status,services,totalServicesCount:services.reduce((a,x)=>a+Number(x.quantity||0),0),totalServicesAmount:services.reduce((a,x)=>a+Number(x.lineTotal||0),0)});
