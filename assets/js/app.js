@@ -4170,10 +4170,26 @@ async function handleCustomerSubmit(event) {
     return;
   }
 
-  const selectedInterestIds = [...document.getElementById("customerInterest").selectedOptions]
-    .map(option => option.value);
-
   const interestSelect = document.getElementById("customerInterest");
+  // The visible checkbox dropdown is the user's canonical edit control. Reconcile
+  // its checked state back into the hidden native multi-select before validation.
+  // This protects edit hydration from asynchronous reference-data refreshes that
+  // can rebuild the native options while the dialog is already open.
+  const checkedInterestIds = [...document.querySelectorAll(
+    '#customerInterestOptions input[type="checkbox"][data-interest-id]:checked'
+  )].map(checkbox => String(checkbox.dataset.interestId || "")).filter(Boolean);
+
+  if (checkedInterestIds.length) {
+    const checkedSet = new Set(checkedInterestIds);
+    [...interestSelect.options].forEach(option => {
+      option.selected = checkedSet.has(String(option.value));
+    });
+  }
+
+  const selectedInterestIds = [...interestSelect.selectedOptions]
+    .map(option => option.value)
+    .filter(Boolean);
+
   if (!selectedInterestIds.length) {
     interestSelect.setCustomValidity("اختر مجال اهتمام واحدًا على الأقل.");
     setCustomerInterestDropdownOpen(true);

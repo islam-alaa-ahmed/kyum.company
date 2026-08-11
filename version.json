@@ -1,5 +1,5 @@
 {
-  "version": "18.53.50",
+  "version": "18.53.51",
   "build": 185350,
   "forceUpdate": true,
   "releaseDate": "2026-08-10",
@@ -10,5 +10,5 @@
     "نقل المستخدم مباشرة إلى شاشة جدولة التركيبات بعد إنشاء الطلب بنجاح.",
     "إضافة حماية قاعدة بيانات لضمان أن كل طلب تركيب جديد مرتبط بعرض سعر مقبول."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-50-accepted-quotation-installation-handoff-m15-16"
+  "cacheToken": "kyum-crm-pwa-18-53-51-customer-interest-edit-reconciliation-m15-17"
 }
