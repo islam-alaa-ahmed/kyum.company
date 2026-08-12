@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const read = p => fs.readFileSync(p,'utf8');
+const checks = [];
+const ok = (name, pass) => { checks.push([name,!!pass]); console.log(`${pass?'PASS':'FAIL'} ${name}`); };
+const im = read('assets/js/installations-module.js');
+const ns = read('assets/js/notification-center-service.js');
+const idx = read('index.html');
+const sw = read('service-worker.js');
+const ver = JSON.parse(read('version.json'));
+ok('closeAllInstallationGeo defined', /function\s+closeAllInstallationGeo\s*\(\)/.test(im));
+ok('geo close helper closes all canonical levels', /\['region','city','district'\]/.test(im) && /controller\?\.close\?\.\(type\)/.test(im));
+ok('push config gate exists', /isPushServerConfigured/.test(ns));
+ok('dispatch skips when push server not configured', /push_not_configured/.test(ns));
+ok('dispatch still invokes edge function when configured', /action:'dispatch'/.test(ns));
+ok('index cache bust version unified', idx.includes('v=18.53.58'));
+ok('service worker token unified', sw.includes('18-53-58-runtime-console-stability-m15-24'));
+ok('version metadata unified', ver.version==='18.53.58' && ver.cacheToken.includes('18-53-58-runtime-console-stability-m15-24'));
+if (checks.some(([,pass])=>!pass)) process.exit(1);

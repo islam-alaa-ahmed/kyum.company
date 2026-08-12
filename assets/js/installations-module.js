@@ -283,6 +283,13 @@
     syncInstallationGeoCatalog();
     return installationGeoController(scope).setValue({districtId:neighborhoodId});
   }
+  function closeAllInstallationGeo(){
+    installationGeoControllers.forEach(controller => {
+      ['region','city','district'].forEach(type => {
+        try { controller?.close?.(type); } catch (_) {}
+      });
+    });
+  }
   function neighborhoodOptions(){
     syncInstallationGeoCatalog();
     installationGeoController('new');

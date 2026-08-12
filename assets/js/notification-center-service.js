@@ -45,7 +45,30 @@
   async function listMine(limit=50){const uid=profile()?.id;if(!uid)return[];const {data,error}=await db().from('notifications').select('id,event_key,title,body,target_view,request_id,visit_id,is_read,created_at,metadata').eq('user_id',uid).eq('in_app_delivery',true).order('created_at',{ascending:false}).limit(limit);if(error)throw new Error('تعذر تحميل الإشعارات: '+error.message);return data||[]}
   async function markRead(id){const uid=profile()?.id;if(!uid)return;const {error}=await db().from('notifications').update({is_read:true,read_at:new Date().toISOString()}).eq('id',id).eq('user_id',uid);if(error)throw new Error(error.message)}
   async function markAllRead(){const uid=profile()?.id;if(!uid)return;const {error}=await db().from('notifications').update({is_read:true,read_at:new Date().toISOString()}).eq('user_id',uid).eq('is_read',false).eq('in_app_delivery',true);if(error)throw new Error(error.message)}
-  async function dispatchPending(){try{await db().functions.invoke('notification-push-dispatch',{body:{action:'dispatch'}})}catch(e){console.warn('[Notifications] push dispatch deferred',e?.message||e)}}
+  let pushServerConfigPromise=null;
+  let pushServerConfigured=null;
+  async function isPushServerConfigured(){
+    if(pushServerConfigured!==null)return pushServerConfigured;
+    if(pushServerConfigPromise)return pushServerConfigPromise;
+    pushServerConfigPromise=(async()=>{
+      try{
+        const {data,error}=await db().functions.invoke('notification-push-dispatch',{body:{action:'config'}});
+        if(error){console.warn('[Notifications] push config unavailable',error.message);return false}
+        pushServerConfigured=!!(data?.configured||data?.publicKey);
+        return pushServerConfigured;
+      }catch(e){console.warn('[Notifications] push config deferred',e?.message||e);return false}
+      finally{pushServerConfigPromise=null}
+    })();
+    return pushServerConfigPromise;
+  }
+  async function dispatchPending(){
+    try{
+      if(!(await isPushServerConfigured()))return {skipped:true,reason:'push_not_configured'};
+      const {data,error}=await db().functions.invoke('notification-push-dispatch',{body:{action:'dispatch'}});
+      if(error){console.warn('[Notifications] push dispatch deferred',error.message);return {skipped:true,reason:'dispatch_unavailable'}}
+      return data||null;
+    }catch(e){console.warn('[Notifications] push dispatch deferred',e?.message||e);return {skipped:true,reason:'dispatch_error'}}
+  }
   async function emit(eventKey,{requestId=null,visitId=null,metadata={},occurrenceKey=null}={}){if(!profile()?.id)return;const {error}=await db().rpc('emit_notification_event',{p_event_key:eventKey,p_request_id:requestId,p_visit_id:visitId,p_metadata:metadata||{},p_occurrence_key:occurrenceKey||null});if(error){console.warn('[Notifications] emit failed',eventKey,error.message);return}dispatchPending()}
   function subscribe(handler){const uid=profile()?.id;if(!uid)return()=>{};const channel=db().channel('kyum-notifications-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+uid},payload=>{if(payload.new?.in_app_delivery!==false)handler?.(payload.new)}).subscribe();return()=>db().removeChannel(channel)}
   function pushSupported(){return !!(window.isSecureContext&&'serviceWorker'in navigator&&'PushManager'in window&&'Notification'in window)}
