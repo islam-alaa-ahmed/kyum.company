@@ -7196,7 +7196,16 @@ async function openQuotationDialog(quotation = null, customerId = null) {
     quotation ? "تعديل عرض السعر" : "إضافة عرض سعر";
 
   document.getElementById("quotationId").value = quotation?.id || "";
-  document.getElementById("quotationCode").value = quotation?.code || nextQuotationCode();
+  const quotationCodeInput = document.getElementById("quotationCode");
+  quotationCodeInput.value = quotation?.code || nextQuotationCode();
+  if (!quotation && navigator.onLine !== false && window.QuotationsService?.getNextQuotationCode) {
+    try {
+      quotationCodeInput.value = await window.QuotationsService.getNextQuotationCode();
+    } catch (error) {
+      console.warn("Quotation number server allocation fallback:", error);
+      // Keep the local candidate; submit-time uniqueness validation remains authoritative.
+    }
+  }
   document.getElementById("quotationCustomerOrderNumber").value = quotation?.customerOrderNumber || "";
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";

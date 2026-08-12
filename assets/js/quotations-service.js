@@ -309,6 +309,28 @@
     return rows?.[0] || null;
   }
 
+  async function getNextQuotationCode(year = new Date().getFullYear()) {
+    requirePermission("quotations", "add");
+    const rows = await fetchPaged((from, to) => client()
+      .from("quotations")
+      .select("quotation_number")
+      .range(from, to), 1000);
+
+    const max = rows.reduce((highest, row) => {
+      const match = String(row?.quotation_number || "").trim().match(/(\d+)$/);
+      const value = match ? Number(match[1]) : 0;
+      return Number.isFinite(value) ? Math.max(highest, value) : highest;
+    }, 0);
+
+    let next = max + 1;
+    // Final server-side existence check protects against stale caches / mixed legacy numbering.
+    for (let attempts = 0; attempts < 1000; attempts += 1, next += 1) {
+      const candidate = `Q-${year}-${String(next).padStart(3, "0")}`;
+      if (!(await findByNumber(candidate))) return candidate;
+    }
+    throw new Error("تعذر توليد رقم عرض سعر فريد تلقائيًا.");
+  }
+
   async function updateCustomerSnapshot(record) {
     const customerPatch = {
       quotation_number: record.code.trim()
@@ -548,6 +570,7 @@
     listDailyPerformanceQuotations,
     getLastReadStatus: () => lastReadStatus,
     findByNumber,
+    getNextQuotationCode,
     saveQuotation,
     deleteQuotation,
     invalidateQuotationCache,
