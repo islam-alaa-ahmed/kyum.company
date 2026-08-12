@@ -585,6 +585,15 @@ function syncCustomerInterestCheckboxes() {
   if (!select || !optionsContainer) return;
 
   const selectedIds = new Set(getSelectedCustomerInterestIds());
+  // Clear any stale browser/custom validity as soon as the canonical interest
+  // selection becomes valid. Without this, a previous failed save can leave
+  // the hidden native select invalid and the browser blocks the next submit
+  // before handleCustomerSubmit() gets a chance to reconcile the visible
+  // checkbox selection.
+  if (selectedIds.size > 0) {
+    select.setCustomValidity("");
+  }
+
   optionsContainer.querySelectorAll('input[type="checkbox"][data-interest-id]').forEach(checkbox => {
     checkbox.checked = selectedIds.has(checkbox.dataset.interestId);
     checkbox.closest(".checkbox-dropdown-option")?.classList.toggle("selected", checkbox.checked);
@@ -692,7 +701,12 @@ function initializeCustomerInterestDropdown() {
     renderCustomerInterestDropdownOptions();
   });
 
-  select.addEventListener("change", syncCustomerInterestCheckboxes);
+  select.addEventListener("change", () => {
+    if (getSelectedCustomerInterestIds().length > 0) {
+      select.setCustomValidity("");
+    }
+    syncCustomerInterestCheckboxes();
+  });
 
   document.addEventListener("click", event => {
     if (!dropdown.contains(event.target)) {
