@@ -1,6 +1,6 @@
 {
   "name": "kyum-company-crm-mobile",
-  "version": "18.53.54",
+  "version": "18.53.55",
   "private": true,
   "description": "Native Android/iOS packaging layer for KYUM Company CRM.",
   "scripts": {

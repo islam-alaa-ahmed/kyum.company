@@ -7197,15 +7197,9 @@ async function openQuotationDialog(quotation = null, customerId = null) {
 
   document.getElementById("quotationId").value = quotation?.id || "";
   const quotationCodeInput = document.getElementById("quotationCode");
-  quotationCodeInput.value = quotation?.code || nextQuotationCode();
-  if (!quotation && navigator.onLine !== false && window.QuotationsService?.getNextQuotationCode) {
-    try {
-      quotationCodeInput.value = await window.QuotationsService.getNextQuotationCode();
-    } catch (error) {
-      console.warn("Quotation number server allocation fallback:", error);
-      // Keep the local candidate; submit-time uniqueness validation remains authoritative.
-    }
-  }
+  // Phase M15.21.1: quotation numbers are business references entered manually.
+  // Do not allocate or infer a serial from internal/system numbering.
+  quotationCodeInput.value = quotation?.code || "";
   document.getElementById("quotationCustomerOrderNumber").value = quotation?.customerOrderNumber || "";
   document.getElementById("quotationCustomer").value =
     quotation?.customerId || customerId || customers[0]?.id || "";

@@ -65,7 +65,13 @@
 
     if (error) {
       if (error.code === "23505") {
-        throw new Error("رقم عرض السعر مسجل بالفعل ولا يمكن تكراره.");
+        const constraint = String(error.constraint || "").toLowerCase();
+        // Only the quotation-number unique constraint is a duplicate quotation number.
+        // Never label an unrelated internal unique-key collision as a duplicated business reference.
+        if (!constraint || constraint.includes("quotation_number")) {
+          throw new Error("رقم عرض السعر مسجل بالفعل ولا يمكن تكراره.");
+        }
+        throw new Error(`${fallbackMessage}: تعارض داخلي في السجل (${error.message})`);
       }
 
       if (error.code === "23503") {
@@ -300,7 +306,7 @@
     let query = client()
       .from("quotations")
       .select("id, quotation_number")
-      .ilike("quotation_number", quotationNumber.trim())
+      .eq("quotation_number", quotationNumber.trim())
       .limit(1);
 
     if (excludeId) query = query.neq("id", excludeId);
