@@ -4520,16 +4520,20 @@ async function handleFollowupSubmit(event) {
     const savedFollowupId = await window.FollowupsService.saveFollowup(followupPayload);
     let suggestionCompletionError = null;
     const pendingSuggestion = pendingDailySuggestionCompletion;
-    const matchingSuggestion = dailySuggestedSuggestionRows.find(item =>
-      String(item.customer_id) === String(customerId)
-      && (!pendingSuggestion?.suggestionId || String(item.suggestion_id) === String(pendingSuggestion.suggestionId))
-    ) || dailySuggestedSuggestionRows.find(item => String(item.customer_id) === String(customerId));
+    const matchingSuggestion = pendingSuggestion
+      ? (dailySuggestedSuggestionRows.find(item =>
+          String(item.customer_id) === String(customerId)
+          && (!pendingSuggestion.suggestionId || String(item.suggestion_id) === String(pendingSuggestion.suggestionId))
+        ) || null)
+      : null;
 
-    if (savedFollowupId) {
+    // A normal "إضافة متابعة" must never consume the customer's rotation slot.
+    // Only the explicit "تم التواصل" action arms pendingDailySuggestionCompletion.
+    if (savedFollowupId && pendingSuggestion && String(pendingSuggestion.customerId) === String(customerId)) {
       try {
         const completedCount = await window.DailySuggestionsService?.completeForCustomer?.({
           customerId,
-          suggestionId: pendingSuggestion?.suggestionId || matchingSuggestion?.suggestion_id || null,
+          suggestionId: pendingSuggestion.suggestionId || matchingSuggestion?.suggestion_id || null,
           followupId: savedFollowupId
         });
         if (completedCount || matchingSuggestion) {
