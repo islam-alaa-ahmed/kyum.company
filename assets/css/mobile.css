@@ -3050,13 +3050,13 @@ html.is-offline body::before {
   /* M15.30.2 — PETATOE-inspired mobile signature, integrated into the canonical header contract. */
   #appHeader.topbar::before{
     content:"";position:absolute;left:18px;right:18px;top:3px;height:3px;border-radius:999px;
-    background:linear-gradient(90deg,rgba(47,156,255,.20),#44b6ff 18%,#67c5ff 50%,#44b6ff 82%,rgba(47,156,255,.20));
-    box-shadow:0 0 8px rgba(47,156,255,.76),0 0 16px rgba(47,156,255,.25);pointer-events:none;
+    background:linear-gradient(90deg,rgba(214,169,61,.96) 0 13%,rgba(47,156,255,.34) 13.5%,#44b6ff 24%,#67c5ff 50%,#44b6ff 76%,rgba(47,156,255,.34) 86.5%,rgba(214,169,61,.96) 87% 100%);
+    box-shadow:0 0 8px rgba(47,156,255,.82),0 0 16px rgba(47,156,255,.28),0 0 6px rgba(214,169,61,.24);pointer-events:none;
   }
   #appHeader.topbar::after{
     content:"";position:absolute;left:14px;right:14px;top:10px;bottom:10px;border-radius:22px;pointer-events:none;
-    border-left:2px solid rgba(214,169,61,.86);border-right:2px solid rgba(214,169,61,.86);
-    box-shadow:inset 1px 0 0 rgba(255,225,143,.18),inset -1px 0 0 rgba(255,225,143,.18);
+    border-left:2px solid rgba(214,169,61,.94);border-right:2px solid rgba(214,169,61,.94);
+    box-shadow:inset 1px 0 0 rgba(255,225,143,.24),inset -1px 0 0 rgba(255,225,143,.24),-1px 0 8px rgba(214,169,61,.10),1px 0 8px rgba(214,169,61,.10);
   }
   #appHeader .mobile-app-brand::after{
     content:"";position:absolute;left:50%;bottom:-16px;width:min(82vw,620px);height:22px;transform:translateX(-50%);pointer-events:none;

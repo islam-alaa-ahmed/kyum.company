@@ -322,10 +322,11 @@ html:not([data-theme="dark"]) #mainSidebar .mobile-sidebar-logout{color:#b73a3a;
   }
 
   #mainSidebar.sidebar{
-    top:max(10px,env(safe-area-inset-top));
+    /* M15.30.3: keep the mobile drawer below the fixed mobile header so the branding card is never buried underneath it. */
+    top:calc(var(--kyum-mobile-header-height,96px) + env(safe-area-inset-top) + 8px);
     right:10px;
     width:var(--kyum-side-width);
-    height:calc(100dvh - max(20px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));
+    height:calc(100dvh - var(--kyum-mobile-header-height,96px) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px);
     padding:12px;
     gap:10px;
     border:1px solid rgba(47,143,255,.58);
@@ -357,6 +358,7 @@ html:not([data-theme="dark"]) #mainSidebar .mobile-sidebar-logout{color:#b73a3a;
     grid-template-columns:58px minmax(0,1fr) 38px;
     gap:11px;
     padding:11px;
+    flex:0 0 94px;
     border:1px solid rgba(78,151,222,.30);
     border-radius:21px;
     background:radial-gradient(circle at 14% 18%,rgba(47,143,255,.10),transparent 36%),linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.018));

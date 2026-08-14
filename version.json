@@ -1,14 +1,14 @@
 {
-  "version": "18.53.73",
-  "build": 185373,
+  "version": "18.53.74",
+  "build": 185374,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Mobile Signature + Drawer Branding Refinement — Phase M15.30.2",
+  "title": "Mobile Header Signature + Drawer Branding Position Fix — Phase M15.30.3",
   "notes": [
-    "إضافة Mobile Header signature مدمجة داخل العقد الحالي: خط أزرق علوي مضيء، Gold side rails، ومنحنى أزرق سفلي بدون إنشاء طبقة تصميم منفصلة.",
-    "تقوية Branding Card أعلى Mobile Drawer وإبراز شعار KYUM مع الحفاظ على نفس هيكل القائمة ووظائفها.",
-    "توحيد Gold micro-accent في Bottom Navigation مع الإبقاء على أحجام الأيقونات المقفلة من M15.30.1.",
-    "التعديل محصور داخل Phone media contracts؛ Desktop وTablet وBusiness Logic وPermissions لم تتغير."
+    "إصلاح موضع Mobile Drawer ليبدأ أسفل الهيدر الثابت مع احترام Safe Area، حتى يظهر شعار KYUM وBranding Card كاملين ولا يختفيا تحت الهيدر.",
+    "تقوية Mobile Header signature بخط علوي يجمع الأزرق المضيء مع Gold rails واضحة ومحدودة على الجانبين.",
+    "الحفاظ على أحجام أيقونات Header وDrawer وBottom Navigation المقفلة سابقًا بدون أي تغيير في Navigation أو Permissions.",
+    "التعديل محصور داخل عقود الهاتف الحالية؛ Desktop وTablet وBusiness Logic لم تتغير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-73-mobile-signature-drawer-brand-m15-30-2"
+  "cacheToken": "kyum-crm-pwa-18-53-74-mobile-drawer-brand-position-m15-30-3"
 }
