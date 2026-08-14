@@ -1,14 +1,15 @@
 {
-  "version": "18.53.71",
-  "build": 185371,
+  "version": "18.53.72",
+  "build": 185372,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Mobile Sidebar Clean Replacement — Phase M15.30",
+  "title": "Mobile Header + Bottom Bar Clean Replacement — Phase M15.30.1",
   "notes": [
-    "تثبيت واجهة Desktop الحالية دون أي تعديل بصري أو هيكلي عليها.",
-    "استبدال عقد تصميم القائمة الجانبية على Mobile داخل المصدر canonical نفسه بدل إضافة طبقة CSS جديدة فوق التنسيق السابق.",
-    "توحيد Drawer في Light/Dark بهوية KYUM Navy وElectric Blue وGold مع Blur للخلفية وGlass/3D محدود.",
-    "قفل أبعاد SVG وأيقونات المجموعات والـChevron وLogout على Mobile لمنع تضخم الأيقونات بسبب أي قواعد عامة."
+    "تثبيت تصميم القائمة الجانبية Mobile المعتمد من M15.30 كما هو دون إعادة بنائه.",
+    "إزالة قواعد Presentation القديمة المتعددة الخاصة بهيدر الموبايل والـBottom Navigation من mobile.css واستبدالها بعقد Mobile واحد فقط.",
+    "توحيد Header + Bottom Navigation مع هوية KYUM Navy وElectric Blue وGold في Light/Dark مع Safe Areas.",
+    "قفل أبعاد جميع SVG وأيقونات الهيدر والـBottom Navigation لمنع التضخم أو التسرب من selectors عامة.",
+    "عدم تعديل أي selector أو ملف تصميم خاص بـDesktop أو Tablet."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-71-mobile-sidebar-clean-m15-30"
+  "cacheToken": "kyum-crm-pwa-18-53-72-mobile-header-bottom-clean-m15-30-1"
 }
