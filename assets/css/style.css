@@ -11380,3 +11380,96 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
   #followupsView>.actions-row>.report-export-actions .followup-manage-action,#quotationsView>.actions-row>.report-export-actions .quotation-manage-action{grid-column:1/-1}
   #followupsView>.actions-row>.report-export-actions button,#quotationsView>.actions-row>.report-export-actions button{width:100%;min-height:44px}
 }
+
+/* Phase M15.27 — Desktop-only KYUM glass header refinement
+   Scope lock: >=1181px only. Mobile/tablet shell and all runtime behavior remain untouched. */
+@media (min-width: 1181px) {
+  .topbar,
+  .topbar.is-scrolled {
+    overflow: visible !important;
+    border: 1px solid rgba(213, 164, 55, .72) !important;
+    background:
+      radial-gradient(ellipse 34% 95% at 6% -12%, rgba(255,255,255,.34), transparent 55%),
+      linear-gradient(116deg, rgba(255,255,255,.78) 0%, rgba(244,248,253,.70) 48%, rgba(238,245,252,.76) 100%) !important;
+    box-shadow:
+      0 18px 42px rgba(31, 45, 65, .16),
+      inset 0 1px 0 rgba(255,255,255,.94),
+      inset 0 -1px 0 rgba(73, 159, 232, .18) !important;
+    backdrop-filter: blur(26px) saturate(155%) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(155%) !important;
+  }
+
+  .topbar::before {
+    z-index: -1 !important;
+    background:
+      linear-gradient(150deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.10) 13%, transparent 29%),
+      radial-gradient(95% 105% at 55% 145%, transparent 0 56%, rgba(48,159,255,.20) 56.7%, rgba(85,203,255,.90) 57.3%, rgba(31,126,235,.34) 58%, transparent 59.5%) !important;
+    filter: drop-shadow(0 0 8px rgba(55, 174, 255, .20)) !important;
+  }
+
+  .topbar::after {
+    height: 2px !important;
+    background: linear-gradient(90deg, transparent 0%, #2b7dff 22%, #70ddff 50%, #2b7dff 78%, transparent 100%) !important;
+    box-shadow: 0 0 10px rgba(46, 151, 255, .48) !important;
+  }
+
+  .topbar-title h2 { color: #0d1b33 !important; text-shadow: none !important; }
+  .topbar-title p { color: #536176 !important; text-shadow: none !important; }
+
+  .topbar-logo-banner,
+  .topbar .user-chip,
+  .topbar .notification-bell-btn,
+  .theme-toggle-button,
+  .kyum-scroll-control,
+  .kyum-scroll-control.is-visible,
+  .sidebar-menu-launcher {
+    border-color: rgba(255,255,255,.76) !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.66), rgba(232,239,248,.48)) !important;
+    box-shadow: 0 10px 26px rgba(31,45,65,.12), inset 0 1px 0 rgba(255,255,255,.92) !important;
+    backdrop-filter: blur(18px) saturate(145%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+  }
+
+  .sidebar-menu-launcher { color: #10213b !important; }
+
+  html[data-theme="dark"] .topbar,
+  html[data-theme="dark"] .topbar.is-scrolled {
+    border-color: rgba(218, 170, 61, .78) !important;
+    background:
+      radial-gradient(ellipse 35% 100% at 5% -10%, rgba(255,255,255,.13), transparent 52%),
+      linear-gradient(112deg, rgba(7,17,30,.94) 0%, rgba(5,22,39,.93) 48%, rgba(7,31,52,.94) 100%) !important;
+    box-shadow:
+      0 20px 48px rgba(0, 8, 18, .46),
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 0 -1px 0 rgba(40,157,255,.24) !important;
+  }
+
+  html[data-theme="dark"] .topbar::before {
+    background:
+      linear-gradient(150deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.035) 14%, transparent 30%),
+      radial-gradient(95% 105% at 55% 145%, transparent 0 56%, rgba(23,111,220,.24) 56.7%, rgba(79,211,255,.98) 57.3%, rgba(26,124,237,.40) 58%, transparent 59.5%) !important;
+  }
+
+  html[data-theme="dark"] .topbar-title h2 { color: #f7fbff !important; text-shadow: 0 3px 18px rgba(0,0,0,.32) !important; }
+  html[data-theme="dark"] .topbar-title p { color: rgba(218,229,240,.78) !important; }
+
+  html[data-theme="dark"] .topbar-logo-banner,
+  html[data-theme="dark"] .topbar .user-chip,
+  html[data-theme="dark"] .topbar .notification-bell-btn,
+  html[data-theme="dark"] .theme-toggle-button,
+  html[data-theme="dark"] .kyum-scroll-control,
+  html[data-theme="dark"] .kyum-scroll-control.is-visible,
+  html[data-theme="dark"] .sidebar-menu-launcher {
+    border-color: rgba(126,158,194,.24) !important;
+    background: linear-gradient(145deg, rgba(18,35,56,.72), rgba(8,24,43,.62)) !important;
+    box-shadow: 0 10px 28px rgba(0,8,18,.30), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  }
+
+  html[data-theme="dark"] .sidebar-menu-launcher { color: #f5f8fc !important; }
+
+  /* Keep the approved desktop geometry exactly as-is. */
+  .topbar-brand,
+  .topbar-user-actions,
+  .topbar-title,
+  .sidebar-menu-launcher { transform: none !important; }
+}

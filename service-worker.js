@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-61-mobile-dashboard-reference-cards-hotfix-m15-26-2";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-62-desktop-glass-header-m15-27";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
