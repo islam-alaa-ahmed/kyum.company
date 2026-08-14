@@ -365,15 +365,18 @@ html:not([data-theme="dark"]) #mainSidebar .mobile-sidebar-logout{color:#b73a3a;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.065),0 10px 26px rgba(0,0,0,.10);
   }
   #mainSidebar .mobile-drawer-brand-logo{
-    width:56px;height:56px;max-width:56px;max-height:56px;
-    border-radius:16px;
+    width:48px;height:48px;max-width:48px;max-height:48px;
+    padding:1px;
+    border-radius:12px;
     border:1px solid rgba(214,169,61,.82);
-    object-fit:cover;
-    box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 0 3px rgba(47,143,255,.10),0 0 14px rgba(47,143,255,.10);
+    background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(47,143,255,.035));
+    object-fit:contain;
+    object-position:center;
+    box-shadow:0 7px 17px rgba(0,0,0,.20),0 0 0 2px rgba(47,143,255,.08),0 0 10px rgba(214,169,61,.12);
   }
-  #mainSidebar .sidebar-brand-copy{gap:3px}
-  #mainSidebar .sidebar-brand-copy strong{font-size:16px;line-height:1.12;font-weight:900;letter-spacing:.02em}
-  #mainSidebar .sidebar-brand-copy b{font-size:10.5px;line-height:1.1;color:var(--kyum-mobile-drawer-gold);letter-spacing:.06em}
+  #mainSidebar .sidebar-brand-copy{gap:4px}
+  #mainSidebar .sidebar-brand-copy strong{font-size:14px;line-height:1.18;font-weight:900;letter-spacing:0;white-space:nowrap}
+  #mainSidebar .sidebar-brand-copy b{font-size:9.5px;line-height:1.15;color:var(--kyum-mobile-drawer-gold);letter-spacing:.035em;white-space:nowrap}
   #mainSidebar .sidebar-brand-copy small{font-size:9px}
   #mainSidebar .sidebar-close-btn{
     width:34px;height:34px;min-width:34px;min-height:34px;
