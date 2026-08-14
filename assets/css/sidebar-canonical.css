@@ -311,26 +311,202 @@ html:not([data-theme="dark"]) #mainSidebar .mobile-sidebar-logout{color:#b73a3a;
   #mainSidebar .mobile-drawer-brand-logo{width:46px;height:46px}
 }
 
-/* Mobile remains a drawer, not a shrunken desktop sidebar. */
+/* Phase M15.30 — Mobile-only clean sidebar replacement.
+   This is the single mobile drawer contract: no extra visual layer is appended over the previous mobile rules. */
 @media (max-width:767px), (pointer:coarse) and (max-device-width:1024px), (hover:none) and (max-device-width:1024px){
-  :root{--kyum-side-width:min(330px,calc(100vw - 18px))}
-  #mainSidebar.sidebar{
-    top:max(8px,env(safe-area-inset-top));
-    right:8px;
-    width:var(--kyum-side-width);
-    height:calc(100dvh - max(16px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));
-    padding:10px;
-    border-radius:20px;
+  :root{
+    --kyum-side-width:min(336px,calc(100vw - 42px));
+    --kyum-mobile-drawer-blue:#2f8fff;
+    --kyum-mobile-drawer-gold:#d4a337;
+    --kyum-mobile-drawer-line:rgba(47,143,255,.38);
   }
-  .sidebar-backdrop{inset:0;background:rgba(3,12,26,.46);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+
+  #mainSidebar.sidebar{
+    top:max(10px,env(safe-area-inset-top));
+    right:10px;
+    width:var(--kyum-side-width);
+    height:calc(100dvh - max(20px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));
+    padding:12px;
+    gap:10px;
+    border:1px solid rgba(47,143,255,.58);
+    border-radius:24px;
+    background:
+      radial-gradient(circle at 92% 2%,rgba(47,143,255,.13),transparent 31%),
+      linear-gradient(180deg,rgba(6,28,50,.985),rgba(4,22,40,.995));
+    box-shadow:0 24px 58px rgba(1,12,28,.36),inset 0 1px 0 rgba(255,255,255,.055);
+    backdrop-filter:blur(18px) saturate(120%);
+    -webkit-backdrop-filter:blur(18px) saturate(120%);
+  }
+  #mainSidebar.sidebar::after{
+    top:22px;bottom:22px;right:0;width:2px;
+    background:linear-gradient(180deg,transparent,var(--kyum-mobile-drawer-blue) 15%,var(--kyum-mobile-drawer-blue) 78%,var(--kyum-mobile-drawer-gold),transparent);
+    opacity:.92;
+  }
+
+  .sidebar-backdrop{
+    inset:0;
+    background:rgba(3,12,26,.48);
+    backdrop-filter:blur(8px) saturate(88%);
+    -webkit-backdrop-filter:blur(8px) saturate(88%);
+  }
   body.sidebar-menu-open{overflow:hidden}
   body.sidebar-menu-open .main-content{width:100%;margin-right:0}
-  #mainSidebar .sidebar-launcher-host{min-height:70px;height:70px;grid-template-columns:46px minmax(0,1fr) 34px;padding:8px}
-  #mainSidebar .mobile-drawer-brand-logo{width:44px;height:44px;border-radius:12px}
-  #mainSidebar .sidebar-brand-copy strong{font-size:14px}
-  #mainSidebar .nav-group-toggle{min-height:48px;border-radius:14px;font-size:14px}
-  #mainSidebar .nav-item{min-height:39px;font-size:12.5px}
-  #mainSidebar .mobile-sidebar-footer{padding-bottom:max(2px,env(safe-area-inset-bottom))}
+
+  #mainSidebar .sidebar-launcher-host{
+    min-height:82px;height:82px;
+    grid-template-columns:50px minmax(0,1fr) 36px;
+    gap:10px;
+    padding:10px;
+    border:1px solid rgba(111,166,222,.22);
+    border-radius:20px;
+    background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 9px 24px rgba(0,0,0,.08);
+  }
+  #mainSidebar .mobile-drawer-brand-logo{
+    width:48px;height:48px;max-width:48px;max-height:48px;
+    border-radius:14px;
+    border:1px solid rgba(212,163,55,.72);
+    object-fit:cover;
+    box-shadow:0 7px 18px rgba(0,0,0,.22),0 0 0 3px rgba(47,143,255,.07);
+  }
+  #mainSidebar .sidebar-brand-copy{gap:3px}
+  #mainSidebar .sidebar-brand-copy strong{font-size:15px;line-height:1.12}
+  #mainSidebar .sidebar-brand-copy b{font-size:10.5px;line-height:1.1;color:var(--kyum-mobile-drawer-gold)}
+  #mainSidebar .sidebar-brand-copy small{font-size:9px}
+  #mainSidebar .sidebar-close-btn{
+    width:34px;height:34px;min-width:34px;min-height:34px;
+    border-radius:11px;
+    border-color:rgba(212,163,55,.42);
+    font-size:20px;
+  }
+
+  #mainSidebar .sidebar-nav{
+    gap:8px;
+    padding:2px 3px 8px 1px;
+    scrollbar-width:thin;
+  }
+  #mainSidebar .sidebar-nav::-webkit-scrollbar{width:3px}
+
+  #mainSidebar .nav-group{gap:4px}
+  #mainSidebar .nav-group-toggle{
+    min-height:50px;
+    padding:9px 11px;
+    border-radius:15px;
+    border-color:rgba(111,166,222,.18);
+    background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.014));
+    font-size:13.5px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    transform:none;
+  }
+  #mainSidebar .nav-group-toggle:hover{
+    transform:none;
+    border-color:rgba(47,143,255,.42);
+    background:linear-gradient(145deg,rgba(47,143,255,.09),rgba(255,255,255,.02));
+  }
+  #mainSidebar .nav-group-toggle[aria-expanded="true"]{
+    border-color:rgba(47,143,255,.50);
+    background:linear-gradient(145deg,rgba(47,143,255,.11),rgba(255,255,255,.025));
+    box-shadow:inset 3px 0 0 rgba(212,163,55,.78),0 0 16px rgba(47,143,255,.055);
+  }
+
+  /* Icon-size lock: mobile navigation icons can never inherit oversized global SVG rules. */
+  #mainSidebar .nav-group-icon{
+    width:28px;height:28px;min-width:28px;min-height:28px;flex:0 0 28px;
+    border-radius:9px;
+  }
+  #mainSidebar .nav-group-icon svg{
+    width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;
+    max-width:16px!important;max-height:16px!important;flex:0 0 16px!important;
+  }
+  #mainSidebar .nav-chevron{
+    width:15px!important;height:15px!important;min-width:15px!important;min-height:15px!important;
+    max-width:15px!important;max-height:15px!important;flex:0 0 15px!important;
+  }
+
+  #mainSidebar .nav-group-content{
+    gap:2px;
+    padding:4px 7px 3px 4px;
+  }
+  #mainSidebar .nav-item{
+    min-height:35px;
+    padding:6px 15px 6px 10px;
+    border-radius:9px;
+    font-size:12px;
+    transform:none;
+  }
+  #mainSidebar .nav-item:hover{transform:none}
+  #mainSidebar .nav-item.active{
+    background:linear-gradient(90deg,rgba(47,143,255,.13),rgba(47,143,255,.035));
+    border-color:rgba(47,143,255,.23);
+  }
+  #mainSidebar .nav-item.active::before{
+    width:3px;height:15px;
+    background:var(--kyum-mobile-drawer-blue);
+    box-shadow:0 0 8px rgba(47,143,255,.68);
+  }
+
+  #mainSidebar .mobile-sidebar-footer{
+    gap:7px;
+    padding:9px 0 max(2px,env(safe-area-inset-bottom));
+    border-top-color:rgba(111,166,222,.16);
+  }
+  #mainSidebar .sidebar-account-card{
+    min-height:52px;
+    padding:7px 9px;
+    grid-template-columns:34px minmax(0,1fr);
+    gap:8px;
+    border-radius:14px;
+  }
+  #mainSidebar .sidebar-account-avatar{
+    width:32px;height:32px;min-width:32px;min-height:32px;
+    border-radius:50%;font-size:12px;
+  }
+  #mainSidebar .sidebar-account-copy strong{font-size:11.5px}
+  #mainSidebar .sidebar-account-copy small{font-size:9.5px}
+  #mainSidebar .mobile-sidebar-logout{
+    min-height:42px;
+    border-radius:13px;
+    font-size:12px;
+  }
+  #mainSidebar .mobile-sidebar-logout svg{
+    width:17px!important;height:17px!important;min-width:17px!important;min-height:17px!important;
+    max-width:17px!important;max-height:17px!important;flex:0 0 17px!important;
+  }
+
+  html[data-theme="light"] #mainSidebar.sidebar,
+  html:not([data-theme="dark"]) #mainSidebar.sidebar{
+    color:#102947;
+    border-color:rgba(47,143,255,.42);
+    background:
+      radial-gradient(circle at 92% 2%,rgba(47,143,255,.075),transparent 31%),
+      linear-gradient(180deg,rgba(251,253,255,.985),rgba(242,248,255,.995));
+    box-shadow:0 24px 58px rgba(43,73,113,.20),inset 0 1px 0 rgba(255,255,255,.98);
+  }
+  html[data-theme="light"] .sidebar-backdrop,
+  html:not([data-theme="dark"]) .sidebar-backdrop{
+    background:rgba(82,107,137,.24);
+    backdrop-filter:blur(8px) saturate(92%);
+    -webkit-backdrop-filter:blur(8px) saturate(92%);
+  }
+  html[data-theme="light"] #mainSidebar .sidebar-launcher-host,
+  html:not([data-theme="dark"]) #mainSidebar .sidebar-launcher-host,
+  html[data-theme="light"] #mainSidebar .nav-group-toggle,
+  html:not([data-theme="dark"]) #mainSidebar .nav-group-toggle,
+  html[data-theme="light"] #mainSidebar .sidebar-account-card,
+  html:not([data-theme="dark"]) #mainSidebar .sidebar-account-card{
+    background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(241,247,254,.84));
+    border-color:rgba(80,139,203,.20);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 20px rgba(67,96,130,.06);
+  }
+  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"],
+  html:not([data-theme="dark"]) #mainSidebar .nav-group-toggle[aria-expanded="true"]{
+    border-color:rgba(47,143,255,.40);
+    background:linear-gradient(145deg,rgba(47,143,255,.075),rgba(255,255,255,.90));
+  }
+  html[data-theme="light"] #mainSidebar .nav-item.active,
+  html:not([data-theme="dark"]) #mainSidebar .nav-item.active{
+    background:linear-gradient(90deg,rgba(47,143,255,.11),rgba(47,143,255,.025));
+  }
 }
 
 /* M15.28.1 — Desktop-only brand clarity + backdrop integration

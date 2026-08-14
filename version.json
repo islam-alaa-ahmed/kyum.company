@@ -1,14 +1,14 @@
 {
-  "version": "18.53.70",
-  "build": 185370,
+  "version": "18.53.71",
+  "build": 185371,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Cross-Platform Sidebar Recovery — Phase M15.29.2",
+  "title": "Mobile Sidebar Clean Replacement — Phase M15.30",
   "notes": [
-    "استعادة عقد القائمة الجانبية التراكمي المعتمد بعد ثبوت أن M15.29/M15.29.1 أعادتا index.html إلى Baseline أقدم وأسقطتا ربط sidebar-canonical.css.",
-    "إعادة بنية Branding والأيقونات ومنطقة الحساب المعتمدة من M15.28.1 بدون تغيير Navigation أو Permissions أو Business Logic.",
-    "إزالة طبقة Mobile Identity التجريبية من mobile-theme-canonical.css والعودة إلى المصدر المستقر قبلها لمنع تضخم العناصر وتداخل التخطيطات.",
-    "استعادة Desktop Light/Dark وMobile Light/Dark من نفس السلسلة التراكمية المستقرة مع الحفاظ على Tablet دون تغييرات جديدة."
+    "تثبيت واجهة Desktop الحالية دون أي تعديل بصري أو هيكلي عليها.",
+    "استبدال عقد تصميم القائمة الجانبية على Mobile داخل المصدر canonical نفسه بدل إضافة طبقة CSS جديدة فوق التنسيق السابق.",
+    "توحيد Drawer في Light/Dark بهوية KYUM Navy وElectric Blue وGold مع Blur للخلفية وGlass/3D محدود.",
+    "قفل أبعاد SVG وأيقونات المجموعات والـChevron وLogout على Mobile لمنع تضخم الأيقونات بسبب أي قواعد عامة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-70-cross-platform-recovery-m15-29-2"
+  "cacheToken": "kyum-crm-pwa-18-53-71-mobile-sidebar-clean-m15-30"
 }
