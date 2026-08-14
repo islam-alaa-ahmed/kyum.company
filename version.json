@@ -1,14 +1,14 @@
 {
-  "version": "18.53.79",
-  "build": 185378,
+  "version": "18.53.80",
+  "build": 185380,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Installation Mobile Visual Identity + Semantic Icon Guard — Phase M15.31.3",
+  "title": "Reports & Analytics Mobile Visual Identity + Opposite-Side KPI Icons — Phase M15.31.4",
   "notes": [
-    "تعميم الهوية البصرية المعتمدة في Mobile Pilot على عروض الأسعار وفواتير المبيعات وإدارة المهام اليومية.",
-    "توحيد الكروت والفلاتر والأزرار والجداول المتحولة إلى Mobile Cards باستخدام نفس Electric Blue وGold وGlass 3D tokens.",
-    "التنفيذ داخل المالك canonical الحالي دون إنشاء طبقة CSS بديلة أو تغيير Desktop/Tablet.",
-    "الحفاظ على Business Logic والصلاحيات والبيانات وHeader وSide Menu وBottom Navigation دون تغيير."
+    "نقل موضع أيقونات KPI إلى الجهة المقابلة لبداية النص لمنع تداخل الأيقونة مع العناوين في RTL/LTR.",
+    "تعميم الهوية البصرية المعتمدة على مركز التقارير والتقرير اليومي وتقارير التركيبات في نسخة الموبايل فقط.",
+    "إضافة Semantic SVG حقيقية لكل KPI جديد مع Blue/Gold Glass 3D system.",
+    "الحفاظ على Desktop/Tablet وBusiness Logic والصلاحيات وHeader وSide Menu وBottom Navigation دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-79-installation-mobile-identity-m15-31-3"
+  "cacheToken": "kyum-crm-pwa-18-53-80-reports-analytics-mobile-identity-m15-31-4"
 }

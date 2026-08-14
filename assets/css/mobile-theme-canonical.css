@@ -1355,7 +1355,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #salesInvoicesView .sales-invoices-summary>article{
     position:relative;
     min-height:92px;
-    padding:14px 13px 13px 54px!important;
+    padding:14px 13px 13px!important;padding-inline-end:54px!important;
     border:1px solid var(--kyum-content-line)!important;
     border-radius:18px!important;
     background:var(--kyum-content-glass-blue)!important;
@@ -1373,7 +1373,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #salesInvoicesView .sales-invoices-summary>article::before{
     content:"";
     position:absolute;
-    inset-inline-start:12px;
+    inset-inline-end:12px;
     inset-block-start:14px;
     width:34px;
     height:34px;
@@ -1460,7 +1460,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #quotationsView #quotationStats>*::after,
   #salesInvoicesView .sales-invoices-summary>article::after,
   :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis)>article::after{
-    content:"";position:absolute;inset-inline-start:19px;inset-block-start:21px;width:20px;height:20px;
+    content:"";position:absolute;inset-inline-end:19px;inset-block-start:21px;width:20px;height:20px;
     background:var(--kyum-content-blue);-webkit-mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;pointer-events:none;
   }
   #quotationsView #quotationStats>*:nth-child(3n+1)::after,
@@ -1488,10 +1488,10 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
 
   :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
   :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis)>article{
-    position:relative;min-height:92px;padding:14px 13px 13px 54px!important;border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;box-shadow:var(--kyum-content-shadow)!important;overflow:hidden;
+    position:relative;min-height:92px;padding:14px 13px 13px!important;padding-inline-end:54px!important;border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;box-shadow:var(--kyum-content-shadow)!important;overflow:hidden;
   }
   :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis)>article:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important;box-shadow:var(--kyum-content-shadow-gold)!important}
-  :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis)>article::before{content:"";position:absolute;inset-inline-start:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;background:linear-gradient(145deg,rgba(255,255,255,.32),color-mix(in srgb,var(--kyum-content-blue) 13%,var(--kyum-content-card-2)));box-shadow:var(--kyum-content-icon-shadow)}
+  :is(#installationRequestsView,#installationScheduleView,#installationCompletionView) :is(.installation-request-kpis,.installation-schedule-kpis,.installation-completion-kpis)>article::before{content:"";position:absolute;inset-inline-end:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;background:linear-gradient(145deg,rgba(255,255,255,.32),color-mix(in srgb,var(--kyum-content-blue) 13%,var(--kyum-content-card-2)));box-shadow:var(--kyum-content-icon-shadow)}
 
   #installationRequestsView .installation-request-kpis>article:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11l3 3L22 4'/%3E%3Cpath d='M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'/%3E%3C/svg%3E")}
   #installationRequestsView .installation-request-kpis>article:nth-child(2),#installationScheduleView .installation-schedule-kpis>article:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E")}
@@ -1509,6 +1509,117 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #installationExecutionView .installation-execution-tab{background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-muted)!important}
   #installationExecutionView .installation-execution-tab.active{border-color:var(--kyum-content-blue)!important;color:var(--kyum-content-text)!important;box-shadow:0 0 0 1px rgba(22,136,255,.18),0 10px 24px rgba(22,136,255,.12)!important}
   #installationExecutionView :is(.execution-refresh-btn,.execution-primary-action,.execution-map-btn){border-color:var(--kyum-content-blue)!important;background:linear-gradient(135deg,#1688ff,#0868d7)!important;box-shadow:0 10px 24px rgba(22,136,255,.24)!important}
+
+
+  /* ----- M15.31.4 reports + analytics mobile identity; semantic icons remain opposite content ----- */
+  #reportsOverviewView :is(.mobile-reports-toolbar,.executive-period-summary>div,.panel),
+  #dailyPerformanceReportView :is(.daily-performance-header,.daily-performance-filters,.daily-performance-manager-note,.panel),
+  #installationReportsView :is(.installation-operations-header,.installation-operations-filters,.installation-report-panel){
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:18px!important;
+    background:var(--kyum-content-glass)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-shadow)!important;
+    backdrop-filter:var(--kyum-content-blur)!important;
+    -webkit-backdrop-filter:var(--kyum-content-blur)!important;
+  }
+  #reportsOverviewView :is(h2,h3,h4,strong),
+  #dailyPerformanceReportView :is(h2,h3,h4,strong),
+  #installationReportsView :is(h2,h3,h4,strong){color:var(--kyum-content-text)!important}
+  #reportsOverviewView :is(p,small,.section-note,.panel-header p),
+  #dailyPerformanceReportView :is(p,small,.section-note),
+  #installationReportsView :is(p,small,.installation-report-panel-head span){color:var(--kyum-content-muted)!important}
+
+  #reportsOverviewView :is(input:not([type='checkbox']):not([type='radio']),select),
+  #dailyPerformanceReportView :is(input:not([type='checkbox']):not([type='radio']),select),
+  #installationReportsView :is(input:not([type='checkbox']):not([type='radio']),select){
+    min-width:0!important;max-width:100%!important;border:1px solid var(--kyum-content-line)!important;border-radius:14px!important;
+    background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-text)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 12px rgba(9,70,145,.05)!important;
+  }
+  #reportsOverviewView :is(input,select):focus,
+  #dailyPerformanceReportView :is(input,select):focus,
+  #installationReportsView :is(input,select):focus{border-color:var(--kyum-content-blue)!important;box-shadow:0 0 0 2px rgba(22,136,255,.16),0 0 18px rgba(22,136,255,.12)!important}
+
+  #reportsOverviewView :is(.reports-kpi-grid,.executive-kpi-grid),
+  #dailyPerformanceReportView .daily-performance-kpis.expanded,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis){
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
+  }
+  #reportsOverviewView .executive-kpi-card,
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article{
+    position:relative!important;min-height:96px!important;padding:14px 13px 13px!important;padding-inline-end:54px!important;
+    border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;
+    color:var(--kyum-content-text)!important;box-shadow:var(--kyum-content-shadow)!important;overflow:hidden!important;
+  }
+  #reportsOverviewView .executive-kpi-card:nth-child(3n+1),
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(3n+1),
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article:nth-child(3n+1){
+    border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important;box-shadow:var(--kyum-content-shadow-gold)!important;
+  }
+  #reportsOverviewView .executive-kpi-card::before,
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article::before,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article::before{
+    content:"";position:absolute;inset-inline-end:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;
+    background:linear-gradient(145deg,rgba(255,255,255,.32),color-mix(in srgb,var(--kyum-content-blue) 13%,var(--kyum-content-card-2)));box-shadow:var(--kyum-content-icon-shadow);pointer-events:none;
+  }
+  #reportsOverviewView .executive-kpi-card::after,
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article::after,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article::after{
+    content:"";position:absolute;inset-inline-end:19px;inset-block-start:21px;width:20px;height:20px;background:var(--kyum-content-blue);
+    -webkit-mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;pointer-events:none;
+  }
+  #reportsOverviewView .executive-kpi-card:nth-child(3n+1)::before,
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(3n+1)::before,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article:nth-child(3n+1)::before{border-color:var(--kyum-content-gold-line)}
+  #reportsOverviewView .executive-kpi-card:nth-child(3n+1)::after,
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(3n+1)::after,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article:nth-child(3n+1)::after{background:var(--kyum-content-gold)}
+
+  /* Executive reports semantic KPI icons. */
+  #reportsOverviewView .executive-kpi-card:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(2){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18M9 15l2 2 4-4'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(3){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h10'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(4){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6M8 13h8M8 17h6'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(5){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M16 9h2M6 15h4M6 9h4'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(6){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l6-6 4 4 8-8'/%3E%3Cpath d='M14 7h7v7'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(7){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2M8 12h4'/%3E%3C/svg%3E")}
+  #reportsOverviewView .executive-kpi-card:nth-child(8){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4'/%3E%3C/svg%3E")}
+
+  /* Daily performance semantic KPI icons. */
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E")}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(2){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11l3 3L22 4'/%3E%3Cpath d='M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'/%3E%3C/svg%3E")}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(3){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3Cpath d='m18 8 2 2 3-4'/%3E%3C/svg%3E")}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(4){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E")}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(5){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6M8 13h8'/%3E%3C/svg%3E")}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(6){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+
+  /* Installation reports semantic KPI icons: financial then summary. */
+  #installationReportsView .installation-report-kpis>article:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h10'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(2){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(3){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M16 9h2M6 15h4'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(4){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(5){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l6-6 4 4 8-8'/%3E%3Cpath d='M14 7h7v7'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(6){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(7){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(8){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-report-kpis>article:nth-child(9){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(2){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(3){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h16M4 12h16M4 18h10'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(4){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(5){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(6){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l6-6 4 4 8-8'/%3E%3C/svg%3E")}
+  #installationReportsView .installation-summary-kpis>article:nth-child(7){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12h8'/%3E%3C/svg%3E")}
+
+  #reportsOverviewView :is(.analytics-tab,.mobile-reports-jump-nav button),
+  #installationReportsView .installation-report-tabs button{border:1px solid var(--kyum-content-line)!important;background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-text)!important;border-radius:12px!important;box-shadow:var(--kyum-content-icon-shadow)!important}
+  #reportsOverviewView :is(.analytics-tab.active,.mobile-reports-jump-nav button.active),
+  #installationReportsView .installation-report-tabs button.active{border-color:var(--kyum-content-blue)!important;background:linear-gradient(135deg,#1688ff,#075fdc)!important;color:#fff!important;box-shadow:0 0 0 1px rgba(22,136,255,.28),0 10px 24px rgba(22,136,255,.20)!important}
+
+  #installationReportsView :is(.installation-summary-table-wrap,.table-scroll),
+  #reportsOverviewView .table-wrap,
+  #dailyPerformanceReportView .table-wrap{border-color:var(--kyum-content-line)!important;border-radius:16px!important;background:var(--kyum-content-glass-soft)!important}
 
   @media (max-width:340px){
     #dashboardView .dashboard-stats{grid-template-columns:1fr!important}
