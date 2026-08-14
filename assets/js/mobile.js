@@ -1646,8 +1646,18 @@
   const sync = () => {
     setLogoMobileState();
     header?.classList.toggle("mobile-header-stable", MOBILE_MEDIA.matches);
+    syncMobileSidebarAccount();
     scheduleSync(true);
   };
+
+  function syncMobileSidebarAccount() {
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    const sourceName = document.getElementById("currentUserName")?.textContent?.trim() || "مستخدم";
+    const targetName = document.getElementById("mobileSidebarUserName");
+    const targetAvatar = document.querySelector(".mobile-sidebar-account-avatar");
+    if (targetName) targetName.textContent = sourceName;
+    if (targetAvatar) targetAvatar.textContent = sourceName.charAt(0) || "م";
+  }
 
   const mobileLogoutButton = document.getElementById("mobileSidebarLogoutBtn");
   if (mobileLogoutButton && !mobileLogoutButton.dataset.bound) {

@@ -1,14 +1,14 @@
 {
-  "version": "18.53.67",
-  "build": 185366,
+  "version": "18.53.68",
+  "build": 185368,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Canonical KYUM Glass Sidebar — Phase M15.28",
+  "title": "Mobile Identity System — Phase M15.29",
   "notes": [
-    "استبدال تنسيق القائمة الجانبية القديم بمصدر تصميم Canonical واحد دون تركيب طبقة مرئية فوق التصميم السابق.",
-    "توحيد Light/Dark على هندسة واحدة بهوية KYUM الزجاجية مع Electric Blue ولمسات ذهبية محدودة.",
-    "إضافة Branding مضغوط وHierarchy أوضح للمجموعات والعناصر وحالات Hover/Active/Expanded بدون تغيير ترتيب أو صلاحيات التنقل.",
-    "تثبيت منطقة الحساب وتسجيل الخروج مع Scroll داخلي رفيع والحفاظ على Drawer الموبايل وسلوك Push على الديسكتوب."
+    "توحيد هوية الموبايل بصريًا بين الهيدر والقائمة الجانبية وشريط التنقل السفلي في Light/Dark باستخدام Glass وBlue illumination وGold accent محدود.",
+    "إعادة تصميم Mobile Drawer بصريًا مع Branding مضغوط، حالات Active/Expanded أوضح، Account card وLogout، وBackdrop بتمويه خفيف دون تغيير Navigation أو Permissions.",
+    "إعادة ضبط Mobile Header وFloating Bottom Navigation مع احترام Safe Areas وPortrait/Landscape ومقاسات الهواتف الصغيرة، دون تعديل منطق النقر أو المسارات.",
+    "النطاق Mobile-only حتى 767px؛ لم يتم تغيير Desktop أو Tablet visual contracts أو Business Logic أو Supabase أو SQL."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-67-desktop-sidebar-brand-blur-m15-28-1"
+  "cacheToken": "kyum-crm-pwa-18-53-68-mobile-identity-m15-29"
 }

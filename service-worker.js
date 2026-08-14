@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-67-desktop-sidebar-brand-blur-m15-28-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-68-mobile-identity-m15-29";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -32,7 +32,6 @@ const CORE_APP_SHELL = [
   "./assets/css/sales-invoices.css",
   "./assets/css/global-typography-certification.css",
   "./assets/css/notification-center.css",
-  "./assets/css/sidebar-canonical.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/geographic-address.js",
