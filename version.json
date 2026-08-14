@@ -1,14 +1,14 @@
 {
-  "version": "18.53.76",
-  "build": 185376,
+  "version": "18.53.77",
+  "build": 185377,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Mobile Visual Identity Pilot — Dashboard + Customers + Followups — Phase M15.31.1",
+  "title": "Mobile KPI Semantic Icons Completion — Phase M15.31.1.1",
   "notes": [
-    "تطبيق هوية KYUM Mobile Glass/3D المعتمدة على الشاشة الرئيسية والعملاء والمتابعات فقط كمرحلة Pilot.",
-    "توحيد Blue/Gold content tokens والـGlass surfaces والـKPI cards وCustomer cards وFollow-up cards في Light/Dark.",
-    "إبقاء Header وSide Menu وBottom Navigation وDesktop/Tablet وBusiness Logic وPermissions دون تغيير بصري أو وظيفي.",
-    "نقل Presentation الخاصة بمكونات الـPilot إلى mobile-theme-canonical.css مع تقليل ازدواجية visual styling في mobile.css."
+    "استبدال نقاط KPI المؤقتة بأيقونات SVG دلالية موحدة في الرئيسية والمتابعات ضمن Mobile Pilot فقط.",
+    "إضافة أيقونة عميل دلالية داخل Customer Mobile Cards مع نفس Blue/Gold icon-container language المعتمدة.",
+    "الحفاظ على Desktop/Tablet وHeader وSide Menu وBottom Navigation وBusiness Logic دون تغيير.",
+    "تثبيت icon sizing وstroke language داخل mobile-theme-canonical.css بدون إضافة renderer أو Business Logic جديد."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-76-mobile-visual-pilot-m15-31-1"
+  "cacheToken": "kyum-crm-pwa-18-53-77-mobile-semantic-icons-m15-31-1-1"
 }
