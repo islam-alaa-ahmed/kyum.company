@@ -287,17 +287,35 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   }
 }
 
-/* Phase M15.26 — Mobile Enterprise Content & Screens Certification
-   Canonical PHONE-ONLY content contract. Tablet/Desktop are intentionally excluded.
-   Landscape remains mobile only for touch phones with a short viewport. */
+/* Phase M15.26 / M15.26.1 — Mobile Enterprise Content & Screens Certification
+   Canonical PHONE-ONLY content/card/action contract. Tablet/Desktop are excluded.
+   The M15.26.1 corrective pass separates record cards, matrices and permission cards
+   instead of forcing one generic layout onto every data component. */
 @media (max-width: 767px),
        (orientation: landscape) and (max-height: 560px) and (hover: none) and (pointer: coarse) and (max-device-width: 932px) {
   :root{
     --kyum-mobile-control-height:48px;
     --kyum-mobile-content-gap:12px;
+    --kyum-mobile-card-radius:16px;
+    --kyum-mobile-card-pad:12px;
+    --kyum-mobile-action-gap:8px;
   }
 
-  /* Content boundary contract: fix the element that sizes incorrectly rather than clipping the page. */
+  /* One bottom-clearance owner: the active view. This avoids cumulative whitespace
+     while keeping the final control/card fully reachable above the fixed bottom bar. */
+  .main-content{padding-bottom:0!important}
+  .view-section:not(.hidden){
+    min-width:0;
+    max-width:100%;
+    padding-bottom:calc(var(--mobile-nav-height,68px) + var(--mobile-safe-bottom,env(safe-area-inset-bottom)) + 16px)!important;
+    scroll-padding-bottom:calc(var(--mobile-nav-height,68px) + var(--mobile-safe-bottom,env(safe-area-inset-bottom)) + 16px);
+  }
+  html.mobile-nav-is-compact .view-section:not(.hidden){
+    padding-bottom:calc(var(--mobile-nav-compact-height,50px) + var(--mobile-safe-bottom,env(safe-area-inset-bottom)) + 14px)!important;
+    scroll-padding-bottom:calc(var(--mobile-nav-compact-height,50px) + var(--mobile-safe-bottom,env(safe-area-inset-bottom)) + 14px);
+  }
+
+  /* Content boundary contract: fix the actual sizing source, never hide horizontal drift. */
   :where(.view-section,.panel,.content-card,.metric-card,.chart-card,.table-card,.report-card,
     .filter-card,.form-grid,.filters-grid,.actions-row,.filters-row,.dashboard-filters,
     .dialog-shell,.dialog-card,.modal-card,.searchable-select,.searchable-select-menu,
@@ -336,7 +354,22 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     max-width:100%;
   }
 
-  /* Popovers/dropdowns remain inside the visual viewport and scroll internally. */
+  /* Dark-mode surface recovery for component families that still use desktop fallback vars. */
+  .sales-invoices-summary > article,
+  .installation-request-step-card,
+  .installation-step-header,
+  .installation-request-step-card > .installation-request-form-grid,
+  .backup-action-card,
+  .reference-item-card{
+    background:var(--kyum-mobile-surface)!important;
+    color:var(--kyum-mobile-text)!important;
+    border-color:var(--kyum-mobile-border)!important;
+  }
+  .installation-step-header{background:var(--kyum-mobile-surface-alt)!important}
+  .sales-invoices-summary > article :where(span,small,p),
+  .installation-step-header p{color:var(--kyum-mobile-muted)!important}
+
+  /* Popovers/dropdowns remain within the visual viewport and scroll internally. */
   :where(.searchable-select-menu,.geo-searchable-options,.select-menu,.dropdown-menu,
     .installation-customer-results,.installation-summary-teams-menu){
     box-sizing:border-box;
@@ -346,7 +379,16 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     overscroll-behavior:contain;
   }
 
-  /* Tabs become a real horizontal rail instead of compressing/wrapping labels. */
+  /* When a phone filter/bottom sheet is open it owns the bottom layer; the nav must not cover it. */
+  body:is(.mobile-dashboard-sheet-open,.mobile-customers-sheet-open,.mobile-followups-sheet-open,
+    .mobile-quotations-sheet-open,.mobile-reports-sheet-open) .mobile-bottom-nav,
+  body:has(.view-section.mobile-admin-filters-open) .mobile-bottom-nav{
+    opacity:0!important;
+    pointer-events:none!important;
+    transform:translateY(calc(100% + var(--mobile-safe-bottom,env(safe-area-inset-bottom)) + 12px))!important;
+  }
+
+  /* Tabs use a horizontal rail; text is never compressed character-by-character. */
   :where(.tabs,.tab-list,.report-tabs,.installation-costs-mode-tabs,.installation-tabs,
     .installation-report-tabs,.mobile-reports-jump-nav){
     display:flex;
@@ -357,6 +399,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     overscroll-behavior-inline:contain;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
+    scroll-padding-inline:10px;
   }
   :where(.tabs,.tab-list,.report-tabs,.installation-costs-mode-tabs,.installation-tabs,
     .installation-report-tabs,.mobile-reports-jump-nav)::-webkit-scrollbar{display:none}
@@ -364,9 +407,10 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     .installation-report-tabs,.mobile-reports-jump-nav) > *{
     flex:0 0 auto!important;
     white-space:nowrap;
+    word-break:keep-all;
   }
 
-  /* Dialog contract: body scrolls, shell stays inside phone safe viewport. */
+  /* Dialog shell stays inside safe viewport and its body owns internal scrolling. */
   :where(dialog,.dialog,.modal,.dialog-card,.modal-card,.dialog-shell){
     box-sizing:border-box;
     max-width:calc(100vw - 16px)!important;
@@ -379,12 +423,10 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     overscroll-behavior:contain;
   }
 
-  /* Generic mobile record presentation. mobile.js decorates only on phone viewports. */
+  /* ---------- Record tables -> compact mobile cards ---------- */
   .table-wrap:has(> .kyum-mobile-card-table),
   .table-scroll:has(> .kyum-mobile-card-table),
-  .notification-matrix-wrap:has(> .kyum-mobile-card-table),
-  .installation-costs-table-wrap:has(> .kyum-mobile-card-table),
-  .installation-cost-matrix-wrap:has(> .kyum-mobile-card-table){
+  .installation-costs-table-wrap:has(> .kyum-mobile-card-table){
     overflow:visible!important;
     max-width:100%;
   }
@@ -411,23 +453,23 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     min-width:0!important;
     max-width:100%!important;
     margin:0!important;
-    padding:14px!important;
+    padding:var(--kyum-mobile-card-pad)!important;
     gap:0!important;
     border:1px solid var(--kyum-mobile-border)!important;
-    border-radius:16px!important;
+    border-radius:var(--kyum-mobile-card-radius)!important;
     background:var(--kyum-mobile-surface)!important;
     box-shadow:0 7px 22px rgba(15,23,42,.07)!important;
   }
   table.kyum-mobile-card-table > tbody > tr > td{
     display:grid!important;
-    grid-template-columns:minmax(108px,38%) minmax(0,1fr)!important;
-    align-items:start;
+    grid-template-columns:minmax(96px,34%) minmax(0,1fr)!important;
+    align-items:center;
     gap:10px;
     width:100%!important;
     min-width:0!important;
     max-width:100%!important;
     min-height:0!important;
-    padding:9px 0!important;
+    padding:7px 0!important;
     border:0!important;
     border-bottom:1px solid color-mix(in srgb,var(--kyum-mobile-border) 72%,transparent)!important;
     white-space:normal!important;
@@ -441,8 +483,25 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     content:attr(data-label);
     min-width:0;
     color:var(--kyum-mobile-muted);
-    font-weight:700;
-    line-height:1.45;
+    font-size:.82rem;
+    font-weight:750;
+    line-height:1.4;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td:first-child{
+    padding-top:2px!important;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td[data-mobile-role="detail"]{
+    align-items:start;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td[data-mobile-role="actions"]{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    align-items:stretch;
+    gap:8px;
+    padding-top:11px!important;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td[data-mobile-role="actions"]::before{
+    margin-bottom:2px;
   }
   table.kyum-mobile-card-table > tbody > tr > td[data-mobile-empty="true"]{
     display:block!important;
@@ -456,25 +515,218 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     width:100%!important;
     min-width:0!important;
   }
+
+  /* Card action system: consistent two-column touch-safe grid. Odd final action spans full width. */
   table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,
-    .installation-cost-actions,.notification-push-actions){
+    .installation-cost-actions,.notification-push-actions,.installation-settings-actions-cell,
+    .installation-unscheduled-actions,.table-actions),
+  :where(.customer-mobile-card-actions,.daily-suggested-actions,.daily-alert-card-actions,
+    .installation-card-actions,.installation-day-actions,.installation-exception-actions,
+    .reference-item-actions,.reference-customers-actions,.daily-phone-result-actions,.daily-whatsapp-template-actions,
+    .installation-request-page-actions,.installation-cost-team-actions,.sync-recovery-row-actions,.user-representatives-actions){
     display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    width:100%;
-    gap:8px;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+    gap:var(--kyum-mobile-action-gap)!important;
   }
   table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,
-    .installation-cost-actions) > *{
-    width:100%;
+    .installation-cost-actions,.notification-push-actions,.installation-settings-actions-cell,
+    .installation-unscheduled-actions,.table-actions) > *,
+  :where(.customer-mobile-card-actions,.daily-suggested-actions,.daily-alert-card-actions,
+    .installation-card-actions,.installation-day-actions,.installation-exception-actions,
+    .reference-item-actions,.reference-customers-actions,.daily-phone-result-actions,.daily-whatsapp-template-actions,
+    .installation-request-page-actions,.installation-cost-team-actions,.sync-recovery-row-actions,.user-representatives-actions) > *{
+    box-sizing:border-box!important;
+    width:100%!important;
     min-width:0!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:8px 10px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    white-space:normal!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+    line-height:1.25!important;
+  }
+  table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,
+    .installation-cost-actions,.notification-push-actions,.installation-settings-actions-cell,
+    .installation-unscheduled-actions,.table-actions) > :last-child:nth-child(odd),
+  :where(.customer-mobile-card-actions,.daily-suggested-actions,.daily-alert-card-actions,
+    .installation-card-actions,.installation-day-actions,.installation-exception-actions,
+    .reference-item-actions,.reference-customers-actions,.daily-phone-result-actions,.daily-whatsapp-template-actions,
+    .installation-request-page-actions,.installation-cost-team-actions,.sync-recovery-row-actions,.user-representatives-actions) > :last-child:nth-child(odd){
+    grid-column:1/-1;
   }
 
-  /* Matrices are record cards too, keeping every checkbox beside its event/permission label. */
-  :where(.notification-matrix,.daily-task-matrix-table,.installation-cost-matrix).kyum-mobile-card-table input[type="checkbox"]{
-    inline-size:22px;
-    block-size:22px;
-    justify-self:start;
+  /* Suggested-customer cards are intentionally denser than large operational records. */
+  #dailyOperationsView table.daily-suggested-customers-table.kyum-mobile-card-table > tbody > tr,
+  #dailyOperationsView table.daily-suggested-team-table.kyum-mobile-card-table > tbody > tr{
+    padding:10px 12px!important;
   }
+  #dailyOperationsView table.daily-suggested-customers-table.kyum-mobile-card-table > tbody > tr > td,
+  #dailyOperationsView table.daily-suggested-team-table.kyum-mobile-card-table > tbody > tr > td{
+    padding:6px 0!important;
+    grid-template-columns:minmax(86px,31%) minmax(0,1fr)!important;
+  }
+
+  /* ---------- Matrix tables: labels stay beside their own checkbox ---------- */
+  .notification-matrix-wrap:has(> .kyum-mobile-matrix-table),
+  .installation-cost-matrix-wrap:has(> .kyum-mobile-matrix-table),
+  .table-wrap:has(> .kyum-mobile-matrix-table){
+    overflow:visible!important;
+    max-width:100%;
+  }
+  table.kyum-mobile-matrix-table{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  table.kyum-mobile-matrix-table > thead{display:none!important}
+  table.kyum-mobile-matrix-table > tbody{
+    display:grid!important;
+    gap:10px;
+  }
+  table.kyum-mobile-matrix-table > tbody > tr{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    padding:12px!important;
+    border:1px solid var(--kyum-mobile-border)!important;
+    border-radius:14px!important;
+    background:var(--kyum-mobile-surface)!important;
+  }
+  table.kyum-mobile-matrix-table > tbody > tr > td{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    min-width:0!important;
+    padding:8px 10px!important;
+    border:1px solid color-mix(in srgb,var(--kyum-mobile-border) 80%,transparent)!important;
+    border-radius:10px!important;
+    background:var(--kyum-mobile-surface-alt)!important;
+    color:var(--kyum-mobile-text)!important;
+  }
+  table.kyum-mobile-matrix-table > tbody > tr > td:first-child{
+    grid-column:1/-1!important;
+    display:block!important;
+    padding:4px 2px 9px!important;
+    border:0!important;
+    border-bottom:1px solid var(--kyum-mobile-border)!important;
+    border-radius:0!important;
+    background:transparent!important;
+    font-weight:850!important;
+  }
+  table.kyum-mobile-matrix-table > tbody > tr > td:first-child::before{content:none!important}
+  table.kyum-mobile-matrix-table > tbody > tr > td:not(:first-child)::before{
+    content:attr(data-label);
+    color:var(--kyum-mobile-muted);
+    font-size:.8rem;
+    font-weight:750;
+  }
+  table.kyum-mobile-matrix-table input[type="checkbox"]{
+    inline-size:22px!important;
+    block-size:22px!important;
+    margin:0!important;
+    justify-self:end!important;
+  }
+
+  /* ---------- Permissions matrix: each screen is a labeled permission card ---------- */
+  #permissionsView > .actions-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  #permissionsView > .actions-row > button{width:100%!important;min-height:46px!important}
+  #permissionsView .permissions-role-bar,
+  #permissionsView .permissions-role-bar label{width:100%!important;min-width:0!important}
+  #permissionsView .permission-group{
+    overflow:visible!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  #permissionsView .permission-group h4{margin:0 0 10px!important}
+  #permissionsView .permission-table{display:grid!important;gap:10px!important;overflow:visible!important}
+  #permissionsView .permission-header{display:none!important}
+  #permissionsView .permission-row[data-screen-key].kyum-mobile-permission-card{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    min-width:0!important;
+    width:100%!important;
+    padding:11px!important;
+    border:1px solid var(--kyum-mobile-border)!important;
+    border-radius:13px!important;
+    background:var(--kyum-mobile-surface-alt)!important;
+  }
+  #permissionsView .permission-row[data-screen-key].kyum-mobile-permission-card > strong{
+    grid-column:1/-1!important;
+    display:block!important;
+    width:100%!important;
+    padding-bottom:8px!important;
+    border-bottom:1px solid var(--kyum-mobile-border)!important;
+    font-size:.95rem!important;
+    color:var(--kyum-mobile-text)!important;
+    overflow-wrap:anywhere;
+  }
+  #permissionsView .kyum-mobile-permission-toggle{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:8px!important;
+    min-width:0!important;
+    min-height:44px!important;
+    padding:8px 10px!important;
+    border:1px solid color-mix(in srgb,var(--kyum-mobile-border) 82%,transparent)!important;
+    border-radius:10px!important;
+    background:var(--kyum-mobile-surface)!important;
+    color:var(--kyum-mobile-text)!important;
+  }
+  #permissionsView .kyum-mobile-permission-label{
+    min-width:0;
+    color:var(--kyum-mobile-text)!important;
+    font-size:.82rem;
+    font-weight:750;
+  }
+  #permissionsView .kyum-mobile-permission-toggle input[type="checkbox"]{
+    flex:0 0 auto!important;
+    inline-size:23px!important;
+    block-size:23px!important;
+    margin:0!important;
+  }
+  #permissionsView .kyum-mobile-permission-toggle:last-child:nth-child(even){grid-column:1/-1}
+
+  /* Execution timeline: keep complete labels readable; horizontal motion belongs to timeline only. */
+  #installationExecutionView .execution-stepper{overflow:visible!important;padding-inline:14px!important}
+  #installationExecutionView .execution-steps{
+    grid-template-columns:repeat(5,minmax(118px,1fr))!important;
+    gap:10px!important;
+    width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    padding:4px 2px 12px!important;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  #installationExecutionView .execution-step{scroll-snap-align:center;min-width:118px!important}
+  #installationExecutionView .execution-step-label{
+    width:100%!important;
+    min-height:40px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+  }
+  #installationExecutionView .execution-step-connector{display:none!important}
 
   /* Charts may scroll internally when their readable width exceeds the phone, never the page. */
   :where(.chart-wrap,.chart-wrapper,.chart-container,.report-chart,.trend-chart){

@@ -2281,7 +2281,7 @@ function renderBackupHistory() {
         <td>${escapeHtml(item.file_name || "—")}</td>
         <td>${Number(item.total_records || 0)}</td>
         <td>${escapeHtml(item.user?.full_name || item.user?.email || "—")}</td>
-        <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(canonicalStatus)}</span></td>
+        <td><span class="record-status ${item.status === "completed" ? "active" : "inactive"}">${escapeHtml(item.status === "completed" ? "مكتمل" : item.status === "failed" ? "فشل" : (item.status || "—"))}</span></td>
         <td>${new Date(item.created_at).toLocaleString("ar-SA-u-ca-gregory")}</td>
       </tr>
     `).join("")

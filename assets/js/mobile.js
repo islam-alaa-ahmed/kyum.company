@@ -1726,9 +1726,9 @@
   certifyShell();
 })();
 
-/* Phase M15.26 — Mobile Enterprise Content & Screens Certification
-   Presentation-only table annotation. It runs only on phone layouts and never
-   changes business data, permissions, queries, or desktop/tablet structure. */
+/* Phase M15.26 / M15.26.1 — Mobile Enterprise Content & Screens Certification
+   Presentation-only phone certification. Table/card/matrix decoration and permission
+   labeling run only on phone layouts and never change business data or permissions. */
 (() => {
   "use strict";
 
@@ -1736,6 +1736,15 @@
     "(max-width: 767px), (orientation: landscape) and (max-height: 560px) and (hover: none) and (pointer: coarse) and (max-device-width: 932px)"
   );
   const CARD_CLASS = "kyum-mobile-card-table";
+  const MATRIX_CLASS = "kyum-mobile-matrix-table";
+  const MATRIX_SELECTOR = ".notification-matrix,.daily-task-matrix-table,.installation-cost-matrix";
+  const PERMISSION_LABELS = {
+    can_view: "عرض",
+    can_add: "إضافة",
+    can_edit: "تعديل",
+    can_delete: "حذف",
+    can_export: "تصدير"
+  };
   let observer = null;
   let raf = 0;
 
@@ -1744,12 +1753,22 @@
       .map((cell) => String(cell.textContent || "").replace(/\s+/g, " ").trim());
   }
 
-  function isPresentationTable(table) {
-    if (!(table instanceof HTMLTableElement)) return false;
-    if (table.matches("[data-mobile-table='scroll'],[data-mobile-card='off']")) return false;
-    if (table.closest(".customer-import-preview-dialog,.customer-import-preview")) return false;
+  function tableMode(table) {
+    if (!(table instanceof HTMLTableElement)) return "off";
+    if (table.matches("[data-mobile-table='scroll'],[data-mobile-card='off']")) return "off";
+    if (table.closest(".customer-import-preview-dialog,.customer-import-preview")) return "off";
     const headers = headerLabels(table);
-    return headers.length >= 4;
+    if (headers.length < 4) return "off";
+    if (table.matches(MATRIX_SELECTOR)) return "matrix";
+    return "card";
+  }
+
+  function mobileCellRole(label) {
+    const value = String(label || "").trim();
+    if (/^(الإجراءات|الإجراء|اجراء|إجراء)$/.test(value)) return "actions";
+    if (/الحالة|حالة/.test(value)) return "status";
+    if (/الخدمات|التفاصيل|الوصف|الملاحظات/.test(value)) return "detail";
+    return "value";
   }
 
   function annotateRow(row, labels) {
@@ -1757,24 +1776,67 @@
     if (!cells.length) return;
     if (cells.length === 1 && Number(cells[0].getAttribute("colspan") || 1) > 1) {
       cells[0].dataset.mobileEmpty = "true";
+      delete cells[0].dataset.mobileRole;
       return;
     }
     cells.forEach((cell, index) => {
+      const label = cell.dataset.label || labels[index] || `بيان ${index + 1}`;
       cell.dataset.mobileEmpty = "false";
-      if (!cell.dataset.label) cell.dataset.label = labels[index] || `بيان ${index + 1}`;
+      cell.dataset.label = label;
+      cell.dataset.mobileRole = mobileCellRole(label);
     });
   }
 
   function annotateTable(table) {
-    if (!isPresentationTable(table)) return;
+    const mode = tableMode(table);
+    table.classList.remove(CARD_CLASS, MATRIX_CLASS);
+    if (mode === "off") return;
     const labels = headerLabels(table);
-    table.classList.add(CARD_CLASS);
+    table.classList.add(mode === "matrix" ? MATRIX_CLASS : CARD_CLASS);
     table.querySelectorAll(":scope > tbody > tr").forEach((row) => annotateRow(row, labels));
   }
 
   function clearTable(table) {
-    table.classList.remove(CARD_CLASS);
-    table.querySelectorAll("td[data-mobile-empty]").forEach((cell) => delete cell.dataset.mobileEmpty);
+    table.classList.remove(CARD_CLASS, MATRIX_CLASS);
+    table.querySelectorAll("td[data-mobile-empty]").forEach((cell) => {
+      delete cell.dataset.mobileEmpty;
+      delete cell.dataset.mobileRole;
+    });
+  }
+
+  function wrapPermissionInput(input) {
+    if (!(input instanceof HTMLInputElement)) return;
+    if (input.closest(".kyum-mobile-permission-toggle")) return;
+    const key = input.dataset.permission || "";
+    const wrapper = document.createElement("label");
+    wrapper.className = "kyum-mobile-permission-toggle";
+    const caption = document.createElement("span");
+    caption.className = "kyum-mobile-permission-label";
+    caption.textContent = PERMISSION_LABELS[key] || "صلاحية";
+    input.parentNode?.insertBefore(wrapper, input);
+    wrapper.append(caption, input);
+  }
+
+  function unwrapPermissionInput(input) {
+    const wrapper = input?.closest?.(".kyum-mobile-permission-toggle");
+    if (!wrapper || !wrapper.parentNode) return;
+    wrapper.parentNode.insertBefore(input, wrapper);
+    wrapper.remove();
+  }
+
+  function certifyPermissions() {
+    const rows = document.querySelectorAll("#permissionsView .permission-row[data-screen-key]");
+    if (!PHONE_MEDIA.matches) {
+      rows.forEach((row) => {
+        row.classList.remove("kyum-mobile-permission-card");
+        row.querySelectorAll("input[data-permission]").forEach(unwrapPermissionInput);
+      });
+      return;
+    }
+    rows.forEach((row) => {
+      row.classList.add("kyum-mobile-permission-card");
+      row.querySelectorAll("input[data-permission]").forEach(wrapPermissionInput);
+    });
   }
 
   function certifyTables() {
@@ -1782,9 +1844,11 @@
     const tables = document.querySelectorAll(".view-section table");
     if (!PHONE_MEDIA.matches) {
       tables.forEach(clearTable);
+      certifyPermissions();
       return;
     }
     tables.forEach(annotateTable);
+    certifyPermissions();
   }
 
   function scheduleCertification() {
