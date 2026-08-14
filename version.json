@@ -1,5 +1,5 @@
 {
-  "version": "18.53.66",
+  "version": "18.53.67",
   "build": 185366,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
@@ -10,5 +10,5 @@
     "إضافة Branding مضغوط وHierarchy أوضح للمجموعات والعناصر وحالات Hover/Active/Expanded بدون تغيير ترتيب أو صلاحيات التنقل.",
     "تثبيت منطقة الحساب وتسجيل الخروج مع Scroll داخلي رفيع والحفاظ على Drawer الموبايل وسلوك Push على الديسكتوب."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-66-canonical-glass-sidebar-m15-28"
+  "cacheToken": "kyum-crm-pwa-18-53-67-desktop-sidebar-brand-blur-m15-28-1"
 }

@@ -11388,8 +11388,8 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
     text-align:left !important;
     transform:none !important;
   }
-  #appHeader .desktop-topbar-brand-copy strong { color:var(--kyum-header-text) !important;font-size:21px !important;font-weight:900 !important; }
-  #appHeader .desktop-topbar-brand-copy span { margin-top:6px !important;color:#b98214 !important;font-size:12px !important;font-weight:900 !important;letter-spacing:.035em !important; }
+  #appHeader .desktop-topbar-brand-copy strong { color:var(--kyum-header-text) !important;font-size:15px !important;line-height:1.2 !important;font-weight:900 !important;white-space:nowrap !important; }
+  #appHeader .desktop-topbar-brand-copy span { margin-top:5px !important;color:#b98214 !important;font-size:9px !important;line-height:1.2 !important;font-weight:900 !important;letter-spacing:.02em !important;white-space:nowrap !important; }
   #appHeader .desktop-topbar-brand-copy small { margin-top:5px !important;color:var(--kyum-header-muted) !important;font-size:11px !important;font-weight:650 !important; }
 
   #appHeader .topbar-user-actions {

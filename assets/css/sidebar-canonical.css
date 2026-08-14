@@ -333,6 +333,70 @@ html:not([data-theme="dark"]) #mainSidebar .mobile-sidebar-logout{color:#b73a3a;
   #mainSidebar .mobile-sidebar-footer{padding-bottom:max(2px,env(safe-area-inset-bottom))}
 }
 
+/* M15.28.1 — Desktop-only brand clarity + backdrop integration
+   Mobile/tablet keep the M15.28 visual contract unchanged. */
+#mainSidebar .sidebar-brand-desktop-text{display:none}
+#mainSidebar .sidebar-brand-mobile-text{display:inline}
+#mainSidebar .sidebar-brand-logo-desktop{display:none}
+
+@media (min-width:1181px){
+  /* Match PETATOE interaction language: blur the workspace behind the open drawer. */
+  .sidebar-backdrop{
+    right:var(--kyum-side-width);
+    background:rgba(225,235,247,.28);
+    backdrop-filter:blur(8px) saturate(92%);
+    -webkit-backdrop-filter:blur(8px) saturate(92%);
+  }
+  html[data-theme="dark"] .sidebar-backdrop{
+    background:rgba(2,10,24,.42);
+    backdrop-filter:blur(8px) saturate(88%);
+    -webkit-backdrop-filter:blur(8px) saturate(88%);
+  }
+
+  /* Desktop branding uses the high-resolution square KYUM mark and the trading-company name. */
+  #mainSidebar .sidebar-launcher-host{
+    grid-template-columns:58px minmax(0,1fr) 36px;
+    min-height:80px;
+    height:80px;
+    padding:9px 10px;
+    gap:9px;
+  }
+  #mainSidebar .sidebar-brand-logo-mobile{display:none}
+  #mainSidebar .sidebar-brand-logo-desktop{
+    display:block;
+    grid-column:1;
+    width:58px;
+    height:58px;
+    max-width:58px;
+    max-height:58px;
+    padding:2px;
+    object-fit:contain;
+    object-position:center;
+    border-radius:15px;
+    background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(45,107,255,.035));
+    border:1px solid rgba(212,163,55,.72);
+    box-shadow:0 9px 24px rgba(0,0,0,.22),0 0 0 3px rgba(45,107,255,.08),0 0 18px rgba(45,107,255,.08);
+    filter:none;
+  }
+  #mainSidebar .sidebar-brand-mobile-text{display:none}
+  #mainSidebar .sidebar-brand-desktop-text{display:inline}
+  #mainSidebar .sidebar-brand-copy{gap:3px}
+  #mainSidebar .sidebar-brand-copy strong{
+    font-size:13px;
+    line-height:1.2;
+    white-space:nowrap;
+    letter-spacing:0;
+  }
+  #mainSidebar .sidebar-brand-copy b{
+    font-size:9px;
+    line-height:1.2;
+    white-space:nowrap;
+    letter-spacing:.015em;
+    color:var(--kyum-side-gold);
+  }
+  #mainSidebar .sidebar-brand-copy small{font-size:9px}
+}
+
 @media print{
   #mainSidebar.sidebar,.sidebar-backdrop{display:none!important}
 }
