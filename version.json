@@ -1,15 +1,14 @@
 {
-  "version": "18.53.72",
-  "build": 185372,
+  "version": "18.53.73",
+  "build": 185373,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Mobile Header + Bottom Bar Clean Replacement — Phase M15.30.1",
+  "title": "Mobile Signature + Drawer Branding Refinement — Phase M15.30.2",
   "notes": [
-    "تثبيت تصميم القائمة الجانبية Mobile المعتمد من M15.30 كما هو دون إعادة بنائه.",
-    "إزالة قواعد Presentation القديمة المتعددة الخاصة بهيدر الموبايل والـBottom Navigation من mobile.css واستبدالها بعقد Mobile واحد فقط.",
-    "توحيد Header + Bottom Navigation مع هوية KYUM Navy وElectric Blue وGold في Light/Dark مع Safe Areas.",
-    "قفل أبعاد جميع SVG وأيقونات الهيدر والـBottom Navigation لمنع التضخم أو التسرب من selectors عامة.",
-    "عدم تعديل أي selector أو ملف تصميم خاص بـDesktop أو Tablet."
+    "إضافة Mobile Header signature مدمجة داخل العقد الحالي: خط أزرق علوي مضيء، Gold side rails، ومنحنى أزرق سفلي بدون إنشاء طبقة تصميم منفصلة.",
+    "تقوية Branding Card أعلى Mobile Drawer وإبراز شعار KYUM مع الحفاظ على نفس هيكل القائمة ووظائفها.",
+    "توحيد Gold micro-accent في Bottom Navigation مع الإبقاء على أحجام الأيقونات المقفلة من M15.30.1.",
+    "التعديل محصور داخل Phone media contracts؛ Desktop وTablet وBusiness Logic وPermissions لم تتغير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-72-mobile-header-bottom-clean-m15-30-1"
+  "cacheToken": "kyum-crm-pwa-18-53-73-mobile-signature-drawer-brand-m15-30-2"
 }
