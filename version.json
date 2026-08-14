@@ -1,15 +1,13 @@
 {
-  "version": "18.53.60",
-  "build": 185360,
+  "version": "18.53.61",
+  "build": 185361,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Mobile Cards, Actions & Boundary Regression Hotfix — Phase M15.26.1",
+  "title": "Mobile Dashboard & Reference Cards Hotfix — Phase M15.26.2",
   "notes": [
-    "فصل عرض الجداول العادية عن مصفوفات الصلاحيات والإشعارات في نسخة الهاتف فقط، مع إبقاء كل Checkbox بجوار اسمه.",
-    "توحيد كروت البيانات والإجراءات داخل الكروت إلى Action Grid مضغوط وآمن للمس، ومنع كسر أسماء الأزرار أو خروجها من الكارت.",
-    "إصلاح تباين Dark Mode لبطاقات فواتير المبيعات ورؤوس خطوات طلبات التركيبات، وضبط Timeline التنفيذ لقراءة كاملة على الهاتف.",
-    "توحيد Bottom Navigation clearance على الـActive View وإخفاء الشريط أثناء فتح Bottom Sheets لمنع تغطية عناصر التحكم.",
-    "إصلاح Runtime ReferenceError في سجل النسخ الاحتياطي بدون تغيير منطق النسخ أو الاستعادة."
+    "إلغاء Sticky لسجل تقدم يوم العمل في نسخة الهاتف وإعادته إلى التدفق الطبيعي لمنع تداخله مع بحث رقم الجوال أثناء التمرير.",
+    "إعادة بناء عناصر مجالات الاهتمام وأسباب عدم البيع ككروت هاتف حقيقية تعرض الاسم كاملًا والحالة ثم صف إجراءات مستقل.",
+    "إضافة Bottom Navigation clearance خاص بالبيانات المرجعية حتى يظهر آخر كارت وإجراء بالكامل فوق شريط التنقل."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-60-mobile-cards-actions-boundary-hotfix-m15-26-1"
+  "cacheToken": "kyum-crm-pwa-18-53-61-mobile-dashboard-reference-cards-hotfix-m15-26-2"
 }
