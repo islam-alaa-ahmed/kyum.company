@@ -1725,3 +1725,91 @@
   document.addEventListener("DOMContentLoaded", certifyShell, { once: true });
   certifyShell();
 })();
+
+/* Phase M15.26 — Mobile Enterprise Content & Screens Certification
+   Presentation-only table annotation. It runs only on phone layouts and never
+   changes business data, permissions, queries, or desktop/tablet structure. */
+(() => {
+  "use strict";
+
+  const PHONE_MEDIA = window.matchMedia(
+    "(max-width: 767px), (orientation: landscape) and (max-height: 560px) and (hover: none) and (pointer: coarse) and (max-device-width: 932px)"
+  );
+  const CARD_CLASS = "kyum-mobile-card-table";
+  let observer = null;
+  let raf = 0;
+
+  function headerLabels(table) {
+    return Array.from(table.querySelectorAll(":scope > thead > tr:last-child > th"))
+      .map((cell) => String(cell.textContent || "").replace(/\s+/g, " ").trim());
+  }
+
+  function isPresentationTable(table) {
+    if (!(table instanceof HTMLTableElement)) return false;
+    if (table.matches("[data-mobile-table='scroll'],[data-mobile-card='off']")) return false;
+    if (table.closest(".customer-import-preview-dialog,.customer-import-preview")) return false;
+    const headers = headerLabels(table);
+    return headers.length >= 4;
+  }
+
+  function annotateRow(row, labels) {
+    const cells = Array.from(row.children).filter((cell) => cell.tagName === "TD");
+    if (!cells.length) return;
+    if (cells.length === 1 && Number(cells[0].getAttribute("colspan") || 1) > 1) {
+      cells[0].dataset.mobileEmpty = "true";
+      return;
+    }
+    cells.forEach((cell, index) => {
+      cell.dataset.mobileEmpty = "false";
+      if (!cell.dataset.label) cell.dataset.label = labels[index] || `بيان ${index + 1}`;
+    });
+  }
+
+  function annotateTable(table) {
+    if (!isPresentationTable(table)) return;
+    const labels = headerLabels(table);
+    table.classList.add(CARD_CLASS);
+    table.querySelectorAll(":scope > tbody > tr").forEach((row) => annotateRow(row, labels));
+  }
+
+  function clearTable(table) {
+    table.classList.remove(CARD_CLASS);
+    table.querySelectorAll("td[data-mobile-empty]").forEach((cell) => delete cell.dataset.mobileEmpty);
+  }
+
+  function certifyTables() {
+    raf = 0;
+    const tables = document.querySelectorAll(".view-section table");
+    if (!PHONE_MEDIA.matches) {
+      tables.forEach(clearTable);
+      return;
+    }
+    tables.forEach(annotateTable);
+  }
+
+  function scheduleCertification() {
+    if (raf) return;
+    raf = requestAnimationFrame(certifyTables);
+  }
+
+  function syncObserver() {
+    if (!PHONE_MEDIA.matches) {
+      observer?.disconnect();
+      observer = null;
+      certifyTables();
+      return;
+    }
+    certifyTables();
+    if (observer) return;
+    observer = new MutationObserver((mutations) => {
+      if (mutations.some((mutation) => mutation.type === "childList")) scheduleCertification();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  PHONE_MEDIA.addEventListener?.("change", syncObserver);
+  window.addEventListener("orientationchange", () => window.setTimeout(syncObserver, 120), { passive: true });
+  window.addEventListener("hashchange", scheduleCertification, { passive: true });
+  document.addEventListener("DOMContentLoaded", syncObserver, { once: true });
+  syncObserver();
+})();

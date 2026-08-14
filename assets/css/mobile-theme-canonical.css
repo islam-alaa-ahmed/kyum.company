@@ -286,3 +286,212 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     max-width: 100%;
   }
 }
+
+/* Phase M15.26 — Mobile Enterprise Content & Screens Certification
+   Canonical PHONE-ONLY content contract. Tablet/Desktop are intentionally excluded.
+   Landscape remains mobile only for touch phones with a short viewport. */
+@media (max-width: 767px),
+       (orientation: landscape) and (max-height: 560px) and (hover: none) and (pointer: coarse) and (max-device-width: 932px) {
+  :root{
+    --kyum-mobile-control-height:48px;
+    --kyum-mobile-content-gap:12px;
+  }
+
+  /* Content boundary contract: fix the element that sizes incorrectly rather than clipping the page. */
+  :where(.view-section,.panel,.content-card,.metric-card,.chart-card,.table-card,.report-card,
+    .filter-card,.form-grid,.filters-grid,.actions-row,.filters-row,.dashboard-filters,
+    .dialog-shell,.dialog-card,.modal-card,.searchable-select,.searchable-select-menu,
+    .installation-section,.installation-panel,.installation-card,.installation-request-form,
+    .installation-services-footer,.installation-costs-view,.installation-costs-toolbar,
+    .notification-master-card,.notification-push-card){
+    box-sizing:border-box;
+    min-width:0;
+    max-width:100%;
+  }
+
+  :where(.form-grid,.filters-grid,.installation-request-form-grid,.installation-customer-grid,
+    .installation-priority-grid,.installation-cost-dialog-form,.installation-settings-form){
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+
+  :where(.form-grid,.filters-grid,.actions-row,.filters-row,.dashboard-filters,
+    .installation-request-form-grid,.installation-customer-grid,.installation-priority-grid,
+    .installation-cost-dialog-form,.installation-settings-form) > *{
+    min-width:0;
+    max-width:100%;
+  }
+
+  :where(input:not([type="checkbox"]):not([type="radio"]),select,textarea,
+    .searchable-select-trigger,.geo-searchable-input){
+    box-sizing:border-box;
+    inline-size:100%;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    min-height:var(--kyum-mobile-control-height);
+  }
+
+  :where(button,.primary-btn,.secondary-btn,.ghost-btn,.danger-btn,.compact-btn){
+    min-width:0;
+    max-width:100%;
+  }
+
+  /* Popovers/dropdowns remain inside the visual viewport and scroll internally. */
+  :where(.searchable-select-menu,.geo-searchable-options,.select-menu,.dropdown-menu,
+    .installation-customer-results,.installation-summary-teams-menu){
+    box-sizing:border-box;
+    max-width:calc(100vw - 24px)!important;
+    max-height:min(52dvh,360px)!important;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+
+  /* Tabs become a real horizontal rail instead of compressing/wrapping labels. */
+  :where(.tabs,.tab-list,.report-tabs,.installation-costs-mode-tabs,.installation-tabs,
+    .installation-report-tabs,.mobile-reports-jump-nav){
+    display:flex;
+    flex-wrap:nowrap!important;
+    max-width:100%;
+    overflow-x:auto;
+    overflow-y:visible;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  :where(.tabs,.tab-list,.report-tabs,.installation-costs-mode-tabs,.installation-tabs,
+    .installation-report-tabs,.mobile-reports-jump-nav)::-webkit-scrollbar{display:none}
+  :where(.tabs,.tab-list,.report-tabs,.installation-costs-mode-tabs,.installation-tabs,
+    .installation-report-tabs,.mobile-reports-jump-nav) > *{
+    flex:0 0 auto!important;
+    white-space:nowrap;
+  }
+
+  /* Dialog contract: body scrolls, shell stays inside phone safe viewport. */
+  :where(dialog,.dialog,.modal,.dialog-card,.modal-card,.dialog-shell){
+    box-sizing:border-box;
+    max-width:calc(100vw - 16px)!important;
+    max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+  }
+  :where(dialog .dialog-body,.dialog .dialog-body,.modal .modal-body,.dialog-card .dialog-body,
+    .installation-reference-dialog .dialog-body){
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+
+  /* Generic mobile record presentation. mobile.js decorates only on phone viewports. */
+  .table-wrap:has(> .kyum-mobile-card-table),
+  .table-scroll:has(> .kyum-mobile-card-table),
+  .notification-matrix-wrap:has(> .kyum-mobile-card-table),
+  .installation-costs-table-wrap:has(> .kyum-mobile-card-table),
+  .installation-cost-matrix-wrap:has(> .kyum-mobile-card-table){
+    overflow:visible!important;
+    max-width:100%;
+  }
+
+  table.kyum-mobile-card-table{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  table.kyum-mobile-card-table > thead{display:none!important}
+  table.kyum-mobile-card-table > tbody{
+    display:grid!important;
+    width:100%;
+    min-width:0;
+    gap:12px;
+  }
+  table.kyum-mobile-card-table > tbody > tr{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:14px!important;
+    gap:0!important;
+    border:1px solid var(--kyum-mobile-border)!important;
+    border-radius:16px!important;
+    background:var(--kyum-mobile-surface)!important;
+    box-shadow:0 7px 22px rgba(15,23,42,.07)!important;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td{
+    display:grid!important;
+    grid-template-columns:minmax(108px,38%) minmax(0,1fr)!important;
+    align-items:start;
+    gap:10px;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:0!important;
+    padding:9px 0!important;
+    border:0!important;
+    border-bottom:1px solid color-mix(in srgb,var(--kyum-mobile-border) 72%,transparent)!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    background:transparent!important;
+    text-align:start!important;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td:last-child{border-bottom:0!important}
+  table.kyum-mobile-card-table > tbody > tr > td::before{
+    content:attr(data-label);
+    min-width:0;
+    color:var(--kyum-mobile-muted);
+    font-weight:700;
+    line-height:1.45;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td[data-mobile-empty="true"]{
+    display:block!important;
+    padding:18px 8px!important;
+    text-align:center!important;
+    color:var(--kyum-mobile-muted)!important;
+    border:0!important;
+  }
+  table.kyum-mobile-card-table > tbody > tr > td[data-mobile-empty="true"]::before{content:none}
+  table.kyum-mobile-card-table :where(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+    width:100%!important;
+    min-width:0!important;
+  }
+  table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,
+    .installation-cost-actions,.notification-push-actions){
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    gap:8px;
+  }
+  table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,
+    .installation-cost-actions) > *{
+    width:100%;
+    min-width:0!important;
+  }
+
+  /* Matrices are record cards too, keeping every checkbox beside its event/permission label. */
+  :where(.notification-matrix,.daily-task-matrix-table,.installation-cost-matrix).kyum-mobile-card-table input[type="checkbox"]{
+    inline-size:22px;
+    block-size:22px;
+    justify-self:start;
+  }
+
+  /* Charts may scroll internally when their readable width exceeds the phone, never the page. */
+  :where(.chart-wrap,.chart-wrapper,.chart-container,.report-chart,.trend-chart){
+    max-width:100%;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+}
+
+@media (max-width: 380px){
+  table.kyum-mobile-card-table > tbody > tr{padding:12px!important}
+  table.kyum-mobile-card-table > tbody > tr > td{
+    grid-template-columns:minmax(92px,36%) minmax(0,1fr)!important;
+    gap:8px;
+  }
+  table.kyum-mobile-card-table :where(.row-actions,.installation-row-actions,.installation-completion-actions,.installation-cost-actions){
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}

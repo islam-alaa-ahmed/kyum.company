@@ -1,14 +1,14 @@
 {
-  "version": "18.53.58",
-  "build": 185358,
+  "version": "18.53.59",
+  "build": 185359,
   "forceUpdate": true,
-  "releaseDate": "2026-08-12",
-  "title": "Runtime Console Stability — Phase M15.24",
+  "releaseDate": "2026-08-14",
+  "title": "Mobile Enterprise Content & Screens Certification — Phase M15.26",
   "notes": [
-    "إصلاح ReferenceError في وحدة التركيبات بإعادة دالة إغلاق محددات العنوان الجغرافي بصورة آمنة.",
-    "منع استدعاء Push dispatch عند عدم تهيئة مفاتيح Web Push، مع الحفاظ على الإشعارات داخل البرنامج.",
-    "توحيد Version وCache Token لضمان عدم تشغيل ملفات JavaScript قديمة من PWA Cache.",
-    "أخطاء Google Fonts الخارجية تظل خارج منطق البرنامج ويعمل الخط الاحتياطي تلقائيًا عند تعذر الشبكة."
+    "توحيد حدود المحتوى والحقول والنماذج والحوارات في نسخة الهاتف فقط دون تغيير Desktop أو Tablet.",
+    "تحويل جداول البيانات والمصفوفات العريضة على الهاتف إلى Records/Cards ديناميكية مرتبطة بعناوين الأعمدة.",
+    "اعتماد Tabs قابلة للسحب أفقيًا وPopovers/Dropdowns داخل حدود الـviewport مع scroll داخلي.",
+    "الإبقاء على واجهة الهاتف في Landscape للهواتف اللمسية فقط مع استبعاد Tablet من Contract المرحلة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-58-runtime-console-stability-m15-24"
+  "cacheToken": "kyum-crm-pwa-18-53-59-mobile-content-certification-m15-26"
 }
