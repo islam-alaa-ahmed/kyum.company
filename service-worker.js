@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-75-mobile-drawer-branding-m15-30-4";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-76-mobile-visual-pilot-m15-31-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

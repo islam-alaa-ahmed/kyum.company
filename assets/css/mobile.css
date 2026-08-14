@@ -166,19 +166,15 @@
   #dashboardView .stats-grid.dashboard-stats{
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;
   }
-  #dashboardView .dashboard-stats .stat-card{
-    position:relative;min-height:102px;padding:14px;border-radius:18px;overflow:hidden;box-shadow:none;
-  }
-  #dashboardView .dashboard-stats .stat-card::after{
-    content:"";position:absolute;width:54px;height:54px;left:-18px;bottom:-20px;border-radius:50%;
-    background:color-mix(in srgb,var(--primary) 12%,transparent);
-  }
-  #dashboardView .dashboard-stats .stat-card span{display:block;max-width:100%;font-size:11px;line-height:1.45}
-  #dashboardView .dashboard-stats .stat-card strong{font-size:22px;line-height:1.2;margin-top:9px;overflow-wrap:anywhere}
+  /* M15.31.1: dashboard KPI presentation moved to mobile-theme-canonical.css. */
+  #dashboardView .dashboard-stats .stat-card{position:relative;min-height:92px;overflow:hidden}
+  #dashboardView .dashboard-stats .stat-card span{display:block;max-width:100%}
+  #dashboardView .dashboard-stats .stat-card strong{display:block;overflow-wrap:anywhere}
 
   #dashboardView .analytics-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  /* M15.31.1: dashboard panel surface presentation moved to mobile-theme-canonical.css. */
   #dashboardView .analytics-grid > .panel,
-  #dashboardView .analytics-grid > .full-span-panel{min-width:0;padding:14px;border-radius:18px;box-shadow:none}
+  #dashboardView .analytics-grid > .full-span-panel{min-width:0;padding:14px}
   #dashboardView .panel-header{align-items:flex-start}
   #dashboardView .panel-header h3{font-size:15px;line-height:1.45;margin-bottom:4px}
   #dashboardView .panel-header p{font-size:10px;line-height:1.5}
@@ -360,9 +356,10 @@
   .mobile-followups-filter-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
   #followupsView .followup-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:10px}
-  #followupsView .followup-stat{min-width:0;padding:12px;border:1px solid var(--border);border-radius:15px;background:var(--surface);box-shadow:0 8px 22px rgba(15,23,42,.05)}
-  #followupsView .followup-stat span{display:block;font-size:9px;color:var(--muted);font-weight:800}
-  #followupsView .followup-stat strong{display:block;margin-top:4px;font-size:20px;color:var(--text)}
+  /* M15.31.1: follow-up KPI presentation moved to mobile-theme-canonical.css. */
+  #followupsView .followup-stat{min-width:0;padding:12px}
+  #followupsView .followup-stat span{display:block}
+  #followupsView .followup-stat strong{display:block;margin-top:4px}
 
   .mobile-followups-quicknav{display:flex;gap:7px;margin:0 -2px 12px;padding:2px;overflow-x:auto;scrollbar-width:none}
   .mobile-followups-quicknav::-webkit-scrollbar{display:none}
@@ -385,7 +382,8 @@
   #followupsView table,#followupsView tbody{display:block;width:100%}
   #followupsView thead{display:none}
   #followupsView tbody{display:grid;gap:12px}
-  #followupsView tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 10px 28px rgba(15,23,42,.07)}
+  /* M15.31.1: follow-up row-card surface presentation moved to mobile-theme-canonical.css. */
+  #followupsView tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px}
   #followupsView tbody tr:has(.empty-state){display:block;text-align:center}
   #followupsView tbody td{display:block;min-width:0;padding:0;border:0;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
   #followupsView tbody td::before{content:attr(data-mobile-label);display:block;margin-bottom:3px;color:var(--muted);font-size:9px;font-weight:800}
@@ -2894,16 +2892,13 @@ html.is-offline body::before {
     width:100%;
     margin-top:12px;
   }
+  /* M15.31.1: dedicated customer-card presentation moved to mobile-theme-canonical.css. */
   #customersView .customer-mobile-card{
     display:grid;
     gap:0;
     width:100%;
     min-width:0;
     overflow:hidden;
-    border:1px solid var(--border);
-    border-radius:20px;
-    background:var(--surface);
-    box-shadow:0 10px 28px rgba(15,23,42,.07);
   }
   #customersView .customer-mobile-card-head{
     display:flex;

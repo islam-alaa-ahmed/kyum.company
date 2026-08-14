@@ -1,14 +1,14 @@
 {
-  "version": "18.53.75",
-  "build": 185375,
+  "version": "18.53.76",
+  "build": 185376,
   "forceUpdate": true,
-  "releaseDate": "2026-08-14",
-  "title": "Mobile Drawer Branding Identity + Logo Scale — Phase M15.30.4",
+  "releaseDate": "2026-08-15",
+  "title": "Mobile Visual Identity Pilot — Dashboard + Customers + Followups — Phase M15.31.1",
   "notes": [
-    "ضبط شعار KYUM داخل Branding Card في قائمة الهاتف إلى حجم متوازن 48×48 مع object-fit contain لمنع القص أو التضخم.",
-    "تحديث هوية Branding الخاصة بقائمة الهاتف إلى شركة كيوم التجارية / KYUM TRADING COMPANY.",
-    "الحفاظ على Desktop branding وDesktop layout كما هو دون تغيير، مع بقاء التعديل محصورًا في Mobile Drawer.",
-    "الحفاظ على أحجام أيقونات التنقل والهيدر والـBottom Bar وباقي منطق Navigation وPermissions دون تغيير."
+    "تطبيق هوية KYUM Mobile Glass/3D المعتمدة على الشاشة الرئيسية والعملاء والمتابعات فقط كمرحلة Pilot.",
+    "توحيد Blue/Gold content tokens والـGlass surfaces والـKPI cards وCustomer cards وFollow-up cards في Light/Dark.",
+    "إبقاء Header وSide Menu وBottom Navigation وDesktop/Tablet وBusiness Logic وPermissions دون تغيير بصري أو وظيفي.",
+    "نقل Presentation الخاصة بمكونات الـPilot إلى mobile-theme-canonical.css مع تقليل ازدواجية visual styling في mobile.css."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-75-mobile-drawer-branding-m15-30-4"
+  "cacheToken": "kyum-crm-pwa-18-53-76-mobile-visual-pilot-m15-31-1"
 }
