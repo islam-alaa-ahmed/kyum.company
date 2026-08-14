@@ -1,14 +1,14 @@
 {
-  "version": "18.53.78",
+  "version": "18.53.79",
   "build": 185378,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Mobile Visual Identity Expansion — Phase M15.31.2",
+  "title": "Installation Mobile Visual Identity + Semantic Icon Guard — Phase M15.31.3",
   "notes": [
     "تعميم الهوية البصرية المعتمدة في Mobile Pilot على عروض الأسعار وفواتير المبيعات وإدارة المهام اليومية.",
     "توحيد الكروت والفلاتر والأزرار والجداول المتحولة إلى Mobile Cards باستخدام نفس Electric Blue وGold وGlass 3D tokens.",
     "التنفيذ داخل المالك canonical الحالي دون إنشاء طبقة CSS بديلة أو تغيير Desktop/Tablet.",
     "الحفاظ على Business Logic والصلاحيات والبيانات وHeader وSide Menu وBottom Navigation دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-78-mobile-identity-expansion-m15-31-2"
+  "cacheToken": "kyum-crm-pwa-18-53-79-installation-mobile-identity-m15-31-3"
 }
