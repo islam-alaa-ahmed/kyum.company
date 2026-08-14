@@ -835,8 +835,8 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   }
 }
 
-/* Phase M15.31.1 / M15.31.1.1 — KYUM Mobile Visual Identity Pilot + Semantic KPI Icons: Dashboard + Customers + Followups
-   Authoritative PHONE-ONLY content presentation for the approved pilot screens.
+/* Phase M15.31.1 / M15.31.1.1 / M15.31.2 — KYUM Mobile Visual Identity: Dashboard + Customers + Followups + Quotations + Sales Invoices + Daily Operations
+   Authoritative PHONE-ONLY content presentation for the approved visual-identity screens.
    Legacy visual declarations for these components were retired from mobile.css; layout/behavior remains there. */
 @media (max-width:767px){
   :root{
@@ -886,7 +886,10 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   /* ----- Shared pilot controls ----- */
   #dashboardView :is(input:not([type="checkbox"]):not([type="radio"]),select),
   #customersView :is(input:not([type="checkbox"]):not([type="radio"]),select),
-  #followupsView :is(input:not([type="checkbox"]):not([type="radio"]),select){
+  #followupsView :is(input:not([type="checkbox"]):not([type="radio"]),select),
+  #quotationsView :is(input:not([type="checkbox"]):not([type="radio"]),select),
+  #salesInvoicesView :is(input:not([type="checkbox"]):not([type="radio"]),select),
+  #dailyOperationsView :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
     box-sizing:border-box;
     min-width:0;
     min-height:42px;
@@ -900,14 +903,20 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   }
   #dashboardView :is(input,select):focus,
   #customersView :is(input,select):focus,
-  #followupsView :is(input,select):focus{
+  #followupsView :is(input,select):focus,
+  #quotationsView :is(input,select):focus,
+  #salesInvoicesView :is(input,select):focus,
+  #dailyOperationsView :is(input,select,textarea):focus{
     outline:0;
     border-color:var(--kyum-content-blue)!important;
     box-shadow:0 0 0 2px rgba(22,136,255,.16),0 0 18px rgba(22,136,255,.14),inset 0 1px 0 rgba(255,255,255,.24)!important;
   }
   #dashboardView :is(.primary-btn,button[class*="primary"]),
   #customersView :is(.primary-btn,button[class*="primary"]),
-  #followupsView :is(.primary-btn,button[class*="primary"]){
+  #followupsView :is(.primary-btn,button[class*="primary"]),
+  #quotationsView :is(.primary-btn,button[class*="primary"]),
+  #salesInvoicesView :is(.primary-btn,button[class*="primary"]),
+  #dailyOperationsView :is(.primary-btn,button[class*="primary"]){
     border:1px solid #45a7ff!important;
     border-radius:var(--kyum-content-radius-control)!important;
     background:linear-gradient(145deg,#198cff,#075fdc 68%,#064fbd)!important;
@@ -916,7 +925,10 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   }
   #dashboardView .secondary-btn,
   #customersView .secondary-btn,
-  #followupsView .secondary-btn{
+  #followupsView .secondary-btn,
+  #quotationsView .secondary-btn,
+  #salesInvoicesView .secondary-btn,
+  #dailyOperationsView .secondary-btn{
     border:1px solid color-mix(in srgb,var(--kyum-content-line) 76%,var(--kyum-mobile-border))!important;
     border-radius:var(--kyum-content-radius-control)!important;
     background:var(--kyum-content-glass-soft)!important;
@@ -1279,6 +1291,169 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     background:var(--kyum-content-glass-soft)!important;
     box-shadow:var(--kyum-content-icon-shadow)!important;
   }
+
+  /* ----- Quotations / Sales invoices / Daily operations -----
+     M15.31.2 extends the same canonical identity directly inside this owner block;
+     no secondary override sheet or desktop selector is introduced. */
+  #quotationsView>.actions-row,
+  #salesInvoicesView>.actions-row,
+  #dailyOperationsView>.mobile-daily-toolbar,
+  #dailyOperationsView>.daily-phone-lookup,
+  #dailyOperationsView>.panel{
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:20px!important;
+    background:var(--kyum-content-glass)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-shadow)!important;
+    backdrop-filter:var(--kyum-content-blur)!important;
+    -webkit-backdrop-filter:var(--kyum-content-blur)!important;
+  }
+  #quotationsView>.actions-row,
+  #salesInvoicesView>.actions-row{padding:15px!important;gap:12px!important}
+  #quotationsView .section-title,
+  #salesInvoicesView .section-title,
+  #dailyOperationsView :is(h2,h3,h4,strong){color:var(--kyum-content-text)!important}
+  #quotationsView .section-note,
+  #salesInvoicesView .section-note,
+  #dailyOperationsView :is(.panel-header p,small){color:var(--kyum-content-muted)!important}
+
+  #quotationsView .mobile-quotations-toolbar{
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:20px!important;
+    background:var(--kyum-content-glass)!important;
+    box-shadow:var(--kyum-content-shadow)!important;
+  }
+  #quotationsView .mobile-quotations-toolbar::after,
+  #dailyOperationsView>.panel::after{
+    content:"";
+    position:absolute;
+    inset-inline:18px;
+    inset-block-end:-1px;
+    height:2px;
+    border-radius:999px;
+    background:linear-gradient(90deg,var(--kyum-content-gold),var(--kyum-content-blue) 48%,transparent 88%);
+    opacity:.72;
+    pointer-events:none;
+  }
+  #quotationsView .mobile-quotations-toolbar{position:relative!important;overflow:hidden}
+  #quotationsView .mobile-quotations-toolbar strong{color:var(--kyum-content-text)!important;font-weight:950!important}
+  #quotationsView .mobile-quotations-toolbar small{color:var(--kyum-content-muted)!important}
+  #quotationsView .mobile-quotations-toolbar button{
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:14px!important;
+    background:var(--kyum-content-glass-soft)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-icon-shadow)!important;
+  }
+  #quotationsView #quotationStats,
+  #salesInvoicesView .sales-invoices-summary{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  #quotationsView #quotationStats>* ,
+  #salesInvoicesView .sales-invoices-summary>article{
+    position:relative;
+    min-height:92px;
+    padding:14px 13px 13px 54px!important;
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:18px!important;
+    background:var(--kyum-content-glass-blue)!important;
+    box-shadow:var(--kyum-content-shadow)!important;
+    color:var(--kyum-content-text)!important;
+    overflow:hidden;
+  }
+  #quotationsView #quotationStats>*:nth-child(3n+1),
+  #salesInvoicesView .sales-invoices-summary>article:nth-child(3n+1){
+    border-color:var(--kyum-content-gold-line)!important;
+    background:var(--kyum-content-glass-gold)!important;
+    box-shadow:var(--kyum-content-shadow-gold)!important;
+  }
+  #quotationsView #quotationStats>*::before,
+  #salesInvoicesView .sales-invoices-summary>article::before{
+    content:"";
+    position:absolute;
+    inset-inline-start:12px;
+    inset-block-start:14px;
+    width:34px;
+    height:34px;
+    border:1px solid var(--kyum-content-line);
+    border-radius:12px;
+    background:linear-gradient(145deg,rgba(255,255,255,.32),color-mix(in srgb,var(--kyum-content-blue) 13%,var(--kyum-content-card-2)));
+    box-shadow:var(--kyum-content-icon-shadow);
+  }
+  #quotationsView #quotationStats>*:nth-child(3n+1)::before,
+  #salesInvoicesView .sales-invoices-summary>article:nth-child(3n+1)::before{border-color:var(--kyum-content-gold-line)}
+  #quotationsView #quotationStats :is(span,small,p),
+  #salesInvoicesView .sales-invoices-summary span{color:var(--kyum-content-muted)!important;font-weight:800!important}
+  #quotationsView #quotationStats strong,
+  #salesInvoicesView .sales-invoices-summary strong{color:var(--kyum-content-text)!important;font-weight:950!important}
+
+  #quotationsView table.kyum-mobile-card-table>tbody>tr,
+  #salesInvoicesView table.kyum-mobile-card-table>tbody>tr,
+  #dailyOperationsView table.kyum-mobile-card-table>tbody>tr{
+    position:relative;
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:19px!important;
+    background:var(--kyum-content-glass)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-shadow)!important;
+    backdrop-filter:var(--kyum-content-blur)!important;
+    -webkit-backdrop-filter:var(--kyum-content-blur)!important;
+    overflow:hidden;
+  }
+  #quotationsView table.kyum-mobile-card-table>tbody>tr:nth-child(3n+1),
+  #salesInvoicesView table.kyum-mobile-card-table>tbody>tr:nth-child(3n+1),
+  #dailyOperationsView table.kyum-mobile-card-table>tbody>tr:nth-child(3n+1){
+    border-color:var(--kyum-content-gold-line)!important;
+    box-shadow:var(--kyum-content-shadow-gold)!important;
+  }
+  #quotationsView table.kyum-mobile-card-table>tbody>tr::after,
+  #salesInvoicesView table.kyum-mobile-card-table>tbody>tr::after,
+  #dailyOperationsView table.kyum-mobile-card-table>tbody>tr::after{
+    content:"";
+    position:absolute;
+    inset-block:12px;
+    inset-inline-start:0;
+    width:3px;
+    border-radius:0 6px 6px 0;
+    background:linear-gradient(var(--kyum-content-blue),var(--kyum-content-gold));
+    pointer-events:none;
+  }
+  #quotationsView table.kyum-mobile-card-table>tbody>tr>td,
+  #salesInvoicesView table.kyum-mobile-card-table>tbody>tr>td,
+  #dailyOperationsView table.kyum-mobile-card-table>tbody>tr>td{color:var(--kyum-content-text)!important;border-color:var(--kyum-content-divider)!important}
+  #quotationsView table.kyum-mobile-card-table>tbody>tr>td::before,
+  #salesInvoicesView table.kyum-mobile-card-table>tbody>tr>td::before,
+  #dailyOperationsView table.kyum-mobile-card-table>tbody>tr>td::before{color:var(--kyum-content-muted)!important}
+  #quotationsView .row-actions :is(button,a),
+  #salesInvoicesView .row-actions :is(button,a),
+  #dailyOperationsView .row-actions :is(button,a){border-radius:12px!important}
+
+  #quotationsView .mobile-quotations-filter-sheet,
+  #salesInvoicesView .sales-invoices-filters{
+    border-color:var(--kyum-content-line)!important;
+    background:var(--kyum-content-glass)!important;
+    box-shadow:0 28px 72px rgba(2,13,30,.34),0 0 24px rgba(22,136,255,.14),inset 0 1px 0 rgba(255,255,255,.18)!important;
+    backdrop-filter:var(--kyum-content-blur)!important;
+    -webkit-backdrop-filter:var(--kyum-content-blur)!important;
+  }
+
+  #dailyOperationsView>.panel{position:relative!important;overflow:hidden}
+  #dailyOperationsView .panel-header{padding-bottom:10px;border-bottom:1px solid var(--kyum-content-divider)!important}
+  #dailyOperationsView :is(.daily-targets-grid>article,.daily-suggested-progress-grid>article,.daily-whatsapp-template-card,.daily-checklist>* ){
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:16px!important;
+    background:var(--kyum-content-glass-soft)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-icon-shadow)!important;
+  }
+  #dailyOperationsView :is(.daily-targets-grid>article,.daily-suggested-progress-grid>article):nth-child(3n+1){
+    border-color:var(--kyum-content-gold-line)!important;
+    background:var(--kyum-content-glass-gold)!important;
+  }
+  #dailyOperationsView :is(.daily-target-progress,.daily-suggested-progress-track){background:color-mix(in srgb,var(--kyum-content-card-2) 72%,transparent)!important}
+  #dailyOperationsView :is(.daily-target-progress span,.daily-suggested-progress-track i){background:linear-gradient(90deg,var(--kyum-content-gold),var(--kyum-content-blue))!important}
 
   @media (max-width:340px){
     #dashboardView .dashboard-stats{grid-template-columns:1fr!important}
