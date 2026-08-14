@@ -11381,95 +11381,425 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
   #followupsView>.actions-row>.report-export-actions button,#quotationsView>.actions-row>.report-export-actions button{width:100%;min-height:44px}
 }
 
-/* Phase M15.27 — Desktop-only KYUM glass header refinement
-   Scope lock: >=1181px only. Mobile/tablet shell and all runtime behavior remain untouched. */
+/* Phase M15.27.1 — Desktop Header Clean Replacement
+   Desktop only (>=1181px). This is a replacement contract, not a visual layer:
+   legacy desktop brand/watermark primitives are removed from desktop rendering,
+   while tablet/mobile retain their existing certified header unchanged. */
+.desktop-topbar-brand,
+.desktop-menu-glyph {
+  display: none;
+}
+
 @media (min-width: 1181px) {
-  .topbar,
-  .topbar.is-scrolled {
-    overflow: visible !important;
-    border: 1px solid rgba(213, 164, 55, .72) !important;
+  #appHeader.topbar {
+    --desktop-header-gold: #d6a83e;
+    --desktop-header-gold-soft: rgba(214,168,62,.42);
+    --desktop-header-blue: #2f8cff;
+    --desktop-header-blue-soft: rgba(47,140,255,.46);
+    --desktop-header-text: #0b1b35;
+    --desktop-header-muted: #65758c;
+    --desktop-header-control: rgba(255,255,255,.52);
+    --desktop-header-control-border: rgba(255,255,255,.74);
+
+    direction: ltr;
+    position: sticky;
+    top: 0;
+    z-index: 1035;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(280px, 330px) auto minmax(360px, 1fr) 72px;
+    grid-template-areas: "desktop-brand actions title menu";
+    align-items: center;
+    gap: 24px;
+    min-height: 118px;
+    margin: -26px -26px 28px;
+    padding: 18px 28px;
+    overflow: visible;
+    border: 1px solid var(--desktop-header-gold-soft);
+    border-top: 0;
+    border-radius: 0 0 28px 28px;
     background:
-      radial-gradient(ellipse 34% 95% at 6% -12%, rgba(255,255,255,.34), transparent 55%),
-      linear-gradient(116deg, rgba(255,255,255,.78) 0%, rgba(244,248,253,.70) 48%, rgba(238,245,252,.76) 100%) !important;
+      linear-gradient(135deg, rgba(255,255,255,.76), rgba(247,250,255,.58) 48%, rgba(236,244,255,.62)),
+      rgba(245,248,252,.72);
     box-shadow:
-      0 18px 42px rgba(31, 45, 65, .16),
-      inset 0 1px 0 rgba(255,255,255,.94),
-      inset 0 -1px 0 rgba(73, 159, 232, .18) !important;
-    backdrop-filter: blur(26px) saturate(155%) !important;
-    -webkit-backdrop-filter: blur(26px) saturate(155%) !important;
+      0 20px 48px rgba(15,23,42,.12),
+      inset 0 1px 0 rgba(255,255,255,.88);
+    backdrop-filter: blur(28px) saturate(148%);
+    -webkit-backdrop-filter: blur(28px) saturate(148%);
   }
 
-  .topbar::before {
-    z-index: -1 !important;
+  /* Remove the previous desktop artwork completely before drawing the new one. */
+  #appHeader.topbar::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
     background:
-      linear-gradient(150deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.10) 13%, transparent 29%),
-      radial-gradient(95% 105% at 55% 145%, transparent 0 56%, rgba(48,159,255,.20) 56.7%, rgba(85,203,255,.90) 57.3%, rgba(31,126,235,.34) 58%, transparent 59.5%) !important;
-    filter: drop-shadow(0 0 8px rgba(55, 174, 255, .20)) !important;
+      linear-gradient(152deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,.10) 23%, transparent 44%),
+      radial-gradient(ellipse at 18% 0%, rgba(255,255,255,.42), transparent 38%),
+      radial-gradient(ellipse at 82% 115%, rgba(47,140,255,.10), transparent 44%);
+    opacity: 1;
   }
 
-  .topbar::after {
-    height: 2px !important;
-    background: linear-gradient(90deg, transparent 0%, #2b7dff 22%, #70ddff 50%, #2b7dff 78%, transparent 100%) !important;
-    box-shadow: 0 0 10px rgba(46, 151, 255, .48) !important;
+  #appHeader.topbar::after {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    right: 28px;
+    bottom: 0;
+    left: 28px;
+    height: 2px;
+    border-radius: 999px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(214,168,62,.58) 7%,
+      rgba(47,140,255,.72) 22%,
+      #54b9ff 50%,
+      rgba(47,140,255,.72) 78%,
+      rgba(214,168,62,.58) 93%,
+      transparent 100%
+    );
+    box-shadow: 0 0 10px rgba(47,140,255,.34);
   }
 
-  .topbar-title h2 { color: #0d1b33 !important; text-shadow: none !important; }
-  .topbar-title p { color: #536176 !important; text-shadow: none !important; }
-
-  .topbar-logo-banner,
-  .topbar .user-chip,
-  .topbar .notification-bell-btn,
-  .theme-toggle-button,
-  .kyum-scroll-control,
-  .kyum-scroll-control.is-visible,
-  .sidebar-menu-launcher {
-    border-color: rgba(255,255,255,.76) !important;
-    background: linear-gradient(145deg, rgba(255,255,255,.66), rgba(232,239,248,.48)) !important;
-    box-shadow: 0 10px 26px rgba(31,45,65,.12), inset 0 1px 0 rgba(255,255,255,.92) !important;
-    backdrop-filter: blur(18px) saturate(145%) !important;
-    -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
-  }
-
-  .sidebar-menu-launcher { color: #10213b !important; }
-
-  html[data-theme="dark"] .topbar,
-  html[data-theme="dark"] .topbar.is-scrolled {
-    border-color: rgba(218, 170, 61, .78) !important;
+  #appHeader.topbar.is-scrolled {
+    min-height: 96px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-color: var(--desktop-header-gold-soft);
     background:
-      radial-gradient(ellipse 35% 100% at 5% -10%, rgba(255,255,255,.13), transparent 52%),
-      linear-gradient(112deg, rgba(7,17,30,.94) 0%, rgba(5,22,39,.93) 48%, rgba(7,31,52,.94) 100%) !important;
+      linear-gradient(135deg, rgba(255,255,255,.71), rgba(247,250,255,.54) 48%, rgba(236,244,255,.58)),
+      rgba(245,248,252,.68);
     box-shadow:
-      0 20px 48px rgba(0, 8, 18, .46),
-      inset 0 1px 0 rgba(255,255,255,.10),
-      inset 0 -1px 0 rgba(40,157,255,.24) !important;
+      0 20px 48px rgba(15,23,42,.14),
+      inset 0 1px 0 rgba(255,255,255,.84);
   }
 
-  html[data-theme="dark"] .topbar::before {
+  /* Old desktop logo banner and watermark are not part of the replacement DOM. */
+  #appHeader .legacy-topbar-brand,
+  #appHeader .legacy-topbar-watermark {
+    display: none !important;
+  }
+
+  #appHeader .desktop-topbar-brand {
+    grid-area: desktop-brand;
+    direction: ltr;
+    justify-self: start;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-inline-end: 22px;
+    border-inline-end: 1px solid rgba(100,116,139,.18);
+    position: relative;
+    z-index: 4;
+  }
+
+  #appHeader .desktop-topbar-brand-logo {
+    width: 78px;
+    height: 78px;
+    flex: 0 0 78px;
+    display: block;
+    object-fit: contain;
+    border-radius: 22px;
+    filter:
+      drop-shadow(0 10px 20px rgba(15,23,42,.16))
+      drop-shadow(0 0 7px rgba(47,140,255,.14));
+  }
+
+  #appHeader .desktop-topbar-brand-copy {
+    display: grid;
+    align-content: center;
+    min-width: 0;
+    line-height: 1.05;
+    text-align: left;
+  }
+
+  #appHeader .desktop-topbar-brand-copy strong {
+    color: var(--desktop-header-text);
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: .01em;
+  }
+
+  #appHeader .desktop-topbar-brand-copy span {
+    margin-top: 6px;
+    color: #bf8616;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: .04em;
+  }
+
+  #appHeader .desktop-topbar-brand-copy small {
+    margin-top: 5px;
+    color: var(--desktop-header-muted);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: .02em;
+  }
+
+  #appHeader .topbar-user-actions {
+    grid-area: actions;
+    direction: ltr;
+    justify-self: start;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    position: relative;
+    z-index: 5;
+  }
+
+  #appHeader .topbar-title {
+    grid-area: title;
+    direction: rtl;
+    justify-self: end;
+    width: min(100%, 720px);
+    margin: 0;
+    position: relative;
+    z-index: 4;
+    text-align: right;
+  }
+
+  #appHeader .topbar-title h2 {
+    margin: 0;
+    color: var(--desktop-header-text);
+    font-size: clamp(29px, 2.2vw, 40px);
+    font-weight: 900;
+    letter-spacing: -.025em;
+    text-shadow: none;
+  }
+
+  #appHeader .topbar-title p {
+    margin: 7px 0 0;
+    color: var(--desktop-header-muted);
+    font-size: clamp(13px, 1vw, 16px);
+    font-weight: 600;
+    text-shadow: none;
+  }
+
+  #appHeader .topbar-title p::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-inline-end: 10px;
+    border-radius: 50%;
+    background: #e0b340;
+    box-shadow: 0 0 9px rgba(224,179,64,.42);
+    vertical-align: middle;
+  }
+
+  /* Reuse the existing functional menu button; replace only its desktop skin/content. */
+  #appHeader .sidebar-menu-launcher {
+    grid-area: menu;
+    direction: ltr;
+    justify-self: end;
+    min-width: 58px;
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(100,116,139,.18);
+    border-radius: 18px;
+    background: rgba(255,255,255,.42);
+    color: var(--desktop-header-text);
+    box-shadow:
+      0 10px 24px rgba(15,23,42,.09),
+      inset 0 1px 0 rgba(255,255,255,.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    position: relative;
+    z-index: 5;
+  }
+
+  #appHeader .sidebar-menu-launcher:hover,
+  #appHeader .sidebar-menu-launcher:focus-visible {
+    border-color: rgba(214,168,62,.46);
+    background: rgba(255,255,255,.56);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  #appHeader .legacy-header-launcher-mark,
+  #appHeader .legacy-header-launcher-copy {
+    display: none !important;
+  }
+
+  #appHeader .desktop-menu-glyph {
+    width: 25px;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  #appHeader .desktop-menu-glyph span {
+    display: block;
+    height: 2.5px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  #appHeader .theme-toggle-button,
+  #appHeader .kyum-scroll-control,
+  #appHeader .kyum-scroll-control.is-visible,
+  #appHeader .notification-bell-btn {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    flex: 0 0 54px;
+    border: 1px solid var(--desktop-header-control-border);
+    border-radius: 17px;
+    background: var(--desktop-header-control);
+    color: var(--desktop-header-text);
+    box-shadow:
+      0 10px 24px rgba(15,23,42,.09),
+      inset 0 1px 0 rgba(255,255,255,.78);
+    backdrop-filter: blur(18px) saturate(145%);
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+  }
+
+  #appHeader .notification-bell-btn {
+    color: var(--desktop-header-text);
+  }
+
+  #appHeader .notification-bell-btn:hover,
+  #appHeader .notification-bell-btn:focus-visible,
+  #appHeader .theme-toggle-button:hover,
+  #appHeader .kyum-scroll-control:hover {
+    border-color: rgba(214,168,62,.46);
+    background: rgba(255,255,255,.62);
+    box-shadow:
+      0 12px 27px rgba(15,23,42,.11),
+      0 0 0 3px rgba(47,140,255,.07);
+    transform: translateY(-1px);
+  }
+
+  #appHeader .topbar .user-chip,
+  #appHeader .compact-user-chip {
+    width: auto !important;
+    max-width: 230px;
+    min-width: 170px !important;
+    min-height: 54px;
+    padding: 7px 12px;
+    border: 1px solid var(--desktop-header-control-border);
+    border-radius: 17px;
+    background: var(--desktop-header-control);
+    color: var(--desktop-header-text);
+    box-shadow:
+      0 10px 24px rgba(15,23,42,.09),
+      inset 0 1px 0 rgba(255,255,255,.78);
+    backdrop-filter: blur(18px) saturate(145%);
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+  }
+
+  #appHeader .compact-user-chip strong {
+    color: var(--desktop-header-text);
+  }
+
+  #appHeader .compact-user-chip .avatar {
+    background: linear-gradient(145deg, #edf4ff, #dce8fb);
+    color: #2f64dc;
+    border: 1px solid rgba(47,140,255,.16);
+  }
+
+  #appHeader .header-user-dropdown {
+    border-color: rgba(214,168,62,.22);
+    background: rgba(255,255,255,.90);
+    box-shadow: 0 20px 46px rgba(15,23,42,.16);
+    backdrop-filter: blur(22px) saturate(145%);
+    -webkit-backdrop-filter: blur(22px) saturate(145%);
+  }
+
+  /* Dark uses the exact same desktop geometry; only material/theme tokens change. */
+  html[data-theme="dark"] #appHeader.topbar {
+    --desktop-header-text: #f6f8fc;
+    --desktop-header-muted: #aeb8c8;
+    --desktop-header-control: rgba(15,29,49,.56);
+    --desktop-header-control-border: rgba(132,156,188,.20);
+
+    border-color: rgba(214,168,62,.56);
     background:
-      linear-gradient(150deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.035) 14%, transparent 30%),
-      radial-gradient(95% 105% at 55% 145%, transparent 0 56%, rgba(23,111,220,.24) 56.7%, rgba(79,211,255,.98) 57.3%, rgba(26,124,237,.40) 58%, transparent 59.5%) !important;
+      linear-gradient(135deg, rgba(6,16,31,.89), rgba(7,24,43,.78) 52%, rgba(5,18,34,.86)),
+      rgba(5,15,29,.88);
+    box-shadow:
+      0 22px 54px rgba(0,0,0,.38),
+      inset 0 1px 0 rgba(255,255,255,.05);
   }
 
-  html[data-theme="dark"] .topbar-title h2 { color: #f7fbff !important; text-shadow: 0 3px 18px rgba(0,0,0,.32) !important; }
-  html[data-theme="dark"] .topbar-title p { color: rgba(218,229,240,.78) !important; }
-
-  html[data-theme="dark"] .topbar-logo-banner,
-  html[data-theme="dark"] .topbar .user-chip,
-  html[data-theme="dark"] .topbar .notification-bell-btn,
-  html[data-theme="dark"] .theme-toggle-button,
-  html[data-theme="dark"] .kyum-scroll-control,
-  html[data-theme="dark"] .kyum-scroll-control.is-visible,
-  html[data-theme="dark"] .sidebar-menu-launcher {
-    border-color: rgba(126,158,194,.24) !important;
-    background: linear-gradient(145deg, rgba(18,35,56,.72), rgba(8,24,43,.62)) !important;
-    box-shadow: 0 10px 28px rgba(0,8,18,.30), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  html[data-theme="dark"] #appHeader.topbar::before {
+    background:
+      linear-gradient(152deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.025) 25%, transparent 46%),
+      radial-gradient(ellipse at 18% 0%, rgba(70,115,180,.11), transparent 38%),
+      radial-gradient(ellipse at 82% 115%, rgba(47,140,255,.13), transparent 44%);
   }
 
-  html[data-theme="dark"] .sidebar-menu-launcher { color: #f5f8fc !important; }
+  html[data-theme="dark"] #appHeader.topbar.is-scrolled {
+    border-color: rgba(214,168,62,.50);
+    background:
+      linear-gradient(135deg, rgba(6,16,31,.82), rgba(7,24,43,.72) 52%, rgba(5,18,34,.80)),
+      rgba(5,15,29,.82);
+  }
 
-  /* Keep the approved desktop geometry exactly as-is. */
-  .topbar-brand,
-  .topbar-user-actions,
-  .topbar-title,
-  .sidebar-menu-launcher { transform: none !important; }
+  html[data-theme="dark"] #appHeader .desktop-topbar-brand {
+    border-inline-end-color: rgba(132,156,188,.18);
+  }
+
+  html[data-theme="dark"] #appHeader .desktop-topbar-brand-logo {
+    filter:
+      drop-shadow(0 12px 22px rgba(0,0,0,.42))
+      drop-shadow(0 0 8px rgba(47,140,255,.18));
+  }
+
+  html[data-theme="dark"] #appHeader .desktop-topbar-brand-copy strong,
+  html[data-theme="dark"] #appHeader .topbar-title h2,
+  html[data-theme="dark"] #appHeader .compact-user-chip strong {
+    color: var(--desktop-header-text);
+  }
+
+  html[data-theme="dark"] #appHeader .desktop-topbar-brand-copy span {
+    color: #e6b847;
+  }
+
+  html[data-theme="dark"] #appHeader .desktop-topbar-brand-copy small,
+  html[data-theme="dark"] #appHeader .topbar-title p {
+    color: var(--desktop-header-muted);
+  }
+
+  html[data-theme="dark"] #appHeader .sidebar-menu-launcher,
+  html[data-theme="dark"] #appHeader .theme-toggle-button,
+  html[data-theme="dark"] #appHeader .kyum-scroll-control,
+  html[data-theme="dark"] #appHeader .kyum-scroll-control.is-visible,
+  html[data-theme="dark"] #appHeader .notification-bell-btn,
+  html[data-theme="dark"] #appHeader .topbar .user-chip,
+  html[data-theme="dark"] #appHeader .compact-user-chip {
+    border-color: var(--desktop-header-control-border);
+    background: var(--desktop-header-control);
+    color: var(--desktop-header-text);
+    box-shadow:
+      0 12px 28px rgba(0,0,0,.26),
+      inset 0 1px 0 rgba(255,255,255,.045);
+  }
+
+  html[data-theme="dark"] #appHeader .compact-user-chip .avatar {
+    background: linear-gradient(145deg, #1c3f72, #235dac);
+    color: #dcecff;
+    border-color: rgba(96,165,250,.24);
+  }
+
+  html[data-theme="dark"] #appHeader .header-user-dropdown {
+    border-color: rgba(214,168,62,.20);
+    background: rgba(8,20,37,.94);
+    box-shadow: 0 22px 50px rgba(0,0,0,.44);
+  }
 }
