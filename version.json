@@ -1,14 +1,14 @@
 {
-  "version": "18.53.65",
-  "build": 185365,
+  "version": "18.53.66",
+  "build": 185366,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Desktop Header Compact Identity & Notification Overlay Fix — Phase M15.27.3",
+  "title": "Canonical KYUM Glass Sidebar — Phase M15.28",
   "notes": [
-    "تصغير مساحة هوية KYUM في هيدر الديسكتوب وتقريب مجموعة إجراءات المستخدم منها بدون تغيير ترتيب أو وظائف الأزرار.",
-    "تصغير أيقونة المستخدم داخل الشريحة وجعلها دائرية ومضغوطة مع الحفاظ على اسم المستخدم والقائمة.",
-    "إصلاح قائمة الإشعارات على الديسكتوب لتظهر خارج حدود الهيدر وفوق محتوى الصفحة بدون قص أو احتجاز داخل الهيدر.",
-    "التعديل محصور في Desktop Light/Dark فقط بدون تغيير تصميم الموبايل أو التابلت أو منطق الأعمال."
+    "استبدال تنسيق القائمة الجانبية القديم بمصدر تصميم Canonical واحد دون تركيب طبقة مرئية فوق التصميم السابق.",
+    "توحيد Light/Dark على هندسة واحدة بهوية KYUM الزجاجية مع Electric Blue ولمسات ذهبية محدودة.",
+    "إضافة Branding مضغوط وHierarchy أوضح للمجموعات والعناصر وحالات Hover/Active/Expanded بدون تغيير ترتيب أو صلاحيات التنقل.",
+    "تثبيت منطقة الحساب وتسجيل الخروج مع Scroll داخلي رفيع والحفاظ على Drawer الموبايل وسلوك Push على الديسكتوب."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-65-desktop-header-compact-notification-m15-27-3"
+  "cacheToken": "kyum-crm-pwa-18-53-66-canonical-glass-sidebar-m15-28"
 }

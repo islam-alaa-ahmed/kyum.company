@@ -31,10 +31,16 @@
     state.session = session; state.user = session.user; state.profile = profile; state.offline = Boolean(offline);
     const e = el();
     const roleLabel = window.CustomerPermissions?.roleLabels?.[profile.role] || profile.role;
-    if (e.userName) e.userName.textContent = profile.full_name || session.user.email || "مستخدم";
+    const displayName = profile.full_name || session.user.email || "مستخدم";
+    const displayInitial = displayName.trim().charAt(0).toUpperCase() || "م";
+    if (e.userName) e.userName.textContent = displayName;
     if (e.userMeta) e.userMeta.textContent = `${roleLabel} · ${session.user.email || ""}`;
     const avatar = document.querySelector(".avatar");
-    if (avatar) avatar.textContent = (profile.full_name || session.user.email || "م").trim().charAt(0).toUpperCase();
+    if (avatar) avatar.textContent = displayInitial;
+    const sidebarName = document.getElementById("sidebarCurrentUserName");
+    const sidebarAvatar = document.getElementById("sidebarCurrentUserAvatar");
+    if (sidebarName) sidebarName.textContent = displayName;
+    if (sidebarAvatar) sidebarAvatar.textContent = displayInitial;
     window.CustomerPermissions?.apply(profile);
   }
 

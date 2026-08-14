@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-65-desktop-header-compact-notification-m15-27-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-66-canonical-glass-sidebar-m15-28";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -32,6 +32,7 @@ const CORE_APP_SHELL = [
   "./assets/css/sales-invoices.css",
   "./assets/css/global-typography-certification.css",
   "./assets/css/notification-center.css",
+  "./assets/css/sidebar-canonical.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/geographic-address.js",

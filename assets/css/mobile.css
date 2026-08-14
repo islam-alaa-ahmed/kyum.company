@@ -17,7 +17,7 @@
   }
 
   html,body{overscroll-behavior-y:none}
-  body.sidebar-menu-open{touch-action:none}
+  
 
   #appView.app-shell:not(.hidden){display:block;min-height:100dvh}
   .main-content{
@@ -59,16 +59,11 @@
   .theme-toggle-button,.theme-toggle-button.is-visible{width:42px;height:42px;flex-basis:42px;border-radius:14px;box-shadow:none}
   .theme-icon{width:21px;height:21px}
 
-  .sidebar{
-    top:0;right:0;width:min(88vw,340px);height:100dvh;
-    padding:calc(16px + var(--mobile-safe-top)) 14px calc(18px + var(--mobile-safe-bottom));
-    border-radius:22px 0 0 22px;
-    box-shadow:-24px 0 60px rgba(2,6,23,.38);
-  }
-  .sidebar-brand{min-height:52px}
-  .sidebar-nav{padding:4px 2px 18px;gap:8px}
-  .sidebar .nav-item,.sidebar .nav-group-toggle{min-height:48px;border-radius:14px;font-size:14px}
-  .sidebar-backdrop{background:rgba(2,6,23,.58);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  
+  
+  
+  
+  
 
   .mobile-bottom-nav{
     position:fixed;z-index:1060;right:0;left:0;bottom:0;
@@ -111,7 +106,7 @@
   .mobile-bottom-nav{padding-top:4px}
   .mobile-nav-item{gap:2px}
   .mobile-nav-item svg{width:20px;height:20px}
-  .sidebar{width:min(72vw,340px)}
+  
 }
 
 @media print{
@@ -1774,46 +1769,11 @@ html.is-offline body::before {
 
 /* Phase M7.3.4 — sidebar first-row hit-target isolation */
 @media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
-  #mainSidebar.sidebar{
-    display:flex!important;
-    flex-direction:column!important;
-    overflow:hidden!important;
-  }
-  #mainSidebar .sidebar-launcher-host{
-    position:relative!important;
-    z-index:1!important;
-    flex:0 0 auto!important;
-    min-height:58px!important;
-    height:58px!important;
-    margin:0 0 14px!important;
-    overflow:hidden!important;
-    pointer-events:none!important;
-  }
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher{
-    position:relative!important;
-    inset:auto!important;
-    width:100%!important;
-    height:54px!important;
-    max-height:54px!important;
-    pointer-events:auto!important;
-  }
-  #mainSidebar .sidebar-nav{
-    position:relative!important;
-    z-index:2!important;
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    padding:4px 2px calc(18px + var(--mobile-safe-bottom))!important;
-    pointer-events:auto!important;
-  }
-  #mainSidebar .nav-item[data-view]{
-    position:relative!important;
-    z-index:3!important;
-    pointer-events:auto!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:transparent;
-  }
+  
+  
+  
+  
+  
   #dailyOperationsNavButton{
     margin-top:0!important;
     isolation:isolate!important;
@@ -1822,150 +1782,43 @@ html.is-offline body::before {
 
 /* Phase M8.2 — compact mobile main menu */
 @media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
-  #mainSidebar.sidebar{
-    width:min(88vw,360px)!important;
-    padding:calc(10px + var(--mobile-safe-top)) 12px calc(12px + var(--mobile-safe-bottom))!important;
-    gap:0!important;
-    border-radius:24px 0 0 24px!important;
-    background:var(--surface, #0f172a)!important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host{
-    min-height:68px!important;
-    height:68px!important;
-    margin:0 0 10px!important;
-    padding:0!important;
-    border-bottom:1px solid var(--border, rgba(148,163,184,.2));
-    overflow:visible!important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher{
-    width:100%!important;
-    height:58px!important;
-    min-height:58px!important;
-    padding:7px 10px!important;
-    border-radius:16px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:10px!important;
-    background:rgba(255,255,255,.055)!important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher-text{
-    display:grid!important;
-    min-width:0!important;
-    text-align:right!important;
-    line-height:1.25!important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher-text strong{
-    display:block!important;
-    font-size:14px!important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher-text small{
-    display:block!important;
-    font-size:10px!important;
-    opacity:.72!important;
-  }
+  
 
-  #mainSidebar .sidebar-nav{
-    display:grid!important;
-    align-content:start!important;
-    gap:8px!important;
-    padding:0 0 calc(10px + var(--mobile-safe-bottom))!important;
-    overscroll-behavior:contain!important;
-  }
+  
 
-  #mainSidebar .nav-group{
-    display:grid!important;
-    gap:4px!important;
-    margin:0!important;
-  }
+  
 
-  #mainSidebar .nav-group-toggle{
-    min-height:54px!important;
-    padding:11px 14px!important;
-    border-radius:16px!important;
-    font-size:15px!important;
-    line-height:1.25!important;
-    background:rgba(255,255,255,.055)!important;
-    border:1px solid rgba(148,163,184,.13)!important;
-    box-shadow:none!important;
-  }
+  
 
-  #mainSidebar .nav-group-toggle[aria-expanded="true"]{
-    background:rgba(99,102,241,.15)!important;
-    border-color:rgba(129,140,248,.32)!important;
-  }
+  
 
-  #mainSidebar .nav-chevron{
-    width:18px!important;
-    height:18px!important;
-    flex:0 0 18px!important;
-    transition:transform .2s ease!important;
-  }
+  
 
-  #mainSidebar .nav-group-content{
-    display:grid!important;
-    gap:4px!important;
-    padding:4px 6px 2px!important;
-    max-height:540px!important;
-    transition:max-height .2s ease,opacity .16s ease,padding .2s ease!important;
-  }
+  
 
-  #mainSidebar .nav-group.is-collapsed .nav-group-content{
-    max-height:0!important;
-    opacity:0!important;
-    padding-top:0!important;
-    padding-bottom:0!important;
-  }
+  
 
-  #mainSidebar .nav-group-content .nav-item{
-    min-height:44px!important;
-    padding:9px 14px 9px 30px!important;
-    border-radius:13px!important;
-    font-size:13px!important;
-    line-height:1.25!important;
-    background:transparent!important;
-    border:1px solid transparent!important;
-  }
+  
 
-  #mainSidebar .nav-group-content .nav-item::before{
-    right:auto!important;
-    left:12px!important;
-    width:7px!important;
-    height:7px!important;
-    background:currentColor!important;
-    opacity:.45!important;
-  }
+  
 
-  #mainSidebar .nav-group-content .nav-item:hover,
-  #mainSidebar .nav-group-content .nav-item.active{
-    transform:none!important;
-    color:var(--primary, #818cf8)!important;
-    background:rgba(99,102,241,.12)!important;
-    border-color:rgba(129,140,248,.22)!important;
-  }
+  
 
-  #mainSidebar .nav-group-content .nav-item.active::before{
-    opacity:1!important;
-    box-shadow:0 0 0 4px rgba(99,102,241,.12)!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar.sidebar{
-    background:#f8fafc!important;
-  }
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle{
-    background:#fff!important;
-    border-color:#dbe3ef!important;
-  }
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"]{
-    background:#eef2ff!important;
-    border-color:#c7d2fe!important;
-  }
+  
+  
+  
 }
 
 
@@ -2078,100 +1931,35 @@ html.is-offline body::before {
 
 /* Phase M8.2.2 — Mobile Light Mode Menu Contrast Fix */
 @media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
-  html[data-theme="light"] #mainSidebar.sidebar{
-    background:#f8fafc!important;
-    color:#0f172a!important;
-    border-left:1px solid #dbe3ef!important;
-    box-shadow:-24px 0 60px rgba(15,23,42,.18)!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host{
-    border-bottom-color:#d8e1ed!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher{
-    background:#ffffff!important;
-    color:#0f172a!important;
-    border:1px solid #cfd9e7!important;
-    box-shadow:0 8px 22px rgba(15,23,42,.08)!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher .brand-mark.small{
-    color:#ffffff!important;
-    background:linear-gradient(145deg,#0f766e,#2563eb)!important;
-    border-color:rgba(37,99,235,.26)!important;
-    opacity:1!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text,
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text strong{
-    color:#0f172a!important;
-    opacity:1!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-menu-launcher-text small{
-    color:#64748b!important;
-    opacity:1!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle{
-    background:#ffffff!important;
-    color:#172033!important;
-    border-color:#d5deea!important;
-    box-shadow:0 4px 14px rgba(15,23,42,.045)!important;
-    opacity:1!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle > span,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle .nav-chevron,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle svg,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle path{
-    color:#172033!important;
-    stroke:currentColor!important;
-    opacity:1!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"]{
-    background:#eef2ff!important;
-    color:#1e3a8a!important;
-    border-color:#bfcdfc!important;
-    box-shadow:0 5px 16px rgba(37,99,235,.09)!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] > span,
-  html[data-theme="light"] #mainSidebar .nav-group-toggle[aria-expanded="true"] .nav-chevron{
-    color:#1e3a8a!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item{
-    color:#334155!important;
-    background:#ffffff!important;
-    border-color:#e2e8f0!important;
-    opacity:1!important;
-    text-shadow:none!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item::before{
-    background:#64748b!important;
-    opacity:.72!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item:hover,
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active{
-    color:#1d4ed8!important;
-    background:#eaf1ff!important;
-    border-color:#bfd0fa!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .nav-group-content .nav-item.active::before{
-    background:#2563eb!important;
-    opacity:1!important;
-    box-shadow:0 0 0 4px rgba(37,99,235,.12)!important;
-  }
+  
 
-  html[data-theme="light"] .sidebar-backdrop{
-    background:rgba(15,23,42,.42)!important;
-  }
+  
 }
 
 /* KYUM CRM Mobile — Enterprise Header & Glass Bottom Navigation Enhancement */
@@ -2861,66 +2649,25 @@ html.is-offline body::before {
     padding-bottom:calc(var(--mobile-nav-compact-height) + var(--mobile-safe-bottom) + 18px)!important;
   }
 
-  #mainSidebar.sidebar{
-    display:flex!important;
-    flex-direction:column!important;
-  }
+  
 
-  #mainSidebar .sidebar-nav{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    padding-bottom:12px!important;
-  }
+  
 
-  #mainSidebar .mobile-sidebar-footer{
-    display:block!important;
-    flex:0 0 auto!important;
-    padding:10px 0 calc(10px + var(--mobile-safe-bottom))!important;
-    border-top:1px solid rgba(148,163,184,.18)!important;
-    background:inherit!important;
-  }
+  
 
-  #mainSidebar .mobile-sidebar-logout{
-    width:100%!important;
-    min-height:48px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:9px!important;
-    border:1px solid rgba(239,68,68,.26)!important;
-    border-radius:15px!important;
-    color:#fecaca!important;
-    background:rgba(239,68,68,.10)!important;
-    font:inherit!important;
-    font-weight:700!important;
-    cursor:pointer!important;
-    -webkit-tap-highlight-color:transparent!important;
-  }
+  
 
-  #mainSidebar .mobile-sidebar-logout svg{
-    width:21px!important;
-    height:21px!important;
-    flex:0 0 21px!important;
-  }
+  
 
-  #mainSidebar .mobile-sidebar-logout:active{
-    transform:scale(.985)!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .mobile-sidebar-footer{
-    border-top-color:#dbe3ef!important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .mobile-sidebar-logout{
-    color:#b91c1c!important;
-    background:#fff1f2!important;
-    border-color:#fecdd3!important;
-  }
+  
 }
 
 @media (min-width: 768px){
-  .mobile-sidebar-footer{display:none!important}
+  
 }
 
 /* Phase M9.3.1 — Mobile Header Offset, Follow-ups Spacing & Zoom Lock */
@@ -2963,12 +2710,7 @@ html.is-offline body::before {
   }
 
   /* Keep the opened drawer completely below the fixed header. */
-  #mainSidebar.sidebar{
-    top:calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 6px)!important;
-    height:calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 6px)!important;
-    max-height:calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 6px)!important;
-    border-radius:22px 0 0 0!important;
-  }
+  
 
   /* Separate the dashboard attention title from its action button. */
   #dashboardView .dashboard-attention-panel .panel-header{
@@ -3092,38 +2834,13 @@ html.is-offline body::before {
   }
 
   /* Mobile drawer branding: replace the unused launcher rectangle with the KYUM desktop logo. */
-  #mainSidebar .sidebar-launcher-host {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 112px !important;
-    height: 112px !important;
-    margin: 0 0 14px !important;
-    padding: 10px 14px !important;
-    overflow: hidden !important;
-    pointer-events: none !important;
-    border: 1px solid rgba(148,163,184,.18) !important;
-    border-radius: 18px !important;
-    background: rgba(255,255,255,.045) !important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host .sidebar-menu-launcher {
-    display: none !important;
-  }
+  
 
-  #mainSidebar .mobile-drawer-brand-logo {
-    display: block !important;
-    width: min(100%, 230px) !important;
-    max-height: 92px !important;
-    object-fit: contain !important;
-    filter: drop-shadow(0 12px 24px rgba(0,0,0,.22)) !important;
-  }
+  
 
-  html[data-theme="light"] #mainSidebar .sidebar-launcher-host {
-    background: #ffffff !important;
-    border-color: #dbe3ef !important;
-    box-shadow: 0 10px 28px rgba(15,23,42,.08) !important;
-  }
+  
 
   /* Keep the mobile shell stretched across the full landscape viewport. */
   .app-shell,
@@ -3154,21 +2871,11 @@ html.is-offline body::before {
     padding-inline: max(14px, env(safe-area-inset-left)) max(14px, env(safe-area-inset-right)) !important;
   }
 
-  #mainSidebar.sidebar {
-    top: calc(var(--kyum-stable-header-height) + env(safe-area-inset-top) + 4px) !important;
-    height: calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 4px) !important;
-    max-height: calc(100dvh - var(--kyum-stable-header-height) - env(safe-area-inset-top) - 4px) !important;
-  }
+  
 
-  #mainSidebar .sidebar-launcher-host {
-    min-height: 82px !important;
-    height: 82px !important;
-    padding-block: 6px !important;
-  }
+  
 
-  #mainSidebar .mobile-drawer-brand-logo {
-    max-height: 68px !important;
-  }
+  
 
   #quotationsView .mobile-quotations-filter-sheet {
     width: min(calc(100vw - 48px), 620px) !important;
@@ -3179,9 +2886,7 @@ html.is-offline body::before {
 /* Phase M9.3.2 — restore mobile-only controls in touch landscape after desktop guards */
 @media (orientation: landscape) and (pointer: coarse) and (max-device-width: 1024px),
        (orientation: landscape) and (hover: none) and (max-device-width: 1024px) {
-  #mainSidebar .mobile-sidebar-footer {
-    display: block !important;
-  }
+  
 
   .mobile-admin-toolbar {
     display: flex !important;
@@ -3243,22 +2948,9 @@ html.is-offline body::before {
     gap: 10px !important;
   }
 
-  #mainSidebar .sidebar-launcher-host {
-    padding: 0 !important;
-    min-height: 126px !important;
-    height: 126px !important;
-  }
+  
 
-  #mainSidebar .mobile-drawer-brand-logo {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
-    object-fit: fill !important;
-    object-position: center !important;
-    border-radius: inherit !important;
-    filter: none !important;
-  }
+  
 
   #quotationsView .quotation-value,
   #quotationsView #quotationStats strong,
@@ -3271,51 +2963,16 @@ html.is-offline body::before {
 
 /* Phase M9.4.1 — Desktop drawer logo sizing only */
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  #mainSidebar .sidebar-launcher-host {
-    min-height: 84px !important;
-    height: 84px !important;
-    padding: 8px 12px !important;
-    overflow: hidden !important;
-  }
+  
 
-  #mainSidebar .mobile-drawer-brand-logo {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 210px !important;
-    max-height: 66px !important;
-    margin: 0 auto !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    border-radius: 10px !important;
-    filter: none !important;
-    transform: none !important;
-  }
+  
 }
 
 /* Phase M9.4.2 — Desktop drawer logo proportional fit refinement */
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  #mainSidebar .sidebar-launcher-host {
-    min-height: 112px !important;
-    height: 112px !important;
-    padding: 10px 12px !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
+  
 
-  #mainSidebar .mobile-drawer-brand-logo {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 92px !important;
-    margin: 0 auto !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    border-radius: 12px !important;
-    filter: none !important;
-    transform: none !important;
-  }
+  
 }
 
 
@@ -3360,12 +3017,7 @@ html.is-offline body::before {
     transition: none !important;
   }
 
-  html.kyum-android .sidebar-backdrop,
-  html.kyum-android dialog::backdrop,
-  html.kyum-android #customerDetailsDialog::backdrop {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
+  
 
   html.kyum-android .mobile-nav-item,
   html.kyum-android .mobile-nav-active-indicator,
@@ -3412,10 +3064,7 @@ html.is-offline body::before {
     overflow-x: auto !important;
   }
 
-  html.kyum-android #mainSidebar .nav-group[hidden],
-  html.kyum-android #mainSidebar .nav-group.hidden {
-    display: none !important;
-  }
+  
 }
 
 
@@ -3952,4 +3601,13 @@ html.is-offline body::before {
   #customersView .customer-mobile-quick-actions{width:100%}
   #customersView .customer-mobile-quick-actions a{flex:1}
   #customersView .customer-mobile-card-actions{grid-template-columns:1fr!important}
+}
+
+/* M15.28 regression preservation: Android dialog backdrops remain performance-safe. */
+@media (max-width: 767px), (pointer: coarse) and (max-device-width: 1024px), (hover: none) and (max-device-width: 1024px){
+  html.kyum-android dialog::backdrop,
+  html.kyum-android #customerDetailsDialog::backdrop{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
 }

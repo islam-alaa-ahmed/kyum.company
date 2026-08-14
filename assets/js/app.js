@@ -7462,6 +7462,7 @@ function initializeDynamicSidebar() {
   });
 
   backdrop?.addEventListener("click", () => setSidebarOpen(false));
+  document.getElementById("sidebarCloseBtn")?.addEventListener("click", () => setSidebarOpen(false));
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && launcher.getAttribute("aria-expanded") === "true") {

@@ -30,30 +30,30 @@ input,select,textarea{width:100%;border:1px solid var(--border);border-radius:12
 input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .brand-mark{width:68px;height:68px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:800;letter-spacing:1px}
 .brand-mark.small{width:46px;height:46px;border-radius:14px}
-.primary-btn,.secondary-btn,.logout-btn,.nav-item,.text-btn,.icon-btn{border:0}
+
 .primary-btn{background:var(--primary);color:#fff;padding:11px 17px;border-radius:12px;font-weight:700}
 .primary-btn:hover{background:var(--primary-dark)}
 .secondary-btn{background:#eef2f7;color:var(--text);padding:11px 17px;border-radius:12px;font-weight:700}
 .app-shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
-.sidebar{background:#0f172a;color:#fff;padding:22px 16px;display:flex;flex-direction:column;gap:28px}
-.sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 6px}
-.sidebar-brand div:last-child{display:grid}
-.sidebar-brand span{font-size:12px;color:#94a3b8}
-.sidebar-nav{display:grid;gap:10px;min-height:0;overflow-y:auto;padding-left:2px}
-.nav-item{width:100%;background:transparent;color:#cbd5e1;text-align:right;padding:11px 14px;border-radius:12px;transition:background .2s,color .2s,transform .2s}
-.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
-.nav-item:hover{transform:translateX(-2px)}
-.nav-root-item{font-weight:700}
-.nav-group{display:grid;gap:5px}
-.nav-group-toggle{width:100%;border:0;background:rgba(255,255,255,.035);color:#f8fafc;padding:11px 13px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;text-align:right}
-.nav-group-toggle:hover{background:rgba(255,255,255,.075)}
-.nav-chevron{width:18px;height:18px;flex:0 0 auto;transition:transform .22s ease}
-.nav-group.is-collapsed .nav-chevron{transform:rotate(90deg)}
-.nav-group-content{display:grid;gap:4px;padding-right:10px;overflow:hidden;max-height:420px;opacity:1;transition:max-height .25s ease,opacity .2s ease}
-.nav-group.is-collapsed .nav-group-content{max-height:0;opacity:0}
-.nav-group-content .nav-item{font-size:13px;padding-right:18px;position:relative}
-.nav-group-content .nav-item::before{content:"";position:absolute;right:6px;top:50%;width:5px;height:5px;border-radius:50%;background:#64748b;transform:translateY(-50%)}
-.nav-group-content .nav-item.active::before{background:#60a5fa;box-shadow:0 0 10px rgba(96,165,250,.8)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .logout-btn{margin-top:auto;background:rgba(220,38,38,.12);color:#fecaca;padding:12px;border-radius:12px}
 .main-content{min-width:0;padding:26px}
@@ -118,11 +118,11 @@ select[multiple]{min-height:120px}
 }
 @media(max-width:768px){
   .app-shell{grid-template-columns:1fr}
-  .sidebar{position:static;display:block;padding:12px}
-  .sidebar-brand{margin-bottom:12px}
-  .sidebar-nav{display:grid;overflow:visible}
-  .nav-item{white-space:normal}
-  .nav-group-content{max-height:420px}
+  
+  
+  
+  
+  
   .logout-btn{width:100%;margin-top:10px}
   .main-content{padding:16px}
   .topbar{align-items:flex-start}
@@ -792,7 +792,7 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   .report-status-row{grid-template-columns:1fr 1fr 30px}
 }
 @media print{
-  .sidebar,.topbar,.reports-actions,.reports-filter-bar,.logout-btn{display:none!important}
+  
   .app-shell{display:block!important}
   .main-content{padding:0!important}
   #reportsOverviewView{display:block!important}
@@ -1189,14 +1189,7 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
   border-radius:12px;
   padding:12px
 }
-body.reports-exporting .sidebar,
-body.reports-exporting .topbar,
-body.reports-exporting .reports-actions,
-body.reports-exporting .reports-filter-bar,
-body.reports-exporting .data-status,
-body.reports-exporting dialog{
-  display:none!important
-}
+
 body.reports-exporting #reportsOverviewView{
   display:block!important;
   background:#fff!important;
@@ -3238,84 +3231,33 @@ body.customer360-exporting .customer360-shell *{
   font-size: 11px;
 }
 
-.sidebar {
-  position: fixed;
-  z-index: 1100;
-  top: 0;
-  right: 0;
-  width: min(320px, calc(100vw - 28px));
-  height: 100vh;
-  transform: translateX(105%);
-  visibility: hidden;
-  opacity: 0;
-  box-shadow: -24px 0 60px rgba(15,23,42,.28);
-  transition: transform .26s ease, opacity .2s ease, visibility .26s ease;
-  overflow: hidden;
-}
 
-.sidebar.is-open {
-  transform: translateX(0);
-  visibility: visible;
-  opacity: 1;
-}
 
-.sidebar-brand {
-  min-height: 58px;
-  padding: 0 4px;
-}
 
-.sidebar-close-btn {
-  width: 36px;
-  height: 36px;
-  margin-inline-start: auto;
-  border: 0;
-  border-radius: 10px;
-  background: rgba(255,255,255,.08);
-  color: #fff;
-  font-size: 24px;
-  line-height: 1;
-}
 
-.sidebar-close-btn:hover {
-  background: rgba(255,255,255,.15);
-}
 
-.sidebar-backdrop {
-  position: fixed;
-  z-index: 1080;
-  inset: 0;
-  background: rgba(15,23,42,.42);
-  backdrop-filter: blur(2px);
-}
 
-body.sidebar-menu-open {
-  overflow: hidden;
-}
+
+
+
+
+
+
+
 
 .main-content {
   width: 100%;
   padding-top: 102px;
 }
 
-.sidebar .nav-group.is-collapsed .nav-group-content {
-  pointer-events: none;
-}
+
 
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    display: flex;
-    padding: 18px 14px;
-  }
+  
 
-  .sidebar-brand {
-    margin-bottom: 0;
-  }
+  
 
-  .sidebar-nav {
-    display: grid;
-    overflow-y: auto;
-  }
+  
 
   .sidebar-menu-launcher {
     top: 12px;
@@ -4515,102 +4457,46 @@ html[data-theme="dark"] .topbar-brand-logo {
       margin-right .28s cubic-bezier(.2,.8,.2,1);
   }
 
-  body.sidebar-menu-open {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+  
 
-  body.sidebar-menu-open .main-content {
-    width: calc(100% - min(320px, calc(100vw - 28px)));
-    margin-right: min(320px, calc(100vw - 28px));
-  }
+  
 
-  .sidebar-backdrop {
-    right: min(320px, calc(100vw - 28px));
-    background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  
 
-  .sidebar {
-    box-shadow: -14px 0 34px rgba(15,23,42,.16);
-  }
+  
 
-  html[data-theme="dark"] .sidebar {
-    box-shadow: -16px 0 38px rgba(0,0,0,.32);
-  }
+  
 }
 
 /* Mobile keeps the intentional overlay drawer behavior. */
 @media (max-width: 768px) {
-  .sidebar-backdrop {
-    inset: 0;
-    background: rgba(15,23,42,.42);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
+  
 
-  body.sidebar-menu-open {
-    overflow: hidden;
-  }
+  
 
-  body.sidebar-menu-open .main-content {
-    width: 100%;
-    margin-right: 0;
-  }
+  
 }
 
 
 /* Phase 17.5.4 — One KYUM launcher shared by header and sidebar */
-.sidebar-launcher-host {
-  min-height: 64px;
-  padding: 0;
-  margin: 0 0 14px;
-  border: 0;
-}
 
-.sidebar-launcher-host:empty {
-  min-height: 0;
-  margin: 0;
-}
 
-.sidebar-launcher-host .sidebar-menu-launcher {
-  position: static;
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  justify-content: center;
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, .24),
-    inset 0 1px 0 rgba(255, 255, 255, .08);
-}
 
-.sidebar-launcher-host .sidebar-menu-launcher .sidebar-menu-launcher-text {
-  flex: 1;
-}
 
-.sidebar-launcher-host .sidebar-menu-launcher[aria-expanded="true"] {
-  border-color: rgba(109, 124, 255, .38);
-  background: linear-gradient(145deg, #17233b, #1c2945 64%, #202f50);
-}
 
-.sidebar-close-btn {
-  display: none !important;
-}
+
+
+
+
+
+
 
 @media (max-width: 768px) {
-  .sidebar-launcher-host {
-    min-height: 58px;
-  }
+  
 
-  .sidebar-launcher-host .sidebar-menu-launcher {
-    width: 100%;
-    height: 54px;
-  }
+  
 
-  .sidebar-launcher-host .sidebar-menu-launcher-text {
-    display: grid;
-  }
+  
 }
 
 
@@ -5857,7 +5743,7 @@ html[data-theme="dark"] .topbar-title p {
 #dailyOperationsView .daily-operations-kpis > article:not(.attention):not(:first-child):hover,
 #dailyOperationsView .daily-targets-grid > article:first-child:hover,
 #dailyOperationsView .daily-task-item:hover,
-#dailyOperationsView .daily-alerts-summary > article:nth-child(-n+2):hover,
+#dailyOperationsView .daily-alerts-summary > article:nth-child(-n/**/+2):hover,
 #dailyOperationsView .daily-alert-card:not(.severity-important):not(.severity-critical):hover {
   box-shadow: var(--kyum-blue-glow-hover) !important;
 }
@@ -7802,12 +7688,7 @@ html[data-theme="dark"] {
    Explicit Header and Sidebar protection
    --------------------------------------------------------- */
 
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* Intentionally untouched by Phase 17.8.5. */
-}
+
 
 
 /* =========================================================
@@ -7990,12 +7871,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Explicitly protect approved header and sidebar. */
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* No visual changes in this phase. */
-}
+
 
 
 /* =========================================================
@@ -8190,12 +8066,7 @@ html[data-theme="dark"] {
    Explicit Header and Sidebar protection
    --------------------------------------------------------- */
 
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* Intentionally unchanged in Phase 17.8.7. */
-}
+
 
 
 /* =========================================================
@@ -8493,12 +8364,7 @@ html[data-theme="dark"] {
    Explicit protection — no Header or Sidebar changes.
    --------------------------------------------------------- */
 
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* Intentionally untouched by Phase 17.8.8. */
-}
+
 
 
 /* =========================================================
@@ -8779,12 +8645,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even
    Explicit protection
    --------------------------------------------------------- */
 
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* Intentionally untouched by Phase 17.8.9. */
-}
+
 
 
 /* =========================================================
@@ -9237,12 +9098,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    Explicit production protection
    --------------------------------------------------------- */
 
-#appHeader,
-#appHeader *,
-.sidebar,
-.sidebar * {
-  /* Approved and intentionally untouched in Phase 17.9. */
-}
+
 
 /* =========================================================
    Phase 18.1 — Enterprise Badge & Status Color System
@@ -11780,3 +11636,14 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
   html[data-theme="dark"] #appHeader .notification-dropdown { background:rgba(7,19,35,.98) !important;border-color:rgba(213,170,69,.22) !important;box-shadow:0 24px 56px rgba(0,0,0,.48) !important; }
 }
 
+
+/* M15.28 regression preservation: non-sidebar declarations retained from legacy mixed selector rules. */
+.primary-btn,.secondary-btn,.logout-btn,.text-btn,.icon-btn{border:0}
+@media print{
+  .topbar,.reports-actions,.reports-filter-bar,.logout-btn{display:none!important}
+}
+body.reports-exporting .topbar,
+body.reports-exporting .reports-actions,
+body.reports-exporting .reports-filter-bar,
+body.reports-exporting .data-status,
+body.reports-exporting dialog{display:none!important}
