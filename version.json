@@ -1,14 +1,14 @@
 {
-  "version": "18.53.69",
-  "build": 185369,
+  "version": "18.53.70",
+  "build": 185370,
   "forceUpdate": true,
   "releaseDate": "2026-08-14",
-  "title": "Mobile Identity Recovery — Phase M15.29.1",
+  "title": "Cross-Platform Sidebar Recovery — Phase M15.29.2",
   "notes": [
-    "إعادة تنفيذ هوية الموبايل من الـBaseline المستقرة M15.28.1 بدون أي عناصر DOM مشتركة جديدة.",
-    "عزل Header وDrawer وBottom Navigation داخل نطاق Mobile فقط حتى 767px مع Light/Dark بنفس الهندسة.",
-    "تثبيت حجم أيقونة تسجيل الخروج ومنع أي توريث SVG يسبب تضخمها داخل القائمة.",
-    "الحفاظ على Desktop وTablet دون أي تغيير بصري أو بنيوي، مع عدم تعديل style.css أو sidebar-canonical.css أو mobile.js."
+    "استعادة عقد القائمة الجانبية التراكمي المعتمد بعد ثبوت أن M15.29/M15.29.1 أعادتا index.html إلى Baseline أقدم وأسقطتا ربط sidebar-canonical.css.",
+    "إعادة بنية Branding والأيقونات ومنطقة الحساب المعتمدة من M15.28.1 بدون تغيير Navigation أو Permissions أو Business Logic.",
+    "إزالة طبقة Mobile Identity التجريبية من mobile-theme-canonical.css والعودة إلى المصدر المستقر قبلها لمنع تضخم العناصر وتداخل التخطيطات.",
+    "استعادة Desktop Light/Dark وMobile Light/Dark من نفس السلسلة التراكمية المستقرة مع الحفاظ على Tablet دون تغييرات جديدة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-69-mobile-identity-recovery-m15-29-1"
+  "cacheToken": "kyum-crm-pwa-18-53-70-cross-platform-recovery-m15-29-2"
 }

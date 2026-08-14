@@ -34,26 +34,27 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/installation-costs.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.69" />
-  <link rel="stylesheet" href="assets/css/notification-center.css?v=18.53.69" />
+  <link rel="stylesheet" href="assets/css/style.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/installation-costs.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/notification-center.css?v=18.53.70" />
+  <link rel="stylesheet" href="assets/css/sidebar-canonical.css?v=18.53.70" />
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -89,13 +90,20 @@
 
     <aside id="mainSidebar" class="sidebar" aria-hidden="true">
       <div id="sidebarLauncherHost" class="sidebar-brand sidebar-launcher-host" aria-label="KYUM Company">
-        <img class="mobile-drawer-brand-logo" src="assets/images/kyum-header-logo.png" alt="KYUM Company">
+        <img class="mobile-drawer-brand-logo sidebar-brand-logo-mobile" src="assets/images/kyum-header-logo.png" alt="KYUM Company">
+        <img class="sidebar-brand-logo-desktop" src="assets/images/logo-1024.png" alt="KYUM Company">
+        <div class="sidebar-brand-copy">
+          <strong><span class="sidebar-brand-mobile-text">كيوم</span><span class="sidebar-brand-desktop-text">شركة كيوم التجارية</span></strong>
+          <b><span class="sidebar-brand-mobile-text">KYUM CRM</span><span class="sidebar-brand-desktop-text">KYUM COMPANY TRADING</span></b>
+          <small>Enterprise</small>
+        </div>
+        <button id="sidebarCloseBtn" class="sidebar-close-btn" type="button" aria-label="إغلاق القائمة">×</button>
       </div>
 
       <nav class="sidebar-nav" aria-label="القائمة الرئيسية">
         <section class="nav-group main-nav-group" data-nav-group="main-navigation" data-default-open="true">
           <button class="nav-group-toggle" type="button" aria-expanded="true">
-            <span>الرئيسية</span>
+            <span class="nav-group-label"><span class="nav-group-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span>الرئيسية</span></span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -108,7 +116,7 @@
 
         <section class="nav-group is-collapsed" data-nav-group="customer-management">
           <button class="nav-group-toggle" type="button" aria-expanded="false">
-            <span>إدارة العملاء</span>
+            <span class="nav-group-label"><span class="nav-group-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>إدارة العملاء</span></span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -126,7 +134,7 @@
 
         <section class="nav-group installations-nav-group is-collapsed" data-nav-group="installations-management">
           <button class="nav-group-toggle" type="button" aria-expanded="false">
-            <span>إدارة التركيبات</span>
+            <span class="nav-group-label"><span class="nav-group-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.66 5.66L3 18v3h3l6.04-6.04a4 4 0 0 0 5.66-5.66l-2.12 2.12-3-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>إدارة التركيبات</span></span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -147,7 +155,7 @@
 
         <section class="nav-group reports-nav-group is-collapsed" data-nav-group="reports-analytics">
           <button class="nav-group-toggle" type="button" aria-expanded="false">
-            <span>التقارير والتحليلات</span>
+            <span class="nav-group-label"><span class="nav-group-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>التقارير والتحليلات</span></span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -160,7 +168,7 @@
 
         <section class="nav-group privacy-nav-group is-collapsed" data-nav-group="settings-privacy">
           <button class="nav-group-toggle" type="button" aria-expanded="false">
-            <span>الإعدادات والخصوصية</span>
+            <span class="nav-group-label"><span class="nav-group-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.96 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.04H3v-4h.04A1.7 1.7 0 0 0 4.6 8.92a1.7 1.7 0 0 0-.34-1.87L4.2 7l2.83-2.83.06.06a1.7 1.7 0 0 0 1.87.34A1.7 1.7 0 0 0 10 3.04V3h4v.04a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06L19.8 7l-.06.06a1.7 1.7 0 0 0-.34 1.87A1.7 1.7 0 0 0 20.96 10H21v4h-.04A1.7 1.7 0 0 0 19.4 15Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span><span>الإعدادات والخصوصية</span></span>
             <svg class="nav-chevron" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -179,6 +187,10 @@
       </nav>
 
       <div class="mobile-sidebar-footer">
+        <div class="sidebar-account-card" aria-label="حساب المستخدم">
+          <span id="sidebarCurrentUserAvatar" class="sidebar-account-avatar">م</span>
+          <span class="sidebar-account-copy"><strong id="sidebarCurrentUserName">مستخدم</strong><small>حساب المستخدم</small></span>
+        </div>
         <button id="mobileSidebarLogoutBtn" class="mobile-sidebar-logout" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M10 17l5-5-5-5M15 12H3M14 3h4a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -279,8 +291,8 @@
         <div class="desktop-topbar-brand" aria-label="KYUM CRM">
           <img class="desktop-topbar-brand-logo" src="assets/images/logo-1024.png" alt="KYUM">
           <div class="desktop-topbar-brand-copy">
-            <strong>كيوم</strong>
-            <span>KYUM CRM</span>
+            <strong>شركة كيوم التجارية</strong>
+            <span>KYUM COMPANY TRADING</span>
             <small>Enterprise</small>
           </div>
         </div>
@@ -3435,10 +3447,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.53.69"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.53.69"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.53.69"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.53.69"></script>
+  <script src="assets/js/performance-monitor.js?v=18.53.70"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.53.70"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.53.70"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.53.70"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3869,62 +3881,62 @@
     </form>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.53.69"></script>
-  <script src="assets/js/offline-session-store.js?v=18.53.69"></script>
-  <script src="assets/js/supabase-client.js?v=18.53.69"></script>
-  <script src="assets/js/geographic-address.js?v=18.53.69"></script>
-  <script src="assets/js/permissions.js?v=18.53.69"></script>
-  <script src="assets/js/permission-engine.js?v=18.53.69"></script>
-  <script src="assets/js/data-access-scope.js?v=18.53.69"></script>
-  <script src="assets/js/smart-cache.js?v=18.53.69"></script>
-  <script src="assets/js/sync-engine.js?v=18.53.69"></script>
-  <script src="assets/js/offline-queue.js?v=18.53.69"></script>
-  <script src="assets/js/permissions-service.js?v=18.53.69"></script>
-  <script src="assets/js/auth-session.js?v=18.53.69"></script>
-  <script src="assets/js/reference-data-service.js?v=18.53.69"></script>
-  <script src="assets/js/customers-service.js?v=18.53.69"></script>
-  <script src="assets/js/followups-service.js?v=18.53.69"></script>
-  <script src="assets/js/quotations-service.js?v=18.53.69"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.53.69"></script>
-  <script src="assets/js/users-service.js?v=18.53.69"></script>
-  <script src="assets/js/activity-service.js?v=18.53.69"></script>
-  <script src="assets/js/backup-service.js?v=18.53.69"></script>
-  <script src="assets/js/system-settings-service.js?v=18.53.69"></script>
-  <script src="assets/js/system-health-service.js?v=18.53.69"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.53.69"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.53.69"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.53.69"></script>
-  <script src="assets/js/installations-service.js?v=18.53.69"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.53.69"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.53.69"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.53.69"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.53.69"></script>
+  <script src="assets/js/supabase-config.js?v=18.53.70"></script>
+  <script src="assets/js/offline-session-store.js?v=18.53.70"></script>
+  <script src="assets/js/supabase-client.js?v=18.53.70"></script>
+  <script src="assets/js/geographic-address.js?v=18.53.70"></script>
+  <script src="assets/js/permissions.js?v=18.53.70"></script>
+  <script src="assets/js/permission-engine.js?v=18.53.70"></script>
+  <script src="assets/js/data-access-scope.js?v=18.53.70"></script>
+  <script src="assets/js/smart-cache.js?v=18.53.70"></script>
+  <script src="assets/js/sync-engine.js?v=18.53.70"></script>
+  <script src="assets/js/offline-queue.js?v=18.53.70"></script>
+  <script src="assets/js/permissions-service.js?v=18.53.70"></script>
+  <script src="assets/js/auth-session.js?v=18.53.70"></script>
+  <script src="assets/js/reference-data-service.js?v=18.53.70"></script>
+  <script src="assets/js/customers-service.js?v=18.53.70"></script>
+  <script src="assets/js/followups-service.js?v=18.53.70"></script>
+  <script src="assets/js/quotations-service.js?v=18.53.70"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.53.70"></script>
+  <script src="assets/js/users-service.js?v=18.53.70"></script>
+  <script src="assets/js/activity-service.js?v=18.53.70"></script>
+  <script src="assets/js/backup-service.js?v=18.53.70"></script>
+  <script src="assets/js/system-settings-service.js?v=18.53.70"></script>
+  <script src="assets/js/system-health-service.js?v=18.53.70"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.53.70"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.53.70"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.53.70"></script>
+  <script src="assets/js/installations-service.js?v=18.53.70"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.53.70"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.53.70"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.53.70"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.53.70"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.53.69"></script>
-  <script src="assets/js/export-center.js?v=18.53.69"></script>
-  <script src="assets/js/customer360-engine.js?v=18.53.69"></script>
-  <script src="assets/js/customer360-export.js?v=18.53.69"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.53.69"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.53.69"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.53.69"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.53.69"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.53.69"></script>
-  <script src="assets/js/notification-center-service.js?v=18.53.69"></script>
-  <script src="assets/js/app.js?v=18.53.69"></script>
-  <script src="assets/js/notification-center.js?v=18.53.69"></script>
-  <script src="assets/js/sales-invoices.js?v=18.53.69"></script>
-  <script src="assets/js/installations-module.js?v=18.53.69"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.53.69"></script>
-  <script src="assets/js/installation-execution.js?v=18.53.69"></script>
-  <script src="assets/js/installation-completion.js?v=18.53.69"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.53.69"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.53.69"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.53.69"></script>
-  <script src="assets/js/installation-costs.js?v=18.53.69"></script>
-  <script src="assets/js/mobile.js?v=18.53.69"></script>
-  <script src="assets/js/pwa.js?v=18.53.69"></script>
-  <script src="assets/js/native.js?v=18.53.69"></script>
+  <script src="assets/js/reports-engine.js?v=18.53.70"></script>
+  <script src="assets/js/export-center.js?v=18.53.70"></script>
+  <script src="assets/js/customer360-engine.js?v=18.53.70"></script>
+  <script src="assets/js/customer360-export.js?v=18.53.70"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.53.70"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.53.70"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.53.70"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.53.70"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.53.70"></script>
+  <script src="assets/js/notification-center-service.js?v=18.53.70"></script>
+  <script src="assets/js/app.js?v=18.53.70"></script>
+  <script src="assets/js/notification-center.js?v=18.53.70"></script>
+  <script src="assets/js/sales-invoices.js?v=18.53.70"></script>
+  <script src="assets/js/installations-module.js?v=18.53.70"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.53.70"></script>
+  <script src="assets/js/installation-execution.js?v=18.53.70"></script>
+  <script src="assets/js/installation-completion.js?v=18.53.70"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.53.70"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.53.70"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.53.70"></script>
+  <script src="assets/js/installation-costs.js?v=18.53.70"></script>
+  <script src="assets/js/mobile.js?v=18.53.70"></script>
+  <script src="assets/js/pwa.js?v=18.53.70"></script>
+  <script src="assets/js/native.js?v=18.53.70"></script>
 </body>
 </html>
