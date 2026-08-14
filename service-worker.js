@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-63-desktop-header-clean-replacement-m15-27-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-64-desktop-header-architecture-correction-m15-27-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
