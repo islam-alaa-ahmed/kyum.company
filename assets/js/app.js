@@ -2321,6 +2321,35 @@ try {
   applyDesktopHeaderStyle(DESKTOP_HEADER_STYLE_VISUAL, { persist: false });
 }
 
+const MOBILE_HEADER_STYLE_STORAGE_KEY = "kyum_mobile_header_style";
+const MOBILE_HEADER_STYLE_ORIGINAL = "original";
+const MOBILE_HEADER_STYLE_VISUAL = "visual_blue_gold";
+const MOBILE_HEADER_STYLE_PREMIUM = "premium_gold";
+
+function normalizeMobileHeaderStyle(value) {
+  if (value === MOBILE_HEADER_STYLE_ORIGINAL) return MOBILE_HEADER_STYLE_ORIGINAL;
+  if (value === MOBILE_HEADER_STYLE_PREMIUM) return MOBILE_HEADER_STYLE_PREMIUM;
+  return MOBILE_HEADER_STYLE_VISUAL;
+}
+
+function applyMobileHeaderStyle(value, { persist = true } = {}) {
+  const style = normalizeMobileHeaderStyle(value);
+  document.documentElement.dataset.mobileHeaderStyle = style;
+  if (persist) {
+    try { localStorage.setItem(MOBILE_HEADER_STYLE_STORAGE_KEY, style); } catch {}
+  }
+  const select = document.getElementById("systemMobileHeaderStyle");
+  if (select && select.value !== style) select.value = style;
+  return style;
+}
+
+// Mobile header selection is independent from Desktop header selection.
+try {
+  applyMobileHeaderStyle(localStorage.getItem(MOBILE_HEADER_STYLE_STORAGE_KEY), { persist: false });
+} catch {
+  applyMobileHeaderStyle(MOBILE_HEADER_STYLE_VISUAL, { persist: false });
+}
+
 async function loadSystemSettings(force = false) {
   if (systemSettingsLoaded && !force) return;
   if (!window.SystemSettingsService) return;
@@ -2341,6 +2370,7 @@ async function loadSystemSettings(force = false) {
     document.getElementById("systemSessionTimeout").value =
       settings.session_timeout_minutes || "480";
     applyDesktopHeaderStyle(settings.desktop_header_style || DESKTOP_HEADER_STYLE_VISUAL);
+    applyMobileHeaderStyle(settings.mobile_header_style || MOBILE_HEADER_STYLE_VISUAL);
 
     systemSettingsLoaded = true;
     showDataStatus("systemSettingsStatus", "");
@@ -2378,11 +2408,15 @@ async function saveSystemSettings(event) {
       session_timeout_minutes: document.getElementById("systemSessionTimeout").value,
       desktop_header_style: normalizeDesktopHeaderStyle(
         document.getElementById("systemDesktopHeaderStyle")?.value
+      ),
+      mobile_header_style: normalizeMobileHeaderStyle(
+        document.getElementById("systemMobileHeaderStyle")?.value
       )
     };
 
     await window.SystemSettingsService.saveSettings(settings);
     applyDesktopHeaderStyle(settings.desktop_header_style);
+    applyMobileHeaderStyle(settings.mobile_header_style);
     showDataStatus("systemSettingsStatus", "تم حفظ إعدادات النظام بنجاح.", "success");
 
     const brand = document.querySelector(".sidebar-brand strong");
@@ -9803,6 +9837,10 @@ document.getElementById("dailyOperationsView")?.addEventListener("click", async 
 
 document.getElementById("systemDesktopHeaderStyle")?.addEventListener("change", event => {
   applyDesktopHeaderStyle(event.target.value, { persist: false });
+});
+
+document.getElementById("systemMobileHeaderStyle")?.addEventListener("change", event => {
+  applyMobileHeaderStyle(event.target.value, { persist: false });
 });
 
 document.getElementById("dailyWhatsAppTemplateMessage")?.addEventListener("input", event => {

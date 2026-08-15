@@ -1,13 +1,13 @@
 {
-  "version": "18.53.99",
-  "build": 185399,
+  "version": "18.54.00",
+  "build": 185400,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Three Selectable Desktop Header Variants — Phase H1.4",
+  "title": "Three Selectable Mobile Header Variants — Phase H2.1",
   "notes": [
-    "إضافة الهيدر الأصلي السابق لـ H1.1 كخيار مستقل قابل للاسترجاع من إعدادات النظام.",
-    "الحفاظ على هيدر H1.2 Blue & Gold كخيار مستقل مع ترحيل قيمة classic القديمة إليه تلقائيًا.",
-    "الحفاظ على Premium Blue & Gold H1.3 كخيار ثالث مستقل، مع تجميد هيدر الموبايل بالكامل."
+    "إضافة ثلاثة هيدرات مستقلة للموبايل تقابل Original وBlue & Gold وPremium Blue & Gold في الديسكتوب.",
+    "نقل جميع الخطوط والزخارف داخل Mobile Header shell نفسه لمنع خروج الـBlue contour أو اختفاء الـGold side rails.",
+    "إضافة اختيار مستقل لهيدر الموبايل داخل إعدادات النظام بدون أي تغيير في الأزرار أو الأيقونات أو أماكنها."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-99-three-desktop-header-variants-h1-4"
+  "cacheToken": "kyum-crm-pwa-18-54-00-three-mobile-header-variants-h2-1"
 }
