@@ -40,6 +40,48 @@
     --profile-item-min-width:0;
     --profile-item-overflow-wrap:anywhere;
     --performance-head-child-min-width:0;
+
+    /* D1.11-A — Desktop modal/form visual identity tokens.
+       style.css remains the property owner; desktop only supplies values. */
+    --dialog-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass));
+    --dialog-inner-bg:transparent;
+    --dialog-text:var(--desk-text);
+    --dialog-muted:var(--desk-muted);
+    --dialog-border:1px solid color-mix(in srgb,var(--desk-blue) 26%,var(--desk-line));
+    --dialog-radius:24px;
+    --dialog-shadow:0 26px 70px rgba(20,58,104,.22),0 0 0 1px rgba(47,131,255,.045),inset 0 1px 0 rgba(255,255,255,.72);
+    --dialog-overlay:rgba(6,18,34,.58);
+    --dialog-overlay-blur:5px;
+    --dialog-form-padding:20px;
+    --dialog-header-gap:16px;
+    --dialog-header-border:1px solid color-mix(in srgb,var(--desk-blue) 18%,var(--desk-line));
+    --dialog-header-divider:0;
+    --dialog-header-radius:17px;
+    --dialog-header-padding:15px 16px;
+    --dialog-header-margin:0 0 16px;
+    --dialog-header-bg:linear-gradient(145deg,color-mix(in srgb,var(--desk-blue) 7%,var(--desk-glass-strong)),var(--desk-glass-soft));
+    --dialog-header-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+    --dialog-title-color:var(--desk-text);
+    --dialog-body-padding:18px;
+    --dialog-body-border:1px solid color-mix(in srgb,var(--desk-blue) 14%,var(--desk-line));
+    --dialog-body-radius:18px;
+    --dialog-body-bg:linear-gradient(145deg,color-mix(in srgb,var(--desk-blue) 3%,var(--desk-glass-strong)),var(--desk-glass));
+    --dialog-body-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    --dialog-grid-gap:14px 16px;
+    --dialog-actions-gap:10px;
+    --dialog-actions-margin-top:16px;
+    --dialog-actions-padding:13px 14px;
+    --dialog-actions-border:1px solid color-mix(in srgb,var(--desk-blue) 14%,var(--desk-line));
+    --dialog-actions-divider:0;
+    --dialog-actions-radius:16px;
+    --dialog-actions-bg:linear-gradient(145deg,var(--desk-glass-soft),var(--desk-glass-strong));
+    --dialog-actions-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    --icon-btn-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
+    --icon-btn-color:var(--desk-text);
+    --icon-btn-border:1px solid var(--desk-line);
+    --icon-btn-size:40px;
+    --icon-btn-radius:12px;
+    --icon-btn-shadow:0 6px 16px rgba(21,66,125,.08),inset 0 1px 0 rgba(255,255,255,.12);
   }
   html[data-theme="dark"]{
     --desk-glass:rgba(8,25,48,.80);
@@ -391,6 +433,55 @@
   }
   #salesInvoicesView .sales-invoices-summary article{
     background:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));border-color:var(--desk-line);box-shadow:var(--desk-shadow);
+  }
+
+
+  /* D1.11-A — Top-layer dialogs do not inherit feature-view tokens.
+     Feed the existing shared owners from the desktop canonical palette only at desktop widths. */
+  dialog{
+    --surface:var(--desk-glass-strong);
+    --surface-2:var(--desk-glass-soft);
+    --surface-soft:var(--desk-glass-soft);
+    --border:var(--desk-line);
+    --border-color:var(--desk-line);
+    --text:var(--desk-text);
+    --text-muted:var(--desk-muted);
+    --muted:var(--desk-muted);
+    --primary:var(--desk-blue);
+    --control-border:color-mix(in srgb,var(--desk-line) 92%,transparent);
+    --control-radius:13px;
+    --control-padding:11px 12px;
+    --control-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
+    --control-color:var(--desk-text);
+    --control-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 -1px 0 rgba(47,131,255,.035);
+    --control-focus-border:var(--desk-blue);
+    --control-focus-shadow:0 0 0 3px rgba(47,131,255,.12),0 0 20px rgba(47,131,255,.10);
+    --control-color-scheme:light;
+    --option-bg:#fff;
+    --option-color:var(--desk-text);
+    --button-radius:12px;
+    --button-padding:10px 16px;
+    --primary-btn-bg:linear-gradient(115deg,var(--desk-blue-deep),var(--desk-blue));
+    --primary-btn-color:#fff;
+    --primary-btn-border:1px solid color-mix(in srgb,var(--desk-blue) 82%,white);
+    --primary-btn-shadow:0 9px 23px rgba(47,131,255,.22),inset 0 1px 0 rgba(255,255,255,.22);
+    --secondary-btn-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
+    --secondary-btn-color:var(--desk-text);
+    --secondary-btn-border:1px solid var(--desk-line);
+    --secondary-btn-shadow:0 6px 16px rgba(21,66,125,.065),inset 0 1px 0 rgba(255,255,255,.09);
+  }
+  html[data-theme="dark"] dialog{
+    --control-color-scheme:dark;
+    --option-bg:#081930;
+    --option-color:#f7fbff;
+  }
+  dialog .searchable-select-options,
+  dialog .geo-searchable-options,
+  dialog .checkbox-dropdown-menu{
+    background:var(--surface);
+    color:var(--text);
+    border-color:var(--border);
+    box-shadow:var(--desk-shadow-blue);
   }
 
 }

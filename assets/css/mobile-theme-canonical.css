@@ -67,8 +67,82 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   }
   option{background:var(--kyum-mobile-field);color:var(--kyum-mobile-text)}
 
-  /* Canonical dialog surface and top-layer placement. */
-  dialog,.dialog,.modal,.modal-card,.dialog-card{
+  /* D1.11-B — Mobile modal/form visual identity tokens.
+     style.css owns dialog properties; this mobile branch supplies the mobile palette only. */
+  dialog{
+    --dialog-bg:linear-gradient(155deg,var(--kyum-mobile-surface),color-mix(in srgb,var(--kyum-mobile-surface-alt) 76%,var(--kyum-mobile-surface)));
+    --dialog-inner-bg:transparent;
+    --dialog-text:var(--kyum-mobile-text);
+    --dialog-muted:var(--kyum-mobile-muted);
+    --dialog-border:1px solid color-mix(in srgb,var(--kyum-mobile-border) 76%,var(--kyum-mobile-gold) 24%);
+    --dialog-radius:22px;
+    --dialog-shadow:0 24px 62px rgba(0,0,0,.34);
+    --dialog-overlay:var(--kyum-mobile-overlay);
+    --dialog-overlay-blur:2px;
+    --dialog-form-padding:12px;
+    --dialog-header-gap:12px;
+    --dialog-header-border:1px solid var(--kyum-mobile-border);
+    --dialog-header-divider:0;
+    --dialog-header-radius:16px;
+    --dialog-header-padding:14px;
+    --dialog-header-margin:0 0 12px;
+    --dialog-header-bg:linear-gradient(145deg,var(--kyum-mobile-surface-alt),var(--kyum-mobile-surface));
+    --dialog-header-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    --dialog-title-color:var(--kyum-mobile-text);
+    --dialog-body-padding:13px;
+    --dialog-body-border:1px solid var(--kyum-mobile-border);
+    --dialog-body-radius:16px;
+    --dialog-body-bg:color-mix(in srgb,var(--kyum-mobile-surface-alt) 74%,var(--kyum-mobile-surface));
+    --dialog-body-shadow:none;
+    --dialog-grid-gap:12px;
+    --dialog-actions-gap:9px;
+    --dialog-actions-margin-top:12px;
+    --dialog-actions-padding:11px;
+    --dialog-actions-border:1px solid var(--kyum-mobile-border);
+    --dialog-actions-divider:0;
+    --dialog-actions-radius:15px;
+    --dialog-actions-bg:var(--kyum-mobile-surface-alt);
+    --dialog-actions-shadow:none;
+    --icon-btn-bg:var(--kyum-mobile-surface-alt);
+    --icon-btn-color:var(--kyum-mobile-text);
+    --icon-btn-border:1px solid var(--kyum-mobile-border);
+    --icon-btn-size:40px;
+    --icon-btn-radius:12px;
+    --icon-btn-shadow:none;
+
+    --surface:var(--kyum-mobile-surface);
+    --surface-2:var(--kyum-mobile-surface-alt);
+    --surface-soft:var(--kyum-mobile-surface-alt);
+    --border:var(--kyum-mobile-border);
+    --border-color:var(--kyum-mobile-border);
+    --text:var(--kyum-mobile-text);
+    --text-muted:var(--kyum-mobile-muted);
+    --muted:var(--kyum-mobile-muted);
+    --primary:#2f83ff;
+    --control-border:var(--kyum-mobile-border);
+    --control-radius:13px;
+    --control-bg:var(--kyum-mobile-field);
+    --control-color:var(--kyum-mobile-text);
+    --control-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+    --control-focus-border:#2f83ff;
+    --control-focus-shadow:0 0 0 3px rgba(47,131,255,.13);
+    --control-color-scheme:light;
+    --option-bg:var(--kyum-mobile-field);
+    --option-color:var(--kyum-mobile-text);
+    --button-radius:12px;
+    --button-padding:10px 14px;
+    --primary-btn-bg:linear-gradient(115deg,#104fae,#2f83ff);
+    --primary-btn-color:#fff;
+    --primary-btn-border:1px solid rgba(96,165,250,.64);
+    --primary-btn-shadow:0 8px 20px rgba(47,131,255,.20);
+    --secondary-btn-bg:var(--kyum-mobile-surface-alt);
+    --secondary-btn-color:var(--kyum-mobile-text);
+    --secondary-btn-border:1px solid var(--kyum-mobile-border);
+    --secondary-btn-shadow:none;
+  }
+  html[data-theme="dark"] dialog{--control-color-scheme:dark}
+  dialog::backdrop{background:var(--kyum-mobile-overlay)!important}
+  .dialog,.modal,.modal-card,.dialog-card{
     color:var(--kyum-mobile-text)!important;
     background:var(--kyum-mobile-surface)!important;
     border-color:var(--kyum-mobile-border)!important;
@@ -76,9 +150,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     backdrop-filter:none!important;
     -webkit-backdrop-filter:none!important;
   }
-  dialog::backdrop{background:var(--kyum-mobile-overlay)!important;backdrop-filter:blur(2px)}
   dialog header,dialog footer,.dialog-header,.dialog-footer,.modal-header,.modal-footer{
-    background:var(--kyum-mobile-surface)!important;
     color:var(--kyum-mobile-text)!important;
     border-color:var(--kyum-mobile-border)!important;
     backdrop-filter:none!important;
@@ -416,6 +488,18 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     max-width:calc(100vw - 16px)!important;
     max-height:calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
   }
+  dialog > form:not(.dialog-shell){
+    max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-gutter:stable;
+  }
+  dialog .form-grid{grid-template-columns:minmax(0,1fr)!important}
+  dialog .dialog-actions{flex-wrap:wrap}
+  dialog .dialog-actions > button{flex:1 1 120px;min-width:0;min-height:48px}
+
   :where(dialog .dialog-body,.dialog .dialog-body,.modal .modal-body,.dialog-card .dialog-body,
     .installation-reference-dialog .dialog-body){
     min-height:0;

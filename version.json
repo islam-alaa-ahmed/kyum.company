@@ -1,13 +1,13 @@
 {
-  "version": "18.53.94",
-  "build": 185394,
+  "version": "18.53.95",
+  "build": 185395,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Scheduling Friday Lock & Stable Team Colors — Phase D1.10.2",
+  "title": "Desktop & Mobile Modal/Form Visual Identity Integration — Phase D1.11",
   "notes": [
-    "زيادة الفصل البصري بين أيام Calendar في Desktop وتغيير Calendar shell بدرجة مختلفة قليلًا عن Day Cards.",
-    "جعل الجمعة مغلقة افتراضيًا طوال السنة مع السماح بفتح جمعة محددة يدويًا عبر سجل صريح.",
-    "تثبيت لون نقطة كل فرقة بالاعتماد على Team ID بدل ترتيب ظهورها داخل اليوم، وتوحيد خلفية اليوم المغلق مع خلفية Team Summary."
+    "تحويل الـshared dialog/form owner إلى Token-driven source واحد بدل الألوان الثابتة القديمة.",
+    "تطبيق هوية Desktop المعتمدة على جميع dialogs/forms المنبثقة عبر Desktop canonical tokens فقط.",
+    "تطبيق هوية Mobile المعتمدة على نفس المكونات عبر Mobile canonical tokens فقط مع one-column safe scrolling، دون أي تسريب بين المسارين."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-94-scheduling-friday-lock-stable-team-colors-d1-10-2"
+  "cacheToken": "kyum-crm-pwa-18-53-95-desktop-mobile-modal-form-identity-d1-11"
 }
