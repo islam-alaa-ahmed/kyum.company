@@ -1,14 +1,14 @@
 {
-  "version": "18.53.82",
-  "build": 185382,
+  "version": "18.53.83",
+  "build": 185383,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Reports Layout Stabilization & Remaining Mobile Identity Continuation — Phase M15.31.6",
+  "title": "Mobile Visual Identity Final Coverage & Certification — Phase M15.31.7",
   "notes": [
-    "تثبيت عقد Layout موحد لكروت KPI في التقارير لفصل الأيقونة والعنوان وBadge التغيير والقيم الطويلة دون تداخل على الموبايل.",
-    "إضافة Layout مخصص لقائمة أعلى العملاء يحمي Rank واسم العميل وعدد العروض وقيمة SAR في RTL والشاشات الضيقة.",
-    "تعميم الهوية البصرية المعتمدة بشكل Mobile-only على مندوبي المبيعات ولوحة التركيبات والاستثناءات والتكاليف وإعدادات التركيبات.",
-    "نقل ملكية تنسيق Executive KPI من mobile.css إلى mobile-theme-canonical.css لمنع تراكم طبقات CSS المتعارضة مع الحفاظ على Desktop/Tablet وBusiness Logic دون تغيير."
+    "إغلاق تدقيق تغطية الهوية البصرية للموبايل بعد التأكد أن جميع شاشات الأعمال الفعلية مشمولة داخل mobile-theme-canonical.css.",
+    "استثناء loginView وappView من rollout الشاشات باعتبارهما shell/runtime containers وليسا شاشات أعمال مستقلة.",
+    "إضافة عقد Certification آلي يمنع فقد تغطية أي Feature View ويثبت بقاء الهوية ضمن Mobile media scope دون إضافة طبقات CSS بصرية جديدة.",
+    "الحفاظ على Desktop/Tablet وBusiness Logic وPermissions وOffline/Sync دون أي تعديل وظيفي أو بصري."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-82-reports-layout-mobile-identity-m15-31-6"
+  "cacheToken": "kyum-crm-pwa-18-53-83-mobile-visual-identity-final-certification-m15-31-7"
 }
