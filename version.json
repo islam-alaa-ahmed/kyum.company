@@ -1,13 +1,13 @@
 {
-  "version": "18.53.96",
-  "build": 185396,
+  "version": "18.53.97",
+  "build": 185397,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Header Shell Visual Redesign — Phase H1.1",
+  "title": "Desktop Header Contour Completeness Hotfix — Phase H1.2",
   "notes": [
-    "إعادة تصميم Desktop Header shell فقط وفق مرجع PETATOE مع Light frosted glass وDark midnight/navy.",
-    "إضافة Blue upper contour وCurved lower contour وGold side accents مع الحفاظ على محتوى الهيدر وترتيب الأيقونات والأزرار كما هو.",
-    "تجميد Mobile Header بالكامل وعدم تعديل JavaScript أو وظائف الهيدر."
+    "استكمال Blue upper contour بصريًا حتى قرب جانبي الهيدر في Light/Dark.",
+    "استكمال Gold side rails على الجانبين وإضافة short gold corner accents متماثلة أعلى وأسفل.",
+    "الحفاظ الكامل على Layout والأيقونات والأزرار وMobile Header دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-96-desktop-header-shell-h1-1"
+  "cacheToken": "kyum-crm-pwa-18-53-97-desktop-header-contour-hotfix-h1-2"
 }

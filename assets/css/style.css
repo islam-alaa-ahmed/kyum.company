@@ -11550,11 +11550,13 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
     transform:none !important;
     filter:none !important;
     background:
-      linear-gradient(90deg,transparent 1%,rgba(45,134,255,.22) 12%,rgba(45,134,255,.88) 46%,rgba(18,201,255,.62) 64%,rgba(45,134,255,.26) 88%,transparent 99%) top 1px center/96% 2px no-repeat,
-      linear-gradient(180deg,transparent 0%,rgba(230,183,77,.42) 14%,#e6b74d 48%,rgba(255,217,120,.76) 78%,transparent 100%) left 10px center/2px 62% no-repeat,
-      linear-gradient(180deg,transparent 0%,rgba(255,217,120,.66) 14%,#e6b74d 52%,rgba(230,183,77,.38) 82%,transparent 100%) right 10px center/2px 62% no-repeat,
-      linear-gradient(90deg,rgba(230,183,77,.76),transparent) left 10px top 18px/34px 2px no-repeat,
-      linear-gradient(270deg,rgba(230,183,77,.76),transparent) right 10px bottom 18px/34px 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.24) 0%,rgba(45,134,255,.52) 10%,rgba(45,134,255,.92) 46%,rgba(18,201,255,.66) 64%,rgba(45,134,255,.52) 90%,rgba(45,134,255,.24) 100%) top 2px center/calc(100% - 24px) 2px no-repeat,
+      linear-gradient(180deg,rgba(230,183,77,.22) 0%,rgba(230,183,77,.66) 10%,#e6b74d 48%,rgba(255,217,120,.82) 80%,rgba(230,183,77,.24) 100%) left 10px center/2px 76% no-repeat,
+      linear-gradient(180deg,rgba(255,217,120,.24) 0%,rgba(255,217,120,.72) 10%,#e6b74d 52%,rgba(230,183,77,.60) 82%,rgba(230,183,77,.22) 100%) right 10px center/2px 76% no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.90),rgba(230,183,77,.38),transparent) left 10px top 16px/42px 2px no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.82),rgba(230,183,77,.30),transparent) left 10px bottom 16px/42px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.90),rgba(230,183,77,.38),transparent) right 10px top 16px/42px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.82),rgba(230,183,77,.30),transparent) right 10px bottom 16px/42px 2px no-repeat,
       linear-gradient(150deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.055) 27%,transparent 46%) !important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.22) !important;
   }
@@ -11870,11 +11872,13 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
   html[data-theme="dark"] #appHeader.topbar::before,
   html[data-theme="dark"] #appHeader.topbar.is-scrolled::before {
     background:
-      linear-gradient(90deg,transparent 1%,rgba(45,134,255,.18) 12%,rgba(45,134,255,.92) 46%,rgba(18,201,255,.56) 64%,rgba(45,134,255,.22) 88%,transparent 99%) top 1px center/96% 2px no-repeat,
-      linear-gradient(180deg,transparent 0%,rgba(230,183,77,.30) 14%,#e6b74d 48%,rgba(255,217,120,.68) 78%,transparent 100%) left 10px center/2px 62% no-repeat,
-      linear-gradient(180deg,transparent 0%,rgba(255,217,120,.58) 14%,#e6b74d 52%,rgba(230,183,77,.28) 82%,transparent 100%) right 10px center/2px 62% no-repeat,
-      linear-gradient(90deg,rgba(230,183,77,.68),transparent) left 10px top 18px/34px 2px no-repeat,
-      linear-gradient(270deg,rgba(230,183,77,.68),transparent) right 10px bottom 18px/34px 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.20) 0%,rgba(45,134,255,.48) 10%,rgba(45,134,255,.94) 46%,rgba(18,201,255,.60) 64%,rgba(45,134,255,.48) 90%,rgba(45,134,255,.20) 100%) top 2px center/calc(100% - 24px) 2px no-repeat,
+      linear-gradient(180deg,rgba(230,183,77,.18) 0%,rgba(230,183,77,.54) 10%,#e6b74d 48%,rgba(255,217,120,.72) 80%,rgba(230,183,77,.18) 100%) left 10px center/2px 76% no-repeat,
+      linear-gradient(180deg,rgba(255,217,120,.18) 0%,rgba(255,217,120,.62) 10%,#e6b74d 52%,rgba(230,183,77,.48) 82%,rgba(230,183,77,.18) 100%) right 10px center/2px 76% no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.78),rgba(230,183,77,.30),transparent) left 10px top 16px/42px 2px no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.72),rgba(230,183,77,.26),transparent) left 10px bottom 16px/42px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.78),rgba(230,183,77,.30),transparent) right 10px top 16px/42px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.72),rgba(230,183,77,.26),transparent) right 10px bottom 16px/42px 2px no-repeat,
       linear-gradient(150deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 27%,transparent 46%) !important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.028) !important;
   }
