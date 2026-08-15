@@ -1,14 +1,13 @@
 {
-  "version": "18.53.84",
-  "build": 185384,
+  "version": "18.53.85",
+  "build": 185385,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Visual Fidelity Correction — Dashboard, Customers & Followups — Phase D1.2",
+  "title": "Desktop Dark Controls & Customer Actions Correction — Phase D1.3",
   "notes": [
-    "تصحيح مطابقة هوية PETATOE Desktop في الرئيسية والعملاء والمتابعات مع Semantic KPI icons وكثافة Dashboard المرجعية.",
-    "إلغاء أسلوب CSS patch-over-patch عبر تحويل قواعد style.css المشتركة إلى token-driven canonical owners وربط D1.2 بها.",
-    "تعديل responsive owner الأصلي لكثافة Dashboard على الشاشات الواسعة بدل إضافة override جديد.",
-    "Desktop Header وSidebar وMobile/Tablet وBusiness Logic خارج النطاق ولم يتم تغييرها."
+    "إزالة الخلفيات البيضاء من حالات البيانات والفلاتر المنسدلة في Dark Mode للشاشات الثلاث المعتمدة على Desktop.",
+    "تثبيت Native select/options على Dark color-scheme داخل نطاق Desktop فقط.",
+    "منع كسر نصوص أزرار إجراءات العملاء وتخصيص مساحة ثابتة لعمود الإجراءات دون المساس بالموبايل أو الهيدر أو السايدبار."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-84-desktop-visual-fidelity-d1-2"
+  "cacheToken": "kyum-crm-pwa-18-53-85-desktop-dark-controls-customer-actions-d1-3"
 }

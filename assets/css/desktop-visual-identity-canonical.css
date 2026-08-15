@@ -1,7 +1,7 @@
-/* Phase D1.2 — Desktop Visual Fidelity Canonical Owner
-   Scope: Dashboard, Customers, Followups on desktop only.
+/* Phase D1.3 — Desktop Dark Controls & Customer Actions Canonical Owner
+   Scope: Dashboard, Customers, Followups on desktop only; dark-mode filters/status and customer action containment.
    Ownership model: style.css owns shared component properties through scoped tokens;
-   this file supplies D1.2 tokens and visual components that have no legacy owner.
+   this file supplies the active desktop tokens and visual components that have no legacy owner.
    Explicit exclusions: Desktop Header, Desktop Sidebar, Tablet, Mobile. */
 @media (min-width:1024px){
   :root{
@@ -100,6 +100,15 @@
     --table-pagination-radius:17px;
     --table-pagination-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
     --table-pagination-shadow:0 10px 26px rgba(20,70,135,.08),inset 0 1px 0 rgba(255,255,255,.09);
+    --control-color-scheme:light;
+    --option-bg:#ffffff;
+    --option-color:var(--desk-text);
+    --data-status-info-bg:color-mix(in srgb,var(--desk-blue) 7%,var(--desk-glass-strong));
+    --data-status-info-color:var(--desk-blue-deep);
+    --data-status-info-border:color-mix(in srgb,var(--desk-blue) 34%,var(--desk-line));
+    --data-status-error-bg:color-mix(in srgb,#ef4444 7%,var(--desk-glass-strong));
+    --data-status-error-color:#b91c1c;
+    --data-status-error-border:rgba(224,82,82,.34);
   }
 
   /* New D1.2 surfaces: there were no previous visual owners for these wrappers. */
@@ -179,6 +188,18 @@
     --followup-stat-value-gap:11px;
   }
 
+  html[data-theme="dark"] :is(#dashboardView,#customersView,#followupsView){
+    --control-color-scheme:dark;
+    --option-bg:#081930;
+    --option-color:#f7fbff;
+    --data-status-info-bg:linear-gradient(145deg,rgba(12,34,63,.96),rgba(8,25,48,.94));
+    --data-status-info-color:#bfdbfe;
+    --data-status-info-border:rgba(92,158,239,.32);
+    --data-status-error-bg:linear-gradient(145deg,rgba(75,24,32,.72),rgba(42,19,28,.78));
+    --data-status-error-color:#fecaca;
+    --data-status-error-border:rgba(248,113,113,.34);
+  }
+
   html[data-theme="dark"] #followupsView{
     --status-today-color:#bfdbfe;
     --status-overdue-color:#fecaca;
@@ -248,5 +269,22 @@
   /* Text hierarchy and mobile exclusion. */
   #dashboardView .panel-header h3,:is(#customersView,#followupsView) .section-title{color:var(--desk-text);font-weight:900;}
   #dashboardView .panel-header p,:is(#customersView,#followupsView) .section-note{color:var(--desk-muted);}
+    /* Customer desktop actions: dedicated containment contract. */
+  #customersView{
+    --row-actions-gap:8px;
+    --row-actions-wrap:nowrap;
+    --row-actions-align:center;
+    --row-action-min-width:64px;
+    --row-action-white-space:nowrap;
+  }
+  #customersView .customers-desktop-table th:last-child,
+  #customersView .customers-desktop-table td:last-child{
+    min-width:286px;
+    width:286px;
+  }
+  #customersView .customers-desktop-table .row-actions{
+    justify-content:flex-start;
+  }
+
   #customersView .customers-mobile-cards{display:none!important;}
 }
