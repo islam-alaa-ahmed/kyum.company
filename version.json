@@ -1,13 +1,13 @@
 {
-  "version": "18.53.97",
-  "build": 185397,
+  "version": "18.53.98",
+  "build": 185398,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Header Contour Completeness Hotfix — Phase H1.2",
+  "title": "Selectable Desktop Premium Blue & Gold Header — Phase H1.3",
   "notes": [
-    "استكمال Blue upper contour بصريًا حتى قرب جانبي الهيدر في Light/Dark.",
-    "استكمال Gold side rails على الجانبين وإضافة short gold corner accents متماثلة أعلى وأسفل.",
-    "الحفاظ الكامل على Layout والأيقونات والأزرار وMobile Header دون تغيير."
+    "إضافة إطار ذهبي احترافي خارجي للهيدر مع فاصل بصري عن القضبان الذهبية الداخلية الحالية.",
+    "إضافة خيار نمط هيدر الديسكتوب داخل إعدادات النظام مع حفظ الاختيار في system_settings.",
+    "الحفاظ على الهيدر الحالي كخيار مستقل وعدم تغيير هيدر الموبايل."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-97-desktop-header-contour-hotfix-h1-2"
+  "cacheToken": "kyum-crm-pwa-18-53-98-desktop-premium-header"
 }

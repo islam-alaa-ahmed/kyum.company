@@ -18,7 +18,8 @@
         "currency",
         "timezone",
         "page_size",
-        "session_timeout_minutes"
+        "session_timeout_minutes",
+        "desktop_header_style"
       ]);
 
     if (error) throw new Error(`تعذر تحميل إعدادات النظام: ${error.message}`);

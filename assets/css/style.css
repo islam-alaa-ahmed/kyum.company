@@ -11918,3 +11918,37 @@ body.reports-exporting .reports-actions,
 body.reports-exporting .reports-filter-bar,
 body.reports-exporting .data-status,
 body.reports-exporting dialog{display:none!important}
+
+
+/* Phase H1.3 — selectable Desktop Premium Blue & Gold header.
+   The new outer gold edge uses the shell border itself; existing H1.2 gold rails stay 10px inward,
+   preserving a deliberate visual gap and preventing edge/rail overlap. Mobile remains frozen. */
+@media (min-width:1181px) {
+  html[data-desktop-header-style="premium_gold"] #appHeader.topbar,
+  html[data-desktop-header-style="premium_gold"] #appHeader.topbar.is-scrolled {
+    border-color:rgba(214,169,61,.88) !important;
+    box-shadow:
+      0 22px 52px rgba(24,58,104,.16),
+      0 0 28px rgba(45,134,255,.055),
+      0 0 0 1px rgba(214,169,61,.08),
+      inset 0 1px 0 rgba(255,255,255,.94) !important;
+  }
+
+  html[data-theme="dark"][data-desktop-header-style="premium_gold"] #appHeader.topbar,
+  html[data-theme="dark"][data-desktop-header-style="premium_gold"] #appHeader.topbar.is-scrolled {
+    border-color:rgba(230,183,77,.86) !important;
+    box-shadow:
+      0 22px 52px rgba(0,7,19,.34),
+      0 0 28px rgba(45,134,255,.06),
+      0 0 0 1px rgba(230,183,77,.07),
+      inset 0 1px 0 rgba(255,255,255,.035) !important;
+  }
+
+  .desktop-header-style-setting small {
+    display:block;
+    margin-top:7px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:600;
+  }
+}
