@@ -1,13 +1,14 @@
 {
-  "version": "18.53.82",
-  "build": 185382,
+  "version": "18.53.84",
+  "build": 185384,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Visual Identity Pilot — Dashboard, Customers & Followups — Phase D1.1",
+  "title": "Desktop Visual Fidelity Correction — Dashboard, Customers & Followups — Phase D1.2",
   "notes": [
-    "تطبيق الهوية البصرية المرجعية لنسخة Desktop على الرئيسية والعملاء والمتابعات فقط.",
-    "توحيد Cards/KPI/Tables/Filters/Forms/Buttons في نطاق Desktop >=1024 مع Light/Dark.",
-    "عدم تعديل Desktop Header أو Sidebar، والحفاظ على Mobile/Tablet وBusiness Logic دون تغيير."
+    "تصحيح مطابقة هوية PETATOE Desktop في الرئيسية والعملاء والمتابعات مع Semantic KPI icons وكثافة Dashboard المرجعية.",
+    "إلغاء أسلوب CSS patch-over-patch عبر تحويل قواعد style.css المشتركة إلى token-driven canonical owners وربط D1.2 بها.",
+    "تعديل responsive owner الأصلي لكثافة Dashboard على الشاشات الواسعة بدل إضافة override جديد.",
+    "Desktop Header وSidebar وMobile/Tablet وBusiness Logic خارج النطاق ولم يتم تغييرها."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-82-desktop-visual-identity-pilot-d1-1"
+  "cacheToken": "kyum-crm-pwa-18-53-84-desktop-visual-fidelity-d1-2"
 }

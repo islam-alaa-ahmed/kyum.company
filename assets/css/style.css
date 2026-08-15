@@ -26,14 +26,15 @@ button{cursor:pointer}
 .login-card form{display:grid;gap:16px}
 .login-card small{color:var(--muted);line-height:1.8}
 label{display:grid;gap:7px;font-weight:600;font-size:14px}
-input,select,textarea{width:100%;border:1px solid var(--border);border-radius:12px;padding:11px 12px;background:#fff;outline:none;transition:.2s}
-input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+input,select,textarea{width:100%;border:1px solid var(--control-border,var(--border));border-radius:var(--control-radius,12px);padding:var(--control-padding,11px 12px);background:var(--control-bg,#fff);color:var(--control-color,var(--text));box-shadow:var(--control-shadow,none);outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--control-focus-border,var(--primary));box-shadow:var(--control-focus-shadow,0 0 0 3px rgba(37,99,235,.12))}
 .brand-mark{width:68px;height:68px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:800;letter-spacing:1px}
 .brand-mark.small{width:46px;height:46px;border-radius:14px}
 
-.primary-btn{background:var(--primary);color:#fff;padding:11px 17px;border-radius:12px;font-weight:700}
-.primary-btn:hover{background:var(--primary-dark)}
-.secondary-btn{background:#eef2f7;color:var(--text);padding:11px 17px;border-radius:12px;font-weight:700}
+.primary-btn{background:var(--primary-btn-bg,var(--primary));color:var(--primary-btn-color,#fff);padding:var(--button-padding,11px 17px);border:var(--primary-btn-border,0);border-radius:var(--button-radius,12px);box-shadow:var(--primary-btn-shadow,none);font-weight:700}
+.primary-btn:hover{background:var(--primary-btn-hover-bg,var(--primary-dark));border-color:var(--button-hover-border,currentColor);box-shadow:var(--button-hover-shadow,none);transform:var(--button-hover-transform,none)}
+.secondary-btn{background:var(--secondary-btn-bg,#eef2f7);color:var(--secondary-btn-color,var(--text));padding:var(--button-padding,11px 17px);border:var(--secondary-btn-border,0);border-radius:var(--button-radius,12px);box-shadow:var(--secondary-btn-shadow,none);font-weight:700}
+.secondary-btn:hover{background:var(--secondary-btn-hover-bg,var(--secondary-btn-bg,#eef2f7));border-color:var(--button-hover-border,currentColor);box-shadow:var(--button-hover-shadow,none);transform:var(--button-hover-transform,none)}
 .app-shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
 
 
@@ -65,11 +66,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .user-chip small{color:var(--muted)}
 .avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#dbeafe;color:#1d4ed8;font-weight:800}
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
-.stat-card span{color:var(--muted);font-size:13px}
-.stat-card strong{display:block;font-size:30px;margin-top:8px}
+.stat-card{background:var(--stat-card-bg,var(--surface));border:var(--stat-card-border,1px solid var(--border));border-radius:var(--stat-card-radius,18px);padding:var(--stat-card-padding,18px);box-shadow:var(--stat-card-shadow,var(--shadow))}
+.stat-card span{color:var(--stat-card-label,var(--muted));font-size:var(--stat-card-label-size,13px);font-weight:var(--stat-card-label-weight,400)}
+.stat-card strong{display:block;color:var(--stat-card-value,var(--text));font-size:var(--stat-card-value-size,30px);line-height:var(--stat-card-value-line,normal);margin-top:var(--stat-card-value-gap,8px)}
 .panel-grid,.settings-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.panel{background:var(--panel-bg,var(--surface));border:var(--panel-border,1px solid var(--border));border-radius:var(--panel-radius,18px);padding:var(--panel-padding,18px);box-shadow:var(--panel-shadow,var(--shadow))}
 .panel-header,.actions-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .panel h3{margin:0 0 12px}
 .text-btn{background:transparent;color:var(--primary);font-weight:700}
@@ -83,16 +84,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .actions-row{margin-bottom:14px}
 .search-box{flex:1}
 .filters-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
-.table-card{overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.table-card{overflow:auto;background:var(--table-card-bg,var(--surface));border:var(--table-card-border,1px solid var(--border));border-radius:var(--table-card-radius,18px);box-shadow:var(--table-card-shadow,var(--shadow))}
 table{width:100%;border-collapse:collapse;min-width:1100px}
-th,td{padding:14px 12px;text-align:right;border-bottom:1px solid var(--border);vertical-align:top}
-th{background:#f8fafc;font-size:13px;position:sticky;top:0}
+th,td{padding:var(--table-cell-padding,14px 12px);text-align:right;border-bottom:var(--table-row-border,1px solid var(--border));vertical-align:var(--table-cell-align,top)}
+th{background:var(--table-head-bg,#f8fafc);color:var(--table-head-color,var(--text));font-size:var(--table-head-size,13px);font-weight:var(--table-head-weight,700);position:sticky;top:0;backdrop-filter:var(--table-head-blur,none)}
 td{font-size:13px}
-.badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:700;font-size:12px;margin:2px}
+.badge{display:inline-flex;padding:var(--badge-padding,5px 9px);border-radius:999px;background:var(--badge-bg,#eff6ff);color:var(--badge-color,#1d4ed8);border:var(--badge-border,0);font-weight:700;font-size:12px;margin:2px}
 .row-actions{display:flex;gap:7px}
-.row-actions button{border:0;padding:7px 10px;border-radius:9px}
-.edit-btn{background:#eff6ff;color:#1d4ed8}
-.delete-btn{background:#fef2f2;color:#dc2626}
+.row-actions button{border:var(--row-action-border,0);padding:var(--row-action-padding,7px 10px);border-radius:var(--row-action-radius,9px);background:var(--row-action-bg,transparent);box-shadow:var(--row-action-shadow,none)}
+.edit-btn{background:var(--edit-btn-bg,#eff6ff);color:var(--edit-btn-color,#1d4ed8);border-color:var(--edit-btn-border-color,transparent)!important}
+.delete-btn{background:var(--delete-btn-bg,#fef2f2);color:var(--delete-btn-color,#dc2626);border-color:var(--delete-btn-border-color,transparent)!important}
 .empty-state{text-align:center;color:var(--muted);padding:32px}
 .representatives-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .rep-card{padding:15px;border:1px solid var(--border);border-radius:15px;background:var(--surface-2)}
@@ -136,14 +137,14 @@ select[multiple]{min-height:120px}
 .section-title{margin:0}
 .section-note{margin:4px 0 0;color:var(--muted);font-size:13px}
 .followup-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
-.followup-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;box-shadow:var(--shadow)}
-.followup-stat span{display:block;color:var(--muted);font-size:13px}
-.followup-stat strong{display:block;font-size:25px;margin-top:6px}
+.followup-stat{background:var(--followup-stat-bg,var(--surface));border:var(--followup-stat-border,1px solid var(--border));border-radius:var(--followup-stat-radius,16px);padding:var(--followup-stat-padding,15px);box-shadow:var(--followup-stat-shadow,var(--shadow))}
+.followup-stat span{display:block;color:var(--followup-stat-label,var(--muted));font-size:var(--followup-stat-label-size,13px);font-weight:var(--followup-stat-label-weight,400)}
+.followup-stat strong{display:block;color:var(--followup-stat-value,var(--text));font-size:var(--followup-stat-value-size,25px);line-height:var(--followup-stat-value-line,normal);margin-top:var(--followup-stat-value-gap,6px)}
 .status-badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
-.status-today{background:#eff6ff;color:#1d4ed8}
-.status-overdue{background:#fef2f2;color:#dc2626}
-.status-upcoming{background:#fff7ed;color:#c2410c}
-.status-completed{background:#f0fdf4;color:#15803d}
+.status-today{background:var(--status-today-bg,#eff6ff);color:var(--status-today-color,#1d4ed8);border:var(--status-today-border,0)}
+.status-overdue{background:var(--status-overdue-bg,#fef2f2);color:var(--status-overdue-color,#dc2626);border:var(--status-overdue-border,0)}
+.status-upcoming{background:var(--status-upcoming-bg,#fff7ed);color:var(--status-upcoming-color,#c2410c);border:var(--status-upcoming-border,0)}
+.status-completed{background:var(--status-completed-bg,#f0fdf4);color:var(--status-completed-color,#15803d);border:var(--status-completed-border,0)}
 .details-dialog{padding:22px}
 .customer-profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
 .profile-item{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px}
@@ -174,7 +175,7 @@ select[multiple]{min-height:120px}
 .quotation-status-cancelled{background:#f8fafc;color:#64748b}
 
 
-.dashboard-filter-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.dashboard-filter-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;background:var(--dashboard-filter-bg,var(--surface));border:var(--dashboard-filter-border,1px solid var(--border));border-radius:var(--dashboard-filter-radius,18px);padding:var(--dashboard-filter-padding,18px);margin-bottom:14px;box-shadow:var(--dashboard-filter-shadow,var(--shadow))}
 .dashboard-filters{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:10px;min-width:min(760px,65vw)}
 .period-label{color:var(--muted);font-size:13px;margin:0 0 14px}
 .dashboard-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -183,18 +184,18 @@ select[multiple]{min-height:120px}
 .full-span-panel{grid-column:1/-1}
 .panel-header p{margin:3px 0 0;color:var(--muted);font-size:12px}
 .performance-list{display:grid;gap:12px}
-.performance-card{border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--surface-2)}
+.performance-card{border:var(--performance-card-border,1px solid var(--border));border-radius:var(--performance-card-radius,14px);padding:var(--performance-card-padding,14px);background:var(--performance-card-bg,var(--surface-2));box-shadow:var(--performance-card-shadow,none)}
 .performance-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
 .performance-card-head span{color:var(--muted);font-size:12px}
 .performance-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.performance-metric{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px}
+.performance-metric{background:var(--performance-metric-bg,#fff);border:var(--performance-metric-border,1px solid var(--border));border-radius:var(--performance-metric-radius,10px);padding:var(--performance-metric-padding,9px)}
 .performance-metric span{display:block;color:var(--muted);font-size:11px}
 .performance-metric strong{display:block;margin-top:3px;font-size:15px}
 .bar-chart{display:grid;gap:12px;min-height:180px}
 .chart-row{display:grid;grid-template-columns:minmax(110px,1fr) 3fr auto;gap:10px;align-items:center}
 .chart-label{font-size:13px}
-.chart-track{height:12px;border-radius:999px;background:#e5e7eb;overflow:hidden}
-.chart-fill{height:100%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:999px}
+.chart-track{height:12px;border-radius:999px;background:var(--chart-track-bg,#e5e7eb);overflow:hidden}
+.chart-fill{height:100%;background:var(--chart-fill-bg,linear-gradient(90deg,#2563eb,#7c3aed));border-radius:999px}
 .chart-value{font-weight:700;font-size:13px;min-width:32px;text-align:left}
 .trend-chart{display:grid;gap:10px;overflow-x:auto;padding-bottom:4px}
 .trend-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
@@ -281,7 +282,9 @@ body[data-user-role="viewer"] .privacy-nav-group{display:none}
 
 .table-pagination{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px 4px 0;color:var(--muted);font-size:13px
+  padding:var(--table-pagination-padding,14px 4px 0);color:var(--table-pagination-color,var(--muted));font-size:13px;
+  border:var(--table-pagination-border,0);border-radius:var(--table-pagination-radius,0);
+  background:var(--table-pagination-bg,transparent);box-shadow:var(--table-pagination-shadow,none)
 }
 .table-pagination>div{display:flex;align-items:center;gap:10px}
 .table-pagination button:disabled{opacity:.45;cursor:not-allowed}
@@ -3796,9 +3799,9 @@ html[data-theme="dark"] .content-view {
   background: var(--bg);
 }
 
-html[data-theme="dark"] .panel,
+html[data-theme="dark"] .panel:not(#dashboardView .panel),
 html[data-theme="dark"] .card,
-html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .stat-card:not(#dashboardView .stat-card),
 html[data-theme="dark"] .data-card,
 html[data-theme="dark"] .summary-card,
 html[data-theme="dark"] .metric-card,
@@ -3812,9 +3815,9 @@ html[data-theme="dark"] .customer-import-summary article {
   color: var(--text);
 }
 
-html[data-theme="dark"] input,
-html[data-theme="dark"] select,
-html[data-theme="dark"] textarea,
+html[data-theme="dark"] input:not(#dashboardView input):not(#customersView input):not(#followupsView input),
+html[data-theme="dark"] select:not(#dashboardView select):not(#customersView select):not(#followupsView select),
+html[data-theme="dark"] textarea:not(#dashboardView textarea):not(#customersView textarea):not(#followupsView textarea),
 html[data-theme="dark"] .checkbox-dropdown-trigger,
 html[data-theme="dark"] .checkbox-dropdown-menu {
   background: var(--surface-2);
@@ -3827,7 +3830,7 @@ html[data-theme="dark"] textarea::placeholder {
   color: #75859d;
 }
 
-html[data-theme="dark"] .secondary-btn,
+html[data-theme="dark"] .secondary-btn:not(#dashboardView .secondary-btn):not(#customersView .secondary-btn):not(#followupsView .secondary-btn),
 html[data-theme="dark"] .icon-btn,
 html[data-theme="dark"] .text-btn,
 html[data-theme="dark"] .pagination button {
@@ -3842,19 +3845,19 @@ html[data-theme="dark"] .user-chip {
   box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
 }
 
-html[data-theme="dark"] thead,
-html[data-theme="dark"] th {
+html[data-theme="dark"] thead:not(#customersView thead):not(#followupsView thead),
+html[data-theme="dark"] th:not(#customersView th):not(#followupsView th) {
   background: #162238;
   color: #dce7f8;
   border-color: var(--border);
 }
 
-html[data-theme="dark"] td,
-html[data-theme="dark"] tr {
+html[data-theme="dark"] td:not(#customersView td):not(#followupsView td),
+html[data-theme="dark"] tr:not(#customersView tr):not(#followupsView tr) {
   border-color: var(--border);
 }
 
-html[data-theme="dark"] tbody tr:hover {
+html[data-theme="dark"] tbody tr:not(#customersView tr):not(#followupsView tr):hover {
   background: rgba(109, 124, 255, .07);
 }
 
@@ -7492,88 +7495,88 @@ html[data-theme="dark"] {
    - .sidebar
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader) {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
   color: var(--text-primary);
 }
 
-.main-content > :not(#appHeader) h1,
-.main-content > :not(#appHeader) h2,
-.main-content > :not(#appHeader) h3,
-.main-content > :not(#appHeader) h4,
-.main-content > :not(#appHeader) h5,
-.main-content > :not(#appHeader) h6,
-.main-content > :not(#appHeader) strong,
-.main-content > :not(#appHeader) b,
-.main-content > :not(#appHeader) legend,
-.main-content > :not(#appHeader) .title,
-.main-content > :not(#appHeader) [class*="title"],
-.main-content > :not(#appHeader) [class*="heading"],
-.main-content > :not(#appHeader) [class*="headline"],
-.main-content > :not(#appHeader) [class*="value"],
-.main-content > :not(#appHeader) [class*="amount"],
-.main-content > :not(#appHeader) [class*="number"],
-.main-content > :not(#appHeader) [class*="total"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h1,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h2,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h3,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h4,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h5,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) h6,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) strong,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) b,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) legend,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .title,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="title"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="heading"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="headline"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="value"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="amount"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="number"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="total"] {
   color: var(--text-primary) !important;
   opacity: 1 !important;
   text-shadow: none !important;
 }
 
-.main-content > :not(#appHeader) p,
-.main-content > :not(#appHeader) small,
-.main-content > :not(#appHeader) label,
-.main-content > :not(#appHeader) time,
-.main-content > :not(#appHeader) caption,
-.main-content > :not(#appHeader) th,
-.main-content > :not(#appHeader) td,
-.main-content > :not(#appHeader) .subtitle,
-.main-content > :not(#appHeader) [class*="subtitle"],
-.main-content > :not(#appHeader) [class*="description"],
-.main-content > :not(#appHeader) [class*="caption"],
-.main-content > :not(#appHeader) [class*="meta"],
-.main-content > :not(#appHeader) [class*="date"],
-.main-content > :not(#appHeader) [class*="time"],
-.main-content > :not(#appHeader) [class*="label"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) p,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) small,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) label,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) time,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) caption,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) th,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) td,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .subtitle,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="subtitle"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="description"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="caption"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="meta"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="date"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="time"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="label"] {
   color: var(--text-primary) !important;
   opacity: 1 !important;
   text-shadow: none !important;
 }
 
 /* Forms and interactive text. */
-.main-content > :not(#appHeader) input,
-.main-content > :not(#appHeader) textarea,
-.main-content > :not(#appHeader) select,
-.main-content > :not(#appHeader) option,
-.main-content > :not(#appHeader) button,
-.main-content > :not(#appHeader) .btn,
-.main-content > :not(#appHeader) [role="button"],
-.main-content > :not(#appHeader) [role="menuitem"],
-.main-content > :not(#appHeader) [role="option"],
-.main-content > :not(#appHeader) [role="tab"],
-.main-content > :not(#appHeader) [role="dialog"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) input,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) textarea,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) select,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) option,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) button,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .btn,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [role="button"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [role="menuitem"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [role="option"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [role="tab"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [role="dialog"] {
   color: var(--text-primary) !important;
   text-shadow: none !important;
 }
 
-.main-content > :not(#appHeader) input::placeholder,
-.main-content > :not(#appHeader) textarea::placeholder {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) input::placeholder,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) textarea::placeholder {
   color: var(--text-disabled) !important;
   opacity: 1 !important;
 }
 
 /* Disabled state uses a distinct color, not reduced opacity. */
-.main-content > :not(#appHeader) :disabled,
-.main-content > :not(#appHeader) [aria-disabled="true"],
-.main-content > :not(#appHeader) .disabled,
-.main-content > :not(#appHeader) [class*="disabled"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :disabled,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [aria-disabled="true"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .disabled,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="disabled"] {
   color: var(--text-disabled) !important;
   opacity: 1 !important;
 }
 
 /* Empty and no-data messages. */
-.main-content > :not(#appHeader) .empty-state,
-.main-content > :not(#appHeader) [class*="empty-state"],
-.main-content > :not(#appHeader) [class*="no-data"],
-.main-content > :not(#appHeader) [class*="empty-message"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .empty-state,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="empty-state"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="no-data"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="empty-message"] {
   color: var(--text-primary) !important;
   opacity: 1 !important;
 }
@@ -7583,81 +7586,81 @@ html[data-theme="dark"] {
    --------------------------------------------------------- */
 
 /* Success / completed bubbles. */
-.main-content > :not(#appHeader) .success,
-.main-content > :not(#appHeader) .completed,
-.main-content > :not(#appHeader) .is-completed,
-.main-content > :not(#appHeader) [class*="success"],
-.main-content > :not(#appHeader) [class*="completed"],
-.main-content > :not(#appHeader) [class*="approved"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .success,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .completed,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .is-completed,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="success"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="completed"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="approved"] {
   --semantic-text-color: var(--text-success);
 }
 
-.main-content > :not(#appHeader) .success[class*="badge"],
-.main-content > :not(#appHeader) .success[class*="pill"],
-.main-content > :not(#appHeader) .success[class*="status"],
-.main-content > :not(#appHeader) [class*="badge"][class*="success"],
-.main-content > :not(#appHeader) [class*="pill"][class*="success"],
-.main-content > :not(#appHeader) [class*="status"][class*="success"],
-.main-content > :not(#appHeader) [class*="badge"][class*="completed"],
-.main-content > :not(#appHeader) [class*="pill"][class*="completed"],
-.main-content > :not(#appHeader) [class*="status"][class*="completed"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .success[class*="badge"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .success[class*="pill"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .success[class*="status"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="success"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="success"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="success"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="completed"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="completed"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="completed"] {
   color: var(--text-success) !important;
   opacity: 1 !important;
 }
 
 /* Danger / error / overdue bubbles. */
-.main-content > :not(#appHeader) [class*="badge"][class*="danger"],
-.main-content > :not(#appHeader) [class*="pill"][class*="danger"],
-.main-content > :not(#appHeader) [class*="status"][class*="danger"],
-.main-content > :not(#appHeader) [class*="badge"][class*="error"],
-.main-content > :not(#appHeader) [class*="pill"][class*="error"],
-.main-content > :not(#appHeader) [class*="status"][class*="error"],
-.main-content > :not(#appHeader) [class*="badge"][class*="overdue"],
-.main-content > :not(#appHeader) [class*="pill"][class*="overdue"],
-.main-content > :not(#appHeader) [class*="status"][class*="overdue"],
-.main-content > :not(#appHeader) [class*="badge"][class*="critical"],
-.main-content > :not(#appHeader) [class*="pill"][class*="critical"],
-.main-content > :not(#appHeader) [class*="status"][class*="critical"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="danger"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="danger"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="danger"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="error"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="error"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="error"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="overdue"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="overdue"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="overdue"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="critical"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="critical"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="critical"] {
   color: var(--text-danger) !important;
   opacity: 1 !important;
 }
 
 /* Warning bubbles. */
-.main-content > :not(#appHeader) [class*="badge"][class*="warning"],
-.main-content > :not(#appHeader) [class*="pill"][class*="warning"],
-.main-content > :not(#appHeader) [class*="status"][class*="warning"],
-.main-content > :not(#appHeader) [class*="badge"][class*="pending"],
-.main-content > :not(#appHeader) [class*="pill"][class*="pending"],
-.main-content > :not(#appHeader) [class*="status"][class*="pending"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="warning"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="warning"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="warning"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="pending"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="pending"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="pending"] {
   color: var(--text-warning) !important;
   opacity: 1 !important;
 }
 
 /* Info bubbles. */
-.main-content > :not(#appHeader) [class*="badge"][class*="info"],
-.main-content > :not(#appHeader) [class*="pill"][class*="info"],
-.main-content > :not(#appHeader) [class*="status"][class*="info"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="info"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="info"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="info"] {
   color: var(--text-info) !important;
   opacity: 1 !important;
 }
 
 /* Dark solid bubbles must always use white text. */
-.main-content > :not(#appHeader) .badge-dark,
-.main-content > :not(#appHeader) .pill-dark,
-.main-content > :not(#appHeader) .status-dark,
-.main-content > :not(#appHeader) [class*="badge"][class*="dark"],
-.main-content > :not(#appHeader) [class*="pill"][class*="dark"],
-.main-content > :not(#appHeader) [class*="status"][class*="dark"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .badge-dark,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .pill-dark,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .status-dark,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="dark"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="dark"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="dark"] {
   color: var(--text-on-dark) !important;
 }
 
 /* Light solid bubbles must always use dark text. */
-.main-content > :not(#appHeader) .badge-light,
-.main-content > :not(#appHeader) .pill-light,
-.main-content > :not(#appHeader) .status-light,
-.main-content > :not(#appHeader) [class*="badge"][class*="light"],
-.main-content > :not(#appHeader) [class*="pill"][class*="light"],
-.main-content > :not(#appHeader) [class*="status"][class*="light"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .badge-light,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .pill-light,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .status-light,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="badge"][class*="light"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="pill"][class*="light"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="status"][class*="light"] {
   color: var(--text-on-light) !important;
 }
 
@@ -7701,7 +7704,7 @@ html[data-theme="dark"] {
    ========================================================= */
 
 /* Generic gray / neutral badges in Light Mode. */
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge,
   .pill,
@@ -7717,7 +7720,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
 }
 
 /* Generic gray / neutral badges in Dark Mode. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge,
   .pill,
@@ -7733,7 +7736,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Neutral/open bubbles specifically called out in the reported screens. */
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge-neutral,
   .pill-neutral,
@@ -7749,7 +7752,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
   border-color: rgba(17, 24, 39, .12) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge-neutral,
   .pill-neutral,
@@ -7816,7 +7819,7 @@ html[data-theme="dark"] #dailyOperationsView
 }
 
 /* Preserve semantic colors after the generic neutral rules. */
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="danger"],
   [class*="error"],
@@ -7826,7 +7829,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
   color: #991b1b !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="danger"],
   [class*="error"],
@@ -7836,7 +7839,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   color: #ffffff !important;
 }
 
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="warning"],
   [class*="important"]
@@ -7844,7 +7847,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
   color: #78350f !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="warning"],
   [class*="important"]
@@ -7852,7 +7855,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   color: #ffffff !important;
 }
 
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="success"],
   [class*="completed"],
@@ -7861,7 +7864,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
   color: #166534 !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="success"],
   [class*="completed"],
@@ -7901,72 +7904,72 @@ html[data-theme="dark"] {
    --------------------------------------------------------- */
 
 /* Common secondary text elements across every screen. */
-.main-content > :not(#appHeader) p,
-.main-content > :not(#appHeader) small,
-.main-content > :not(#appHeader) label,
-.main-content > :not(#appHeader) time,
-.main-content > :not(#appHeader) caption,
-.main-content > :not(#appHeader) .subtitle,
-.main-content > :not(#appHeader) [class*="subtitle"],
-.main-content > :not(#appHeader) [class*="description"],
-.main-content > :not(#appHeader) [class*="caption"],
-.main-content > :not(#appHeader) [class*="meta"],
-.main-content > :not(#appHeader) [class*="date"],
-.main-content > :not(#appHeader) [class*="time"],
-.main-content > :not(#appHeader) [class*="label"],
-.main-content > :not(#appHeader) [class*="helper"],
-.main-content > :not(#appHeader) [class*="hint"],
-.main-content > :not(#appHeader) [class*="note"],
-.main-content > :not(#appHeader) [class*="subtext"],
-.main-content > :not(#appHeader) [class*="summary"],
-.main-content > :not(#appHeader) [class*="empty"],
-.main-content > :not(#appHeader) [class*="no-data"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) p,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) small,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) label,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) time,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) caption,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .subtitle,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="subtitle"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="description"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="caption"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="meta"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="date"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="time"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="label"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="helper"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="hint"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="note"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="subtext"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="summary"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="empty"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="no-data"] {
   color: var(--app-secondary-text-color) !important;
   opacity: 1 !important;
   text-shadow: none !important;
 }
 
 /* Standard secondary copy. */
-.main-content > :not(#appHeader) p,
-.main-content > :not(#appHeader) label,
-.main-content > :not(#appHeader) time,
-.main-content > :not(#appHeader) .subtitle,
-.main-content > :not(#appHeader) [class*="subtitle"],
-.main-content > :not(#appHeader) [class*="description"],
-.main-content > :not(#appHeader) [class*="meta"],
-.main-content > :not(#appHeader) [class*="date"],
-.main-content > :not(#appHeader) [class*="time"],
-.main-content > :not(#appHeader) [class*="helper"],
-.main-content > :not(#appHeader) [class*="hint"],
-.main-content > :not(#appHeader) [class*="note"],
-.main-content > :not(#appHeader) [class*="subtext"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) p,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) label,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) time,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .subtitle,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="subtitle"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="description"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="meta"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="date"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="time"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="helper"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="hint"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="note"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="subtext"] {
   font-size: max(var(--app-secondary-text-size), 1em) !important;
   line-height: 1.65 !important;
 }
 
 /* Small labels and card footers. */
-.main-content > :not(#appHeader) small,
-.main-content > :not(#appHeader) [class*="caption"],
-.main-content > :not(#appHeader) [class*="label"] {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) small,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="caption"],
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) [class*="label"] {
   font-size: max(var(--app-small-text-size), 1em) !important;
   line-height: 1.55 !important;
 }
 
 /* Table secondary text. */
-.main-content > :not(#appHeader) th,
-.main-content > :not(#appHeader) td {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) th,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) td {
   color: var(--app-secondary-text-color) !important;
   opacity: 1 !important;
 }
 
-.main-content > :not(#appHeader) td small,
-.main-content > :not(#appHeader) th small {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) td small,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) th small {
   font-size: var(--app-caption-text-size) !important;
 }
 
 /* Form help and placeholder text. */
-.main-content > :not(#appHeader) input::placeholder,
-.main-content > :not(#appHeader) textarea::placeholder {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) input::placeholder,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) textarea::placeholder {
   color: var(--app-secondary-text-color) !important;
   opacity: 1 !important;
   font-size: var(--app-secondary-text-size) !important;
@@ -8036,7 +8039,7 @@ html[data-theme="dark"] {
    --------------------------------------------------------- */
 
 /* Do not flatten semantic text colors inside colored badges / statuses. */
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="badge"],
   [class*="pill"],
@@ -8099,14 +8102,14 @@ html[data-theme="dark"] {
    Header and Sidebar are excluded through the content scope.
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader) {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
   --text-primary: var(--audit-text-main);
   --text-secondary: var(--audit-text-secondary);
   --text-muted: var(--audit-text-secondary);
   --text-disabled: var(--audit-text-disabled);
 }
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .card,
   .panel,
@@ -8289,7 +8292,7 @@ html[data-theme="dark"] {
    Remaining muted text inside application content.
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   p,
   small,
@@ -8317,7 +8320,7 @@ html[data-theme="dark"] {
 }
 
 /* Disabled text stays readable without opacity fading. */
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   :disabled,
   [aria-disabled="true"],
@@ -8329,8 +8332,8 @@ html[data-theme="dark"] {
 }
 
 /* Form placeholder readability. */
-.main-content > :not(#appHeader) input::placeholder,
-.main-content > :not(#appHeader) textarea::placeholder {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) input::placeholder,
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) textarea::placeholder {
   color: var(--audit-text-disabled) !important;
   opacity: 1 !important;
   font-size: var(--audit-font-small) !important;
@@ -8341,7 +8344,7 @@ html[data-theme="dark"] {
    --------------------------------------------------------- */
 
 /* Keep colored badges and statuses semantically recognizable. */
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="badge"],
   [class*="pill"],
@@ -8390,7 +8393,7 @@ html[data-theme="dark"] {
    Legacy inner cards that retained fixed white backgrounds
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .performance-metric,
   .top-customer-item,
@@ -8418,7 +8421,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* KPI / report inner cells visible as white blocks in the dashboard. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .performance-metrics > *,
   .reports-kpi-grid > *,
@@ -8440,7 +8443,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    Buttons: remove pale Light Mode backgrounds in Dark Mode
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .secondary-btn,
   .compact-btn,
@@ -8466,28 +8469,28 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Retain semantic border accents without using pale backgrounds. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.delete-btn, [class*="delete"], [class*="danger"]) {
   background: rgba(127, 29, 29, .28) !important;
   color: #ffffff !important;
   border-color: rgba(248, 113, 113, .36) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.warning-btn, [class*="warning"], [class*="important"]) {
   background: rgba(120, 53, 15, .28) !important;
   color: #ffffff !important;
   border-color: rgba(251, 191, 36, .38) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.activate-btn, [class*="success"], [class*="approved"]) {
   background: rgba(20, 83, 45, .30) !important;
   color: #ffffff !important;
   border-color: rgba(74, 222, 128, .34) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .secondary-btn,
   .compact-btn,
@@ -8512,7 +8515,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    --------------------------------------------------------- */
 
 /* Neutral / open / inactive status. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge,
   .status-badge,
@@ -8537,7 +8540,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Success status. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .status-completed,
   .record-status.active,
@@ -8556,7 +8559,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Warning / pending status. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .status-upcoming,
   .quotation-status-review,
@@ -8572,7 +8575,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Danger / overdue / rejected status. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .status-overdue,
   .quotation-status-rejected,
@@ -8595,7 +8598,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    Forms and dropdown surfaces
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   input,
   select,
@@ -8611,7 +8614,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   border-color: var(--dark-control-border) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(input, textarea)::placeholder {
   color: #cbd5e1 !important;
   opacity: 1 !important;
@@ -8621,7 +8624,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    Follow-up and customer tables
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   table,
   tbody,
@@ -8633,11 +8636,11 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   color: #ffffff !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) tbody tr {
   background: transparent !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) tbody tr:nth-child(even) {
   background: rgba(255, 255, 255, .015) !important;
 }
 
@@ -8704,7 +8707,7 @@ html[data-theme="dark"] {
    Typography final lock — application content only
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader) {
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
   color: var(--ui-final-text);
   --text-primary: var(--ui-final-text);
   --text-secondary: var(--ui-final-secondary);
@@ -8712,7 +8715,7 @@ html[data-theme="dark"] {
   --text-disabled: var(--ui-final-disabled);
 }
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   h1, h2, h3, h4, h5, h6,
   strong, b, legend,
@@ -8738,7 +8741,7 @@ html[data-theme="dark"] {
   text-shadow: none !important;
 }
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   p,
   label,
@@ -8757,7 +8760,7 @@ html[data-theme="dark"] {
   line-height: 1.6 !important;
 }
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   small,
   [class*="caption"],
@@ -8767,7 +8770,7 @@ html[data-theme="dark"] {
   line-height: 1.55 !important;
 }
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   :disabled,
   [aria-disabled="true"],
@@ -8782,7 +8785,7 @@ html[data-theme="dark"] {
    Card and panel inner-surface final lock
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .card,
   .panel,
@@ -8803,7 +8806,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   border-color: var(--ui-final-border) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .performance-metric,
   .reports-kpi-grid > *,
@@ -8834,7 +8837,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
    Buttons and actions final lock
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   button,
   .btn,
@@ -8843,7 +8846,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   color: #ffffff !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .secondary-btn,
   .compact-btn,
@@ -8864,7 +8867,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   opacity: 1 !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .secondary-btn,
   .compact-btn,
@@ -8884,21 +8887,21 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Semantic action buttons. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.delete-btn, [class*="delete"], [class*="danger"]) {
   background: rgba(127, 29, 29, .34) !important;
   color: #ffffff !important;
   border-color: rgba(248, 113, 113, .40) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.warning-btn, [class*="warning"], [class*="important"]) {
   background: rgba(120, 53, 15, .34) !important;
   color: #ffffff !important;
   border-color: rgba(251, 191, 36, .42) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(.activate-btn, [class*="success"], [class*="approved"]) {
   background: rgba(20, 83, 45, .36) !important;
   color: #ffffff !important;
@@ -8906,7 +8909,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Light Mode action text remains dark. */
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(button, .btn, [role="button"]) {
   color: #111827 !important;
 }
@@ -8915,7 +8918,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
    Badges, pills and statuses final lock
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge,
   .pill,
@@ -8942,7 +8945,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Success. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="completed"],
   [class*="approved"],
@@ -8953,7 +8956,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Warning. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="pending"],
   [class*="warning"],
@@ -8963,7 +8966,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Danger. */
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   [class*="danger"],
   [class*="error"],
@@ -8976,7 +8979,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
 }
 
 /* Light Mode status text remains dark on pale bubbles. */
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .badge,
   .pill,
@@ -8998,7 +9001,7 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
    Forms, dropdowns and placeholders final lock
    --------------------------------------------------------- */
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   input,
   select,
@@ -9014,14 +9017,14 @@ html[data-theme="dark"] .main-content > :not(#appHeader)
   border-color: var(--ui-final-border) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(input, textarea)::placeholder {
   color: #cbd5e1 !important;
   opacity: 1 !important;
   font-size: var(--ui-final-font-small) !important;
 }
 
-html:not([data-theme="dark"]) .main-content > :not(#appHeader)
+html:not([data-theme="dark"]) .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(input, select, textarea)::placeholder {
   color: #4b5563 !important;
   opacity: 1 !important;
@@ -9031,23 +9034,23 @@ html:not([data-theme="dark"]) .main-content > :not(#appHeader)
    Tables and pagination final lock
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(table, th, td, caption) {
   color: var(--ui-final-text) !important;
   opacity: 1 !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(table, .table-wrap, .data-table, [class*="table-wrap"]) {
   border-color: var(--ui-final-border) !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) tbody tr {
   color: #ffffff !important;
   background: transparent !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) tbody tr:nth-child(even) {
   background: rgba(255, 255, 255, .018) !important;
 }
 
@@ -9055,7 +9058,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even
    Empty states, alerts and chart labels
    --------------------------------------------------------- */
 
-.main-content > :not(#appHeader)
+.main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .empty-state,
   [class*="empty-state"],
@@ -9068,7 +9071,7 @@ html[data-theme="dark"] .main-content > :not(#appHeader) tbody tr:nth-child(even
   opacity: 1 !important;
 }
 
-html[data-theme="dark"] .main-content > :not(#appHeader)
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
 :is(
   .alert,
   .notification,
@@ -9128,7 +9131,7 @@ html[data-theme="dark"] {
 }
 
 /* Shared high-contrast badge treatment. */
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(
   .kpi-delta,
   .analytics-bar-row > div:first-child span,
   .customer-action-item > span,
@@ -9147,87 +9150,87 @@ html[data-theme="dark"] .main-content > :not(#appHeader) :is(
 }
 
 /* KPI percentage deltas. */
-html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.positive {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .kpi-delta.positive {
   background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
   border-color: rgba(74, 222, 128, .65) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.negative {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .kpi-delta.negative {
   background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
   border-color: rgba(248, 113, 113, .65) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .kpi-delta.neutral {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .kpi-delta.neutral {
   background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
   border-color: rgba(148, 163, 184, .48) !important;
 }
 
 /* Customer analysis counters and Top 10 counters. */
-html[data-theme="dark"] .main-content > :not(#appHeader) .analytics-bar-row > div:first-child span {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .analytics-bar-row > div:first-child span {
   background: linear-gradient(135deg, #2563eb, var(--badge-info-bg)) !important;
   border-color: rgba(96, 165, 250, .60) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .top10-item > span {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .top10-item > span {
   background: linear-gradient(135deg, #0891b2, var(--badge-cyan-bg)) !important;
   border-color: rgba(34, 211, 238, .55) !important;
 }
 
 /* Follow-up state pills. */
-html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span.warning {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .customer-action-item > span.warning {
   background: linear-gradient(135deg, #d97706, var(--badge-warning-bg)) !important;
   border-color: rgba(251, 191, 36, .64) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span.critical {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .customer-action-item > span.critical {
   background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
   border-color: rgba(248, 113, 113, .66) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .customer-action-item > span:not(.warning):not(.critical) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .customer-action-item > span:not(.warning):not(.critical) {
   background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
   border-color: rgba(148, 163, 184, .48) !important;
 }
 
 /* Representative comparison percentages. */
-html[data-theme="dark"] .main-content > :not(#appHeader) .comparison-metric b.positive {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .comparison-metric b.positive {
   background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
   border-color: rgba(74, 222, 128, .62) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .comparison-metric b.negative {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .comparison-metric b.negative {
   background: linear-gradient(135deg, #dc2626, var(--badge-danger-bg)) !important;
   border-color: rgba(248, 113, 113, .62) !important;
 }
 
 /* Representative rank markers. */
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-number, .daily-performance-rank .rank) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(.rank-number, .daily-performance-rank .rank) {
   background: linear-gradient(135deg, #475569, var(--badge-neutral-bg)) !important;
   border-color: rgba(148, 163, 184, .50) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-1 .rank-number, .daily-performance-rank.rank-1 .rank) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(.rank-1 .rank-number, .daily-performance-rank.rank-1 .rank) {
   background: linear-gradient(135deg, #f59e0b, #b45309) !important;
   border-color: rgba(253, 224, 71, .72) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-2 .rank-number, .daily-performance-rank.rank-2 .rank) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(.rank-2 .rank-number, .daily-performance-rank.rank-2 .rank) {
   background: linear-gradient(135deg, #64748b, #334155) !important;
   border-color: rgba(203, 213, 225, .64) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(.rank-3 .rank-number, .daily-performance-rank.rank-3 .rank) {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(.rank-3 .rank-number, .daily-performance-rank.rank-3 .rank) {
   background: linear-gradient(135deg, #c2410c, #7c2d12) !important;
   border-color: rgba(251, 146, 60, .68) !important;
 }
 
 /* Daily performance task counters and target pills. */
-html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-checklist-summary {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .daily-performance-checklist-summary {
   background: linear-gradient(135deg, #2563eb, var(--badge-info-bg)) !important;
   border-color: rgba(96, 165, 250, .60) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-target-badges span.met {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .daily-performance-target-badges span.met {
   background: linear-gradient(135deg, #16a34a, var(--badge-success-bg)) !important;
   border-color: rgba(74, 222, 128, .62) !important;
 }
-html[data-theme="dark"] .main-content > :not(#appHeader) .daily-performance-target-badges span.pending {
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) .daily-performance-target-badges span.pending {
   background: linear-gradient(135deg, #d97706, var(--badge-warning-bg)) !important;
   border-color: rgba(251, 191, 36, .62) !important;
 }
 
 /* Preserve compact geometry while improving legibility. */
-html[data-theme="dark"] .main-content > :not(#appHeader) :is(
+html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) :is(
   .kpi-delta,
   .customer-action-item > span,
   .comparison-metric b,

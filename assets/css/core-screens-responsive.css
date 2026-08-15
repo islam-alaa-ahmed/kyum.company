@@ -237,7 +237,7 @@
 /* Wide desktop: prevent stretched, hard-to-scan cards. */
 @media (min-width: 1600px) {
   #dashboardView .dashboard-stats {
-    grid-template-columns: repeat(4, minmax(220px, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   #dashboardView .analytics-grid {

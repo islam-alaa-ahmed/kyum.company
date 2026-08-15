@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-82-desktop-visual-identity-pilot-d1-1";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-84-desktop-visual-fidelity-d1-2";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -16,6 +16,7 @@ const CORE_APP_SHELL = [
   "./assets/css/mobile.css",
   "./assets/css/responsive-foundation.css",
   "./assets/css/core-screens-responsive.css",
+  "./assets/css/desktop-visual-identity-canonical.css",
   "./assets/css/daily-reports-responsive.css",
   "./assets/css/mobile-shell-touch-certification.css",
   "./assets/css/tablet-desktop-certification.css",
