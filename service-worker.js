@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-95-desktop-mobile-modal-form-identity-d1-11";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-96-desktop-header-shell-h1-1";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

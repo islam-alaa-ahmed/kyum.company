@@ -1,13 +1,13 @@
 {
-  "version": "18.53.95",
-  "build": 185395,
+  "version": "18.53.96",
+  "build": 185396,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop & Mobile Modal/Form Visual Identity Integration — Phase D1.11",
+  "title": "Desktop Header Shell Visual Redesign — Phase H1.1",
   "notes": [
-    "تحويل الـshared dialog/form owner إلى Token-driven source واحد بدل الألوان الثابتة القديمة.",
-    "تطبيق هوية Desktop المعتمدة على جميع dialogs/forms المنبثقة عبر Desktop canonical tokens فقط.",
-    "تطبيق هوية Mobile المعتمدة على نفس المكونات عبر Mobile canonical tokens فقط مع one-column safe scrolling، دون أي تسريب بين المسارين."
+    "إعادة تصميم Desktop Header shell فقط وفق مرجع PETATOE مع Light frosted glass وDark midnight/navy.",
+    "إضافة Blue upper contour وCurved lower contour وGold side accents مع الحفاظ على محتوى الهيدر وترتيب الأيقونات والأزرار كما هو.",
+    "تجميد Mobile Header بالكامل وعدم تعديل JavaScript أو وظائف الهيدر."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-95-desktop-mobile-modal-form-identity-d1-11"
+  "cacheToken": "kyum-crm-pwa-18-53-96-desktop-header-shell-h1-1"
 }

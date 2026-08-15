@@ -11516,25 +11516,32 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
     padding:20px 28px !important;
 
     overflow:visible !important;
-    border:1px solid rgba(213,170,69,.62) !important;
-    border-top:0 !important;
-    border-radius:0 0 28px 28px !important;
+    border:1px solid rgba(45,134,255,.24) !important;
+    border-radius:28px 28px 34px 34px !important;
     background:
-      linear-gradient(145deg,rgba(255,255,255,.86),rgba(245,249,255,.73) 50%,rgba(235,244,255,.77)) !important;
-    background-image:linear-gradient(145deg,rgba(255,255,255,.86),rgba(245,249,255,.73) 50%,rgba(235,244,255,.77)) !important;
-    box-shadow:0 18px 42px rgba(15,23,42,.13),inset 0 1px 0 rgba(255,255,255,.92) !important;
-    backdrop-filter:blur(24px) saturate(145%) !important;
-    -webkit-backdrop-filter:blur(24px) saturate(145%) !important;
+      radial-gradient(circle at 50% 128%,rgba(45,134,255,.12),transparent 36%),
+      radial-gradient(circle at 9% 16%,rgba(18,201,255,.055),transparent 24%),
+      linear-gradient(112deg,rgba(248,251,255,.98) 0%,rgba(239,246,255,.96) 47%,rgba(246,250,255,.98) 100%) !important;
+    background-image:
+      radial-gradient(circle at 50% 128%,rgba(45,134,255,.12),transparent 36%),
+      radial-gradient(circle at 9% 16%,rgba(18,201,255,.055),transparent 24%),
+      linear-gradient(112deg,rgba(248,251,255,.98) 0%,rgba(239,246,255,.96) 47%,rgba(246,250,255,.98) 100%) !important;
+    box-shadow:
+      0 22px 52px rgba(24,58,104,.16),
+      0 0 28px rgba(45,134,255,.055),
+      inset 0 1px 0 rgba(255,255,255,.94) !important;
+    backdrop-filter:blur(18px) saturate(132%) !important;
+    -webkit-backdrop-filter:blur(18px) saturate(132%) !important;
     transform:none !important;
   }
 
-  /* One glass sheen + one lower identity line only. Old KYUM arcs are explicitly retired on desktop. */
+  /* H1.1 — Desktop header shell artwork only: blue upper contour, sparse gold side rails, and curved lower blue contour. */
   #appHeader.topbar::before,
   #appHeader.topbar.is-scrolled::before {
     content:"" !important;
     position:absolute !important;
     inset:0 !important;
-    z-index:-1 !important;
+    z-index:1 !important;
     display:block !important;
     border:0 !important;
     border-radius:inherit !important;
@@ -11543,29 +11550,40 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
     transform:none !important;
     filter:none !important;
     background:
-      linear-gradient(150deg,rgba(255,255,255,.36) 0%,rgba(255,255,255,.08) 26%,transparent 44%),
-      radial-gradient(ellipse at 18% -20%,rgba(255,255,255,.55),transparent 38%),
-      radial-gradient(ellipse at 78% 120%,rgba(45,146,255,.12),transparent 43%) !important;
+      linear-gradient(90deg,transparent 1%,rgba(45,134,255,.22) 12%,rgba(45,134,255,.88) 46%,rgba(18,201,255,.62) 64%,rgba(45,134,255,.26) 88%,transparent 99%) top 1px center/96% 2px no-repeat,
+      linear-gradient(180deg,transparent 0%,rgba(230,183,77,.42) 14%,#e6b74d 48%,rgba(255,217,120,.76) 78%,transparent 100%) left 10px center/2px 62% no-repeat,
+      linear-gradient(180deg,transparent 0%,rgba(255,217,120,.66) 14%,#e6b74d 52%,rgba(230,183,77,.38) 82%,transparent 100%) right 10px center/2px 62% no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.76),transparent) left 10px top 18px/34px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.76),transparent) right 10px bottom 18px/34px 2px no-repeat,
+      linear-gradient(150deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.055) 27%,transparent 46%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22) !important;
   }
   #appHeader.topbar::after,
   #appHeader.topbar.is-scrolled::after {
     content:"" !important;
     position:absolute !important;
-    left:34px !important;
-    right:34px !important;
-    bottom:0 !important;
+    left:16px !important;
+    right:16px !important;
+    bottom:-8px !important;
     top:auto !important;
     z-index:2 !important;
     display:block !important;
     width:auto !important;
-    height:2px !important;
+    height:42px !important;
     border:0 !important;
-    border-radius:999px !important;
+    border-radius:0 !important;
     opacity:1 !important;
     pointer-events:none !important;
     transform:none !important;
-    background:linear-gradient(90deg,transparent 0%,rgba(213,170,69,.45) 7%,rgba(45,146,255,.60) 24%,#5ac6ff 50%,rgba(45,146,255,.60) 76%,rgba(213,170,69,.45) 93%,transparent 100%) !important;
-    box-shadow:0 0 10px rgba(45,146,255,.30) !important;
+    background:
+      radial-gradient(ellipse at 50% 158%,
+        transparent 0 61.5%,
+        rgba(45,134,255,.18) 62.2%,
+        rgba(45,134,255,.92) 63.2%,
+        rgba(18,201,255,.56) 63.8%,
+        transparent 65.2%) !important;
+    filter:drop-shadow(0 0 7px rgba(45,134,255,.24)) !important;
+    box-shadow:none !important;
   }
 
   /* Retire old desktop-only brand/watermark/launcher artwork. */
@@ -11828,24 +11846,37 @@ html[data-theme="dark"] #customerDialog .geo-searchable-option:hover,html[data-t
     -webkit-backdrop-filter:blur(20px) saturate(140%) !important;
   }
 
-  /* Same geometry in dark mode; materials only change. */
+  /* Same geometry in dark mode; only the shell material changes to the approved PETATOE-inspired midnight language. */
   html[data-theme="dark"] #appHeader.topbar,
   html[data-theme="dark"] #appHeader.topbar.is-scrolled {
-    --kyum-header-text:#f7f9fc;
-    --kyum-header-muted:#aab7c8;
+    --kyum-header-text:#f8fbff;
+    --kyum-header-muted:#8ea2bd;
     --kyum-header-glass:rgba(12,28,48,.62);
-    --kyum-header-glass-border:rgba(125,153,187,.22);
-    background:linear-gradient(135deg,rgba(5,15,29,.96),rgba(6,24,43,.92) 54%,rgba(5,19,35,.95)) !important;
-    background-image:linear-gradient(135deg,rgba(5,15,29,.96),rgba(6,24,43,.92) 54%,rgba(5,19,35,.95)) !important;
-    border-color:rgba(213,170,69,.60) !important;
-    box-shadow:0 20px 48px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05) !important;
+    --kyum-header-glass-border:rgba(67,151,255,.24);
+    background:
+      radial-gradient(circle at 50% 125%,rgba(31,103,255,.13),transparent 34%),
+      radial-gradient(circle at 8% 18%,rgba(32,111,255,.055),transparent 22%),
+      linear-gradient(112deg,#020813 0%,#061427 47%,#020812 100%) !important;
+    background-image:
+      radial-gradient(circle at 50% 125%,rgba(31,103,255,.13),transparent 34%),
+      radial-gradient(circle at 8% 18%,rgba(32,111,255,.055),transparent 22%),
+      linear-gradient(112deg,#020813 0%,#061427 47%,#020812 100%) !important;
+    border-color:rgba(67,151,255,.24) !important;
+    box-shadow:
+      0 22px 52px rgba(0,7,19,.34),
+      0 0 28px rgba(45,134,255,.06),
+      inset 0 1px 0 rgba(255,255,255,.035) !important;
   }
   html[data-theme="dark"] #appHeader.topbar::before,
   html[data-theme="dark"] #appHeader.topbar.is-scrolled::before {
     background:
-      linear-gradient(150deg,rgba(255,255,255,.075) 0%,rgba(255,255,255,.018) 26%,transparent 45%),
-      radial-gradient(ellipse at 18% -20%,rgba(63,103,160,.12),transparent 38%),
-      radial-gradient(ellipse at 78% 120%,rgba(45,146,255,.13),transparent 43%) !important;
+      linear-gradient(90deg,transparent 1%,rgba(45,134,255,.18) 12%,rgba(45,134,255,.92) 46%,rgba(18,201,255,.56) 64%,rgba(45,134,255,.22) 88%,transparent 99%) top 1px center/96% 2px no-repeat,
+      linear-gradient(180deg,transparent 0%,rgba(230,183,77,.30) 14%,#e6b74d 48%,rgba(255,217,120,.68) 78%,transparent 100%) left 10px center/2px 62% no-repeat,
+      linear-gradient(180deg,transparent 0%,rgba(255,217,120,.58) 14%,#e6b74d 52%,rgba(230,183,77,.28) 82%,transparent 100%) right 10px center/2px 62% no-repeat,
+      linear-gradient(90deg,rgba(230,183,77,.68),transparent) left 10px top 18px/34px 2px no-repeat,
+      linear-gradient(270deg,rgba(230,183,77,.68),transparent) right 10px bottom 18px/34px 2px no-repeat,
+      linear-gradient(150deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 27%,transparent 46%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.028) !important;
   }
   html[data-theme="dark"] #appHeader .desktop-topbar-brand { border-right-color:rgba(125,153,187,.18) !important; }
   html[data-theme="dark"] #appHeader .desktop-topbar-brand-copy strong,
