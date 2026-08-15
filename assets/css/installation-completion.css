@@ -175,23 +175,23 @@ html[data-theme="dark"] .installation-completion-dialog .dialog-actions{
 /* Light mode: fully opaque, readable surfaces */
 html:not([data-theme="dark"]) .installation-completion-dialog .dialog-shell,
 html[data-theme="light"] .installation-completion-dialog .dialog-shell{
-  background:#f6f8fb !important;
-  color:#152033 !important;
-  border:1px solid #dce3ec !important;
+  background:var(--desktop-completion-shell,#f6f8fb) !important;
+  color:var(--desktop-completion-text,#152033) !important;
+  border:1px solid var(--desktop-completion-border,#dce3ec) !important;
   box-shadow:0 28px 80px rgba(15,23,42,.28) !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog .dialog-header,
 html:not([data-theme="dark"]) .installation-completion-dialog .dialog-actions,
 html[data-theme="light"] .installation-completion-dialog .dialog-header,
 html[data-theme="light"] .installation-completion-dialog .dialog-actions{
-  background:#ffffff !important;
-  color:#152033 !important;
-  border-color:#dce3ec !important;
+  background:var(--desktop-completion-header,#ffffff) !important;
+  color:var(--desktop-completion-text,#152033) !important;
+  border-color:var(--desktop-completion-border,#dce3ec) !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog .installation-completion-body,
 html[data-theme="light"] .installation-completion-dialog .installation-completion-body{
-  background:#eef2f7 !important;
-  color:#152033 !important;
+  background:var(--desktop-completion-body,#eef2f7) !important;
+  color:var(--desktop-completion-text,#152033) !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog .installation-completion-summary>div,
 html:not([data-theme="dark"]) .installation-completion-dialog .installation-invoice-section,
@@ -203,8 +203,8 @@ html[data-theme="light"] .installation-completion-dialog .installation-invoice-s
 html[data-theme="light"] .installation-completion-dialog .installation-evidence-section,
 html[data-theme="light"] .installation-completion-dialog .installation-delivery-authorization,
 html[data-theme="light"] .installation-completion-dialog .installation-existing-file{
-  background:#ffffff !important;
-  color:#152033 !important;
+  background:var(--desktop-completion-header,#ffffff) !important;
+  color:var(--desktop-completion-text,#152033) !important;
   border-color:#d7e0ea !important;
   box-shadow:0 8px 24px rgba(15,23,42,.045) !important;
 }
@@ -214,10 +214,10 @@ html:not([data-theme="dark"]) .installation-completion-dialog select,
 html[data-theme="light"] .installation-completion-dialog input,
 html[data-theme="light"] .installation-completion-dialog textarea,
 html[data-theme="light"] .installation-completion-dialog select{
-  background:#ffffff !important;
-  color:#152033 !important;
+  background:var(--desktop-completion-header,#ffffff) !important;
+  color:var(--desktop-completion-text,#152033) !important;
   border-color:#cfd8e3 !important;
-  -webkit-text-fill-color:#152033 !important;
+  -webkit-text-fill-color:var(--desktop-completion-text,#152033) !important;
   box-shadow:none !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog input::placeholder,
@@ -229,9 +229,9 @@ html[data-theme="light"] .installation-completion-dialog textarea::placeholder{
 }
 html:not([data-theme="dark"]) .installation-completion-dialog input[readonly],
 html[data-theme="light"] .installation-completion-dialog input[readonly]{
-  background:#f1f4f8 !important;
-  color:#667085 !important;
-  -webkit-text-fill-color:#667085 !important;
+  background:var(--desktop-completion-readonly,#f1f4f8) !important;
+  color:var(--desktop-completion-muted,#667085) !important;
+  -webkit-text-fill-color:var(--desktop-completion-muted,#667085) !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog label,
 html:not([data-theme="dark"]) .installation-completion-dialog h3,
@@ -239,46 +239,46 @@ html:not([data-theme="dark"]) .installation-completion-dialog h4,
 html[data-theme="light"] .installation-completion-dialog label,
 html[data-theme="light"] .installation-completion-dialog h3,
 html[data-theme="light"] .installation-completion-dialog h4{
-  color:#152033 !important;
+  color:var(--desktop-completion-text,#152033) !important;
 }
 html:not([data-theme="dark"]) .installation-completion-dialog small,
 html:not([data-theme="dark"]) .installation-completion-dialog .muted,
 html[data-theme="light"] .installation-completion-dialog small,
 html[data-theme="light"] .installation-completion-dialog .muted{
-  color:#667085 !important;
+  color:var(--desktop-completion-muted,#667085) !important;
 }
 
 /* Dark mode: coherent opaque navy surfaces */
 html[data-theme="dark"] .installation-completion-dialog .dialog-shell{
-  background:#0b1526 !important;
-  color:#f5f7fb !important;
-  border:1px solid #263650 !important;
+  background:var(--desktop-completion-shell,#0b1526) !important;
+  color:var(--desktop-completion-text,#f5f7fb) !important;
+  border:1px solid var(--desktop-completion-border,#263650) !important;
   box-shadow:0 30px 90px rgba(0,0,0,.55) !important;
 }
 html[data-theme="dark"] .installation-completion-dialog .dialog-header,
 html[data-theme="dark"] .installation-completion-dialog .dialog-actions{
-  background:#0e1a2d !important;
-  color:#f5f7fb !important;
-  border-color:#263650 !important;
+  background:var(--desktop-completion-header,#0e1a2d) !important;
+  color:var(--desktop-completion-text,#f5f7fb) !important;
+  border-color:var(--desktop-completion-border,#263650) !important;
 }
 html[data-theme="dark"] .installation-completion-dialog .installation-completion-body{
-  background:#101c30 !important;
-  color:#f5f7fb !important;
+  background:var(--desktop-completion-body,#101c30) !important;
+  color:var(--desktop-completion-text,#f5f7fb) !important;
 }
 html[data-theme="dark"] .installation-completion-dialog .installation-completion-summary>div,
 html[data-theme="dark"] .installation-completion-dialog .installation-invoice-section,
 html[data-theme="dark"] .installation-completion-dialog .installation-evidence-section,
 html[data-theme="dark"] .installation-completion-dialog .installation-delivery-authorization,
 html[data-theme="dark"] .installation-completion-dialog .installation-existing-file{
-  background:#142238 !important;
-  color:#f5f7fb !important;
+  background:var(--desktop-completion-card,#142238) !important;
+  color:var(--desktop-completion-text,#f5f7fb) !important;
   border-color:#30415e !important;
   box-shadow:none !important;
 }
 html[data-theme="dark"] .installation-completion-dialog input,
 html[data-theme="dark"] .installation-completion-dialog textarea,
 html[data-theme="dark"] .installation-completion-dialog select{
-  background:#182740 !important;
+  background:var(--desktop-completion-control,#182740) !important;
   color:#f8fafc !important;
   border-color:#40516f !important;
   -webkit-text-fill-color:#f8fafc !important;
@@ -290,18 +290,18 @@ html[data-theme="dark"] .installation-completion-dialog textarea::placeholder{
   opacity:1 !important;
 }
 html[data-theme="dark"] .installation-completion-dialog input[readonly]{
-  background:#1d2b43 !important;
+  background:var(--desktop-completion-readonly,#1d2b43) !important;
   color:#b8c3d3 !important;
   -webkit-text-fill-color:#b8c3d3 !important;
 }
 html[data-theme="dark"] .installation-completion-dialog label,
 html[data-theme="dark"] .installation-completion-dialog h3,
 html[data-theme="dark"] .installation-completion-dialog h4{
-  color:#f5f7fb !important;
+  color:var(--desktop-completion-text,#f5f7fb) !important;
 }
 html[data-theme="dark"] .installation-completion-dialog small,
 html[data-theme="dark"] .installation-completion-dialog .muted{
-  color:#aeb9c9 !important;
+  color:var(--desktop-completion-muted,#aeb9c9) !important;
 }
 html[data-theme="dark"] .installation-completion-dialog .installation-invoice-note{
   background:#341819 !important;

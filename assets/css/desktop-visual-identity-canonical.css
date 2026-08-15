@@ -334,6 +334,12 @@
     --badge-bg:color-mix(in srgb,var(--desk-blue) 7%,var(--desk-glass-soft));--badge-color:var(--desk-text);
     --badge-border:1px solid color-mix(in srgb,var(--desk-blue) 24%,var(--desk-line));
     --control-color-scheme:light;--option-bg:#fff;--option-color:var(--desk-text);
+    --desktop-exec-surface:var(--desk-glass-strong);--desktop-exec-soft:var(--desk-glass-soft);
+    --desktop-exec-line:var(--desk-line);--desktop-exec-muted:var(--desk-muted);--desktop-exec-text:var(--desk-text);
+    --desktop-completion-shell:var(--desk-glass-strong);--desktop-completion-header:var(--desk-glass-strong);
+    --desktop-completion-body:var(--desk-glass);--desktop-completion-card:var(--desk-glass-soft);
+    --desktop-completion-control:var(--desk-glass-strong);--desktop-completion-readonly:var(--desk-glass-deep);
+    --desktop-completion-border:var(--desk-line);--desktop-completion-text:var(--desk-text);--desktop-completion-muted:var(--desk-muted);
   }
   html[data-theme="dark"] :is(#quotationsView,#representativesView,#dailyOperationsView,#dailyPerformanceReportView,
       #installationRequestNewView,#installationRequestsView,#installationExecutionView,#installationCompletionView,

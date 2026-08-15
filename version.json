@@ -1,13 +1,13 @@
 {
-  "version": "18.53.89",
-  "build": 185388,
+  "version": "18.53.90",
+  "build": 185390,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Scheduling Calendar Structural Fidelity — Phase D1.6",
+  "title": "Desktop Light/Dark Consistency Certification — Phase D1.8",
   "notes": [
-    "استبدال بنية Desktop Calendar القديمة المتصلة ببطاقات أيام مستقلة Rounded مع gaps حقيقية داخل owner الجدولة نفسه.",
-    "تثبيت Active/Today Day بحد ذهبي واضح وخلفية Navy/Glass بدون تحويل الخلية بالكامل للذهبي.",
-    "تقريب KPI cards وأيام الأسبوع ومحتوى المواعيد من Visual Language المرجعية مع الحفاظ على Light/Dark وMobile/Tablet دون تغيير."
+    "توحيد Theme tokens للشاشات المتخصصة على Desktop ومنع الأسطح الفاتحة من الظهور داخل Dark Mode.",
+    "ربط شاشة تنفيذ التركيبات ومحضر التركيب بالـDesktop canonical surfaces مع الحفاظ على fallbacks الأصلية للموبايل والتابلت.",
+    "مراجعة select/options/controls/cards في Light وDark دون تعديل Header أو Sidebar أو Business Logic."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-88-desktop-scheduling-calendar-fidelity-d1-6"
+  "cacheToken": "kyum-crm-pwa-18-53-90-desktop-light-dark-consistency-d1-8"
 }
