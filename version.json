@@ -1,14 +1,13 @@
 {
-  "version": "18.53.87",
-  "build": 185387,
+  "version": "18.53.88",
+  "build": 185388,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Specialized Screens Theme Isolation — Phase D1.5",
+  "title": "Desktop Scheduling Calendar Structural Fidelity — Phase D1.6",
   "notes": [
-    "إغلاق تسرب Mobile Reports toolbar/filter sheet إلى مركز التقارير على Desktop وإزالة أي DOM موبايل عند اتساع الشاشة.",
-    "توحيد Legacy surface/text/border tokens للشاشات المتخصصة مع canonical Desktop Light/Dark owner لمنع الخلفيات البيضاء داخل Dark Mode.",
-    "إعادة ضبط تقويم جدولة التركيبات على Desktop ليطابق لغة PETATOE مع Active Day ذهبي وخلايا Navy/Glass متجانسة.",
-    "توحيد تبويبات وفلاتر تقارير التركيبات في Light/Dark بدون طبقات CSS متنافسة، مع إبقاء Header/Sidebar/Mobile/Tablet مجمدة."
+    "استبدال بنية Desktop Calendar القديمة المتصلة ببطاقات أيام مستقلة Rounded مع gaps حقيقية داخل owner الجدولة نفسه.",
+    "تثبيت Active/Today Day بحد ذهبي واضح وخلفية Navy/Glass بدون تحويل الخلية بالكامل للذهبي.",
+    "تقريب KPI cards وأيام الأسبوع ومحتوى المواعيد من Visual Language المرجعية مع الحفاظ على Light/Dark وMobile/Tablet دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-87-desktop-specialized-theme-isolation-d1-5"
+  "cacheToken": "kyum-crm-pwa-18-53-88-desktop-scheduling-calendar-fidelity-d1-6"
 }

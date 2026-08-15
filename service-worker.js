@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-87-desktop-specialized-theme-isolation-d1-5";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-88-desktop-scheduling-calendar-fidelity-d1-6";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
