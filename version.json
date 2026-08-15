@@ -1,14 +1,13 @@
 {
-  "version": "18.53.83",
-  "build": 185383,
+  "version": "18.53.82",
+  "build": 185382,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Mobile Visual Identity Final Coverage & Certification — Phase M15.31.7",
+  "title": "Desktop Visual Identity Pilot — Dashboard, Customers & Followups — Phase D1.1",
   "notes": [
-    "إغلاق تدقيق تغطية الهوية البصرية للموبايل بعد التأكد أن جميع شاشات الأعمال الفعلية مشمولة داخل mobile-theme-canonical.css.",
-    "استثناء loginView وappView من rollout الشاشات باعتبارهما shell/runtime containers وليسا شاشات أعمال مستقلة.",
-    "إضافة عقد Certification آلي يمنع فقد تغطية أي Feature View ويثبت بقاء الهوية ضمن Mobile media scope دون إضافة طبقات CSS بصرية جديدة.",
-    "الحفاظ على Desktop/Tablet وBusiness Logic وPermissions وOffline/Sync دون أي تعديل وظيفي أو بصري."
+    "تطبيق الهوية البصرية المرجعية لنسخة Desktop على الرئيسية والعملاء والمتابعات فقط.",
+    "توحيد Cards/KPI/Tables/Filters/Forms/Buttons في نطاق Desktop >=1024 مع Light/Dark.",
+    "عدم تعديل Desktop Header أو Sidebar، والحفاظ على Mobile/Tablet وBusiness Logic دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-83-mobile-visual-identity-final-certification-m15-31-7"
+  "cacheToken": "kyum-crm-pwa-18-53-82-desktop-visual-identity-pilot-d1-1"
 }
