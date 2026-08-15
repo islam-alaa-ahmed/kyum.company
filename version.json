@@ -1,13 +1,13 @@
 {
-  "version": "18.53.92",
-  "build": 185392,
+  "version": "18.53.93",
+  "build": 185393,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Final Regression & Visual Certification — Phase D1.10",
+  "title": "Mobile Leakage Recovery & Scheduling Fidelity — Phase D1.10.1",
   "notes": [
-    "إغلاق مسار الهوية البصرية لنسخة Desktop بعد مراجعة التغطية والثيم والاحتواء والشاشات المتخصصة.",
-    "إزالة آخر forced visual override من Cost Matrix ونقل ملكية السطح إلى feature owner نفسه باستخدام canonical desktop tokens.",
-    "تثبيت Desktop content baseline مع بقاء Header وSidebar وMobile/Tablet خارج نطاق التعديل."
+    "إصلاح تسرب fallback الأبيض داخل كروت أداء المندوبين في Mobile Dark Mode من الـMobile canonical owner.",
+    "إعادة تصميم Calendar جدولة التركيبات على Mobile فقط إلى 3-column independent day cards مستوحاة من المرجع المعتمد.",
+    "الحفاظ على Desktop D1.10 وTablet وHeader/Sidebar دون أي تغيير بصري."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-92-desktop-final-visual-certification-d1-10"
+  "cacheToken": "kyum-crm-pwa-18-53-93-mobile-leakage-recovery-scheduling-fidelity-d1-10-1"
 }

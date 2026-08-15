@@ -69,7 +69,129 @@
   .installation-schedule-view .installation-day-lock-glass{border-radius:12px}
 }
 @media(max-width:1023px){.installation-schedule-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.installation-calendar-shell{overflow-x:auto}.installation-calendar-weekdays,.installation-calendar-grid{min-width:860px}}
-@media(max-width:767px){.installation-schedule-header{align-items:stretch}.installation-schedule-actions{width:100%}.installation-schedule-actions button{flex:1}.installation-schedule-toolbar>*{flex:1 1 140px}.installation-schedule-kpis{grid-template-columns:1fr 1fr}.installation-calendar-day{min-height:112px}.installation-technicians-dialog .table-wrap{max-height:42vh}.installation-assignment-dialog .dialog-shell{width:calc(100vw - 16px);padding:16px;max-height:92dvh}.installation-assignment-grid{grid-template-columns:1fr;gap:12px}.installation-assignment-dialog .dialog-actions{bottom:-16px;margin:16px -16px -16px;padding:12px 16px}.installation-assignment-dialog .dialog-actions button{flex:1}}
+@media(max-width:767px){
+  .installation-schedule-header{align-items:stretch}
+  .installation-schedule-actions{width:100%}
+  .installation-schedule-actions button{flex:1}
+  .installation-schedule-toolbar>*{flex:1 1 140px}
+  .installation-schedule-kpis{grid-template-columns:1fr 1fr}
+
+  /* D1.10.1 — Mobile scheduling structural fidelity.
+     Replace inherited tablet/desktop-like 860px calendar with independent 3-column mobile day cards. */
+  .installation-schedule-view .installation-calendar-shell{
+    padding:0;
+    overflow:visible;
+    border:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  .installation-schedule-view .installation-calendar-weekdays{
+    display:none;
+  }
+  .installation-schedule-view .installation-calendar-grid{
+    min-width:0;
+    width:100%;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    border:0;
+    background:transparent;
+    overflow:visible;
+  }
+  .installation-schedule-view .installation-calendar-day{
+    min-width:0;
+    min-height:214px;
+    padding:12px 10px 11px;
+    gap:9px;
+    border:1px solid color-mix(in srgb,var(--border) 82%,var(--primary) 18%);
+    border-radius:20px;
+    background:linear-gradient(155deg,color-mix(in srgb,var(--surface-soft) 72%,var(--surface)),var(--surface));
+    box-shadow:0 8px 20px rgba(15,23,42,.10),inset 0 1px 0 rgba(255,255,255,.035);
+    overflow:hidden;
+  }
+  .installation-schedule-view .installation-calendar-day.is-today{
+    outline:0;
+    border-color:var(--kyum-content-gold,#d5a132);
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--kyum-content-gold,#d5a132) 64%,transparent),0 9px 22px rgba(15,23,42,.12);
+  }
+  .installation-schedule-view .installation-calendar-day-header{
+    min-height:34px;
+    margin:0;
+    align-items:flex-start;
+    gap:6px;
+  }
+  .installation-schedule-view .installation-calendar-day-header strong{
+    flex:none;
+    font-size:1rem;
+    line-height:1.1;
+    color:var(--text);
+  }
+  .installation-schedule-view .installation-day-header-actions{
+    min-width:0;
+    gap:4px;
+    flex-direction:column-reverse;
+    align-items:flex-start;
+  }
+  .installation-schedule-view .installation-calendar-day-header small{
+    max-width:100%;
+    font-size:.72rem;
+    line-height:1.1;
+    color:var(--text);
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  .installation-schedule-view .installation-day-lock-toggle{
+    width:30px;
+    height:30px;
+    border-radius:10px;
+    background:color-mix(in srgb,var(--surface-soft) 84%,var(--surface));
+  }
+  .installation-schedule-view .installation-calendar-day-summary{
+    align-content:start;
+    gap:6px;
+  }
+  .installation-schedule-view .installation-calendar-team-summary{
+    grid-template-columns:8px minmax(0,1fr);
+    gap:5px;
+    padding:5px 6px;
+    border-radius:8px;
+    background:color-mix(in srgb,var(--primary) 7%,var(--surface-soft));
+    font-size:.64rem;
+  }
+  .installation-schedule-view .installation-calendar-team-summary strong{
+    grid-column:1/-1;
+    padding-inline-start:13px;
+    font-size:.61rem;
+  }
+  .installation-schedule-view .installation-calendar-empty{
+    margin:auto 0;
+    text-align:center;
+    font-size:.66rem;
+    line-height:1.5;
+  }
+  .installation-schedule-view .installation-calendar-details-link{
+    width:100%;
+    margin-top:auto;
+    padding:7px 6px;
+    border:1px solid color-mix(in srgb,var(--primary) 36%,var(--border));
+    border-radius:10px;
+    color:var(--text);
+    background:color-mix(in srgb,var(--primary) 6%,var(--surface));
+    font-size:.68rem;
+    line-height:1.2;
+  }
+  .installation-schedule-view .installation-day-lock-glass{
+    border-radius:20px;
+  }
+  .installation-schedule-view .installation-calendar-day.has-appointments:hover{
+    transform:none;
+  }
+
+  .installation-technicians-dialog .table-wrap{max-height:42vh}
+  .installation-assignment-dialog .dialog-shell{width:calc(100vw - 16px);padding:16px;max-height:92dvh}
+  .installation-assignment-grid{grid-template-columns:1fr;gap:12px}
+  .installation-assignment-dialog .dialog-actions{bottom:-16px;margin:16px -16px -16px;padding:12px 16px}
+  .installation-assignment-dialog .dialog-actions button{flex:1}
+}
 
 /* Phase M14.8.4.3 — assignment modal field order and team integration */
 .installation-assignment-dialog .dialog-shell{border-radius:22px;box-shadow:0 24px 70px rgba(15,23,42,.28)}

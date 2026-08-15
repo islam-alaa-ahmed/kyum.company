@@ -1051,6 +1051,24 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
     background:var(--kyum-content-glass-soft)!important;
     box-shadow:var(--kyum-content-icon-shadow)!important;
   }
+  /* D1.10.1 — Mobile leakage recovery: inner representative metrics must never fall back to legacy #fff. */
+  #dashboardView .performance-metrics{
+    gap:9px!important;
+  }
+  #dashboardView .performance-metric{
+    min-width:0!important;
+    border:1px solid var(--kyum-content-line)!important;
+    border-radius:14px!important;
+    background:var(--kyum-content-glass-blue)!important;
+    color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-icon-shadow)!important;
+  }
+  #dashboardView .performance-metric span{
+    color:var(--kyum-content-muted)!important;
+  }
+  #dashboardView .performance-metric strong{
+    color:var(--kyum-content-text)!important;
+  }
 
   /* ----- Customers ----- */
   #customersView .customers-mobile-cards{gap:13px!important}
