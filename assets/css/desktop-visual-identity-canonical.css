@@ -20,6 +20,26 @@
     --desk-muted:#6b7f9b;
     --desk-shadow:0 18px 44px rgba(20,58,104,.13),0 5px 16px rgba(47,131,255,.055),inset 0 1px 0 rgba(255,255,255,.94);
     --desk-shadow-blue:0 18px 42px rgba(20,95,190,.17),0 0 0 1px rgba(47,131,255,.055),0 0 24px rgba(47,131,255,.06),inset 0 1px 0 rgba(255,255,255,.94);
+    --desktop-flex-child-min-width:0;
+    --desktop-grid-child-min-width:0;
+    --desktop-grid-child-max-width:100%;
+    --table-layout:auto;
+    --table-cell-overflow-wrap:normal;
+    --table-cell-word-break:normal;
+    --status-badge-white-space:nowrap;
+    --status-badge-min-width:max-content;
+    --quotation-status-white-space:nowrap;
+    --quotation-status-min-width:max-content;
+    --tag-white-space:nowrap;
+    --tag-min-width:max-content;
+    --simple-item-min-width:0;
+    --simple-item-child-min-width:0;
+    --simple-item-overflow-wrap:anywhere;
+    --rep-card-min-width:0;
+    --rep-card-overflow-wrap:anywhere;
+    --profile-item-min-width:0;
+    --profile-item-overflow-wrap:anywhere;
+    --performance-head-child-min-width:0;
   }
   html[data-theme="dark"]{
     --desk-glass:rgba(8,25,48,.80);
@@ -300,6 +320,9 @@
 
   #customersView .customers-mobile-cards{display:none!important;}
 
+
+  /* Phase D1.9 — Desktop component geometry & containment contract.
+     Geometry values flow through the shared owners in style.css; no component-specific patch layer. */
   /* Phase D1.7 — Specialized desktop screen canonical token rollout.
      Feature files keep geometry; this existing canonical owner supplies shared desktop visuals. */
   :is(#quotationsView,#representativesView,#dailyOperationsView,#dailyPerformanceReportView,
@@ -333,6 +356,13 @@
     --row-action-border:1px solid var(--desk-line);--row-action-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
     --badge-bg:color-mix(in srgb,var(--desk-blue) 7%,var(--desk-glass-soft));--badge-color:var(--desk-text);
     --badge-border:1px solid color-mix(in srgb,var(--desk-blue) 24%,var(--desk-line));
+    --badge-white-space:nowrap;--badge-min-width:max-content;
+    --status-badge-white-space:nowrap;--status-badge-min-width:max-content;
+    --quotation-status-white-space:nowrap;--quotation-status-min-width:max-content;
+    --row-actions-gap:8px;--row-actions-wrap:wrap;--row-actions-align:center;
+    --row-action-min-width:max-content;--row-action-white-space:nowrap;
+    --desktop-flex-child-min-width:0;--desktop-grid-child-min-width:0;--desktop-grid-child-max-width:100%;
+    --table-cell-overflow-wrap:normal;--table-cell-word-break:normal;
     --control-color-scheme:light;--option-bg:#fff;--option-color:var(--desk-text);
     --desktop-exec-surface:var(--desk-glass-strong);--desktop-exec-soft:var(--desk-glass-soft);
     --desktop-exec-line:var(--desk-line);--desktop-exec-muted:var(--desk-muted);--desktop-exec-text:var(--desk-text);

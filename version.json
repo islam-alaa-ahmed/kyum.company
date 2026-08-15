@@ -1,13 +1,13 @@
 {
-  "version": "18.53.90",
-  "build": 185390,
+  "version": "18.53.91",
+  "build": 185391,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Light/Dark Consistency Certification — Phase D1.8",
+  "title": "Desktop Component Geometry & Containment Audit — Phase D1.9",
   "notes": [
-    "توحيد Theme tokens للشاشات المتخصصة على Desktop ومنع الأسطح الفاتحة من الظهور داخل Dark Mode.",
-    "ربط شاشة تنفيذ التركيبات ومحضر التركيب بالـDesktop canonical surfaces مع الحفاظ على fallbacks الأصلية للموبايل والتابلت.",
-    "مراجعة select/options/controls/cards في Light وDark دون تعديل Header أو Sidebar أو Business Logic."
+    "توحيد احتواء النصوص والعناصر في Desktop Badges وStatus pills وأزرار الإجراءات بدون كسر الكلمات.",
+    "إضافة Desktop min-width contracts لعناصر Panels/Filters/Forms/Cards مع الحفاظ على Mobile/Tablet fallbacks كما هي.",
+    "منع تكرار مشاكل خروج النصوص أو ضغطها داخل الجداول والكروت دون تعديل Header أو Sidebar أو Business Logic."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-90-desktop-light-dark-consistency-d1-8"
+  "cacheToken": "kyum-crm-pwa-18-53-91-desktop-component-geometry-d1-9"
 }
