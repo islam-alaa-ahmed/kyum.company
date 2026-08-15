@@ -1,14 +1,14 @@
 {
-  "version": "18.53.81",
-  "build": 185381,
+  "version": "18.53.82",
+  "build": 185382,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Administration & Settings Mobile Visual Identity + Report KPI Collision Fix — Phase M15.31.5",
+  "title": "Reports Layout Stabilization & Remaining Mobile Identity Continuation — Phase M15.31.6",
   "notes": [
-    "تصحيح Root Cause لتداخل أيقونات تقارير KPI عبر تصفير inset legacy وحجز المساحة في عنوان الكارت فقط بدل تضييق قيمة المؤشر.",
-    "تعميم الهوية البصرية المعتمدة على المستخدمين والصلاحيات وسجل النشاط والنسخ الاحتياطي ومراقبة النظام والإشعارات وإعدادات النظام وحول التطبيق والبيانات المرجعية في الموبايل فقط.",
-    "استبدال رموز النسخ الاحتياطي النصية بأيقونات SVG دلالية موحدة داخل حاويات Blue/Gold/Danger.",
-    "الحفاظ على Desktop/Tablet وBusiness Logic والصلاحيات وHeader وSide Menu وBottom Navigation دون تغيير."
+    "تثبيت عقد Layout موحد لكروت KPI في التقارير لفصل الأيقونة والعنوان وBadge التغيير والقيم الطويلة دون تداخل على الموبايل.",
+    "إضافة Layout مخصص لقائمة أعلى العملاء يحمي Rank واسم العميل وعدد العروض وقيمة SAR في RTL والشاشات الضيقة.",
+    "تعميم الهوية البصرية المعتمدة بشكل Mobile-only على مندوبي المبيعات ولوحة التركيبات والاستثناءات والتكاليف وإعدادات التركيبات.",
+    "نقل ملكية تنسيق Executive KPI من mobile.css إلى mobile-theme-canonical.css لمنع تراكم طبقات CSS المتعارضة مع الحفاظ على Desktop/Tablet وBusiness Logic دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-81-admin-settings-mobile-identity-m15-31-5"
+  "cacheToken": "kyum-crm-pwa-18-53-82-reports-layout-mobile-identity-m15-31-6"
 }

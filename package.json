@@ -1,6 +1,6 @@
 {
   "name": "kyum-company-crm-mobile",
-  "version": "18.53.81",
+  "version": "18.53.82",
   "private": true,
   "description": "Native Android/iOS packaging layer for KYUM Company CRM.",
   "scripts": {
@@ -32,7 +32,8 @@
     "check:m15.10": "node scripts/phase-m15-10-installation-summary-execution-timeline-check.mjs",
     "check:m15.10.1": "node scripts/phase-m15-10-1-installation-summary-timeline-accuracy-check.mjs",
     "check:s1": "node scripts/phase-s1-service-analytics-dashboard-check.mjs",
-    "phase:m15.31.5:check": "node scripts/phase-m15-31-5-admin-settings-mobile-identity-check.mjs"
+    "phase:m15.31.5:check": "node scripts/phase-m15-31-5-admin-settings-mobile-identity-check.mjs",
+    "phase:m15.31.6:check": "node scripts/phase-m15-31-6-reports-layout-mobile-identity-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

@@ -1047,14 +1047,7 @@
   #reportsOverviewView .executive-period-summary{grid-template-columns:1fr;gap:8px;margin:0 0 12px}
   #reportsOverviewView .executive-period-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:11px 13px;border-radius:15px}
 
-  #reportsOverviewView .reports-kpi-grid,
-  #reportsOverviewView .executive-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  #reportsOverviewView .executive-kpi-card{min-height:128px;padding:14px;border-radius:18px}
-  #reportsOverviewView .executive-kpi-card .kpi-card-head{align-items:flex-start;gap:6px}
-  #reportsOverviewView .executive-kpi-card .kpi-card-head span{font-size:11px;line-height:1.45}
-  #reportsOverviewView .executive-kpi-card .kpi-delta{font-size:9px}
-  #reportsOverviewView .executive-kpi-card>strong{font-size:24px;overflow-wrap:anywhere}
-  #reportsOverviewView .executive-kpi-card>small{font-size:10px;line-height:1.45}
+  /* Executive KPI visual ownership moved to mobile-theme-canonical.css in M15.31.6. */
 
   #reportsOverviewView .reports-dashboard-grid,
   #reportsOverviewView .reports-dashboard-grid.analytics-grid,

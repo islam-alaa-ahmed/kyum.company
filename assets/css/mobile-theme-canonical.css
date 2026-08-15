@@ -1627,6 +1627,119 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #reportsOverviewView .table-wrap,
   #dailyPerformanceReportView .table-wrap{border-color:var(--kyum-content-line)!important;border-radius:16px!important;background:var(--kyum-content-glass-soft)!important}
 
+  /* ----- M15.31.6 reports stabilization + remaining scoped mobile identity ----- */
+  /* Reports KPI: one canonical layout contract for icon, title, delta and long values. */
+  #reportsOverviewView :is(.reports-kpi-grid,.executive-kpi-grid){
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
+  }
+  #reportsOverviewView .executive-kpi-card{
+    display:grid!important;grid-template-rows:auto auto 1fr!important;align-content:start!important;gap:7px!important;
+    min-width:0!important;min-height:118px!important;padding:14px 13px!important;
+  }
+  #reportsOverviewView .executive-kpi-card .kpi-card-head{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;column-gap:7px!important;
+    min-width:0!important;padding-inline-end:42px!important;
+  }
+  #reportsOverviewView .executive-kpi-card .kpi-card-head>span{
+    min-width:0!important;font-size:11px!important;line-height:1.45!important;overflow-wrap:anywhere!important;
+  }
+  #reportsOverviewView .executive-kpi-card .kpi-delta{
+    position:static!important;inset:auto!important;align-self:start!important;max-width:72px!important;padding:3px 6px!important;
+    border-radius:999px!important;font-size:9px!important;line-height:1.25!important;white-space:normal!important;text-align:center!important;overflow-wrap:anywhere!important;
+  }
+  #reportsOverviewView .executive-kpi-card>strong{
+    display:block!important;min-width:0!important;max-width:100%!important;margin:0!important;
+    font-size:clamp(18px,5.25vw,25px)!important;line-height:1.15!important;overflow-wrap:anywhere!important;word-break:break-word!important;
+  }
+  #reportsOverviewView .executive-kpi-card>small{
+    min-width:0!important;font-size:10px!important;line-height:1.5!important;overflow-wrap:anywhere!important;
+  }
+
+  /* Top customers: explicit rank/content/value tracks prevent RTL collisions and long-SAR overflow. */
+  #reportsOverviewView .top-customer-list{display:grid!important;gap:9px!important;min-width:0!important;padding-bottom:6px!important}
+  #reportsOverviewView .top-customer-item{
+    display:grid!important;grid-template-columns:34px minmax(0,1fr) minmax(86px,auto)!important;align-items:center!important;gap:10px!important;
+    min-width:0!important;padding:11px 12px!important;border:1px solid var(--kyum-content-line)!important;border-radius:15px!important;
+    background:var(--kyum-content-glass-soft)!important;box-shadow:var(--kyum-content-icon-shadow)!important;
+  }
+  #reportsOverviewView .top-customer-item:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important}
+  #reportsOverviewView .top-customer-item>span{
+    display:grid!important;place-items:center!important;width:34px!important;height:34px!important;border-radius:11px!important;
+    border:1px solid var(--kyum-content-line)!important;background:var(--kyum-content-glass-blue)!important;color:var(--kyum-content-blue)!important;font-weight:900!important;
+  }
+  #reportsOverviewView .top-customer-item:nth-child(3n+1)>span{border-color:var(--kyum-content-gold-line)!important;color:var(--kyum-content-gold)!important}
+  #reportsOverviewView .top-customer-item>div{min-width:0!important}
+  #reportsOverviewView .top-customer-item>div>strong{display:block!important;min-width:0!important;font-size:12px!important;line-height:1.45!important;overflow-wrap:anywhere!important}
+  #reportsOverviewView .top-customer-item>div>small{display:block!important;margin-top:2px!important;font-size:9.5px!important;line-height:1.45!important;color:var(--kyum-content-muted)!important;overflow-wrap:anywhere!important}
+  #reportsOverviewView .top-customer-item>b{
+    min-width:0!important;max-width:120px!important;font-size:11px!important;line-height:1.35!important;text-align:end!important;color:var(--kyum-content-text)!important;overflow-wrap:anywhere!important;word-break:break-word!important;
+  }
+
+  /* Remaining scoped views: canonical surfaces/controls only; no business/runtime changes. */
+  :is(#representativesView,#installationsOverviewView,#installationExceptionsView,#installationCostsView,#installationSettingsView){
+    padding-bottom:calc(104px + env(safe-area-inset-bottom))!important;
+  }
+  :is(#representativesView,#installationsOverviewView,#installationExceptionsView,#installationCostsView,#installationSettingsView) :is(.actions-row,.panel,.representatives-list-toolbar,.installation-costs-toolbar,.installation-settings-controller,.installation-settings-section){
+    border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass)!important;color:var(--kyum-content-text)!important;
+    box-shadow:var(--kyum-content-shadow)!important;backdrop-filter:var(--kyum-content-blur)!important;-webkit-backdrop-filter:var(--kyum-content-blur)!important;
+  }
+  :is(#representativesView,#installationsOverviewView,#installationExceptionsView,#installationCostsView,#installationSettingsView) :is(.section-title,h3,h4,strong){color:var(--kyum-content-text)!important}
+  :is(#representativesView,#installationsOverviewView,#installationExceptionsView,#installationCostsView,#installationSettingsView) :is(.section-note,p,small){color:var(--kyum-content-muted)!important}
+  :is(#representativesView,#installationCostsView,#installationSettingsView) :is(input:not([type='checkbox']):not([type='radio']),select,textarea){
+    min-width:0!important;max-width:100%!important;min-height:44px!important;box-sizing:border-box!important;border:1px solid var(--kyum-content-line)!important;border-radius:14px!important;
+    background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-text)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 12px rgba(9,70,145,.05)!important;
+  }
+  :is(#representativesView,#installationCostsView,#installationSettingsView) :is(input,select,textarea):focus{border-color:var(--kyum-content-blue)!important;outline:0!important;box-shadow:0 0 0 2px rgba(22,136,255,.16),0 0 18px rgba(22,136,255,.12)!important}
+
+  #representativesView .representatives-list-toolbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;padding:13px!important}
+  #representativesView .representatives-table-wrap{border:0!important;background:transparent!important;overflow:visible!important}
+  #representativesView .representatives-table thead{display:none!important}
+  #representativesView .representatives-table tbody{display:grid!important;gap:11px!important}
+  #representativesView .representatives-table tbody>tr{display:grid!important;grid-template-columns:1fr!important;padding:12px 13px!important;border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;box-shadow:var(--kyum-content-shadow)!important}
+  #representativesView .representatives-table tbody>tr:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important}
+  #representativesView .representatives-table tbody>tr>td{min-width:0!important;padding:8px 0!important;border:0!important;border-bottom:1px solid var(--kyum-content-divider)!important;background:transparent!important;color:var(--kyum-content-text)!important;overflow-wrap:anywhere!important}
+  #representativesView .representatives-table tbody>tr>td:last-child{border-bottom:0!important}
+
+  #installationsOverviewView .installations-kpi-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  #installationsOverviewView .installation-kpi-card{position:relative!important;min-width:0!important;min-height:105px!important;padding:14px 13px!important;padding-inline-end:56px!important;overflow:hidden!important;background:var(--kyum-content-glass-blue)!important}
+  #installationsOverviewView .installation-kpi-card:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important}
+  #installationsOverviewView .installation-kpi-card::before{content:"";position:absolute;inset-inline-end:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;background:var(--kyum-content-glass-soft);box-shadow:var(--kyum-content-icon-shadow)}
+  #installationsOverviewView .installation-kpi-card::after{content:"";position:absolute;inset-inline-end:19px;inset-block-start:21px;width:20px;height:20px;background:var(--kyum-content-blue);-webkit-mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;mask:var(--kyum-semantic-icon) center/20px 20px no-repeat}
+  #installationsOverviewView .installation-kpi-card:nth-child(3n+1)::after{background:var(--kyum-content-gold)}
+  #installationsOverviewView .installation-kpi-card:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='17' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-kpi-card:nth-child(2){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-kpi-card:nth-child(3){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-kpi-card:nth-child(4){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-kpi-card:nth-child(5){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-kpi-card:nth-child(6){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3Cpath d='M10.3 3.7 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0z'/%3E%3C/svg%3E")}
+  #installationsOverviewView .installation-dashboard-grid{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
+  #installationsOverviewView :is(.installation-status-summary>div,.installation-upcoming-list>div){border-color:var(--kyum-content-line)!important;border-radius:14px!important;background:var(--kyum-content-glass-soft)!important}
+
+  #installationExceptionsView :is(.installation-operations-toolbar,.installation-exception-item,.installation-exception-card,.installation-operations-card){border:1px solid var(--kyum-content-line)!important;border-radius:17px!important;background:var(--kyum-content-glass)!important;box-shadow:var(--kyum-content-shadow)!important}
+
+  #installationCostsView .installation-costs-mode-tabs{width:100%!important;padding:5px!important;border:1px solid var(--kyum-content-line)!important;background:var(--kyum-content-glass-soft)!important}
+  #installationCostsView .installation-costs-mode-tabs button{flex:1!important;min-height:40px!important;color:var(--kyum-content-text)!important}
+  #installationCostsView .installation-costs-mode-tabs button.active{background:linear-gradient(135deg,#1688ff,#075fdc)!important;color:#fff!important}
+  #installationCostsView .installation-costs-toolbar{padding:13px!important}
+  #installationCostsView .installation-costs-kpis{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  #installationCostsView .installation-costs-kpis .panel{min-width:0!important;min-height:96px!important;padding:13px!important;background:var(--kyum-content-glass-blue)!important;overflow:hidden!important}
+  #installationCostsView .installation-costs-kpis .panel:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important}
+  #installationCostsView :is(.installation-cost-team-card,.installation-cost-category-row,.installation-cost-team-members>div,.installation-cost-team-daily,.installation-cost-unassigned){border-color:var(--kyum-content-line)!important;background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-text)!important}
+
+  #installationSettingsView .installation-settings-controller{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:15px!important}
+  #installationSettingsView .installation-settings-section{padding:0!important;overflow:hidden!important}
+  #installationSettingsView .installation-settings-section-header{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;padding:15px!important;border-bottom:1px solid var(--kyum-content-divider)!important}
+  #installationSettingsView .installation-settings-section-header .primary-btn{width:100%!important}
+  #installationSettingsView .installation-settings-section .table-wrap{border:0!important;border-radius:0!important;background:transparent!important}
+
+  @media (max-width:390px){
+    #reportsOverviewView .executive-kpi-card .kpi-card-head{grid-template-columns:1fr!important}
+    #reportsOverviewView .executive-kpi-card .kpi-delta{max-width:100%!important;justify-self:start!important}
+    #reportsOverviewView .top-customer-item{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important}
+    #reportsOverviewView .top-customer-item>b{grid-column:2!important;max-width:100%!important;text-align:start!important}
+    #representativesView .representatives-list-toolbar{grid-template-columns:1fr!important}
+  }
+
   /* ----- M15.31.5 administration + settings mobile visual identity ----- */
   :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(.actions-row,.notification-center-header,.filters-grid,.permissions-role-bar,.panel,.notification-master-card,.notification-push-card,.reference-data-panel,.reference-customers-header,.backup-action-card,.backup-inspection,.health-score-card,.health-summary-card,.about-app-identity,.about-version-panel,.about-update-panel){
     border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass)!important;color:var(--kyum-content-text)!important;box-shadow:var(--kyum-content-shadow)!important;backdrop-filter:var(--kyum-content-blur)!important;-webkit-backdrop-filter:var(--kyum-content-blur)!important;
