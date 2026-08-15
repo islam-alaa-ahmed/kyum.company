@@ -1,13 +1,12 @@
 {
-  "version": "18.54.01",
-  "build": 185401,
+  "version": "18.54.02",
+  "build": 185402,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Mobile Header Dimensions & Safe-Area Visual Recovery — Phase H2.2",
+  "title": "Mobile Customers Actions & Saudi WhatsApp Hotfix",
   "notes": [
-    "تصحيح أبعاد Mobile Header وزيادة مساحة الـshell فقط دون تغيير أحجام أو أماكن الأزرار والأيقونات.",
-    "نقل الـUpper Blue rail أسفل الـsafe area وتقوية Blue/Gold contrast داخل حدود الهيدر.",
-    "ربط safe-area بلون Mobile Header Variant المختار لمنع اختفاء الجزء العلوي عند إغلاق القائمة."
+    "تصحيح رقم واتساب في كروت العملاء بالموبايل إلى صيغة السعودية الدولية 9665XXXXXXXX.",
+    "إعادة ربط أزرار عرض ومتابعة وتعديل وحذف في كروت العملاء بالموبايل بنفس handlers المعتمدة للديسكتوب دون تغيير منطقها."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-01-mobile-header-safe-area-visual-recovery-h2-2"
+  "cacheToken": "kyum-crm-pwa-18-54-02-mobile-customers-actions-whatsapp-hotfix"
 }

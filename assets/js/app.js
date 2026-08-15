@@ -3613,7 +3613,7 @@ function renderCustomers() {
               </div>
               <div class="customer-mobile-quick-actions">
                 ${customer.phone ? `<a class="mobile-customer-call" href="tel:${escapeHtml(customer.phone)}" aria-label="اتصال بالعميل">اتصال</a>` : ""}
-                ${customer.phone ? `<a class="mobile-customer-whatsapp" href="https://wa.me/${normalizePhone(customer.phone)}" target="_blank" rel="noopener" aria-label="واتساب العميل">واتساب</a>` : ""}
+                ${customer.phone ? `<a class="mobile-customer-whatsapp" href="${escapeHtml(window.KYUMMobilePhone?.whatsappUrl?.(customer.phone) || `https://wa.me/${normalizePhone(customer.phone).replace(/^0/, "966")}`)}" target="_blank" rel="noopener" aria-label="واتساب العميل">واتساب</a>` : ""}
               </div>
             </div>
 
@@ -8118,21 +8118,36 @@ document.addEventListener("kyum-apply-quotation-filters", () => {
   renderQuotations();
 });
 
-document.getElementById("customersTableBody").addEventListener("click", event => {
-  const editId = event.target.dataset.edit;
-  const deleteId = event.target.dataset.delete;
-  const detailsId = event.target.dataset.details;
-  const addFollowupCustomerId = event.target.dataset.addFollowup;
+function handleCustomerActionClick(event) {
+  const action = event.target.closest?.("[data-edit],[data-delete],[data-details],[data-add-followup]");
+  if (!action) return;
+
+  const editId = action.dataset.edit;
+  const deleteId = action.dataset.delete;
+  const detailsId = action.dataset.details;
+  const addFollowupCustomerId = action.dataset.addFollowup;
 
   if (editId) {
-    const customer = customers.find(item => item.id === editId);
+    const customer = customers.find(item => String(item.id) === String(editId));
     if (customer) openCustomerDialog(customer);
+    return;
   }
 
-  if (deleteId) deleteCustomer(deleteId);
-  if (detailsId) showCustomerDetails(detailsId);
+  if (deleteId) {
+    deleteCustomer(deleteId);
+    return;
+  }
+
+  if (detailsId) {
+    showCustomerDetails(detailsId);
+    return;
+  }
+
   if (addFollowupCustomerId) openFollowupDialog(addFollowupCustomerId);
-});
+}
+
+document.getElementById("customersTableBody")?.addEventListener("click", handleCustomerActionClick);
+document.getElementById("customersMobileCards")?.addEventListener("click", handleCustomerActionClick);
 
 document.getElementById("exportFollowupsPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, followupReportConfig, false));
 document.getElementById("sendFollowupsWhatsappPdfBtn")?.addEventListener("click", event => runFilteredListPdf(event.currentTarget, followupReportConfig, true));
