@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-80-reports-analytics-mobile-identity-m15-31-4";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-81-admin-settings-mobile-identity-m15-31-5";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

@@ -1548,7 +1548,7 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #reportsOverviewView .executive-kpi-card,
   #dailyPerformanceReportView .daily-performance-kpis.expanded>article,
   #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article{
-    position:relative!important;min-height:96px!important;padding:14px 13px 13px!important;padding-inline-end:54px!important;
+    position:relative!important;min-height:96px!important;padding:14px 13px 13px!important;
     border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;
     color:var(--kyum-content-text)!important;box-shadow:var(--kyum-content-shadow)!important;overflow:hidden!important;
   }
@@ -1560,13 +1560,13 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #reportsOverviewView .executive-kpi-card::before,
   #dailyPerformanceReportView .daily-performance-kpis.expanded>article::before,
   #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article::before{
-    content:"";position:absolute;inset-inline-end:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;
+    content:"";position:absolute;inset:auto;inset-inline-end:12px;inset-block-start:14px;width:34px;height:34px;border:1px solid var(--kyum-content-line);border-radius:12px;
     background:linear-gradient(145deg,rgba(255,255,255,.32),color-mix(in srgb,var(--kyum-content-blue) 13%,var(--kyum-content-card-2)));box-shadow:var(--kyum-content-icon-shadow);pointer-events:none;
   }
   #reportsOverviewView .executive-kpi-card::after,
   #dailyPerformanceReportView .daily-performance-kpis.expanded>article::after,
   #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article::after{
-    content:"";position:absolute;inset-inline-end:19px;inset-block-start:21px;width:20px;height:20px;background:var(--kyum-content-blue);
+    content:"";position:absolute;inset:auto;inset-inline-end:19px;inset-block-start:21px;width:20px;height:20px;background:var(--kyum-content-blue);
     -webkit-mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;mask:var(--kyum-semantic-icon) center/20px 20px no-repeat;pointer-events:none;
   }
   #reportsOverviewView .executive-kpi-card:nth-child(3n+1)::before,
@@ -1575,6 +1575,12 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #reportsOverviewView .executive-kpi-card:nth-child(3n+1)::after,
   #dailyPerformanceReportView .daily-performance-kpis.expanded>article:nth-child(3n+1)::after,
   #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article:nth-child(3n+1)::after{background:var(--kyum-content-gold)}
+
+  /* M15.31.5 report KPI collision correction: reserve icon space only in the label row, never in values. */
+  #reportsOverviewView .executive-kpi-card .kpi-card-head{padding-inline-end:42px!important;min-width:0!important}
+  #reportsOverviewView .executive-kpi-card>strong{max-width:100%!important;font-size:clamp(19px,5.4vw,26px)!important;line-height:1.14!important;overflow-wrap:anywhere!important}
+  #dailyPerformanceReportView .daily-performance-kpis.expanded>article>span,
+  #installationReportsView :is(.installation-report-kpis,.installation-financial-kpis,.installation-summary-kpis)>article>span:first-child{display:block!important;padding-inline-end:42px!important;min-width:0!important}
 
   /* Executive reports semantic KPI icons. */
   #reportsOverviewView .executive-kpi-card:nth-child(1){--kyum-semantic-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-8 0v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E")}
@@ -1620,6 +1626,65 @@ html[data-theme="light"],html[data-theme="light"] body{color-scheme:light}
   #installationReportsView :is(.installation-summary-table-wrap,.table-scroll),
   #reportsOverviewView .table-wrap,
   #dailyPerformanceReportView .table-wrap{border-color:var(--kyum-content-line)!important;border-radius:16px!important;background:var(--kyum-content-glass-soft)!important}
+
+  /* ----- M15.31.5 administration + settings mobile visual identity ----- */
+  :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(.actions-row,.notification-center-header,.filters-grid,.permissions-role-bar,.panel,.notification-master-card,.notification-push-card,.reference-data-panel,.reference-customers-header,.backup-action-card,.backup-inspection,.health-score-card,.health-summary-card,.about-app-identity,.about-version-panel,.about-update-panel){
+    border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass)!important;color:var(--kyum-content-text)!important;box-shadow:var(--kyum-content-shadow)!important;backdrop-filter:var(--kyum-content-blur)!important;-webkit-backdrop-filter:var(--kyum-content-blur)!important;
+  }
+  :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(.section-title,h3,h4,strong){color:var(--kyum-content-text)!important}
+  :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(.section-note,p,small){color:var(--kyum-content-muted)!important}
+  :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(input:not([type='checkbox']):not([type='radio']):not([type='file']),select,textarea){
+    width:100%!important;min-width:0!important;max-width:100%!important;min-height:44px!important;box-sizing:border-box!important;border:1px solid var(--kyum-content-line)!important;border-radius:14px!important;background:var(--kyum-content-glass-soft)!important;color:var(--kyum-content-text)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 12px rgba(9,70,145,.05)!important;
+  }
+  :is(#usersView,#permissionsView,#activityLogView,#backupsView,#systemHealthView,#notificationCenterView,#systemSettingsView,#aboutAppView,#settingsView) :is(input,select,textarea):focus{border-color:var(--kyum-content-blue)!important;outline:0!important;box-shadow:0 0 0 2px rgba(22,136,255,.16),0 0 18px rgba(22,136,255,.12)!important}
+
+  :is(#usersView,#activityLogView,#backupsView) .table-wrap{border:0!important;background:transparent!important;overflow:visible!important}
+  :is(#usersView,#activityLogView,#backupsView) tbody{display:grid!important;gap:12px!important}
+  :is(#usersView,#activityLogView,#backupsView) tbody>tr{display:grid!important;grid-template-columns:1fr!important;gap:0!important;padding:12px 13px!important;border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass-blue)!important;box-shadow:var(--kyum-content-shadow)!important;overflow:hidden!important}
+  :is(#usersView,#activityLogView,#backupsView) tbody>tr:nth-child(3n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important;box-shadow:var(--kyum-content-shadow-gold)!important}
+  :is(#usersView,#activityLogView,#backupsView) tbody>tr>td{min-width:0!important;padding:9px 0!important;border:0!important;border-bottom:1px solid var(--kyum-content-divider)!important;background:transparent!important;color:var(--kyum-content-text)!important;overflow-wrap:anywhere!important}
+  :is(#usersView,#activityLogView,#backupsView) tbody>tr>td:last-child{border-bottom:0!important}
+
+  #permissionsView .permission-group{border:1px solid var(--kyum-content-line)!important;border-radius:18px!important;background:var(--kyum-content-glass)!important;box-shadow:var(--kyum-content-shadow)!important}
+  #permissionsView .kyum-mobile-permission-card{border:1px solid var(--kyum-content-divider)!important;border-radius:14px!important;background:var(--kyum-content-glass-soft)!important}
+  #permissionsView .kyum-mobile-permission-toggle{border:1px solid var(--kyum-content-divider)!important;border-radius:12px!important;background:color-mix(in srgb,var(--kyum-content-card) 74%,transparent)!important}
+  #permissionsView input[type='checkbox'],#notificationCenterView input[type='checkbox']{accent-color:var(--kyum-content-blue)!important}
+
+  #settingsView .reference-item{border:1px solid var(--kyum-content-line)!important;border-radius:16px!important;background:var(--kyum-content-glass-soft)!important;box-shadow:var(--kyum-content-icon-shadow)!important}
+  #settingsView .reference-item:nth-child(4n+1){border-color:var(--kyum-content-gold-line)!important;background:var(--kyum-content-glass-gold)!important}
+  #settingsView .reference-item-actions>button{min-height:42px!important;border-radius:13px!important}
+
+  #backupsView .backup-overview-grid{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
+  #backupsView .backup-action-card{position:relative!important;padding:16px!important;padding-inline-start:64px!important}
+  #backupsView .backup-card-icon{position:absolute!important;inset-inline-start:14px!important;inset-block-start:16px!important;width:38px!important;height:38px!important;font-size:0!important;border:1px solid var(--kyum-content-line)!important;border-radius:13px!important;background:var(--kyum-content-glass-blue)!important;box-shadow:var(--kyum-content-icon-shadow)!important}
+  #backupsView .backup-card-icon::before{content:"";position:absolute;inset:8px;background:var(--kyum-content-blue);-webkit-mask:var(--backup-icon) center/22px 22px no-repeat;mask:var(--backup-icon) center/22px 22px no-repeat}
+  #backupsView .backup-action-card:nth-child(1){--backup-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 10l5 5 5-5'/%3E%3Cpath d='M5 21h14'/%3E%3C/svg%3E")}
+  #backupsView .backup-action-card:nth-child(2){--backup-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E")}
+  #backupsView .backup-action-card:nth-child(3){--backup-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E")}
+  #backupsView .backup-action-card:nth-child(3) .backup-card-icon{border-color:rgba(239,68,68,.38)!important;background:linear-gradient(145deg,color-mix(in srgb,#ef4444 9%,var(--kyum-content-card)),color-mix(in srgb,#ef4444 3%,var(--kyum-content-card-2)))!important}
+  #backupsView .backup-action-card:nth-child(3) .backup-card-icon::before{background:#ef4444!important}
+
+  #systemHealthView .health-hero-grid,#systemHealthView .health-grid,#systemHealthView .health-summary-grid{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
+  #systemHealthView :is(.health-score-card,.health-summary-card,.panel){border-color:var(--kyum-content-line)!important;background:var(--kyum-content-glass)!important}
+  #systemHealthView .health-score-ring{border-color:var(--kyum-content-blue)!important;box-shadow:0 0 22px rgba(22,136,255,.15)!important}
+
+  #notificationCenterView .notification-center-header{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:15px!important}
+  #notificationCenterView .notification-center-header>button{width:100%!important}
+  #notificationCenterView :is(.notification-master-card,.notification-push-card){padding:15px!important}
+  #notificationCenterView .notification-push-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  #notificationCenterView .notification-matrix-wrap{overflow:visible!important;border:0!important;background:transparent!important}
+  #notificationCenterView .notification-matrix thead{display:none!important}
+  #notificationCenterView .notification-matrix tbody{display:grid!important;gap:12px!important}
+  #notificationCenterView .notification-matrix tbody>tr{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;padding:12px!important;border:1px solid var(--kyum-content-line)!important;border-radius:16px!important;background:var(--kyum-content-glass-soft)!important}
+  #notificationCenterView .notification-matrix tbody>tr>td{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:8px!important;border:0!important;padding:7px 0!important;color:var(--kyum-content-text)!important}
+
+  #systemSettingsView .settings-form-grid,#aboutAppView .about-app-grid{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
+  #systemSettingsView .form-grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+  #aboutAppView .about-app-identity{display:flex!important;align-items:center!important;gap:13px!important}
+  #aboutAppView .about-app-logo{width:56px!important;height:56px!important;border-radius:15px!important;border:1px solid var(--kyum-content-gold-line)!important;box-shadow:var(--kyum-content-shadow-gold)!important}
+  #aboutAppView .about-version-row{display:flex!important;justify-content:space-between!important;align-items:flex-start!important;gap:10px!important;padding:10px 0!important;border-bottom:1px solid var(--kyum-content-divider)!important}
+  #aboutAppView .about-version-row:last-child{border-bottom:0!important}
+  #aboutAppView .about-app-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
 
   @media (max-width:340px){
     #dashboardView .dashboard-stats{grid-template-columns:1fr!important}

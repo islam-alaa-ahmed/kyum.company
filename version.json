@@ -1,14 +1,14 @@
 {
-  "version": "18.53.80",
-  "build": 185380,
+  "version": "18.53.81",
+  "build": 185381,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Reports & Analytics Mobile Visual Identity + Opposite-Side KPI Icons — Phase M15.31.4",
+  "title": "Administration & Settings Mobile Visual Identity + Report KPI Collision Fix — Phase M15.31.5",
   "notes": [
-    "نقل موضع أيقونات KPI إلى الجهة المقابلة لبداية النص لمنع تداخل الأيقونة مع العناوين في RTL/LTR.",
-    "تعميم الهوية البصرية المعتمدة على مركز التقارير والتقرير اليومي وتقارير التركيبات في نسخة الموبايل فقط.",
-    "إضافة Semantic SVG حقيقية لكل KPI جديد مع Blue/Gold Glass 3D system.",
+    "تصحيح Root Cause لتداخل أيقونات تقارير KPI عبر تصفير inset legacy وحجز المساحة في عنوان الكارت فقط بدل تضييق قيمة المؤشر.",
+    "تعميم الهوية البصرية المعتمدة على المستخدمين والصلاحيات وسجل النشاط والنسخ الاحتياطي ومراقبة النظام والإشعارات وإعدادات النظام وحول التطبيق والبيانات المرجعية في الموبايل فقط.",
+    "استبدال رموز النسخ الاحتياطي النصية بأيقونات SVG دلالية موحدة داخل حاويات Blue/Gold/Danger.",
     "الحفاظ على Desktop/Tablet وBusiness Logic والصلاحيات وHeader وSide Menu وBottom Navigation دون تغيير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-80-reports-analytics-mobile-identity-m15-31-4"
+  "cacheToken": "kyum-crm-pwa-18-53-81-admin-settings-mobile-identity-m15-31-5"
 }
