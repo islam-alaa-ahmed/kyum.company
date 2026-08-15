@@ -14,3 +14,25 @@
 .installation-cost-matrix-dialog .installation-cost-matrix th,.installation-cost-matrix-dialog .installation-cost-matrix td{min-width:0;padding:11px 8px;white-space:normal;overflow-wrap:anywhere}
 .installation-cost-matrix-dialog .installation-cost-matrix th:first-child,.installation-cost-matrix-dialog .installation-cost-matrix td:first-child{width:220px;min-width:220px}
 @media(max-width:767px){.installation-cost-matrix-dialog{width:calc(100vw - 12px);max-width:calc(100vw - 12px)}.installation-cost-matrix-dialog .dialog-shell{max-height:calc(100dvh - 12px)}.installation-cost-matrix-dialog .installation-cost-matrix-wrap{overflow:auto}.installation-cost-matrix-dialog .installation-cost-matrix{min-width:720px;table-layout:auto}}
+
+/* Phase D1.10 — Cost matrix canonical feature-surface owner.
+   Geometry stays here; desktop tokens are provided by the existing desktop canonical view scope.
+   Fallbacks preserve the pre-existing mobile/tablet behavior. */
+.installation-cost-matrix-dialog .dialog-shell,
+.installation-cost-matrix-dialog .dialog-header,
+.installation-cost-matrix-dialog .dialog-actions,
+.installation-cost-matrix-dialog .installation-cost-matrix-wrap,
+.installation-cost-matrix-dialog .installation-cost-matrix,
+.installation-cost-matrix-dialog .installation-cost-matrix tbody td,
+.installation-cost-matrix-dialog .installation-cost-matrix th:first-child,
+.installation-cost-matrix-dialog .installation-cost-matrix td:first-child{
+  background:var(--surface,#fff);
+  color:var(--text,var(--text-color,#172033));
+  border-color:var(--border-color,#dbe4ef);
+}
+.installation-cost-matrix-dialog .installation-cost-matrix thead th,
+.installation-cost-matrix-dialog .installation-cost-matrix tbody tr:nth-child(even) td,
+.installation-cost-matrix-dialog .installation-cost-matrix tbody tr:nth-child(even) td:first-child{
+  background:var(--surface-2,#f8fafc);
+  color:var(--text,var(--text-color,#172033));
+}

@@ -392,14 +392,5 @@
   #salesInvoicesView .sales-invoices-summary article{
     background:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));border-color:var(--desk-line);box-shadow:var(--desk-shadow);
   }
-  #installationCostsView .installation-cost-matrix-dialog :is(.dialog-shell,.dialog-header,.dialog-actions,.installation-cost-matrix-wrap,.installation-cost-matrix),
-  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix tbody td,
-  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix :is(th:first-child,td:first-child){
-    background:var(--desk-glass-strong)!important;color:var(--desk-text)!important;border-color:var(--desk-line)!important;
-  }
-  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix thead th,
-  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix tbody tr:nth-child(even) td{
-    background:var(--desk-glass-soft)!important;color:var(--desk-text)!important;
-  }
 
 }
