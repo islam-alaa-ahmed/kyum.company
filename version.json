@@ -1,13 +1,13 @@
 {
-  "version": "18.53.93",
-  "build": 185393,
+  "version": "18.53.94",
+  "build": 185394,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Mobile Leakage Recovery & Scheduling Fidelity — Phase D1.10.1",
+  "title": "Scheduling Friday Lock & Stable Team Colors — Phase D1.10.2",
   "notes": [
-    "إصلاح تسرب fallback الأبيض داخل كروت أداء المندوبين في Mobile Dark Mode من الـMobile canonical owner.",
-    "إعادة تصميم Calendar جدولة التركيبات على Mobile فقط إلى 3-column independent day cards مستوحاة من المرجع المعتمد.",
-    "الحفاظ على Desktop D1.10 وTablet وHeader/Sidebar دون أي تغيير بصري."
+    "زيادة الفصل البصري بين أيام Calendar في Desktop وتغيير Calendar shell بدرجة مختلفة قليلًا عن Day Cards.",
+    "جعل الجمعة مغلقة افتراضيًا طوال السنة مع السماح بفتح جمعة محددة يدويًا عبر سجل صريح.",
+    "تثبيت لون نقطة كل فرقة بالاعتماد على Team ID بدل ترتيب ظهورها داخل اليوم، وتوحيد خلفية اليوم المغلق مع خلفية Team Summary."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-93-mobile-leakage-recovery-scheduling-fidelity-d1-10-1"
+  "cacheToken": "kyum-crm-pwa-18-53-94-scheduling-friday-lock-stable-team-colors-d1-10-2"
 }
