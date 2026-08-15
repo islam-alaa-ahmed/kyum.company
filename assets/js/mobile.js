@@ -1208,7 +1208,22 @@
     ].filter(Boolean).forEach(node => observer.observe(node, { childList: true, subtree: true, characterData: true }));
   }
 
+  function teardownDesktopArtifacts() {
+    observer?.disconnect();
+    observer = null;
+    view.classList.remove("mobile-reports-filters-open", "mobile-reports-loading");
+    document.body.classList.remove("mobile-reports-sheet-open");
+    view.querySelector(".mobile-reports-toolbar")?.remove();
+    view.querySelector(".mobile-reports-filter-backdrop")?.remove();
+    filters.classList.remove("mobile-reports-filter-sheet");
+    filters.querySelector(".mobile-reports-sheet-header")?.remove();
+  }
+
   function initialize() {
+    if (!MOBILE_MEDIA.matches) {
+      teardownDesktopArtifacts();
+      return;
+    }
     ensureToolbar();
     ensureFilterSheet();
     syncPeriodSummary();

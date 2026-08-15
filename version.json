@@ -1,14 +1,14 @@
 {
-  "version": "18.53.86",
-  "build": 185386,
+  "version": "18.53.87",
+  "build": 185387,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Visual Identity All-Screen Rollout — Phase D1.4",
+  "title": "Desktop Specialized Screens Theme Isolation — Phase D1.5",
   "notes": [
-    "تعميم لغة الهوية البصرية المعتمدة من Dashboard على جميع شاشات Desktop عبر canonical owner واحد لباقي الشاشات.",
-    "إزالة طبقات التصميم العامة القديمة المتداخلة 17.8.5–17.8.9 والإبقاء على Phase 17.9 كمالك بصري موحد لباقي محتوى Desktop.",
-    "إصلاح احتواء Badge التصنيف شركة في جدول العملاء ومنع التفاف النص داخل التصنيف.",
-    "تثبيت Dark Mode filters/options والسurfaces على نفس Navy/Blue/Gold hierarchy دون المساس بالموبايل أو الهيدر أو السايدبار."
+    "إغلاق تسرب Mobile Reports toolbar/filter sheet إلى مركز التقارير على Desktop وإزالة أي DOM موبايل عند اتساع الشاشة.",
+    "توحيد Legacy surface/text/border tokens للشاشات المتخصصة مع canonical Desktop Light/Dark owner لمنع الخلفيات البيضاء داخل Dark Mode.",
+    "إعادة ضبط تقويم جدولة التركيبات على Desktop ليطابق لغة PETATOE مع Active Day ذهبي وخلايا Navy/Glass متجانسة.",
+    "توحيد تبويبات وفلاتر تقارير التركيبات في Light/Dark بدون طبقات CSS متنافسة، مع إبقاء Header/Sidebar/Mobile/Tablet مجمدة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-86-desktop-all-screen-visual-rollout-d1-4"
+  "cacheToken": "kyum-crm-pwa-18-53-87-desktop-specialized-theme-isolation-d1-5"
 }

@@ -182,3 +182,14 @@
 .installation-service-comparison-title{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:4px;border-bottom:1px dashed color-mix(in srgb,var(--primary-color) 28%,var(--border-color))}.installation-service-comparison-title>span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#0f4c9a;color:#fff;font-weight:900;font-size:.76rem}.installation-service-comparison-title h4,.installation-service-comparison-title p{margin:0}.installation-service-comparison-title p{margin-top:3px;color:var(--text-muted);font-size:.8rem}
 @media(max-width:900px){.installation-service-section{padding:15px}.installation-service-section-title{align-items:flex-start;display:grid}.installation-service-section-title p{text-align:start}.installation-service-operational-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.installation-service-section{padding:12px;border-radius:16px}.installation-service-financial-kpis,.installation-service-operational-kpis,.installation-service-geographic-kpis{grid-template-columns:1fr}}
+
+/* D1.5 — Desktop installation reports theme isolation. */
+@media (min-width:1024px){
+  #installationReportsView .installation-report-tabs{padding:4px 0 12px;gap:8px;background:transparent}
+  #installationReportsView .installation-report-tabs button{background:linear-gradient(145deg,var(--surface),var(--surface-soft));color:var(--text);border-color:var(--border);box-shadow:none}
+  #installationReportsView .installation-report-tabs button:hover{border-color:var(--border-color);background:color-mix(in srgb,var(--primary) 7%,var(--surface-soft))}
+  #installationReportsView .installation-report-tabs button.active{background:linear-gradient(115deg,#104fae,var(--primary));border-color:color-mix(in srgb,var(--primary) 82%,white);color:#fff;box-shadow:0 9px 23px rgba(47,131,255,.18)}
+  #installationReportsView .installation-operations-filters,
+  #installationReportsView .installation-summary-filters,
+  #installationReportsView .installation-service-analytics-filters{background:linear-gradient(145deg,var(--surface),var(--surface-soft));border-color:var(--border)}
+}

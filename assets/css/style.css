@@ -8752,6 +8752,24 @@ html[data-theme="dark"] {
     --row-action-radius:11px;
     --row-action-padding:8px 12px;
     --row-action-white-space:nowrap;
+
+    /* D1.5 specialized-screen token bridge: one inherited owner, no light fallbacks. */
+    --surface:var(--ui-final-surface);
+    --surface-color:var(--ui-final-surface);
+    --surface-2:var(--ui-final-surface-2);
+    --surface-soft:var(--ui-final-surface-2);
+    --soft-surface:var(--ui-final-surface-2);
+    --border:var(--ui-final-border);
+    --border-color:var(--ui-final-border);
+    --text:var(--ui-final-text);
+    --text-color:var(--ui-final-text);
+    --text-muted:var(--ui-final-secondary);
+    --muted:var(--ui-final-secondary);
+    --muted-text:var(--ui-final-secondary);
+    --primary:#2f83ff;
+    --primary-color:#2f83ff;
+    --desktop-accent-gold:#d5a132;
+    --desktop-accent-gold-soft:#f1c85d;
   }
 
   html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
@@ -8784,6 +8802,23 @@ html[data-theme="dark"] {
     --row-action-bg:linear-gradient(145deg,rgba(12,34,63,.92),rgba(8,25,48,.90));
     --row-action-border:1px solid rgba(92,158,239,.28);
     --row-action-shadow:none;
+
+    --surface:var(--ui-final-surface);
+    --surface-color:var(--ui-final-surface);
+    --surface-2:var(--ui-final-surface-2);
+    --surface-soft:var(--ui-final-surface-2);
+    --soft-surface:var(--ui-final-surface-2);
+    --border:var(--ui-final-border);
+    --border-color:var(--ui-final-border);
+    --text:var(--ui-final-text);
+    --text-color:var(--ui-final-text);
+    --text-muted:var(--ui-final-secondary);
+    --muted:var(--ui-final-secondary);
+    --muted-text:var(--ui-final-secondary);
+    --primary:#338fff;
+    --primary-color:#338fff;
+    --desktop-accent-gold:#d9a837;
+    --desktop-accent-gold-soft:#f4c95c;
   }
 }
 
