@@ -3013,7 +3013,7 @@ html.is-offline body::before {
 @media (max-width: 767px),
        (orientation: landscape) and (max-height: 560px) and (hover: none) and (pointer: coarse) and (max-device-width: 932px) {
   :root{
-    --kyum-mobile-header-height:96px;
+    --kyum-mobile-header-height:104px;
     --kyum-mobile-nav-height:72px;
     --kyum-mobile-blue:#2f9cff;
     --kyum-mobile-blue-strong:#168cf0;
@@ -3045,15 +3045,15 @@ html.is-offline body::before {
 
   #appHeader.topbar::before{
     content:"";position:absolute;z-index:0;pointer-events:none;
-    left:16px;right:16px;bottom:2px;height:16px;
-    border-bottom:3px solid rgba(47,156,255,.94);border-radius:0 0 50% 50%;
-    filter:drop-shadow(0 1px 4px rgba(47,156,255,.44));
+    left:14px;right:14px;bottom:3px;height:20px;
+    border-bottom:3px solid #32a9ff;border-radius:0 0 50% 50%;
+    filter:drop-shadow(0 0 5px rgba(47,156,255,.72)) drop-shadow(0 1px 6px rgba(18,201,255,.28));
   }
   #appHeader.topbar::after{
     content:"";position:absolute;z-index:0;pointer-events:none;
-    left:12px;right:12px;top:12px;bottom:12px;border-radius:20px;
-    border-left:2px solid rgba(214,169,61,.94);border-right:2px solid rgba(214,169,61,.94);
-    box-shadow:inset 1px 0 0 rgba(255,225,143,.20),inset -1px 0 0 rgba(255,225,143,.20);
+    left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);bottom:12px;border-radius:20px;
+    border-left:2px solid #e3b44a;border-right:2px solid #e3b44a;
+    box-shadow:inset 1px 0 0 rgba(255,225,143,.32),inset -1px 0 0 rgba(255,225,143,.32),-1px 0 8px rgba(214,169,61,.16),1px 0 8px rgba(214,169,61,.16);
   }
 
   html:not([data-theme="dark"]) #appHeader.topbar,
@@ -3091,7 +3091,7 @@ html.is-offline body::before {
   html[data-mobile-header-style="visual_blue_gold"] #appHeader.topbar.mobile-header-stable{
     border:0!important;
     background:
-      linear-gradient(90deg,rgba(45,134,255,.78),#63bdff 50%,rgba(45,134,255,.78)) top 3px center/calc(100% - 32px) 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.90),#19c9ff 50%,rgba(45,134,255,.90)) center calc(env(safe-area-inset-top) + 5px)/calc(100% - 34px) 3px no-repeat,
       radial-gradient(70% 120% at 50% 110%,rgba(47,156,255,.18),transparent 64%),
       linear-gradient(150deg,#041326 0%,#071c34 52%,#031224 100%)!important;
   }
@@ -3099,7 +3099,7 @@ html.is-offline body::before {
   html:not([data-theme="dark"])[data-mobile-header-style="visual_blue_gold"] #appHeader.topbar.is-scrolled,
   html:not([data-theme="dark"])[data-mobile-header-style="visual_blue_gold"] #appHeader.topbar.mobile-header-stable{
     background:
-      linear-gradient(90deg,rgba(45,134,255,.72),#56b6ff 50%,rgba(45,134,255,.72)) top 3px center/calc(100% - 32px) 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.84),#25bfff 50%,rgba(45,134,255,.84)) center calc(env(safe-area-inset-top) + 5px)/calc(100% - 34px) 3px no-repeat,
       radial-gradient(70% 120% at 50% 110%,rgba(47,156,255,.11),transparent 64%),
       linear-gradient(150deg,rgba(255,255,255,.99),rgba(241,248,255,.96))!important;
   }
@@ -3112,7 +3112,7 @@ html.is-offline body::before {
     border:1px solid rgba(230,183,77,.86)!important;
     border-top-color:rgba(230,183,77,.72)!important;
     background:
-      linear-gradient(90deg,rgba(45,134,255,.84),#66c3ff 50%,rgba(45,134,255,.84)) top 4px center/calc(100% - 38px) 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.96),#13d0ff 50%,rgba(45,134,255,.96)) center calc(env(safe-area-inset-top) + 6px)/calc(100% - 38px) 3px no-repeat,
       radial-gradient(70% 120% at 50% 110%,rgba(47,156,255,.19),transparent 64%),
       linear-gradient(150deg,#020813 0%,#061427 48%,#020812 100%)!important;
     box-shadow:0 14px 34px rgba(0,7,19,.30),0 0 0 1px rgba(230,183,77,.055)!important;
@@ -3121,7 +3121,7 @@ html.is-offline body::before {
   html:not([data-theme="dark"])[data-mobile-header-style="premium_gold"] #appHeader.topbar.is-scrolled,
   html:not([data-theme="dark"])[data-mobile-header-style="premium_gold"] #appHeader.topbar.mobile-header-stable{
     background:
-      linear-gradient(90deg,rgba(45,134,255,.78),#5bbcff 50%,rgba(45,134,255,.78)) top 4px center/calc(100% - 38px) 2px no-repeat,
+      linear-gradient(90deg,rgba(45,134,255,.90),#20c5ff 50%,rgba(45,134,255,.90)) center calc(env(safe-area-inset-top) + 6px)/calc(100% - 38px) 3px no-repeat,
       radial-gradient(70% 120% at 50% 110%,rgba(47,156,255,.12),transparent 64%),
       linear-gradient(150deg,rgba(255,255,255,.995),rgba(240,247,255,.97))!important;
     border-color:rgba(214,169,61,.82)!important;
@@ -3132,7 +3132,7 @@ html.is-offline body::before {
   #appHeader .topbar-user-actions{position:static!important;display:contents!important}
   #appHeader .mobile-app-brand{
     z-index:2!important;
-    position:absolute!important;top:calc(env(safe-area-inset-top) + 22px)!important;left:50%!important;right:auto!important;
+    position:absolute!important;top:calc(env(safe-area-inset-top) + 25px)!important;left:50%!important;right:auto!important;
     width:auto!important;max-width:36vw!important;height:54px!important;transform:translateX(-50%)!important;
     display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important;color:inherit!important;
   }
@@ -3142,7 +3142,7 @@ html.is-offline body::before {
   #appHeader .mobile-app-brand img{display:none!important}
   #appHeader #sidebarMenuToggle,#appHeader #kyumScrollControl.mobile-floating-logo,#appHeader #notificationBellBtn,#appHeader #themeToggleButton,#appHeader #themeToggleButton.is-visible{
     z-index:3!important;
-    position:absolute!important;top:calc(env(safe-area-inset-top) + 22px)!important;display:grid!important;place-items:center!important;
+    position:absolute!important;top:calc(env(safe-area-inset-top) + 25px)!important;display:grid!important;place-items:center!important;
     width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;padding:0!important;margin:0!important;
     border:1px solid rgba(76,158,222,.32)!important;border-radius:18px!important;background:rgba(5,30,50,.58)!important;color:#f8fbff!important;
     box-shadow:0 10px 24px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.07)!important;
@@ -3156,7 +3156,7 @@ html.is-offline body::before {
   #appHeader #sidebarMenuToggle{left:max(16px,env(safe-area-inset-left))!important;right:auto!important}
   #appHeader #kyumScrollControl.mobile-floating-logo{left:calc(max(16px,env(safe-area-inset-left)) + 62px)!important;right:auto!important;overflow:hidden!important}
   #appHeader #kyumScrollControl.mobile-floating-logo img{display:block!important;width:40px!important;height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:cover!important;border-radius:12px!important}
-  #appHeader .notification-bell-wrap{position:absolute!important;top:calc(env(safe-area-inset-top) + 22px)!important;right:calc(max(16px,env(safe-area-inset-right)) + 62px)!important;left:auto!important;width:52px!important;height:52px!important;z-index:2!important}
+  #appHeader .notification-bell-wrap{position:absolute!important;top:calc(env(safe-area-inset-top) + 25px)!important;right:calc(max(16px,env(safe-area-inset-right)) + 62px)!important;left:auto!important;width:52px!important;height:52px!important;z-index:2!important}
   #appHeader #notificationBellBtn{inset:0!important}
   #appHeader #themeToggleButton,#appHeader #themeToggleButton.is-visible{right:max(16px,env(safe-area-inset-right))!important;left:auto!important}
   #appHeader #sidebarMenuToggle svg,#appHeader #notificationBellBtn svg,#appHeader #themeToggleButton svg{
@@ -3164,6 +3164,19 @@ html.is-offline body::before {
   }
   #appHeader .mobile-menu-icon{fill:none!important;stroke:currentColor!important}
   #appHeader .notification-unread-badge{position:absolute!important;top:-5px!important;right:-5px!important;min-width:18px!important;height:18px!important;padding:0 4px!important;border:2px solid var(--kyum-mobile-navy)!important;border-radius:999px!important;font-size:9px!important;line-height:14px!important;background:var(--kyum-mobile-gold)!important;color:#102033!important}
+
+  /* H2.2 — Safe-area is part of the selected mobile header surface, not a separate legacy navy strip. */
+  body::before{
+    height:calc(env(safe-area-inset-top) + 1px)!important;
+    background:#061b31!important;
+  }
+  html:not([data-theme="dark"]) body::before{background:#f5f9ff!important}
+  html[data-mobile-header-style="original"] body::before{background:#061827!important}
+  html:not([data-theme="dark"])[data-mobile-header-style="original"] body::before{background:#f8fbff!important}
+  html[data-mobile-header-style="visual_blue_gold"] body::before{background:#041326!important}
+  html:not([data-theme="dark"])[data-mobile-header-style="visual_blue_gold"] body::before{background:#f4f9ff!important}
+  html[data-mobile-header-style="premium_gold"] body::before{background:#020813!important}
+  html:not([data-theme="dark"])[data-mobile-header-style="premium_gold"] body::before{background:#f7fbff!important}
 
   .mobile-bottom-nav{
     position:fixed!important;z-index:1060!important;right:max(16px,env(safe-area-inset-right))!important;left:max(16px,env(safe-area-inset-left))!important;bottom:max(12px,env(safe-area-inset-bottom))!important;

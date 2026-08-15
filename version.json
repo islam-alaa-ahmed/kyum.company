@@ -1,13 +1,13 @@
 {
-  "version": "18.54.00",
-  "build": 185400,
+  "version": "18.54.01",
+  "build": 185401,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Three Selectable Mobile Header Variants — Phase H2.1",
+  "title": "Mobile Header Dimensions & Safe-Area Visual Recovery — Phase H2.2",
   "notes": [
-    "إضافة ثلاثة هيدرات مستقلة للموبايل تقابل Original وBlue & Gold وPremium Blue & Gold في الديسكتوب.",
-    "نقل جميع الخطوط والزخارف داخل Mobile Header shell نفسه لمنع خروج الـBlue contour أو اختفاء الـGold side rails.",
-    "إضافة اختيار مستقل لهيدر الموبايل داخل إعدادات النظام بدون أي تغيير في الأزرار أو الأيقونات أو أماكنها."
+    "تصحيح أبعاد Mobile Header وزيادة مساحة الـshell فقط دون تغيير أحجام أو أماكن الأزرار والأيقونات.",
+    "نقل الـUpper Blue rail أسفل الـsafe area وتقوية Blue/Gold contrast داخل حدود الهيدر.",
+    "ربط safe-area بلون Mobile Header Variant المختار لمنع اختفاء الجزء العلوي عند إغلاق القائمة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-00-three-mobile-header-variants-h2-1"
+  "cacheToken": "kyum-crm-pwa-18-54-01-mobile-header-safe-area-visual-recovery-h2-2"
 }
