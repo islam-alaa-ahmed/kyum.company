@@ -11920,7 +11920,85 @@ body.reports-exporting .data-status,
 body.reports-exporting dialog{display:none!important}
 
 
-/* Phase H1.3 — selectable Desktop Premium Blue & Gold header.
+
+/* Phase H1.4 — Three selectable Desktop Header Variants.
+   "original" restores the exact pre-H1.1 shell material/artwork from the archived full baseline.
+   "visual_blue_gold" uses the approved H1.2 shell already owned by M15.27.3/H1.2.
+   "premium_gold" adds the H1.3 separated outer gold edge.
+   Only one data-desktop-header-style value can be active, so variant artwork never competes at runtime. */
+@media (min-width:1181px) {
+  html[data-desktop-header-style="original"] #appHeader.topbar,
+  html[data-desktop-header-style="original"] #appHeader.topbar.is-scrolled {
+    --kyum-header-text:#0a1930;
+    --kyum-header-muted:#65758a;
+    --kyum-header-glass:rgba(255,255,255,.58);
+    --kyum-header-glass-border:rgba(148,163,184,.20);
+    border:1px solid rgba(213,170,69,.62) !important;
+    border-top:0 !important;
+    border-radius:0 0 28px 28px !important;
+    background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(245,249,255,.73) 50%,rgba(235,244,255,.77)) !important;
+    background-image:linear-gradient(145deg,rgba(255,255,255,.86),rgba(245,249,255,.73) 50%,rgba(235,244,255,.77)) !important;
+    box-shadow:0 18px 42px rgba(15,23,42,.13),inset 0 1px 0 rgba(255,255,255,.92) !important;
+    backdrop-filter:blur(24px) saturate(145%) !important;
+    -webkit-backdrop-filter:blur(24px) saturate(145%) !important;
+  }
+
+  html[data-desktop-header-style="original"] #appHeader.topbar::before,
+  html[data-desktop-header-style="original"] #appHeader.topbar.is-scrolled::before {
+    z-index:-1 !important;
+    background:
+      linear-gradient(150deg,rgba(255,255,255,.36) 0%,rgba(255,255,255,.08) 26%,transparent 44%),
+      radial-gradient(ellipse at 18% -20%,rgba(255,255,255,.55),transparent 38%),
+      radial-gradient(ellipse at 78% 120%,rgba(45,146,255,.12),transparent 43%) !important;
+    box-shadow:none !important;
+  }
+
+  html[data-desktop-header-style="original"] #appHeader.topbar::after,
+  html[data-desktop-header-style="original"] #appHeader.topbar.is-scrolled::after {
+    left:34px !important;
+    right:34px !important;
+    bottom:0 !important;
+    width:auto !important;
+    height:2px !important;
+    border-radius:999px !important;
+    background:linear-gradient(90deg,transparent 0%,rgba(213,170,69,.45) 7%,rgba(45,146,255,.60) 24%,#5ac6ff 50%,rgba(45,146,255,.60) 76%,rgba(213,170,69,.45) 93%,transparent 100%) !important;
+    filter:none !important;
+    box-shadow:0 0 10px rgba(45,146,255,.30) !important;
+  }
+
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar,
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar.is-scrolled {
+    --kyum-header-text:#f7f9fc;
+    --kyum-header-muted:#aab7c8;
+    --kyum-header-glass:rgba(12,28,48,.62);
+    --kyum-header-glass-border:rgba(125,153,187,.22);
+    background:linear-gradient(135deg,rgba(5,15,29,.96),rgba(6,24,43,.92) 54%,rgba(5,19,35,.95)) !important;
+    background-image:linear-gradient(135deg,rgba(5,15,29,.96),rgba(6,24,43,.92) 54%,rgba(5,19,35,.95)) !important;
+    border-color:rgba(213,170,69,.60) !important;
+    border-top:0 !important;
+    box-shadow:0 20px 48px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.05) !important;
+  }
+
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar::before,
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar.is-scrolled::before {
+    z-index:-1 !important;
+    background:
+      linear-gradient(150deg,rgba(255,255,255,.075) 0%,rgba(255,255,255,.018) 26%,transparent 45%),
+      radial-gradient(ellipse at 18% -20%,rgba(63,103,160,.12),transparent 38%),
+      radial-gradient(ellipse at 78% 120%,rgba(45,146,255,.13),transparent 43%) !important;
+    box-shadow:none !important;
+  }
+
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar::after,
+  html[data-theme="dark"][data-desktop-header-style="original"] #appHeader.topbar.is-scrolled::after {
+    background:linear-gradient(90deg,transparent 0%,rgba(213,170,69,.45) 7%,rgba(45,146,255,.60) 24%,#5ac6ff 50%,rgba(45,146,255,.60) 76%,rgba(213,170,69,.45) 93%,transparent 100%) !important;
+    filter:none !important;
+    box-shadow:0 0 10px rgba(45,146,255,.30) !important;
+  }
+}
+
+
+/* Phase H1.3/H1.4 — Premium Blue & Gold third selectable Desktop header variant.
    The new outer gold edge uses the shell border itself; existing H1.2 gold rails stay 10px inward,
    preserving a deliberate visual gap and preventing edge/rail overlap. Mobile remains frozen. */
 @media (min-width:1181px) {

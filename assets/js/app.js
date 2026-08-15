@@ -2289,10 +2289,17 @@ function renderBackupHistory() {
 }
 
 const DESKTOP_HEADER_STYLE_STORAGE_KEY = "kyum_desktop_header_style";
+const DESKTOP_HEADER_STYLE_ORIGINAL = "original";
+const DESKTOP_HEADER_STYLE_VISUAL = "visual_blue_gold";
 const DESKTOP_HEADER_STYLE_PREMIUM = "premium_gold";
 
 function normalizeDesktopHeaderStyle(value) {
-  return value === DESKTOP_HEADER_STYLE_PREMIUM ? DESKTOP_HEADER_STYLE_PREMIUM : "classic";
+  // H1.3 stored "classic" for the then-current H1.2 visual header.
+  // Preserve that user's choice instead of silently switching them to the pre-H1.1 original.
+  if (value === "classic") return DESKTOP_HEADER_STYLE_VISUAL;
+  if (value === DESKTOP_HEADER_STYLE_ORIGINAL) return DESKTOP_HEADER_STYLE_ORIGINAL;
+  if (value === DESKTOP_HEADER_STYLE_PREMIUM) return DESKTOP_HEADER_STYLE_PREMIUM;
+  return DESKTOP_HEADER_STYLE_VISUAL;
 }
 
 function applyDesktopHeaderStyle(value, { persist = true } = {}) {
@@ -2311,7 +2318,7 @@ function applyDesktopHeaderStyle(value, { persist = true } = {}) {
 try {
   applyDesktopHeaderStyle(localStorage.getItem(DESKTOP_HEADER_STYLE_STORAGE_KEY), { persist: false });
 } catch {
-  applyDesktopHeaderStyle("classic", { persist: false });
+  applyDesktopHeaderStyle(DESKTOP_HEADER_STYLE_VISUAL, { persist: false });
 }
 
 async function loadSystemSettings(force = false) {
@@ -2333,7 +2340,7 @@ async function loadSystemSettings(force = false) {
     document.getElementById("systemPageSize").value = settings.page_size || "10";
     document.getElementById("systemSessionTimeout").value =
       settings.session_timeout_minutes || "480";
-    applyDesktopHeaderStyle(settings.desktop_header_style || "classic");
+    applyDesktopHeaderStyle(settings.desktop_header_style || DESKTOP_HEADER_STYLE_VISUAL);
 
     systemSettingsLoaded = true;
     showDataStatus("systemSettingsStatus", "");

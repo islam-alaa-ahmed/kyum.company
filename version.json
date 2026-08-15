@@ -1,13 +1,13 @@
 {
-  "version": "18.53.98",
-  "build": 185398,
+  "version": "18.53.99",
+  "build": 185399,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Selectable Desktop Premium Blue & Gold Header — Phase H1.3",
+  "title": "Three Selectable Desktop Header Variants — Phase H1.4",
   "notes": [
-    "إضافة إطار ذهبي احترافي خارجي للهيدر مع فاصل بصري عن القضبان الذهبية الداخلية الحالية.",
-    "إضافة خيار نمط هيدر الديسكتوب داخل إعدادات النظام مع حفظ الاختيار في system_settings.",
-    "الحفاظ على الهيدر الحالي كخيار مستقل وعدم تغيير هيدر الموبايل."
+    "إضافة الهيدر الأصلي السابق لـ H1.1 كخيار مستقل قابل للاسترجاع من إعدادات النظام.",
+    "الحفاظ على هيدر H1.2 Blue & Gold كخيار مستقل مع ترحيل قيمة classic القديمة إليه تلقائيًا.",
+    "الحفاظ على Premium Blue & Gold H1.3 كخيار ثالث مستقل، مع تجميد هيدر الموبايل بالكامل."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-98-desktop-premium-header"
+  "cacheToken": "kyum-crm-pwa-18-53-99-three-desktop-header-variants-h1-4"
 }
