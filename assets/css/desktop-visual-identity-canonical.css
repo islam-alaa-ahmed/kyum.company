@@ -299,4 +299,71 @@
   }
 
   #customersView .customers-mobile-cards{display:none!important;}
+
+  /* Phase D1.7 — Specialized desktop screen canonical token rollout.
+     Feature files keep geometry; this existing canonical owner supplies shared desktop visuals. */
+  :is(#quotationsView,#representativesView,#dailyOperationsView,#dailyPerformanceReportView,
+      #installationRequestNewView,#installationRequestsView,#installationExecutionView,
+      #installationCompletionView,#installationReportsView,#installationSettingsView,
+      #installationCostsView,#installationExceptionsView,#installationsOverviewView,
+      #salesInvoicesView,#reportsOverviewView,#permissionsView,#usersView,#settingsView,
+      #systemSettingsView,#systemHealthView,#activityLogView,#backupsView,#notificationCenterView){
+    color:var(--desk-text);
+    --surface:var(--desk-glass-strong);--surface-2:var(--desk-glass-soft);--surface-soft:var(--desk-glass-soft);
+    --card-bg:var(--desk-glass-strong);--border:var(--desk-line);--border-color:var(--desk-line);
+    --text:var(--desk-text);--text-muted:var(--desk-muted);--muted-text:var(--desk-muted);--muted:var(--desk-muted);
+    --primary:var(--desk-blue);
+    --control-border:color-mix(in srgb,var(--desk-line) 92%,transparent);--control-radius:13px;
+    --control-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));--control-color:var(--desk-text);
+    --control-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 -1px 0 rgba(47,131,255,.035);
+    --control-focus-border:var(--desk-blue);--control-focus-shadow:0 0 0 3px rgba(47,131,255,.12),0 0 20px rgba(47,131,255,.10);
+    --button-radius:12px;--button-padding:10px 16px;
+    --primary-btn-bg:linear-gradient(115deg,var(--desk-blue-deep),var(--desk-blue));
+    --primary-btn-border:1px solid color-mix(in srgb,var(--desk-blue) 82%,white);--primary-btn-shadow:0 9px 23px rgba(47,131,255,.22);
+    --primary-btn-hover-bg:linear-gradient(115deg,var(--desk-blue-deep),var(--desk-blue));
+    --secondary-btn-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));--secondary-btn-color:var(--desk-text);
+    --secondary-btn-border:1px solid var(--desk-line);--secondary-btn-shadow:0 6px 16px rgba(21,66,125,.065);
+    --secondary-btn-hover-bg:linear-gradient(145deg,color-mix(in srgb,var(--desk-blue) 6%,var(--desk-glass-strong)),var(--desk-glass-soft));
+    --button-hover-border:var(--desk-line-strong);--button-hover-shadow:0 10px 24px rgba(47,131,255,.14);--button-hover-transform:translateY(-2px);
+    --panel-bg:radial-gradient(circle at 92% -14%,color-mix(in srgb,var(--desk-blue) 10%,transparent),transparent 35%),linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass));
+    --panel-border:1px solid var(--desk-line);--panel-radius:22px;--panel-shadow:var(--desk-shadow);
+    --table-card-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass));--table-card-border:1px solid var(--desk-line);
+    --table-card-radius:19px;--table-card-shadow:var(--desk-shadow);--table-row-border:1px solid color-mix(in srgb,var(--desk-line) 70%,transparent);
+    --table-head-bg:linear-gradient(180deg,color-mix(in srgb,var(--desk-blue) 12%,var(--desk-glass-strong)),var(--desk-glass-strong));--table-head-color:var(--desk-text);
+    --row-action-border:1px solid var(--desk-line);--row-action-bg:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));
+    --badge-bg:color-mix(in srgb,var(--desk-blue) 7%,var(--desk-glass-soft));--badge-color:var(--desk-text);
+    --badge-border:1px solid color-mix(in srgb,var(--desk-blue) 24%,var(--desk-line));
+    --control-color-scheme:light;--option-bg:#fff;--option-color:var(--desk-text);
+  }
+  html[data-theme="dark"] :is(#quotationsView,#representativesView,#dailyOperationsView,#dailyPerformanceReportView,
+      #installationRequestNewView,#installationRequestsView,#installationExecutionView,#installationCompletionView,
+      #installationReportsView,#installationSettingsView,#installationCostsView,#installationExceptionsView,
+      #installationsOverviewView,#salesInvoicesView,#reportsOverviewView,#permissionsView,#usersView,#settingsView,
+      #systemSettingsView,#systemHealthView,#activityLogView,#backupsView,#notificationCenterView){
+    --control-color-scheme:dark;--option-bg:#0b1d34;--option-color:#f7fbff;
+  }
+  :is(#installationRequestNewView,#installationSettingsView,#installationCostsView) :is(.installation-customer-results,.geo-searchable-options){
+    background:var(--desk-glass-strong);color:var(--desk-text);border-color:var(--desk-line);box-shadow:var(--desk-shadow-blue);
+  }
+  #installationRequestNewView .installation-step-header{
+    background:linear-gradient(180deg,color-mix(in srgb,var(--desk-blue) 8%,var(--desk-glass-soft)),var(--desk-glass-soft));border-color:var(--desk-line);
+  }
+  #installationRequestNewView .installation-services-table-wrap{border-color:var(--desk-line);background:var(--desk-glass);}
+  #installationRequestNewView .installation-services-table th,#installationRequestNewView .installation-services-table td{border-color:var(--desk-line);}
+  #installationCompletionView .installation-completion-table thead th{
+    background:linear-gradient(180deg,color-mix(in srgb,var(--desk-blue) 12%,var(--desk-glass-strong)),var(--desk-glass-strong));color:var(--desk-text);
+  }
+  #salesInvoicesView .sales-invoices-summary article{
+    background:linear-gradient(145deg,var(--desk-glass-strong),var(--desk-glass-soft));border-color:var(--desk-line);box-shadow:var(--desk-shadow);
+  }
+  #installationCostsView .installation-cost-matrix-dialog :is(.dialog-shell,.dialog-header,.dialog-actions,.installation-cost-matrix-wrap,.installation-cost-matrix),
+  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix tbody td,
+  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix :is(th:first-child,td:first-child){
+    background:var(--desk-glass-strong)!important;color:var(--desk-text)!important;border-color:var(--desk-line)!important;
+  }
+  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix thead th,
+  #installationCostsView .installation-cost-matrix-dialog .installation-cost-matrix tbody tr:nth-child(even) td{
+    background:var(--desk-glass-soft)!important;color:var(--desk-text)!important;
+  }
+
 }
