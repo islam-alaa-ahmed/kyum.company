@@ -90,7 +90,7 @@ table{width:100%;border-collapse:collapse;min-width:1100px}
 th,td{padding:var(--table-cell-padding,14px 12px);text-align:right;border-bottom:var(--table-row-border,1px solid var(--border));vertical-align:var(--table-cell-align,top)}
 th{background:var(--table-head-bg,#f8fafc);color:var(--table-head-color,var(--text));font-size:var(--table-head-size,13px);font-weight:var(--table-head-weight,700);position:sticky;top:0;backdrop-filter:var(--table-head-blur,none)}
 td{font-size:13px}
-.badge{display:inline-flex;padding:var(--badge-padding,5px 9px);border-radius:999px;background:var(--badge-bg,#eff6ff);color:var(--badge-color,#1d4ed8);border:var(--badge-border,0);font-weight:700;font-size:12px;margin:2px}
+.badge{display:inline-flex;padding:var(--badge-padding,5px 9px);border-radius:999px;background:var(--badge-bg,#eff6ff);color:var(--badge-color,#1d4ed8);border:var(--badge-border,0);font-weight:700;font-size:12px;margin:2px;white-space:var(--badge-white-space,normal);min-width:var(--badge-min-width,auto)}
 .row-actions{display:flex;gap:var(--row-actions-gap,7px);flex-wrap:var(--row-actions-wrap,nowrap);align-items:var(--row-actions-align,center)}
 .row-actions button{border:var(--row-action-border,0);padding:var(--row-action-padding,7px 10px);border-radius:var(--row-action-radius,9px);background:var(--row-action-bg,transparent);box-shadow:var(--row-action-shadow,none);min-width:var(--row-action-min-width,auto);white-space:var(--row-action-white-space,normal)}
 .edit-btn{background:var(--edit-btn-bg,#eff6ff);color:var(--edit-btn-color,#1d4ed8);border-color:var(--edit-btn-border-color,transparent)!important}
@@ -7446,6 +7446,12 @@ html[data-theme="dark"] #dailyOperationsView td {
 
 
 /* =========================================================
+   D1.4 platform isolation: preserve the exact pre-D1.4 legacy visual stack
+   below 1024px so Mobile/Tablet behavior is byte-equivalent in ownership.
+   Desktop no longer receives these superseded layers.
+   ========================================================= */
+@media (max-width:1023px) {
+/* =========================================================
    Phase 17.8.5 — Typography Theme System
    Scope:
    - Unified text colors outside the approved Header and Sidebar.
@@ -8648,18 +8654,23 @@ html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not
 /* ---------------------------------------------------------
    Explicit protection
    --------------------------------------------------------- */
-
-
-
+}
 
 /* =========================================================
-   Phase 17.9 — Enterprise UI Final Audit & Production Lock
+   Legacy general visual layers 17.8.5–17.8.9 removed from Desktop in D1.4.
+   Their overlapping Desktop ownership is superseded by the single Phase 17.9
+   desktop content owner below plus Phase 18.1 semantic status owner.
+   ========================================================= */
+
+/* =========================================================
+   Phase 17.9 / D1.4 — Canonical Remaining Desktop Content Owner
    Scope:
-   - Final Light/Dark contrast normalization across application content.
-   - Final typography readability normalization.
-   - Final controls, badges, forms, tables and empty-state audit.
-   - Header and Sidebar remain explicitly protected.
-   - No JavaScript, data, logic, layout or responsive changes.
+   - Single visual owner for all Desktop feature views except the separately
+     certified Dashboard / Customers / Followups owners.
+   - PETATOE-derived Blue/Gold glass surfaces, controls, cards and tables.
+   - Light/Dark parity and native dropdown dark-mode parity.
+   - Header, Sidebar, Mobile and Tablet remain explicitly protected.
+   - No JavaScript, data, business logic or permissions changes.
    ========================================================= */
 
 /* ---------------------------------------------------------
@@ -8702,6 +8713,182 @@ html[data-theme="dark"] {
   --ui-final-control: #192b45;
   --ui-final-control-hover: #223751;
   --ui-final-shadow: 0 7px 20px rgba(0, 0, 0, .18);
+}
+
+/* Desktop-only PETATOE visual token bridge for every remaining feature view.
+   The fallback ui-final values above stay untouched for Mobile/Tablet. */
+@media (min-width:1024px) {
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
+    --ui-final-text:#10233f;
+    --ui-final-secondary:#6b7f9b;
+    --ui-final-disabled:#7d8ea6;
+    --ui-final-page:#f3f7fc;
+    --ui-final-surface:rgba(255,255,255,.94);
+    --ui-final-surface-2:rgba(239,247,255,.86);
+    --ui-final-surface-3:rgba(229,240,253,.82);
+    --ui-final-border:rgba(74,144,232,.24);
+    --ui-final-border-strong:rgba(47,131,255,.70);
+    --ui-final-control:rgba(255,255,255,.94);
+    --ui-final-control-hover:rgba(239,247,255,.94);
+    --ui-final-shadow:0 18px 44px rgba(20,58,104,.13),0 5px 16px rgba(47,131,255,.055),inset 0 1px 0 rgba(255,255,255,.94);
+
+    --control-bg:linear-gradient(145deg,rgba(255,255,255,.94),rgba(239,247,255,.86));
+    --control-color:#10233f;
+    --control-border:rgba(74,144,232,.24);
+    --control-focus-border:#2f83ff;
+    --control-focus-shadow:0 0 0 3px rgba(47,131,255,.12),0 0 20px rgba(47,131,255,.10),inset 0 1px 0 rgba(255,255,255,.10);
+    --control-color-scheme:light;
+    --option-bg:#ffffff;
+    --option-color:#10233f;
+
+    --badge-bg:color-mix(in srgb,#2f83ff 7%,rgba(239,247,255,.86));
+    --badge-color:#10233f;
+    --badge-border:1px solid color-mix(in srgb,#2f83ff 24%,rgba(74,144,232,.24));
+    --badge-white-space:nowrap;
+
+    --row-action-bg:linear-gradient(145deg,rgba(255,255,255,.94),rgba(239,247,255,.86));
+    --row-action-border:1px solid rgba(74,144,232,.24);
+    --row-action-shadow:0 6px 16px rgba(21,66,125,.065),inset 0 1px 0 rgba(255,255,255,.09);
+    --row-action-radius:11px;
+    --row-action-padding:8px 12px;
+    --row-action-white-space:nowrap;
+  }
+
+  html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView) {
+    --ui-final-text:#f7fbff;
+    --ui-final-secondary:#9fb1c8;
+    --ui-final-disabled:#879bb5;
+    --ui-final-page:#071321;
+    --ui-final-surface:rgba(6,20,40,.95);
+    --ui-final-surface-2:rgba(12,34,63,.88);
+    --ui-final-surface-3:rgba(16,42,75,.82);
+    --ui-final-border:rgba(92,158,239,.25);
+    --ui-final-border-strong:rgba(47,140,255,.76);
+    --ui-final-control:rgba(12,34,63,.88);
+    --ui-final-control-hover:rgba(16,42,75,.92);
+    --ui-final-shadow:0 20px 48px rgba(0,0,0,.30),0 0 24px rgba(47,140,255,.045),inset 0 1px 0 rgba(255,255,255,.04);
+
+    --control-bg:linear-gradient(145deg,rgba(6,20,40,.95),rgba(12,34,63,.88));
+    --control-color:#f7fbff;
+    --control-border:rgba(92,158,239,.25);
+    --control-focus-border:#338fff;
+    --control-focus-shadow:0 0 0 3px rgba(51,143,255,.14),0 0 20px rgba(51,143,255,.11),inset 0 1px 0 rgba(255,255,255,.04);
+    --control-color-scheme:dark;
+    --option-bg:#081930;
+    --option-color:#f7fbff;
+
+    --badge-bg:color-mix(in srgb,#338fff 9%,rgba(12,34,63,.88));
+    --badge-color:#f7fbff;
+    --badge-border:1px solid rgba(92,158,239,.34);
+
+    --row-action-bg:linear-gradient(145deg,rgba(12,34,63,.92),rgba(8,25,48,.90));
+    --row-action-border:1px solid rgba(92,158,239,.28);
+    --row-action-shadow:none;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   D1.4 premium component language — Desktop feature views
+   This is the canonical visual owner for the remaining screens.
+   --------------------------------------------------------- */
+@media (min-width:1024px) {
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(
+    .card,.panel,.section-card,.metric-card,.kpi-card,.report-card,.customer-card,
+    .quotation-card,.followup-card,.alert-card,.summary-card,.settings-card,
+    [class*="-card"],[class*="-panel"],[class*="-widget"]
+  ) {
+    border:1px solid var(--ui-final-border);
+    border-radius:20px;
+    background:
+      radial-gradient(circle at 92% -14%,color-mix(in srgb,#2f83ff 10%,transparent),transparent 35%),
+      linear-gradient(145deg,var(--ui-final-surface),color-mix(in srgb,var(--ui-final-surface-2) 88%,var(--ui-final-surface)));
+    box-shadow:var(--ui-final-shadow);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(
+    .metric-card,.kpi-card,.summary-card,
+    .performance-metric,.reports-kpi-grid > *,.performance-metrics > *,
+    .executive-period-summary > *,.executive-funnel-summary > *,
+    .quotation-value-kpis > *,.diagnostics-summary-grid > *,
+    .daily-performance-kpis > *,.daily-alerts-summary > *
+  ) {
+    border-radius:18px;
+    background:
+      radial-gradient(circle at 10% 108%,color-mix(in srgb,#2f83ff 13%,transparent),transparent 44%),
+      linear-gradient(150deg,var(--ui-final-surface),var(--ui-final-surface-2));
+    box-shadow:0 18px 42px rgba(20,95,190,.17),0 0 0 1px rgba(47,131,255,.055),0 0 24px rgba(47,131,255,.06),inset 0 1px 0 rgba(255,255,255,.10);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(
+    .filters-row,.filter-bar,.filters-bar,.toolbar,.actions-row,
+    [class*="filter-bar"],[class*="filters-bar"],[class*="toolbar"]
+  ) {
+    border:1px solid var(--ui-final-border);
+    border-radius:17px;
+    background:linear-gradient(145deg,var(--ui-final-surface),var(--ui-final-surface-2));
+    box-shadow:0 10px 26px rgba(20,70,135,.08),inset 0 1px 0 rgba(255,255,255,.07);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(.table-card,.table-wrap,.data-table-wrap,[class*="table-wrap"]) {
+    overflow:auto;
+    border:1px solid var(--ui-final-border);
+    border-radius:19px;
+    background:linear-gradient(145deg,var(--ui-final-surface),color-mix(in srgb,var(--ui-final-surface-2) 72%,var(--ui-final-surface)));
+    box-shadow:var(--ui-final-shadow);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  table {
+    border-collapse:separate;
+    border-spacing:0;
+    color:var(--ui-final-text);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  table thead th {
+    background:linear-gradient(180deg,color-mix(in srgb,#2f83ff 12%,var(--ui-final-surface)),var(--ui-final-surface));
+    border-bottom:1px solid color-mix(in srgb,#2f83ff 45%,var(--ui-final-border));
+    font-weight:900;
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  table tbody tr:nth-child(even) {
+    background:color-mix(in srgb,#2f83ff 3.2%,transparent);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  table tbody tr:hover {
+    background:color-mix(in srgb,#2f83ff 8%,var(--ui-final-surface-2));
+    box-shadow:inset -4px 0 0 #2f83ff;
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(.primary-btn,.save-btn,.submit-btn,[class*="primary-btn"]) {
+    border:1px solid color-mix(in srgb,#2f83ff 82%,white);
+    border-radius:12px;
+    background:linear-gradient(115deg,#104fae,#2f83ff);
+    color:#fff;
+    box-shadow:0 9px 23px rgba(47,131,255,.22),inset 0 1px 0 rgba(255,255,255,.22);
+  }
+
+  .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(.secondary-btn,.compact-btn,.edit-btn,.text-btn,.row-actions button,.table-pagination button,.pagination button) {
+    border-radius:11px;
+    background:var(--row-action-bg,linear-gradient(145deg,var(--ui-final-surface),var(--ui-final-surface-2)));
+    border:var(--row-action-border,1px solid var(--ui-final-border));
+    box-shadow:var(--row-action-shadow,none);
+  }
+
+  html[data-theme="dark"] .main-content > :not(#appHeader):not(#dashboardView):not(#customersView):not(#followupsView)
+  :is(select option,[role="option"]) {
+    background:#081930;
+    color:#f7fbff;
+  }
 }
 
 /* ---------------------------------------------------------

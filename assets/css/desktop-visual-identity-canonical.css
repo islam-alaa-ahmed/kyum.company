@@ -1,4 +1,4 @@
-/* Phase D1.3 — Desktop Dark Controls & Customer Actions Canonical Owner
+/* Phase D1.4 — Desktop All-Screen Rollout + Customer Badge Containment Canonical Owner
    Scope: Dashboard, Customers, Followups on desktop only; dark-mode filters/status and customer action containment.
    Ownership model: style.css owns shared component properties through scoped tokens;
    this file supplies the active desktop tokens and visual components that have no legacy owner.
@@ -276,6 +276,8 @@
     --row-actions-align:center;
     --row-action-min-width:64px;
     --row-action-white-space:nowrap;
+    --badge-white-space:nowrap;
+    --badge-min-width:max-content;
   }
   #customersView .customers-desktop-table th:last-child,
   #customersView .customers-desktop-table td:last-child{
@@ -284,6 +286,16 @@
   }
   #customersView .customers-desktop-table .row-actions{
     justify-content:flex-start;
+  }
+  #customersView .customers-desktop-table th:nth-child(4),
+  #customersView .customers-desktop-table td:nth-child(4){
+    min-width:92px;
+    width:92px;
+  }
+  #customersView .customers-desktop-table td:nth-child(4) .badge{
+    max-width:none;
+    overflow:visible;
+    text-overflow:clip;
   }
 
   #customersView .customers-mobile-cards{display:none!important;}

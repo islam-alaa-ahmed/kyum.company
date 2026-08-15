@@ -1,13 +1,14 @@
 {
-  "version": "18.53.85",
-  "build": 185385,
+  "version": "18.53.86",
+  "build": 185386,
   "forceUpdate": true,
   "releaseDate": "2026-08-15",
-  "title": "Desktop Dark Controls & Customer Actions Correction — Phase D1.3",
+  "title": "Desktop Visual Identity All-Screen Rollout — Phase D1.4",
   "notes": [
-    "إزالة الخلفيات البيضاء من حالات البيانات والفلاتر المنسدلة في Dark Mode للشاشات الثلاث المعتمدة على Desktop.",
-    "تثبيت Native select/options على Dark color-scheme داخل نطاق Desktop فقط.",
-    "منع كسر نصوص أزرار إجراءات العملاء وتخصيص مساحة ثابتة لعمود الإجراءات دون المساس بالموبايل أو الهيدر أو السايدبار."
+    "تعميم لغة الهوية البصرية المعتمدة من Dashboard على جميع شاشات Desktop عبر canonical owner واحد لباقي الشاشات.",
+    "إزالة طبقات التصميم العامة القديمة المتداخلة 17.8.5–17.8.9 والإبقاء على Phase 17.9 كمالك بصري موحد لباقي محتوى Desktop.",
+    "إصلاح احتواء Badge التصنيف شركة في جدول العملاء ومنع التفاف النص داخل التصنيف.",
+    "تثبيت Dark Mode filters/options والسurfaces على نفس Navy/Blue/Gold hierarchy دون المساس بالموبايل أو الهيدر أو السايدبار."
   ],
-  "cacheToken": "kyum-crm-pwa-18-53-85-desktop-dark-controls-customer-actions-d1-3"
+  "cacheToken": "kyum-crm-pwa-18-53-86-desktop-all-screen-visual-rollout-d1-4"
 }

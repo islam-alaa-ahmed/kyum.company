@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-53-85-desktop-dark-controls-customer-actions-d1-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-53-86-desktop-all-screen-visual-rollout-d1-4";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
