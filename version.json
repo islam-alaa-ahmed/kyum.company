@@ -1,13 +1,13 @@
 {
-  "version": "18.54.07",
-  "build": 185407,
+  "version": "18.54.08",
+  "build": 185408,
   "forceUpdate": true,
   "releaseDate": "2026-08-16",
-  "title": "Execution Workspace Visibility & Safe Update Notification — Phase E1",
+  "title": "Execution Visibility Invariant Recovery — Phase E1.1",
   "notes": [
-    "اعتماد زيارات التنفيذ النشطة كمصدر أساسي لظهور طلبات التنفيذ مع الحفاظ على دعم الطلبات القديمة.",
-    "إبقاء الطلبات المتأخرة غير المنفذة ظاهرة في قائمة اليوم حتى يبدأ تنفيذها أو تتغير حالتها.",
-    "تأجيل نافذة تحديث التطبيق المكتشفة في الخلفية إلى الانتقال بين الشاشات أو إعادة تحميل الصفحة لمنع مقاطعة العمل الجاري."
+    "منع اختفاء أي زيارة تنفيذ نشطة بسبب فقد أو عدم تزامن selected_for_execution/current selection.",
+    "إظهار الزيارات ذات تقدم التنفيذ الفعلي دائمًا في شاشة التنفيذ مع زر استئناف التنفيذ.",
+    "اعتماد التقدم الفعلي والحالة النهائية لتصنيف الطلب بين Pending وIn Progress بدل استخدام selection state كبوابة رؤية."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-07-execution-workspace-visibility-safe-update-e1"
+  "cacheToken": "kyum-crm-pwa-18-54-08-execution-visibility-invariant-e1-1"
 }
