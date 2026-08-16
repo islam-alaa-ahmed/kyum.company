@@ -1,12 +1,13 @@
 {
-  "version": "18.54.02",
-  "build": 185402,
+  "version": "18.54.03",
+  "build": 185403,
   "forceUpdate": true,
-  "releaseDate": "2026-08-15",
-  "title": "Mobile Customers Actions & Saudi WhatsApp Hotfix",
+  "releaseDate": "2026-08-16",
+  "title": "Installation Reports Data Integrity, Date Filters & Totals — Phase R1",
   "notes": [
-    "تصحيح رقم واتساب في كروت العملاء بالموبايل إلى صيغة السعودية الدولية 9665XXXXXXXX.",
-    "إعادة ربط أزرار عرض ومتابعة وتعديل وحذف في كروت العملاء بالموبايل بنفس handlers المعتمدة للديسكتوب دون تغيير منطقها."
+    "توسيع سنوات ملخص التركيبات تلقائيًا من أقدم إلى أحدث تاريخ مجدول متاح ضمن صلاحيات المستخدم مع إبقاء جميع الشهور وأيام الشهر الصحيحة.",
+    "تصحيح كميات التنفيذ في التقرير التشغيلي للطلبات متعددة الأيام من الكميات المنفذة المؤكدة بدل اعتبار كامل الطلب منفذًا.",
+    "تجميع جميع فواتير التركيب المرتبطة بالطلب بدل استبدال إحداها بالأخرى وإضافة إجماليات محسوبة في نهاية جداول التقارير."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-02-mobile-customers-actions-whatsapp-hotfix"
+  "cacheToken": "kyum-crm-pwa-18-54-03-installation-reports-integrity-totals-r1"
 }

@@ -193,3 +193,19 @@
   #installationReportsView .installation-summary-filters,
   #installationReportsView .installation-service-analytics-filters{background:linear-gradient(145deg,var(--surface),var(--surface-soft));border-color:var(--border)}
 }
+
+
+/* Phase R1 — canonical totals row for installation report tables. */
+.installation-report-total-row td{
+  font-weight:800;
+  border-top:2px solid color-mix(in srgb,var(--primary) 42%,var(--border));
+  background:color-mix(in srgb,var(--primary) 7%,var(--surface-soft));
+}
+.installation-report-total-row .installation-report-total-label{
+  color:var(--text);
+  white-space:nowrap;
+}
+html[data-theme="dark"] .installation-report-total-row td{
+  background:color-mix(in srgb,var(--primary) 10%,var(--surface));
+  border-top-color:color-mix(in srgb,var(--primary) 54%,var(--border));
+}

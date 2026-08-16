@@ -428,6 +428,23 @@
   async function signedFileUrl(path,expiresIn=900){const {data,error}=await db().storage.from('installation-evidence').createSignedUrl(path,expiresIn);if(error)throw new Error('تعذر فتح المرفق: '+error.message);return data?.signedUrl||''}
   async function exceptionList(){requireAction('view','installationExceptions');const [{data:requests,error:re},{data:revisits,error:ve}]=await Promise.all([db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),technician:installation_technicians(id,full_name)').in('status',['مؤجل','متعذر']).order('last_status_changed_at',{ascending:false,nullsFirst:false}),db().from('installation_revisits').select('*').order('created_at',{ascending:false})]);if(re)throw new Error('تعذر تحميل استثناءات التركيبات: '+re.message);if(ve)throw new Error('تعذر تحميل إعادة الزيارات: '+ve.message);const map=new Map();(revisits||[]).forEach(v=>{if(!map.has(v.installation_request_id)||v.status==='مجدولة')map.set(v.installation_request_id,v)});return (requests||[]).map(r=>({id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',customerPhone:r.customer?.phone||'',technicianId:r.technician_id||'',technicianName:r.assigned_technician_name||r.technician?.full_name||'',scheduledDate:r.scheduled_date||'',status:r.status||'',failureReason:r.execution_failure_reason||'',executionNotes:r.execution_notes||'',activeRevisit:(()=>{const v=map.get(r.id);return v?{id:v.id,scheduledDate:v.scheduled_date||'',timeSlot:v.time_slot||'',technicianId:v.technician_id||'',actionType:v.action_type||'إعادة زيارة',notes:v.notes||'',status:v.status||'مجدولة'}:null})()}))}
   async function saveRevisit(payload){requireAction('edit','installationExceptions');if(!payload.scheduledDate||!payload.technicianId)throw new Error('تاريخ إعادة الزيارة والفني مطلوبان.');const {data:existing,error:ee}=await db().from('installation_revisits').select('id').eq('installation_request_id',payload.requestId).eq('status','مجدولة').maybeSingle();if(ee)throw new Error('تعذر التحقق من إعادة الزيارة: '+ee.message);const record={installation_request_id:payload.requestId,scheduled_date:payload.scheduledDate,time_slot:payload.timeSlot,technician_id:payload.technicianId,action_type:payload.actionType||'إعادة زيارة',notes:payload.notes||null,status:'مجدولة'};let q=existing?.id?db().from('installation_revisits').update(record).eq('id',existing.id):db().from('installation_revisits').insert(record);const {error}=await q;if(error)throw new Error('تعذر حفظ إعادة الزيارة: '+error.message);const {error:ue}=await db().from('installation_requests').update({scheduled_date:payload.scheduledDate,time_slot:payload.timeSlot,technician_id:payload.technicianId,status:'مسند',assignment_notes:payload.notes||null}).eq('id',payload.requestId);if(ue)throw new Error('تم حفظ الزيارة لكن تعذر تحديث طلب التركيب: '+ue.message);void notifyEvent('installation.revisit_scheduled',payload.requestId,null,{scheduledDate:payload.scheduledDate,actionType:payload.actionType||'إعادة زيارة'},'revisit:'+payload.scheduledDate)}
+  async function installationReportDateBounds(){
+    requireAction('view','installationReports');
+    const edge=async(table,ascending)=>{
+      const {data,error}=await db().from(table).select('scheduled_date').not('scheduled_date','is',null).order('scheduled_date',{ascending,nullsFirst:false}).limit(1);
+      if(error&&error.code!=='42P01')throw error;
+      return data?.[0]?.scheduled_date||'';
+    };
+    const [requestMin,requestMax,visitMin,visitMax]=await Promise.all([
+      edge('installation_requests',true),
+      edge('installation_requests',false),
+      edge('installation_execution_visits',true),
+      edge('installation_execution_visits',false)
+    ]);
+    const values=[requestMin,requestMax,visitMin,visitMax].filter(Boolean).sort();
+    return {minDate:values[0]||'',maxDate:values[values.length-1]||''};
+  }
+
   async function operationalReport(filters={}){
     requireAction('view','installationReports');
     let q=db().from('installation_requests').select('id,request_number,status,scheduled_date,installation_team_id,technician_id,assigned_technician_name,representative_id,total_services_amount,started_at,completed_at,execution_failure_reason,customer:customers(id,customer_name),technician:installation_technicians(id,full_name),team:installation_teams(id,name),representative:sales_representatives(id,full_name)');
@@ -437,24 +454,87 @@
     if(filters.teamId)q=q.eq('installation_team_id',filters.teamId);
     if(filters.representativeId)q=q.eq('representative_id',filters.representativeId);
     if(filters.status)q=q.eq('status',filters.status);
-    const [{data:rows,error:re},{data:revisits,error:ve},{data:techs,error:te},{data:teams,error:tme},{data:reps,error:rpe},{data:invoices,error:ie},{data:services,error:se}]=await Promise.all([
+    const [{data:rows,error:re},{data:revisits,error:ve},{data:techs,error:te},{data:teams,error:tme},{data:reps,error:rpe},{data:invoices,error:ie},{data:services,error:se},{data:executionVisits,error:eve},{data:executionLines,error:ele}]=await Promise.all([
       q.order('scheduled_date',{ascending:false,nullsFirst:false}),
       db().from('installation_revisits').select('installation_request_id'),
       db().from('installation_technicians').select('id,full_name').order('full_name'),
       db().from('installation_teams').select('id,name').order('name'),
       db().from('sales_representatives').select('id,full_name').order('full_name'),
-      db().from('sales_invoices').select('installation_request_id,invoice_number,invoice_amount,installation_expenses,invoice_date,status').eq('source_type','installation').neq('status','ملغاة'),
-      db().from('installation_request_services').select('installation_request_id,quantity,line_total,service:installation_service_types(default_cost)')
+      db().from('sales_invoices').select('installation_request_id,installation_execution_visit_id,invoice_number,invoice_amount,installation_expenses,invoice_date,status').eq('source_type','installation').neq('status','ملغاة'),
+      db().from('installation_request_services').select('id,installation_request_id,quantity,unit_price,line_total,service:installation_service_types(default_cost)'),
+      db().from('installation_execution_visits').select('id,installation_request_id,status,started_at,completed_at'),
+      db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity,executed_quantity')
     ]);
     if(re)throw new Error('تعذر تحميل تقرير التركيبات: '+re.message);
     if(ve)throw new Error('تعذر تحميل بيانات إعادة الزيارة: '+ve.message);
     if(te||tme||rpe)throw new Error('تعذر تحميل قوائم تصفية تقارير التركيبات.');
     if(ie)throw new Error('تعذر تحميل القيم المالية للفواتير: '+ie.message);
     if(se)throw new Error('تعذر تحميل تكاليف خدمات التركيبات: '+se.message);
+    if(eve&&eve.code!=='42P01')throw new Error('تعذر تحميل زيارات التنفيذ للتقارير: '+eve.message);
+    if(ele&&ele.code!=='42P01')throw new Error('تعذر تحميل كميات التنفيذ للتقارير: '+ele.message);
     const revisitCount=new Map();(revisits||[]).forEach(v=>revisitCount.set(v.installation_request_id,(revisitCount.get(v.installation_request_id)||0)+1));
-    const invoiceMap=new Map();(invoices||[]).forEach(x=>invoiceMap.set(x.installation_request_id,x));
-    const serviceAmount=new Map(),serviceCost=new Map(),serviceQuantity=new Map();(services||[]).forEach(x=>{serviceAmount.set(x.installation_request_id,(serviceAmount.get(x.installation_request_id)||0)+Number(x.line_total||0));serviceCost.set(x.installation_request_id,(serviceCost.get(x.installation_request_id)||0)+Number(x.quantity||0)*Number(x.service?.default_cost||0));serviceQuantity.set(x.installation_request_id,(serviceQuantity.get(x.installation_request_id)||0)+Number(x.quantity||0));});
-    const normalized=(rows||[]).map(r=>{const inv=invoiceMap.get(r.id);const revenue=Number(inv?.invoice_amount??r.total_services_amount??serviceAmount.get(r.id)??0);const expenses=Number(inv?.installation_expenses??serviceCost.get(r.id)??0);const profit=revenue-expenses;const duration=r.started_at&&r.completed_at?(new Date(r.completed_at)-new Date(r.started_at))/60000:null;return {id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',representativeId:r.representative_id||'',representativeName:r.representative?.full_name||'غير محدد',teamId:r.installation_team_id||'',teamName:r.team?.name||'غير مسند',technicianId:r.technician_id||'',technicianName:r.assigned_technician_name||r.technician?.full_name||'غير مسند',status:r.status||'',scheduledDate:r.scheduled_date||'',failureReason:r.execution_failure_reason||'',startedAt:r.started_at||'',completedAt:r.completed_at||'',durationMinutes:Number.isFinite(duration)&&duration>=0?duration:null,revisitCount:revisitCount.get(r.id)||0,invoiceNumber:inv?.invoice_number||'',invoiceDate:inv?.invoice_date||'',invoiceStatus:inv?.status||'',isInvoiced:Boolean(inv),revenue,expenses,profit,margin:revenue?profit/revenue*100:0,requestedQuantity:Number(serviceQuantity.get(r.id)||0),executedQuantity:(r.status==='مكتمل'||Boolean(inv))?Number(serviceQuantity.get(r.id)||0):0,remainingQuantity:(r.status==='مكتمل'||Boolean(inv))?0:Number(serviceQuantity.get(r.id)||0),executionRate:(r.status==='مكتمل'||Boolean(inv))?100:0};});
+
+    // A request can legitimately have more than one installation invoice (for example one per confirmed visit).
+    // Aggregate them instead of letting the last unordered row overwrite the previous invoice.
+    const invoiceMap=new Map();
+    (invoices||[]).forEach(x=>{
+      const key=String(x.installation_request_id||'');if(!key)return;
+      let item=invoiceMap.get(key);
+      if(!item)item={invoiceNumbers:[],invoiceAmount:0,installationExpenses:0,invoiceDate:'',statuses:[],visitIds:new Set()};
+      item.invoiceAmount+=Number(x.invoice_amount||0);
+      item.installationExpenses+=Number(x.installation_expenses||0);
+      if(x.invoice_number&&!item.invoiceNumbers.includes(x.invoice_number))item.invoiceNumbers.push(x.invoice_number);
+      if(x.status&&!item.statuses.includes(x.status))item.statuses.push(x.status);
+      if(x.installation_execution_visit_id)item.visitIds.add(String(x.installation_execution_visit_id));
+      if(x.invoice_date&&(!item.invoiceDate||String(x.invoice_date)>String(item.invoiceDate)))item.invoiceDate=x.invoice_date;
+      invoiceMap.set(key,item);
+    });
+
+    const serviceAmount=new Map(),serviceCost=new Map(),serviceQuantity=new Map(),serviceRequestById=new Map(),serviceUnitPriceById=new Map();
+    (services||[]).forEach(x=>{
+      const requestId=String(x.installation_request_id||''),serviceId=String(x.id||''),quantity=Number(x.quantity||0);
+      serviceRequestById.set(serviceId,requestId);
+      serviceUnitPriceById.set(serviceId,Number(x.unit_price??(quantity?Number(x.line_total||0)/quantity:0)));
+      serviceAmount.set(requestId,(serviceAmount.get(requestId)||0)+Number(x.line_total||0));
+      serviceCost.set(requestId,(serviceCost.get(requestId)||0)+quantity*Number(x.service?.default_cost||0));
+      serviceQuantity.set(requestId,(serviceQuantity.get(requestId)||0)+quantity);
+    });
+
+    const visitsByRequest=new Map(),visitRequestById=new Map(),confirmedVisitIds=new Set();
+    (executionVisits||[]).forEach(v=>{
+      const requestId=String(v.installation_request_id||''),visitId=String(v.id||'');if(!requestId||!visitId)return;
+      visitRequestById.set(visitId,requestId);
+      const list=visitsByRequest.get(requestId)||[];list.push(v);visitsByRequest.set(requestId,list);
+      if(v.status==='مؤكدة')confirmedVisitIds.add(visitId);
+    });
+    const executedQuantityByRequest=new Map(),executedValueByRequest=new Map();
+    (executionLines||[]).forEach(line=>{
+      const visitId=String(line.visit_id||'');if(!confirmedVisitIds.has(visitId))return;
+      const serviceId=String(line.request_service_id||''),requestId=visitRequestById.get(visitId)||serviceRequestById.get(serviceId);if(!requestId)return;
+      const executed=Number(line.executed_quantity||0);
+      executedQuantityByRequest.set(requestId,(executedQuantityByRequest.get(requestId)||0)+executed);
+      executedValueByRequest.set(requestId,(executedValueByRequest.get(requestId)||0)+executed*Number(serviceUnitPriceById.get(serviceId)||0));
+    });
+
+    const normalized=(rows||[]).map(r=>{
+      const requestId=String(r.id||''),inv=invoiceMap.get(requestId),requestedQuantity=Number(serviceQuantity.get(requestId)||0);
+      const hasExecutionVisits=(visitsByRequest.get(requestId)||[]).length>0;
+      const confirmedExecuted=Number(executedQuantityByRequest.get(requestId)||0);
+      const fallbackCompleted=!hasExecutionVisits&&(r.status==='مكتمل'||Boolean(inv));
+      const executedQuantity=Math.min(requestedQuantity,hasExecutionVisits?confirmedExecuted:(fallbackCompleted?requestedQuantity:0));
+      const remainingQuantity=Math.max(requestedQuantity-executedQuantity,0);
+      const executionRate=requestedQuantity?Math.round(executedQuantity/requestedQuantity*1000)/10:0;
+      const serviceValue=Number(r.total_services_amount??serviceAmount.get(requestId)??0);
+      const executedValue=hasExecutionVisits?Math.min(serviceValue,Number(executedValueByRequest.get(requestId)||0)):(fallbackCompleted?serviceValue:0);
+      const remainingValue=Math.max(serviceValue-executedValue,0);
+      const revenue=inv?Number(inv.invoiceAmount||0):serviceValue;
+      const expenses=inv?Number(inv.installationExpenses||0):Number(serviceCost.get(requestId)||0);
+      const profit=revenue-expenses;
+      const visitDurations=(visitsByRequest.get(requestId)||[]).map(v=>v.started_at&&v.completed_at?(new Date(v.completed_at)-new Date(v.started_at))/60000:null).filter(x=>Number.isFinite(x)&&x>=0);
+      const requestDuration=r.started_at&&r.completed_at?(new Date(r.completed_at)-new Date(r.started_at))/60000:null;
+      const duration=visitDurations.length?visitDurations.reduce((a,x)=>a+x,0):requestDuration;
+      return {id:r.id,requestNumber:r.request_number,customerName:r.customer?.customer_name||'',representativeId:r.representative_id||'',representativeName:r.representative?.full_name||'غير محدد',teamId:r.installation_team_id||'',teamName:r.team?.name||'غير مسند',technicianId:r.technician_id||'',technicianName:r.assigned_technician_name||r.technician?.full_name||'غير مسند',status:r.status||'',scheduledDate:r.scheduled_date||'',failureReason:r.execution_failure_reason||'',startedAt:r.started_at||'',completedAt:r.completed_at||'',durationMinutes:Number.isFinite(duration)&&duration>=0?duration:null,revisitCount:revisitCount.get(r.id)||0,invoiceNumber:inv?.invoiceNumbers?.join('، ')||'',invoiceDate:inv?.invoiceDate||'',invoiceStatus:inv?.statuses?.join('، ')||'',isInvoiced:Boolean(inv),revenue,expenses,profit,margin:revenue?profit/revenue*100:0,requestedQuantity,executedQuantity,remainingQuantity,executionRate,executedValue,remainingValue};
+    });
     const sum=(arr,key)=>arr.reduce((a,x)=>a+Number(x[key]||0),0),avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
     const total=normalized.length,completed=normalized.filter(r=>r.status==='مكتمل'||r.isInvoiced).length,revisitTotal=normalized.filter(r=>r.revisitCount>0).length,revenue=sum(normalized,'revenue'),expenses=sum(normalized,'expenses'),profit=revenue-expenses;
     const durations=normalized.map(r=>r.durationMinutes).filter(Number.isFinite);
@@ -630,6 +710,6 @@
   }
   async function getSettings(){requireAction('view','installationSettings');const {data,error}=await db().from('installation_settings').select('*').eq('id',1).maybeSingle();if(error)throw new Error('تعذر تحميل إعدادات التركيبات: '+error.message);const r=data||{};return {morningLabel:r.morning_label||'صباحية',eveningLabel:r.evening_label||'مسائية',slaDays:Number(r.sla_days??1),defaultPriority:r.default_priority||'عادية',requireCompletionReport:r.require_completion_report!==false}}
   async function saveSettings(payload){requireAction('edit','installationSettings');const record={id:1,morning_label:payload.morningLabel,evening_label:payload.eveningLabel,sla_days:payload.slaDays,default_priority:payload.defaultPriority,require_completion_report:!!payload.requireCompletionReport,updated_at:new Date().toISOString()};const {error}=await db().from('installation_settings').upsert(record,{onConflict:'id'});if(error)throw new Error('تعذر حفظ إعدادات التركيبات: '+error.message)}
-  window.InstallationsService={list,options,requestEditDetail,requestEditOptions,createRequest,updateRequest,updateRequestServices,updateRequestContextServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,schedulePlan,assignMultiDay,cancelSchedule,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,confirmActualQuantities,cancelConfirmedQuantity,saveCompletion,signedFileUrl,exceptionList,saveRevisit,operationalReport,installationSummaryReport,installationCostWorkspace,saveInstallationCostTechnician,removeInstallationCostTechnician,saveInstallationCostTeam,removeInstallationCostTeam,saveInstallationCostTeamMembers,toggleInstallationCostTechnician,saveInstallationCostAnnual,saveInstallationCostMonth,clearInstallationCostMonth,saveInstallationCostCategory,removeInstallationCostCategory,copyPreviousInstallationCostMonth,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
+  window.InstallationsService={list,options,requestEditDetail,requestEditOptions,createRequest,updateRequest,updateRequestServices,updateRequestContextServices,save,remove,technicians,scheduleTeams,technicianNameSuggestions,scheduleList,schedulePlan,assignMultiDay,cancelSchedule,scheduleDayLocks,setScheduleDayLock,technicianBookedTimes,assign,saveTechnician,removeTechnician,executionWorkspace,executionIdentity,selectExecutionRequest,recordMapOpened,advanceExecution,completionList,confirmActualQuantities,cancelConfirmedQuantity,saveCompletion,signedFileUrl,exceptionList,saveRevisit,installationReportDateBounds,operationalReport,installationSummaryReport,installationCostWorkspace,saveInstallationCostTechnician,removeInstallationCostTechnician,saveInstallationCostTeam,removeInstallationCostTeam,saveInstallationCostTeamMembers,toggleInstallationCostTechnician,saveInstallationCostAnnual,saveInstallationCostMonth,clearInstallationCostMonth,saveInstallationCostCategory,removeInstallationCostCategory,copyPreviousInstallationCostMonth,getSettings,saveSettings,settingsCatalog,saveSettingItem,toggleSettingItem,removeSettingItem};
   window.dispatchEvent(new CustomEvent('kyum-installations-service-ready'));
 })();

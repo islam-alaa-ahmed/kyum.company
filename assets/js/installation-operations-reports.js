@@ -64,15 +64,43 @@
     catch(e){status(box,e.message||'تعذر إعداد تقارير التركيبات.','error');}
   }
   const empty=(cols,msg='لا توجد بيانات للفترة المحددة.')=>`<tr><td colspan="${cols}" class="empty-cell">${msg}</td></tr>`;
+  const reportPercent=(part,total,precision=1)=>total?Math.round(Number(part||0)/Number(total||1)*100*Math.pow(10,precision))/Math.pow(10,precision):0;
+  const reportTotalRow=cells=>`<tr class="installation-report-total-row">${cells.map((cell,i)=>`<td${i===0?' class="installation-report-total-label"':''}>${cell}</td>`).join('')}</tr>`;
   function renderReport(data){
-    const s=data.summary;
+    const s=data.summary,rows=data.rows||[],representatives=data.byRepresentative||[],teams=data.byTeam||[],technicians=data.byTechnician||[];
     $('installationReportsKpiTotal').textContent=num(s.total);$('installationReportsKpiCompleted').textContent=num(s.completed);$('installationReportsKpiRevenue').textContent=money(s.revenue);$('installationReportsKpiExpenses').textContent=money(s.expenses);$('installationReportsKpiProfit').textContent=money(s.profit);$('installationReportsKpiMargin').textContent=`${s.margin}%`;$('installationReportsKpiCompletionRate').textContent=`${s.completionRate}%`;$('installationReportsKpiRevisitRate').textContent=`${s.revisitRate}%`;$('installationReportsKpiDuration').textContent=s.averageDurationMinutes==null?'—':`${num(s.averageDurationMinutes)} دقيقة`;
-    $('installationFinancialReportBody').innerHTML=data.rows.length?data.rows.map(r=>`<tr><td>${esc(r.requestNumber)}</td><td>${esc(r.customerName)}</td><td>${esc(r.representativeName)}</td><td>${esc(r.teamName)}</td><td>${esc(r.technicianName)}</td><td>${esc(r.status)}</td><td>${num(r.requestedQuantity)}</td><td>${num(r.executedQuantity)}</td><td>${num(r.remainingQuantity)}</td><td>${r.executionRate}%</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td class="${r.profit<0?'negative-value':'positive-value'}">${money(r.profit)}</td><td>${fmt(r.completedAt||r.scheduledDate)}</td></tr>`).join(''):empty(14);
-    $('installationRepresentativeReportBody').innerHTML=data.byRepresentative.length?data.byRepresentative.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${money(r.averageOrderValue)}</td><td>${r.completionRate}%</td></tr>`).join(''):empty(8);
-    $('installationTeamReportBody').innerHTML=data.byTeam.length?data.byTeam.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${r.averageDurationMinutes==null?'—':num(r.averageDurationMinutes)+' دقيقة'}</td><td>${num(r.revisits)}</td><td>${r.completionRate}%</td></tr>`).join(''):empty(9);
-    $('installationTechnicianReportBody').innerHTML=data.byTechnician.length?data.byTechnician.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${num(r.exceptions)}</td><td>${num(r.revisits)}</td><td>${r.completionRate}%</td></tr>`).join(''):empty(9);
-    $('installationInvoiceReportBody').innerHTML=data.rows.length?data.rows.map(r=>`<tr><td>${esc(r.requestNumber)}</td><td>${esc(r.invoiceNumber||'—')}</td><td>${esc(r.customerName)}</td><td>${esc(r.representativeName)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${fmt(r.invoiceDate)}</td><td><span class="status-badge">${r.isInvoiced?'مفوتر':'غير مفوتر'}</span></td></tr>`).join(''):empty(9);
-    const max=Math.max(1,...data.rows.map(r=>Math.max(0,r.profit)));$('installationProfitabilityBars').innerHTML=data.rows.length?data.rows.slice().sort((a,b)=>b.profit-a.profit).slice(0,12).map(r=>`<div class="installation-profitability-row"><div><strong>${esc(r.requestNumber)}</strong><span>${esc(r.customerName)}</span></div><div class="installation-profitability-track"><span style="width:${Math.max(2,Math.round(Math.max(0,r.profit)/max*100))}%"></span></div><strong>${money(r.profit)}</strong></div>`).join(''):'<p class="empty-cell">لا توجد بيانات ربحية.</p>';
+
+    const requested=rows.reduce((a,r)=>a+Number(r.requestedQuantity||0),0),executed=rows.reduce((a,r)=>a+Number(r.executedQuantity||0),0),remaining=Math.max(requested-executed,0),executionRate=reportPercent(executed,requested);
+    $('installationFinancialReportBody').innerHTML=rows.length
+      ? rows.map(r=>`<tr><td>${esc(r.requestNumber)}</td><td>${esc(r.customerName)}</td><td>${esc(r.representativeName)}</td><td>${esc(r.teamName)}</td><td>${esc(r.technicianName)}</td><td>${esc(r.status)}</td><td>${num(r.requestedQuantity)}</td><td>${num(r.executedQuantity)}</td><td>${num(r.remainingQuantity)}</td><td>${r.executionRate}%</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td class="${r.profit<0?'negative-value':'positive-value'}">${money(r.profit)}</td><td>${fmt(r.completedAt||r.scheduledDate)}</td></tr>`).join('')
+        +reportTotalRow(['الإجمالي','','','','','',num(requested),num(executed),num(remaining),`${executionRate}%`,money(s.revenue),money(s.expenses),money(s.profit),''])
+      : empty(14);
+
+    const repTotal=representatives.reduce((a,r)=>({total:a.total+Number(r.total||0),completed:a.completed+Number(r.completed||0),revenue:a.revenue+Number(r.revenue||0),expenses:a.expenses+Number(r.expenses||0),profit:a.profit+Number(r.profit||0)}),{total:0,completed:0,revenue:0,expenses:0,profit:0});
+    $('installationRepresentativeReportBody').innerHTML=representatives.length
+      ? representatives.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${money(r.averageOrderValue)}</td><td>${r.completionRate}%</td></tr>`).join('')
+        +reportTotalRow(['الإجمالي',num(repTotal.total),num(repTotal.completed),money(repTotal.revenue),money(repTotal.expenses),money(repTotal.profit),money(repTotal.total?repTotal.revenue/repTotal.total:0),`${reportPercent(repTotal.completed,repTotal.total,0)}%`])
+      : empty(8);
+
+    const teamTotals=teams.reduce((a,r)=>({total:a.total+Number(r.total||0),completed:a.completed+Number(r.completed||0),revenue:a.revenue+Number(r.revenue||0),expenses:a.expenses+Number(r.expenses||0),profit:a.profit+Number(r.profit||0),revisits:a.revisits+Number(r.revisits||0)}),{total:0,completed:0,revenue:0,expenses:0,profit:0,revisits:0});
+    $('installationTeamReportBody').innerHTML=teams.length
+      ? teams.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${r.averageDurationMinutes==null?'—':num(r.averageDurationMinutes)+' دقيقة'}</td><td>${num(r.revisits)}</td><td>${r.completionRate}%</td></tr>`).join('')
+        +reportTotalRow(['الإجمالي',num(teamTotals.total),num(teamTotals.completed),money(teamTotals.revenue),money(teamTotals.expenses),money(teamTotals.profit),s.averageDurationMinutes==null?'—':`${num(s.averageDurationMinutes)} دقيقة`,num(teamTotals.revisits),`${reportPercent(teamTotals.completed,teamTotals.total,0)}%`])
+      : empty(9);
+
+    const techTotals=technicians.reduce((a,r)=>({total:a.total+Number(r.total||0),completed:a.completed+Number(r.completed||0),revenue:a.revenue+Number(r.revenue||0),expenses:a.expenses+Number(r.expenses||0),profit:a.profit+Number(r.profit||0),exceptions:a.exceptions+Number(r.exceptions||0),revisits:a.revisits+Number(r.revisits||0)}),{total:0,completed:0,revenue:0,expenses:0,profit:0,exceptions:0,revisits:0});
+    $('installationTechnicianReportBody').innerHTML=technicians.length
+      ? technicians.map(r=>`<tr><td>${esc(r.name)}</td><td>${num(r.total)}</td><td>${num(r.completed)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${num(r.exceptions)}</td><td>${num(r.revisits)}</td><td>${r.completionRate}%</td></tr>`).join('')
+        +reportTotalRow(['الإجمالي',num(techTotals.total),num(techTotals.completed),money(techTotals.revenue),money(techTotals.expenses),money(techTotals.profit),num(techTotals.exceptions),num(techTotals.revisits),`${reportPercent(techTotals.completed,techTotals.total,0)}%`])
+      : empty(9);
+
+    const invoicedCount=rows.filter(r=>r.isInvoiced).length;
+    $('installationInvoiceReportBody').innerHTML=rows.length
+      ? rows.map(r=>`<tr><td>${esc(r.requestNumber)}</td><td>${esc(r.invoiceNumber||'—')}</td><td>${esc(r.customerName)}</td><td>${esc(r.representativeName)}</td><td>${money(r.revenue)}</td><td>${money(r.expenses)}</td><td>${money(r.profit)}</td><td>${fmt(r.invoiceDate)}</td><td><span class="status-badge">${r.isInvoiced?'مفوتر':'غير مفوتر'}</span></td></tr>`).join('')
+        +reportTotalRow(['الإجمالي','','','',money(s.revenue),money(s.expenses),money(s.profit),'',`${num(invoicedCount)} مفوتر`])
+      : empty(9);
+
+    const max=Math.max(1,...rows.map(r=>Math.max(0,r.profit)));$('installationProfitabilityBars').innerHTML=rows.length?rows.slice().sort((a,b)=>b.profit-a.profit).slice(0,12).map(r=>`<div class="installation-profitability-row"><div><strong>${esc(r.requestNumber)}</strong><span>${esc(r.customerName)}</span></div><div class="installation-profitability-track"><span style="width:${Math.max(2,Math.round(Math.max(0,r.profit)/max*100))}%"></span></div><strong>${money(r.profit)}</strong></div>`).join(''):'<p class="empty-cell">لا توجد بيانات ربحية.</p>';
     const reasons=$('installationFailureReasonsReport');reasons.innerHTML=data.failureReasons.length?data.failureReasons.map(r=>`<div><span>${esc(r.reason)}</span><strong>${r.count}</strong></div>`).join(''):'<p class="empty-cell">لا توجد أسباب تعثر مسجلة.</p>';
   }
 
@@ -81,7 +109,21 @@
   function updateSummaryDayNav(){const selected=summaryDate(),today=new Date(),previous=new Date(today),next=new Date(today);previous.setDate(today.getDate()-1);next.setDate(today.getDate()+1);const targets={installationSummaryPreviousDay:isoDate(previous),installationSummaryToday:isoDate(today),installationSummaryNextDay:isoDate(next)};Object.entries(targets).forEach(([id,date])=>{const btn=$(id);if(!btn)return;const active=selected===date;btn.classList.toggle('is-active',active);btn.classList.toggle('primary-btn',active);btn.classList.toggle('secondary-btn',!active);btn.setAttribute('aria-pressed',String(active))})}
   function setSummaryDate(value){const x=new Date(`${value}T12:00:00`),year=$('installationSummaryYear'),month=$('installationSummaryMonth'),day=$('installationSummaryDay');if(!year||!month||!day)return;year.value=String(x.getFullYear());month.value=String(x.getMonth()+1);fillSummaryDays();day.value=String(x.getDate());updateSummaryDayNav()}
   function fillSummaryDays(){const y=Number($('installationSummaryYear')?.value)||new Date().getFullYear(),m=Number($('installationSummaryMonth')?.value)||new Date().getMonth()+1,el=$('installationSummaryDay'),current=Number(el?.value)||1,count=new Date(y,m,0).getDate();if(el){el.innerHTML=Array.from({length:count},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');el.value=String(Math.min(current,count))}}
-  function initSummaryDateFilters(){const now=new Date(),year=$('installationSummaryYear'),month=$('installationSummaryMonth');if(!year||year.options.length)return;year.innerHTML=Array.from({length:7},(_,i)=>now.getFullYear()-3+i).map(y=>`<option value="${y}">${y}</option>`).join('');month.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}">${new Intl.DateTimeFormat('ar-EG',{month:'long'}).format(new Date(2026,i,1))}</option>`).join('');setSummaryDate(isoDate(now))}
+  async function initSummaryDateFilters(){
+    const now=new Date(),year=$('installationSummaryYear'),month=$('installationSummaryMonth');if(!year||!month||year.dataset.rangeReady==='1')return;
+    month.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}">${new Intl.DateTimeFormat('ar-EG',{month:'long'}).format(new Date(2026,i,1))}</option>`).join('');
+    year.innerHTML=`<option value="${now.getFullYear()}">${now.getFullYear()}</option>`;
+    setSummaryDate(isoDate(now));
+    try{
+      const bounds=await window.InstallationsServiceSafe.installationReportDateBounds();
+      const parsed=[bounds?.minDate,bounds?.maxDate].filter(Boolean).map(x=>Number(String(x).slice(0,4))).filter(Number.isFinite);
+      const minYear=Math.min(now.getFullYear(),...(parsed.length?parsed:[now.getFullYear()])),maxYear=Math.max(now.getFullYear(),...(parsed.length?parsed:[now.getFullYear()]));
+      year.innerHTML=Array.from({length:maxYear-minYear+1},(_,i)=>minYear+i).map(y=>`<option value="${y}">${y}</option>`).join('');
+      setSummaryDate(isoDate(now));
+    }catch(error){
+      console.warn('Installation summary date bounds unavailable; current year remains selectable.',error);
+    }finally{year.dataset.rangeReady='1'}
+  }
   function renderSummaryTeamOptions(){const host=$('installationSummaryTeamsOptions');if(!host)return;host.innerHTML=state.summaryTeams.map(t=>`<label class="installation-summary-team-option"><input type="checkbox" value="${esc(t.id)}" ${state.summarySelectedTeams.has(String(t.id))?'checked':''}><span title="${esc(t.name)}">${esc(t.name)}</span></label>`).join('');updateSummaryTeamButton()}
   function updateSummaryTeamButton(){const btn=$('installationSummaryTeamsButton');if(!btn)return;const count=state.summarySelectedTeams.size,total=state.summaryTeams.length;btn.textContent=count===total?'كل الفرق':count?`${count} فرق مختارة`:'لا توجد فرق مختارة'}
   function fillSummarySelectors(data){const rep=$('installationSummaryRepresentative'),current=rep?.value||'';if(rep){rep.innerHTML='<option value="">كل المندوبين</option>'+data.representatives.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('');rep.value=current}const incoming=data.teams||[],allowed=new Set(incoming.map(x=>String(x.id)));state.summaryTeams=incoming;if(!state.summaryTeamsInitialized){state.summarySelectedTeams=new Set(incoming.map(x=>String(x.id)));state.summaryTeamsInitialized=true}else{state.summarySelectedTeams=new Set([...state.summarySelectedTeams].filter(x=>allowed.has(x)))}renderSummaryTeamOptions()}
@@ -186,7 +228,7 @@
     ['installationReportsDateFrom','installationReportsDateTo','installationReportsRepresentativeFilter','installationReportsTeamFilter','installationReportsTechnicianFilter','installationReportsStatusFilter'].forEach(id=>$(id)?.addEventListener('change',loadReports));
     $('resetInstallationReportsFilters')?.addEventListener('click',()=>{['installationReportsDateFrom','installationReportsDateTo','installationReportsRepresentativeFilter','installationReportsTeamFilter','installationReportsTechnicianFilter','installationReportsStatusFilter'].forEach(id=>{$(id).value=''});loadReports();});
     document.querySelectorAll('[data-installation-report-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-installation-report-tab]').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('[data-installation-report-panel]').forEach(x=>x.classList.toggle('hidden',x.dataset.installationReportPanel!==btn.dataset.installationReportTab));if(btn.dataset.installationReportTab==='services'&&!state.serviceLoaded)loadServiceAnalytics();}));
-    initSummaryDateFilters();
+    void initSummaryDateFilters();
     initServiceDateFilters();
     ['installationSummaryYear','installationSummaryMonth','installationSummaryDay','installationSummaryRepresentative'].forEach(id=>$(id)?.addEventListener('change',()=>{if(id!=='installationSummaryDay'&&id!=='installationSummaryRepresentative')fillSummaryDays();updateSummaryDayNav();loadInstallationSummary()}));
     $('installationSummaryPreviousDay')?.addEventListener('click',()=>{const d=new Date();d.setDate(d.getDate()-1);setSummaryDate(isoDate(d));loadInstallationSummary()});
