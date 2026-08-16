@@ -266,25 +266,48 @@
 
   async function executionWorkspace(){
     requireAction('view','installationExecution');
-    const [requestResult,visitResult,anyVisitResult,lineResult,currentResult]=await Promise.all([
-      db().from('installation_requests').select('*,customer:customers(id,customer_name,phone),team:installation_teams(id,name,status),representative:sales_representatives(id,full_name),services:installation_request_services(id,quantity,unit_price,line_total,service_type:installation_service_types(id,name))').or('installation_team_id.not.is.null,assigned_technician_name.not.is.null').order('scheduled_date',{ascending:true,nullsFirst:false}).order('scheduled_time',{ascending:true,nullsFirst:false}),
+    const requestSelect='*,customer:customers(id,customer_name,phone),team:installation_teams(id,name,status),representative:sales_representatives(id,full_name),services:installation_request_services(id,quantity,unit_price,line_total,service_type:installation_service_types(id,name))';
+
+    // Canonical execution source: active execution visits.
+    // Load visits first, then fetch every parent request referenced by those visits.
+    // Legacy assigned requests with no execution visit remain supported separately.
+    const [visitResult,anyVisitResult,lineResult,currentResult]=await Promise.all([
       db().from('installation_execution_visits').select('id,installation_request_id,visit_no,scheduled_date,scheduled_time,installation_team_id,technician_name,status,selected_for_execution_at,selected_for_execution_by,on_route_at,map_opened_at,arrived_at,started_at,completed_at,execution_notes,team:installation_teams(id,name)').in('status',['مجدولة','قيد التنفيذ']).order('scheduled_date',{ascending:true}).order('scheduled_time',{ascending:true}),
       db().from('installation_execution_visits').select('installation_request_id'),
       db().from('installation_execution_visit_services').select('visit_id,request_service_id,scheduled_quantity'),
       db().rpc('get_current_installation_execution_visit_id')
     ]);
-    if(requestResult.error)throw new Error('تعذر تحميل مهام التنفيذ: '+requestResult.error.message);
     if(visitResult.error&&visitResult.error.code!=='42P01')throw new Error('تعذر تحميل زيارات التنفيذ: '+visitResult.error.message);
     if(anyVisitResult.error&&anyVisitResult.error.code!=='42P01')throw new Error('تعذر التحقق من سجل زيارات التنفيذ: '+anyVisitResult.error.message);
     if(lineResult.error&&lineResult.error.code!=='42P01')throw new Error('تعذر تحميل خدمات زيارات التنفيذ: '+lineResult.error.message);
     if(currentResult.error)throw new Error('تعذر تحديد الطلب الحالي: '+currentResult.error.message);
+
+    const activeVisits=visitResult.data||[];
+    const activeRequestIds=[...new Set(activeVisits.map(v=>String(v.installation_request_id||'')).filter(Boolean))];
+    const legacyRequestQuery=db().from('installation_requests').select(requestSelect)
+      .or('installation_team_id.not.is.null,assigned_technician_name.not.is.null')
+      .order('scheduled_date',{ascending:true,nullsFirst:false})
+      .order('scheduled_time',{ascending:true,nullsFirst:false});
+    const requestResults=await Promise.all([
+      legacyRequestQuery,
+      activeRequestIds.length
+        ? db().from('installation_requests').select(requestSelect).in('id',activeRequestIds)
+        : Promise.resolve({data:[],error:null})
+    ]);
+    for(const result of requestResults){
+      if(result.error)throw new Error('تعذر تحميل مهام التنفيذ: '+result.error.message);
+    }
+    const requestMapById=new Map();
+    requestResults.flatMap(result=>result.data||[]).forEach(r=>requestMapById.set(String(r.id),r));
+    const requestResult={data:[...requestMapById.values()],error:null};
+
     const currentVisitId=currentResult.data;
     // Phase M15.14.6: the technician's active selection is operational state, not private visibility.
     // Super Admin must be able to observe every visit that is currently selected/in progress,
     // even when selected_for_execution_by belongs to another user.
     const executionViewerRole=String(window.CustomerAuth?.getState?.().profile?.role||'').trim();
     const superAdminExecutionObserver=executionViewerRole==='super_admin';
-    const requests=requestResult.data||[],visits=visitResult.data||[],allVisitRefs=anyVisitResult.data||[],visitLines=lineResult.data||[];
+    const requests=requestResult.data||[],visits=activeVisits,allVisitRefs=anyVisitResult.data||[],visitLines=lineResult.data||[];
     // Phase M15.19: technicians may be allowed to execute a request while RLS intentionally
     // hides the full representative/team reference tables. Fetch only the labels for the
     // execution requests already in the user's accessible workspace through a scoped RPC.
@@ -295,6 +318,10 @@
       (referenceRows||[]).forEach(row=>executionReferenceLabels.set(String(row.request_id),{representativeName:row.representative_name||'',teamName:row.team_name||''}));
     }
     const requestsWithAnyVisit=new Set(allVisitRefs.map(v=>String(v.installation_request_id||'')).filter(Boolean));
+    const missingActiveParents=activeRequestIds.filter(id=>!requestMapById.has(id));
+    if(missingActiveParents.length){
+      throw new Error(`تعذر تحميل ${missingActiveParents.length} طلب مرتبط بزيارة تنفيذ نشطة. راجع نطاق الوصول أو سلامة الربط بين الطلبات والزيارات.`);
+    }
     const lineMap=new Map();
     visitLines.forEach(x=>{const a=lineMap.get(x.visit_id)||[];a.push(x);lineMap.set(x.visit_id,a)});
     const visitsByRequest=new Map();

@@ -1,11 +1,13 @@
 {
-  "version": "18.54.06",
-  "build": 185406,
+  "version": "18.54.07",
+  "build": 185407,
   "forceUpdate": true,
   "releaseDate": "2026-08-16",
-  "title": "Installation Summary Scheduled Date Visibility — Phase R1.3",
+  "title": "Execution Workspace Visibility & Safe Update Notification — Phase E1",
   "notes": [
-    "إظهار تاريخ جدولة الطلب أو الزيارة داخل تفاصيل ملخص التركيبات بجانب وقت الجدولة، بالاعتماد على scheduled_date الفعلي دون تغيير الحسابات أو الـTimeline."
+    "اعتماد زيارات التنفيذ النشطة كمصدر أساسي لظهور طلبات التنفيذ مع الحفاظ على دعم الطلبات القديمة.",
+    "إبقاء الطلبات المتأخرة غير المنفذة ظاهرة في قائمة اليوم حتى يبدأ تنفيذها أو تتغير حالتها.",
+    "تأجيل نافذة تحديث التطبيق المكتشفة في الخلفية إلى الانتقال بين الشاشات أو إعادة تحميل الصفحة لمنع مقاطعة العمل الجاري."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-06-installation-summary-scheduled-date-r1-3"
+  "cacheToken": "kyum-crm-pwa-18-54-07-execution-workspace-visibility-safe-update-e1"
 }

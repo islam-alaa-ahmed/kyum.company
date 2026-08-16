@@ -13,9 +13,19 @@ function hasExecutionProgress(r){return Boolean(r.onRouteAt||r.mapOpenedAt||r.ar
 function isActive(r){return Boolean(r.isCurrentUserSelection)&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status))}
 function stepIndex(r){if(r.completedAt)return 5;if(r.startedAt)return 4;if(r.arrivedAt)return 3;if(r.mapOpenedAt)return 2;if(r.onRouteAt)return 1;return 0}
 function switchTab(tab){activeTab=tab;const todayTab=$('installationExecutionTodayTab'),currentTab=$('installationExecutionCurrentTab');todayTab?.classList.toggle('active',tab==='today');currentTab?.classList.toggle('active',tab==='current');todayTab?.setAttribute('aria-selected',String(tab==='today'));currentTab?.setAttribute('aria-selected',String(tab==='current'));$('installationExecutionTodayPanel')?.classList.toggle('hidden',tab!=='today');$('installationExecutionCurrentPanel')?.classList.toggle('hidden',tab!=='current');if(tab==='current')renderCurrent()}
+function isPendingExecutionRow(r){
+  return !r.completedAt
+    && !hasExecutionProgress(r)
+    && !['مكتمل','بانتظار التأكيد','مؤكدة','ملغاة','ملغي'].includes(normalizeStatus(r.visitStatus||r.status));
+}
 function executionRowsForSelectedDate(){
   const date=$('installationExecutionDateFilter')?.value||today();
-  return rows.filter(r=>r.scheduledDate===date&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status)));
+  const includeOverdue=date===today();
+  return rows.filter(r=>{
+    if(!r.scheduledDate||['مكتمل','ملغي','ملغاة'].includes(normalizeStatus(r.visitStatus||r.status)))return false;
+    if(includeOverdue&&isPendingExecutionRow(r))return r.scheduledDate<=date;
+    return r.scheduledDate===date;
+  });
 }
 function syncTechnicianFilter(){
   const tech=$('installationExecutionTechnicianFilter');
@@ -65,9 +75,16 @@ function fillFilters(){
   }
   syncTechnicianFilter();
 }
-function filteredToday(){const date=$('installationExecutionDateFilter')?.value||today(),tech=$('installationExecutionTechnicianFilter')?.value||'',team=$('installationExecutionTeamFilter')?.value||'';return rows.filter(r=>r.scheduledDate===date&&!isActive(r)&&!hasExecutionProgress(r)&&!['مكتمل','ملغي'].includes(normalizeStatus(r.status))&&(!tech||r.technicianName===tech)&&(!team||r.teamId===team))}
+function filteredToday(){
+  const date=$('installationExecutionDateFilter')?.value||today(),tech=$('installationExecutionTechnicianFilter')?.value||'',team=$('installationExecutionTeamFilter')?.value||'',includeOverdue=date===today();
+  return rows.filter(r=>{
+    const pending=isPendingExecutionRow(r);
+    const dateMatches=includeOverdue?pending&&r.scheduledDate&&r.scheduledDate<=date:r.scheduledDate===date&&pending;
+    return dateMatches&&!isActive(r)&&(!tech||r.technicianName===tech)&&(!team||r.teamId===team);
+  }).sort((a,b)=>String(a.scheduledDate||'').localeCompare(String(b.scheduledDate||''))||String(a.scheduledTime||'').localeCompare(String(b.scheduledTime||'')));
+}
 function servicesHtml(r){return (r.services||[]).length?`<ul class="installation-card-services">${r.services.map(s=>`<li><span>${esc(s.name)}</span><strong>${Number(s.quantity||0)} ×</strong></li>`).join('')}</ul>`:'<p class="installation-card-muted">لا توجد خدمات مسجلة.</p>'}
-function cardHtml(r){const notes=String(r.displayNotes||'').trim();return `<article class="installation-today-card"><div class="installation-today-card-main"><div class="installation-today-card-head"><span class="installation-time">${esc(fmtTime(r.scheduledTime))}</span><span class="installation-request-number">${esc(r.executionNumber||r.requestNumber)}</span></div><div class="installation-customer-name">${esc(r.customerName||'عميل غير محدد')}</div><div class="installation-customer-phone">رقم العميل: <strong>${esc(r.customerPhone||'غير مسجل')}</strong></div><div class="installation-card-muted">${esc(r.installationAddress||'لا يوجد عنوان')}</div><div class="installation-card-muted">المندوب: ${esc(r.representativeName||'غير محدد')}</div><div class="installation-card-muted">الفرقة: ${esc(r.teamName||'بدون فرقة')}</div>${servicesHtml(r)}${notes?`<div class="installation-assignment-notes"><strong>ملاحظات:</strong><span>${esc(notes)}</span></div>`:''}</div><div class="installation-today-card-side"><div class="installation-metrics"><span>عدد الخدمات: <strong>${Number(r.totalServicesCount||0)}</strong></span><span>الإجمالي: <strong>${money(r.totalServicesAmount)}</strong></span></div><div class="installation-card-actions"><button class="execution-primary-action" type="button" data-execution-start="${esc(r.scheduleEntryId||r.id)}">بدء التنفيذ <span class="execution-arrow">◀</span></button></div></div></article>`}
+function cardHtml(r){const notes=String(r.displayNotes||'').trim(),overdue=Boolean(r.scheduledDate&&r.scheduledDate<today());return `<article class="installation-today-card ${overdue?'is-overdue':''}"><div class="installation-today-card-main"><div class="installation-today-card-head"><span class="installation-time">${esc(fmtTime(r.scheduledTime))}</span><span class="installation-request-number">${esc(r.executionNumber||r.requestNumber)}</span></div><div class="installation-card-muted">تاريخ الجدولة: <strong>${esc(r.scheduledDate||'غير محدد')}</strong>${overdue?' <span class="status-badge">متأخر</span>':''}</div><div class="installation-customer-name">${esc(r.customerName||'عميل غير محدد')}</div><div class="installation-customer-phone">رقم العميل: <strong>${esc(r.customerPhone||'غير مسجل')}</strong></div><div class="installation-card-muted">${esc(r.installationAddress||'لا يوجد عنوان')}</div><div class="installation-card-muted">المندوب: ${esc(r.representativeName||'غير محدد')}</div><div class="installation-card-muted">الفرقة: ${esc(r.teamName||'بدون فرقة')}</div>${servicesHtml(r)}${notes?`<div class="installation-assignment-notes"><strong>ملاحظات:</strong><span>${esc(notes)}</span></div>`:''}</div><div class="installation-today-card-side"><div class="installation-metrics"><span>عدد الخدمات: <strong>${Number(r.totalServicesCount||0)}</strong></span><span>الإجمالي: <strong>${money(r.totalServicesAmount)}</strong></span></div><div class="installation-card-actions"><button class="execution-primary-action" type="button" data-execution-start="${esc(r.scheduleEntryId||r.id)}">بدء التنفيذ <span class="execution-arrow">◀</span></button></div></div></article>`}
 function renderToday(){const list=filteredToday(),box=$('installationExecutionTodayCards');if($('installationExecutionTodayCount'))$('installationExecutionTodayCount').textContent=String(list.length);if(!box)return;box.innerHTML=list.length?list.map(cardHtml).join(''):'<div class="execution-empty-state"><h4>لا توجد طلبات لهذا اليوم</h4><p>لا توجد طلبات متاحة ضمن الفرق والصلاحيات الحالية.</p></div>'}
 function fmtDateTime(v){if(!v)return'';try{return new Date(v).toLocaleTimeString('ar-SA-u-ca-gregory',{hour:'numeric',minute:'2-digit'})}catch{return''}}
 function durationLabel(a,b){if(!a||!b)return'';const mins=Math.max(0,Math.round((new Date(b)-new Date(a))/60000));if(mins<60)return`${mins} دقيقة`;const h=Math.floor(mins/60),m=mins%60;return m?`${h} ساعة و${m} دقيقة`:`${h} ساعة`}

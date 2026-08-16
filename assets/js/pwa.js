@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const CURRENT_VERSION = "18.54.06";
+  const CURRENT_VERSION = "18.54.07";
   const VERSION_ENDPOINT = "./version.json";
   const UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000;
   const isNative = Boolean(window.Capacitor?.isNativePlatform?.());
@@ -280,7 +280,7 @@
       serviceWorkerRegistration.addEventListener("updatefound", () => {
         const worker = serviceWorkerRegistration.installing;
         worker?.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller) checkForUpdate({ silent: true });
+          if (worker.state === "installed" && navigator.serviceWorker.controller) checkForUpdate({ silent: true, showDialog: false });
         });
       });
     } catch (error) {
@@ -290,7 +290,7 @@
 
   window.KYUM_UPDATE = Object.freeze({
     currentVersion: CURRENT_VERSION,
-    check: () => checkForUpdate({ silent: false }),
+    check: () => checkForUpdate({ silent: false, showDialog: false }),
     checkDetailed: async () => {
       await checkForUpdate({ silent: false, showDialog: false });
       return { ...updateState };
@@ -318,11 +318,19 @@
 
   window.addEventListener("online", () => {
     document.documentElement.classList.remove("is-offline");
-    checkForUpdate({ silent: true });
+    checkForUpdate({ silent: true, showDialog: false });
   });
   window.addEventListener("offline", () => document.documentElement.classList.add("is-offline"));
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") checkForUpdate({ silent: true });
+    if (document.visibilityState === "visible") checkForUpdate({ silent: true, showDialog: false });
+  });
+
+  window.addEventListener("kyum-view-changed", () => {
+    const release = updateState.latestRelease;
+    if (!release || updateInProgress) return;
+    // Navigation between screens is an approved safe point: no active modal/form
+    // is interrupted merely because a background version check completed.
+    window.setTimeout(() => showUpdateDialog(release), 0);
   });
 
   document.addEventListener("DOMContentLoaded", async () => {
@@ -330,8 +338,9 @@
     clearCompletedUpdateMarker();
     await registerServiceWorker();
     openShortcutView();
-    checkForUpdate({ silent: true });
-    window.setInterval(() => checkForUpdate({ silent: true }), UPDATE_CHECK_INTERVAL_MS);
+    // A full page load/reload is an approved safe point for update notification.
+    checkForUpdate({ silent: true, showDialog: true });
+    window.setInterval(() => checkForUpdate({ silent: true, showDialog: false }), UPDATE_CHECK_INTERVAL_MS);
     setTimeout(showIosHint, 1800);
   });
 })();
