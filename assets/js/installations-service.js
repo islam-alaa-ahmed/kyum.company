@@ -499,6 +499,11 @@
       serviceCost.set(requestId,(serviceCost.get(requestId)||0)+quantity*Number(x.service?.default_cost||0));
       serviceQuantity.set(requestId,(serviceQuantity.get(requestId)||0)+quantity);
     });
+    const operationalRequestRevenueFactor=new Map();
+    (rows||[]).forEach(r=>{
+      const requestId=String(r.id||''),base=Number(serviceAmount.get(requestId)||0),canonical=Number(r.total_services_amount??base);
+      operationalRequestRevenueFactor.set(requestId,base>0?canonical/base:1);
+    });
 
     const visitsByRequest=new Map(),visitRequestById=new Map(),confirmedVisitIds=new Set();
     (executionVisits||[]).forEach(v=>{
@@ -513,7 +518,8 @@
       const serviceId=String(line.request_service_id||''),requestId=visitRequestById.get(visitId)||serviceRequestById.get(serviceId);if(!requestId)return;
       const executed=Number(line.executed_quantity||0);
       executedQuantityByRequest.set(requestId,(executedQuantityByRequest.get(requestId)||0)+executed);
-      executedValueByRequest.set(requestId,(executedValueByRequest.get(requestId)||0)+executed*Number(serviceUnitPriceById.get(serviceId)||0));
+      const revenueFactor=operationalRequestRevenueFactor.get(requestId)??1;
+      executedValueByRequest.set(requestId,(executedValueByRequest.get(requestId)||0)+executed*Number(serviceUnitPriceById.get(serviceId)||0)*revenueFactor);
     });
 
     const normalized=(rows||[]).map(r=>{
@@ -524,10 +530,13 @@
       const executedQuantity=Math.min(requestedQuantity,hasExecutionVisits?confirmedExecuted:(fallbackCompleted?requestedQuantity:0));
       const remainingQuantity=Math.max(requestedQuantity-executedQuantity,0);
       const executionRate=requestedQuantity?Math.round(executedQuantity/requestedQuantity*1000)/10:0;
-      const serviceValue=Number(r.total_services_amount??serviceAmount.get(requestId)??0);
-      const executedValue=hasExecutionVisits?Math.min(serviceValue,Number(executedValueByRequest.get(requestId)||0)):(fallbackCompleted?serviceValue:0);
-      const remainingValue=Math.max(serviceValue-executedValue,0);
-      const revenue=inv?Number(inv.invoiceAmount||0):serviceValue;
+      // Canonical financial source for installation reports:
+      // revenue always comes from the installation request, never from the sales invoice.
+      // Invoice rows remain documentary metadata only (number/date/status and recorded installation expenses).
+      const requestRevenue=Number(r.total_services_amount??serviceAmount.get(requestId)??0);
+      const executedValue=hasExecutionVisits?Math.min(requestRevenue,Number(executedValueByRequest.get(requestId)||0)):(fallbackCompleted?requestRevenue:0);
+      const remainingValue=Math.max(requestRevenue-executedValue,0);
+      const revenue=requestRevenue;
       const expenses=inv?Number(inv.installationExpenses||0):Number(serviceCost.get(requestId)||0);
       const profit=revenue-expenses;
       const visitDurations=(visitsByRequest.get(requestId)||[]).map(v=>v.started_at&&v.completed_at?(new Date(v.completed_at)-new Date(v.started_at))/60000:null).filter(x=>Number.isFinite(x)&&x>=0);
@@ -592,9 +601,29 @@
 
     const visitMap=new Map(scopedVisits.map(v=>[v.id,v])),serviceMap=new Map((requestServices||[]).map(x=>[x.id,x])),servicesByRequest=new Map(),grouped=new Map();
     for(const service of requestServices||[]){const key=String(service.installation_request_id||'');const list=servicesByRequest.get(key)||[];list.push(service);servicesByRequest.set(key,list)}
-    const addLine=(teamId,teamName,entryKey,serviceName,quantity,unitPrice,unitCost)=>{
-      quantity=Number(quantity||0);unitPrice=Number(unitPrice||0);unitCost=Number(unitCost||0);if(quantity<=0)return;
-      const value=quantity*unitPrice,expenses=quantity*unitCost,profit=value-expenses;
+
+    // Build one canonical revenue factor per installation request.
+    // The request total is authoritative; service rows are only the breakdown used to distribute it.
+    const requestById=new Map();
+    for(const visit of scopedVisits||[]){if(visit?.request?.id)requestById.set(String(visit.request.id),visit.request)}
+    for(const request of singleDayRequests||[]){if(request?.id)requestById.set(String(request.id),request)}
+    const requestRevenueFactor=new Map();
+    for(const [requestId,request] of requestById){
+      const requestServices=servicesByRequest.get(requestId)||[];
+      const serviceBase=requestServices.reduce((sum,service)=>{
+        const quantity=Number(service.quantity||0);
+        const lineValue=service.line_total==null
+          ? quantity*Number(service.unit_price??service.service?.default_price??0)
+          : Number(service.line_total||0);
+        return sum+lineValue;
+      },0);
+      const canonicalRevenue=Number(request.total_services_amount??serviceBase??0);
+      requestRevenueFactor.set(requestId,serviceBase>0?canonicalRevenue/serviceBase:1);
+    }
+
+    const addLine=(teamId,teamName,entryKey,serviceName,quantity,unitPrice,unitCost,revenueFactor=1)=>{
+      quantity=Number(quantity||0);unitPrice=Number(unitPrice||0);unitCost=Number(unitCost||0);revenueFactor=Number(revenueFactor);if(!Number.isFinite(revenueFactor))revenueFactor=1;if(quantity<=0)return;
+      const value=quantity*unitPrice*revenueFactor,expenses=quantity*unitCost,profit=value-expenses;
       teamId=String(teamId||'unassigned');teamName=teamName||'غير مسند';serviceName=serviceName||'خدمة غير محددة';
       let team=grouped.get(teamId);if(!team){team={id:teamId,name:teamName,visitIds:new Set(),services:new Map(),quantity:0,value:0,expenses:0,profit:0};grouped.set(teamId,team)}
       team.visitIds.add(entryKey);team.quantity+=quantity;team.value+=value;team.expenses+=expenses;team.profit+=profit;
@@ -605,7 +634,7 @@
     for(const line of visitLines||[]){
       const visit=visitMap.get(line.visit_id),service=serviceMap.get(line.request_service_id);if(!visit||!service)continue;
       const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0));
-      addLine(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,service.service?.name,Number(line.scheduled_quantity||0),unitPrice,Number(service.service?.default_cost||0));
+      addLine(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,service.service?.name,Number(line.scheduled_quantity||0),unitPrice,Number(service.service?.default_cost||0),requestRevenueFactor.get(String(visit.installation_request_id||''))??1);
     }
 
     // Single-day schedules: there is no execution-visit row, so use the request's scheduled date/team
@@ -614,7 +643,7 @@
       for(const service of servicesByRequest.get(String(request.id||''))||[]){
         const quantity=Number(service.quantity||0);
         const unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0));
-        addLine(request.installation_team_id,request.team?.name,'request:'+request.id,service.service?.name,quantity,unitPrice,Number(service.service?.default_cost||0));
+        addLine(request.installation_team_id,request.team?.name,'request:'+request.id,service.service?.name,quantity,unitPrice,Number(service.service?.default_cost||0),requestRevenueFactor.get(String(request.id||''))??1);
       }
     }
 
@@ -630,11 +659,11 @@
     };
     for(const visit of scopedVisits){
       const serviceLines=[];
-      for(const line of visitLines||[]){if(String(line.visit_id)!==String(visit.id))continue;const service=serviceMap.get(line.request_service_id);if(!service)continue;const quantity=Number(line.scheduled_quantity||0);if(quantity<=0)continue;const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0)),unitCost=Number(service.service?.default_cost||0);serviceLines.push({name:service.service?.name,quantity,value:quantity*unitPrice,expenses:quantity*unitCost,profit:quantity*(unitPrice-unitCost)})}
+      for(const line of visitLines||[]){if(String(line.visit_id)!==String(visit.id))continue;const service=serviceMap.get(line.request_service_id);if(!service)continue;const quantity=Number(line.scheduled_quantity||0);if(quantity<=0)continue;const unitPrice=Number(service.unit_price??service.service?.default_price??(Number(service.quantity||0)?Number(service.line_total||0)/Number(service.quantity||1):0)),unitCost=Number(service.service?.default_cost||0),revenueFactor=Number(requestRevenueFactor.get(String(visit.installation_request_id||''))??1),value=quantity*unitPrice*revenueFactor,expenses=quantity*unitCost;serviceLines.push({name:service.service?.name,quantity,value,expenses,profit:value-expenses})}
       pushExecution(visit.installation_team_id,visit.team?.name,'visit:'+visit.id,visit.request,visit.scheduled_date,visit.scheduled_time,visit.technician_name,serviceLines,visit);
     }
     for(const request of singleDayRequests){
-      const serviceLines=(servicesByRequest.get(String(request.id||''))||[]).map(service=>{const quantity=Number(service.quantity||0),unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0)),unitCost=Number(service.service?.default_cost||0);return {name:service.service?.name,quantity,value:quantity*unitPrice,expenses:quantity*unitCost,profit:quantity*(unitPrice-unitCost)}});
+      const serviceLines=(servicesByRequest.get(String(request.id||''))||[]).map(service=>{const quantity=Number(service.quantity||0),unitPrice=Number(service.unit_price??service.service?.default_price??(quantity?Number(service.line_total||0)/quantity:0)),unitCost=Number(service.service?.default_cost||0),revenueFactor=Number(requestRevenueFactor.get(String(request.id||''))??1),value=quantity*unitPrice*revenueFactor,expenses=quantity*unitCost;return {name:service.service?.name,quantity,value,expenses,profit:value-expenses}});
       pushExecution(request.installation_team_id,request.team?.name,'request:'+request.id,request,request.scheduled_date,request.scheduled_time,request.assigned_technician_name,serviceLines);
     }
     const executionGroups=[...executionGrouped.values()].map(group=>({...group,orders:group.orders.sort((a,b)=>String(a.scheduledTime||'').localeCompare(String(b.scheduledTime||''))||String(a.requestNumber||'').localeCompare(String(b.requestNumber||''),'ar'))})).sort((a,b)=>a.name.localeCompare(b.name,'ar'));

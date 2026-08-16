@@ -1,13 +1,13 @@
 {
-  "version": "18.54.04",
-  "build": 185404,
+  "version": "18.54.05",
+  "build": 185405,
   "forceUpdate": true,
   "releaseDate": "2026-08-16",
-  "title": "Installation Summary Full Period Filters, Active Reps & Totals — Phase R1.1",
+  "title": "Installation Reports Canonical Request Revenue — Phase R1.2",
   "notes": [
-    "إضافة كل السنوات وكل الشهور وكل الأيام إلى فلاتر ملخص التركيبات مع دعم التجميع حسب كل الفترة أو السنة أو الشهر أو اليوم.",
-    "قصر قائمة مندوبي ملخص التركيبات على المندوبين النشطين فقط.",
-    "تثبيت الإجمالي العام في Footer مستقل بجدول ملخص التركيبات وتحديث PDF وواتساب ليعرضا الفترة المختارة."
+    "توحيد مصدر الإيراد في جميع تقارير التركيبات ليكون من قيمة طلب التركيب وليس من قيمة فاتورة المبيعات.",
+    "الإبقاء على الفواتير كبيانات توثيقية فقط لرقم وتاريخ وحالة الفاتورة دون التأثير على الإيراد أو صافي الربح.",
+    "مصالحة تفاصيل خدمات ملخص التركيبات نسبيًا مع total_services_amount لضمان تطابق الإجماليات مع قيمة طلب التركيب."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-04-installation-summary-period-filters-active-reps-totals-r1-1"
+  "cacheToken": "kyum-crm-pwa-18-54-05-installation-reports-request-revenue-r1-2"
 }
