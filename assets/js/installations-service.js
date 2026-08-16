@@ -556,7 +556,7 @@
       fetchPaged('installation_execution_visits',visitSelect),
       fetchPaged('installation_requests',requestSelect),
       db().from('installation_teams').select('id,name').order('name'),
-      db().from('sales_representatives').select('id,full_name').order('full_name')
+      db().from('sales_representatives').select('id,full_name,is_active').eq('is_active',true).order('full_name')
     ]);
     if(ve)throw new Error('تعذر تحميل زيارات ملخص التركيبات: '+ve.message);
     if(sre)throw new Error('تعذر تحميل الطلبات المجدولة لملخص التركيبات: '+sre.message);

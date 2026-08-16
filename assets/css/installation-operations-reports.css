@@ -209,3 +209,15 @@ html[data-theme="dark"] .installation-report-total-row td{
   background:color-mix(in srgb,var(--primary) 10%,var(--surface));
   border-top-color:color-mix(in srgb,var(--primary) 54%,var(--border));
 }
+
+
+/* Phase R1.1 — persistent grand total footer for Installation Summary. */
+.installation-summary-table tfoot .installation-summary-grand-total td{
+  font-weight:900;
+  border-top:2px solid color-mix(in srgb,var(--primary) 48%,var(--border));
+  background:color-mix(in srgb,var(--primary) 8%,var(--surface-soft));
+}
+html[data-theme="dark"] .installation-summary-table tfoot .installation-summary-grand-total td{
+  background:color-mix(in srgb,var(--primary) 12%,var(--surface));
+  border-top-color:color-mix(in srgb,var(--primary) 58%,var(--border));
+}
