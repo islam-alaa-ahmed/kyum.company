@@ -1,13 +1,11 @@
 {
-  "version": "18.54.05",
-  "build": 185405,
+  "version": "18.54.06",
+  "build": 185406,
   "forceUpdate": true,
   "releaseDate": "2026-08-16",
-  "title": "Installation Reports Canonical Request Revenue — Phase R1.2",
+  "title": "Installation Summary Scheduled Date Visibility — Phase R1.3",
   "notes": [
-    "توحيد مصدر الإيراد في جميع تقارير التركيبات ليكون من قيمة طلب التركيب وليس من قيمة فاتورة المبيعات.",
-    "الإبقاء على الفواتير كبيانات توثيقية فقط لرقم وتاريخ وحالة الفاتورة دون التأثير على الإيراد أو صافي الربح.",
-    "مصالحة تفاصيل خدمات ملخص التركيبات نسبيًا مع total_services_amount لضمان تطابق الإجماليات مع قيمة طلب التركيب."
+    "إظهار تاريخ جدولة الطلب أو الزيارة داخل تفاصيل ملخص التركيبات بجانب وقت الجدولة، بالاعتماد على scheduled_date الفعلي دون تغيير الحسابات أو الـTimeline."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-05-installation-reports-request-revenue-r1-2"
+  "cacheToken": "kyum-crm-pwa-18-54-06-installation-summary-scheduled-date-r1-3"
 }
