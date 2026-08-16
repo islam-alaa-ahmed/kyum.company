@@ -1,13 +1,13 @@
 {
-  "version": "18.54.10",
-  "build": 185410,
+  "version": "18.54.11",
+  "build": 185411,
   "forceUpdate": true,
   "releaseDate": "2026-08-16",
-  "title": "Execution Parent/Visit State Synchronization — Phase E1.3",
+  "title": "Visit-Level Overdue Canonical Classification — Phase E1.4",
   "notes": [
-    "مزامنة حالة طلب التركيب الأب تلقائيًا مع الحالة الفعلية لزيارات التنفيذ لمنع بقاء الطلب قيد التنفيذ بعد انتهاء الزيارة.",
-    "اعتماد handoff مكتمل أثناء انتظار تأكيد الكميات، ثم العودة لمسند تلقائيًا عند وجود زيارة مستقبلية بعد التأكيد.",
-    "إصلاح تاريخي عام للطلبات غير المتزامنة دون أي استثناءات أو أرقام طلبات ثابتة."
+    "اعتماد زيارات التنفيذ الفعلية كمصدر Canonical لتحديد الطلبات المتأخرة في شاشة طلبات التركيبات.",
+    "احتساب الطلب مرة واحدة فقط حتى لو لديه أكثر من زيارة متأخرة، مع Legacy fallback للطلبات القديمة بدون Visits.",
+    "إضافة فلتر متأخرة وعلامة مرئية دون تغيير حالة الطلب المخزنة أو State Synchronizer."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-10-execution-parent-visit-state-sync-e1-3"
+  "cacheToken": "kyum-crm-pwa-18-54-11-visit-level-overdue-canonical-e1-4"
 }

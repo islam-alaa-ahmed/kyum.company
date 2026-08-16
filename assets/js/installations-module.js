@@ -319,6 +319,59 @@
     });
   }
 
+  function riyadhNowParts(){
+    const parts=new Intl.DateTimeFormat('en-CA',{
+      timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
+    }).formatToParts(new Date()).reduce((acc,p)=>{if(p.type!=='literal')acc[p.type]=p.value;return acc},{});
+    return {date:`${parts.year}-${parts.month}-${parts.day}`,time:`${parts.hour}:${parts.minute}:${parts.second}`};
+  }
+
+  function isClosedExecutionVisit(visit){
+    const status=String(visit?.status||'').trim();
+    return Boolean(visit?.completedAt)||['بانتظار التأكيد','مؤكدة','ملغاة','ملغي'].includes(status);
+  }
+
+  function hasExecutionVisitProgress(visit){
+    return Boolean(visit?.onRouteAt||visit?.mapOpenedAt||visit?.arrivedAt||visit?.startedAt||visit?.completedAt);
+  }
+
+  function scheduledMomentPassed(date,time,now){
+    if(!date)return false;
+    if(date<now.date)return true;
+    if(date>now.date)return false;
+    if(!time)return false;
+    return String(time).slice(0,8)<now.time;
+  }
+
+  function overdueMeta(row,now=riyadhNowParts()){
+    const visits=Array.isArray(row.executionVisits)?row.executionVisits:[];
+    if(visits.length){
+      const overdueVisits=visits.filter(visit=>
+        !isClosedExecutionVisit(visit)
+        && !hasExecutionVisitProgress(visit)
+        && ['مجدولة','قيد التنفيذ'].includes(String(visit.status||'').trim())
+        && scheduledMomentPassed(visit.scheduledDate,visit.scheduledTime,now)
+      );
+      return {
+        isOverdue:overdueVisits.length>0,
+        overdueVisitCount:overdueVisits.length,
+        overdueSince:overdueVisits[0]?.scheduledDate||''
+      };
+    }
+
+    // Legacy fallback only for historical requests that never received execution visits.
+    const parentStatus=String(row.status||'').trim();
+    const legacyOpen=!['مكتمل','بانتظار التأكيد','مؤكدة','ملغي','ملغاة','مؤجل','متعذر'].includes(parentStatus);
+    const isOverdue=legacyOpen&&scheduledMomentPassed(row.scheduledDate,row.scheduledTime||row.timeSlot,now);
+    return {isOverdue,overdueVisitCount:isOverdue?1:0,overdueSince:isOverdue?row.scheduledDate||'':''};
+  }
+
+  function decorateExecutionClassification(items){
+    const now=riyadhNowParts();
+    return items.map(row=>Object.assign(row,overdueMeta(row,now)));
+  }
+
   function filtered() {
     const query = ($("installationRequestSearch")?.value || "").trim().toLowerCase();
     const representative = $("installationRequestRepresentativeFilter")?.value || "";
@@ -328,7 +381,7 @@
     return rows.filter(row =>
       (!query || [row.requestNumber, row.customerOrderNumber, row.customerName, row.customerPhone, row.quotationNumber, row.services.map(service => service.serviceName).join(" ")].join(" ").toLowerCase().includes(query)) &&
       (!representative || row.representativeId === representative) &&
-      (!state || row.status === state) &&
+      (!state || (state === '__overdue__' ? row.isOverdue === true : row.status === state)) &&
       (!dateFrom || row.scheduledDate >= dateFrom) &&
       (!dateTo || row.scheduledDate <= dateTo)
     );
@@ -336,11 +389,11 @@
 
   function render() {
     const data = filtered();
-    const today = new Date().toISOString().slice(0, 10);
     $("installationKpiTotal").textContent = rows.length;
     $("installationKpiScheduled").textContent = rows.filter(row => ["مجدول", "مسند"].includes(row.status)).length;
     $("installationKpiInProgress").textContent = rows.filter(row => ["في الطريق", "وصل إلى العميل", "قيد التنفيذ"].includes(row.status)).length;
-    $("installationKpiOverdue").textContent = rows.filter(row => row.scheduledDate && row.scheduledDate < today && !["مكتمل", "ملغي"].includes(row.status)).length;
+    // Unique request count: one request is counted once even if it has multiple overdue visits.
+    $("installationKpiOverdue").textContent = rows.filter(row => row.isOverdue === true).length;
 
     $("installationRequestsBody").innerHTML = data.length ? data.map(row => {
       const serviceSummary = row.services.length
@@ -356,7 +409,7 @@
         <td>${esc([row.city, row.district].filter(Boolean).join(" - ") || row.installationAddress || "—")}</td>
         <td>${esc(row.scheduledDate || "غير محدد")}</td>
         <td>${esc(row.timeSlot || "—")}</td>
-        <td><span class="installation-status-badge" data-status="${esc(row.status)}">${esc(row.status)}</span></td>
+        <td><span class="installation-status-badge" data-status="${esc(row.status)}">${esc(row.status)}</span>${row.isOverdue?` <span class="installation-status-badge" data-status="متأخرة">متأخرة</span>`:''}</td>
         <td><span class="installation-priority-badge" data-priority="${esc(row.priority)}">${esc(row.priority)}</span></td>
         <td>${esc(row.representativeName || "—")}</td>
         <td><div class="installation-row-actions"><button class="secondary-btn" data-install-view="${row.id}" type="button">عرض</button><button class="secondary-btn" data-install-services-edit="${row.id}" type="button">تعديل الخدمات</button><button class="danger-btn" data-install-delete="${row.id}" type="button">حذف</button></div></td>
@@ -385,6 +438,7 @@
     status($("installationRequestsStatus"), "جاري تحميل طلبات التركيبات...");
     try {
       [rows, opts] = await Promise.all([window.InstallationsServiceSafe.list(), window.InstallationsServiceSafe.options()]);
+      rows = decorateExecutionClassification(rows);
       customerOptions("installationCustomerId");
       reportOptionLoadWarnings(opts);
       const repFilter = $("installationRequestRepresentativeFilter");
