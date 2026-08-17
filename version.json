@@ -1,13 +1,13 @@
 {
-  "version": "18.54.11",
-  "build": 185411,
+  "version": "18.54.12",
+  "build": 185412,
   "forceUpdate": true,
-  "releaseDate": "2026-08-16",
-  "title": "Visit-Level Overdue Canonical Classification — Phase E1.4",
+  "releaseDate": "2026-08-17",
+  "title": "Canonical Execution Timeline Status & Integrity Guard — Phase E1.5",
   "notes": [
-    "اعتماد زيارات التنفيذ الفعلية كمصدر Canonical لتحديد الطلبات المتأخرة في شاشة طلبات التركيبات.",
-    "احتساب الطلب مرة واحدة فقط حتى لو لديه أكثر من زيارة متأخرة، مع Legacy fallback للطلبات القديمة بدون Visits.",
-    "إضافة فلتر متأخرة وعلامة مرئية دون تغيير حالة الطلب المخزنة أو State Synchronizer."
+    "اعتماد Timeline التنفيذ الفعلي كمصدر الحالة المعروضة في ملخص التركيبات لحظة بلحظة.",
+    "منع أي زيارة مستقبلية من الوصول إلى بانتظار التأكيد أو مؤكدة بدون completed_at فعلي.",
+    "إصلاح الحالات القديمة الآمنة فقط عند عدم وجود أي كمية منفذة أو Audit أو فاتورة أو محضر."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-11-visit-level-overdue-canonical-e1-4"
+  "cacheToken": "kyum-crm-pwa-18-54-12-canonical-execution-timeline-integrity-e1-5"
 }

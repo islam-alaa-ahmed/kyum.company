@@ -605,6 +605,22 @@
   }
 
 
+  function resolveInstallationExecutionTimelineState(state={}){
+    const storedStatus=String(state.status||'').trim();
+    const onRoute=Boolean(state.on_route_at),mapOpened=Boolean(state.map_opened_at),
+      arrived=Boolean(state.arrived_at),started=Boolean(state.started_at),completed=Boolean(state.completed_at);
+    if(!onRoute&&!mapOpened&&!arrived&&!started&&!completed)return {code:'not_started',label:'لم يبدأ'};
+    if(completed){
+      if(storedStatus==='مؤكدة')return {code:'confirmed',label:'مؤكدة'};
+      if(storedStatus==='بانتظار التأكيد')return {code:'waiting_confirmation',label:'بانتظار التأكيد'};
+      return {code:'completed',label:'مكتمل'};
+    }
+    if(started)return {code:'in_progress',label:'قيد التنفيذ'};
+    if(arrived)return {code:'arrived',label:'وصل إلى العميل'};
+    if(onRoute||mapOpened)return {code:'on_route',label:'في الطريق'};
+    return {code:'not_started',label:'لم يبدأ'};
+  }
+
   async function installationSummaryReport(filters={}){
     requireAction('view','installationReports');
     const selectedTeams=Array.isArray(filters.teamIds)?new Set(filters.teamIds.filter(Boolean).map(String)):new Set(),teamFilterApplied=filters.teamFilterApplied===true;
@@ -705,7 +721,7 @@
       const normalizedServices=(services||[]).filter(x=>Number(x.quantity||0)>0).map(x=>({name:x.name||'خدمة غير محددة',quantity:Number(x.quantity||0),value:Number(x.value||0),expenses:Number(x.expenses||0),profit:Number(x.profit||0)}));
       const value=normalizedServices.reduce((a,x)=>a+x.value,0),expenses=normalizedServices.reduce((a,x)=>a+x.expenses,0);
       const geo=geoMap.get(String(request?.neighborhood_id||''))||{};
-      const state=executionState||request||{};const visitNo=Number(state.visit_no||0);const item={entryKey,requestId:request?.id||'',requestNumber:request?.request_number||'',executionNumber:visitNo?`${request?.request_number||''}-${String(visitNo).padStart(2,'0')}`:(request?.request_number||''),visitId:state.id&&entryKey.startsWith('visit:')?state.id:'',visitNo,customerName:request?.customer?.customer_name||'',customerPhone:request?.customer?.phone||'',representativeName:request?.representative?.full_name||'',teamId,teamName,technicianName:technicianName||request?.assigned_technician_name||'',scheduledDate:scheduledDate||request?.scheduled_date||'',scheduledTime:String(scheduledTime||request?.scheduled_time||'').slice(0,5),status:state.completed_at?'مكتمل':(state.started_at?'قيد التنفيذ':(state.arrived_at?'وصل إلى العميل':(state.on_route_at?'في الطريق':(state.status==='بانتظار التأكيد'?'مكتمل':'مسند')))),neighborhoodId:geo.neighborhoodId||'',neighborhoodName:geo.neighborhoodName||'',cityId:geo.cityId||'',cityName:geo.cityName||'',regionId:geo.regionId||'',regionName:geo.regionName||'',services:normalizedServices,value,expenses,profit:value-expenses,onRouteAt:state.on_route_at||'',mapOpenedAt:state.map_opened_at||'',arrivedAt:state.arrived_at||'',startedAt:state.started_at||'',completedAt:state.completed_at||''};
+      const state=executionState||request||{},timelineState=resolveInstallationExecutionTimelineState(state),visitNo=Number(state.visit_no||0);const item={entryKey,requestId:request?.id||'',requestNumber:request?.request_number||'',executionNumber:visitNo?`${request?.request_number||''}-${String(visitNo).padStart(2,'0')}`:(request?.request_number||''),visitId:state.id&&entryKey.startsWith('visit:')?state.id:'',visitNo,customerName:request?.customer?.customer_name||'',customerPhone:request?.customer?.phone||'',representativeName:request?.representative?.full_name||'',teamId,teamName,technicianName:technicianName||request?.assigned_technician_name||'',scheduledDate:scheduledDate||request?.scheduled_date||'',scheduledTime:String(scheduledTime||request?.scheduled_time||'').slice(0,5),status:timelineState.label,executionState:timelineState.code,storedStatus:String(state.status||''),neighborhoodId:geo.neighborhoodId||'',neighborhoodName:geo.neighborhoodName||'',cityId:geo.cityId||'',cityName:geo.cityName||'',regionId:geo.regionId||'',regionName:geo.regionName||'',services:normalizedServices,value,expenses,profit:value-expenses,onRouteAt:state.on_route_at||'',mapOpenedAt:state.map_opened_at||'',arrivedAt:state.arrived_at||'',startedAt:state.started_at||'',completedAt:state.completed_at||''};
       let group=executionGrouped.get(teamId);if(!group){group={id:teamId,name:teamName,orders:[]};executionGrouped.set(teamId,group)}group.orders.push(item);
     };
     for(const visit of scopedVisits){
