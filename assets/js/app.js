@@ -9940,6 +9940,7 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
       ) return;
       if (!customer) {
         showLookupResult("success", `الرقم <strong>${escapeHtml(normalizedPhone)}</strong> غير مرتبط بأي عميل مسجل.`);
+        void window.BusinessActivityService?.log?.({eventType:"search",sectionKey:"dailyOperations",actionKey:"verify_customer_phone",entityType:"customers",details:{search_type:"phone",query_value:normalizedPhone,outcome:"not_found",result_found:false,result_count:0,trigger:"submit",description:"تم التحقق من رقم العميل ولم يتم العثور على عميل مسجل."}});
         return;
       }
 
@@ -9958,12 +9959,14 @@ document.getElementById("dailyWhatsAppTemplateImage")?.addEventListener("change"
         `تنبيه: الرقم <strong>${escapeHtml(normalizedPhone)}</strong> مرتبط بالعميل <strong>«${escapeHtml(details.name)}»</strong>.<br>${repLine}${companyLine}${scopeLine}`
         + (details.canAccess && details.id ? `<div class="daily-phone-result-actions"><button type="button" class="secondary-btn compact-btn" data-open-existing-customer="${escapeHtml(String(details.id))}">فتح العميل الحالي</button></div>` : "")
       );
+      void window.BusinessActivityService?.log?.({eventType:"search",sectionKey:"dailyOperations",actionKey:"verify_customer_phone",entityType:"customers",entityId:details.canAccess&&details.id?details.id:null,entityDisplayName:details.canAccess?details.name:null,customerId:details.canAccess&&details.id?details.id:null,customerName:details.canAccess?details.name:null,details:{search_type:"phone",query_value:normalizedPhone,outcome:details.canAccess?"found_accessible":"found_out_of_scope",result_found:true,result_count:1,trigger:"submit",description:details.canAccess?"تم التحقق من رقم العميل والعثور على العميل المسجل.":"تم التحقق من رقم العميل ووجد أنه مرتبط بعميل خارج نطاق الوصول."}});
     } catch (error) {
       if (
         requestSequence === lookupRequestSequence
         && normalizePhone(input.value) === normalizedPhone
       ) {
         showLookupResult("error", escapeHtml(error instanceof Error ? error.message : "تعذر التحقق من رقم الجوال."));
+        void window.BusinessActivityService?.log?.({eventType:"search",sectionKey:"dailyOperations",actionKey:"verify_customer_phone",entityType:"customers",details:{search_type:"phone",query_value:normalizedPhone,outcome:"error",result_found:null,result_count:null,trigger:"submit",description:"تعذر إكمال التحقق من رقم العميل."}});
       }
     } finally {
       button.disabled = false;

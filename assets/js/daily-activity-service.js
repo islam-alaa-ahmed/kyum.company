@@ -219,6 +219,11 @@
     if (event.invoice_number) parts.push(`رقم الفاتورة: ${event.invoice_number}`);
     const d = event.details || {};
     if (d.phone) parts.push(`رقم الجوال: ${d.phone}`);
+    if (d.query_value) parts.push(`قيمة البحث: ${d.query_value}`);
+    if (d.search_type) parts.push(`نوع البحث: ${d.search_type}`);
+    if (d.outcome) parts.push(`النتيجة: ${d.outcome}`);
+    if (d.result_count !== null && d.result_count !== undefined) parts.push(`عدد النتائج: ${d.result_count}`);
+    if (d.stage) parts.push(`مرحلة التنفيذ: ${d.stage}`);
     if (d.source_label) parts.push(`المصدر: ${d.source_label}`);
     if (d.description) parts.push(d.description);
     return parts.join(" — ") || "تم تنفيذ الحركة بنجاح.";
@@ -231,6 +236,7 @@
     if (type.includes("installation")) return "installations";
     if (type.includes("invoice")) return "invoices";
     if (type === "customers" || type.includes("customer")) return "customers";
+    if (type === "search") return "search";
     if (type.includes("daily_task")) return "daily_tasks";
     if (type.includes("daily_alert")) return "daily_alerts";
     if (type.includes("user") || type.includes("permission")) return "users";
@@ -255,6 +261,9 @@
       heartbeat: "نشاط داخل النظام",
       end_day: "إنهاء يوم العمل",
       open_whatsapp: "فتح واتساب",
+      search: "بحث", verify_customer_phone: "التحقق من رقم العميل",
+      execution_selected: "اختيار للتنفيذ", on_route: "بدء التحرك", map_opened: "فتح موقع العميل",
+      arrived: "الوصول إلى العميل", work_started: "بدء التنفيذ", execution_completed: "إنهاء التنفيذ",
       INSERT: "إضافة", UPDATE: "تعديل", DELETE: "حذف"
     };
     return labels[action] || action || "نشاط";
@@ -310,7 +319,8 @@
         requestNumber: event.request_number || "",
         quotationNumber: event.quotation_number || "",
         invoiceNumber: event.invoice_number || "",
-        status: event.status || "success"
+        status: event.status || "success",
+        source: "business", entityType:event.entity_type||event.section_key||"", entityId:event.entity_id||""
       });
     });
 
@@ -329,7 +339,8 @@
           || log.new_data?.request_number
           || log.new_data?.quotation_number
           || "تم تنفيذ الحركة بنجاح.",
-        createdAt: log.created_at
+        createdAt: log.created_at,
+        source: "audit", entityType:log.entity_type||"", entityId:log.entity_id||""
       });
     });
 
@@ -343,7 +354,8 @@
         action: item.is_completed ? "complete" : "reopen",
         title: item.is_completed ? "إكمال مهمة يومية" : "إعادة فتح مهمة يومية",
         detail: item.task?.task_name || item.task_key,
-        createdAt: item.completed_at || item.updated_at
+        createdAt: item.completed_at || item.updated_at,
+        source: "task", entityType:"daily_task_completions", entityId:item.id
       });
     });
 
@@ -363,12 +375,23 @@
       });
     });
 
-    const unique = new Map();
-    events.filter(item => item.createdAt).forEach(item => {
-      const key = `${item.userId || ""}|${String(item.createdAt).slice(0,19)}|${item.title || ""}`;
-      if (!unique.has(key)) unique.set(key, item);
+    const prepared=events.filter(item=>item.createdAt).sort((a,b)=>{
+      const priority={business:0,task:1,alert:1,audit:2,session:3};
+      return (priority[a.source]??1)-(priority[b.source]??1)||new Date(b.createdAt)-new Date(a.createdAt);
     });
-    return [...unique.values()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const unique=[];
+    prepared.forEach(item=>{
+      if(item.source==='audit'&&String(item.entityType||'').includes('daily_task'))return;
+      const t=new Date(item.createdAt).getTime();
+      const duplicate=unique.some(existing=>{
+        if(existing.userId!==item.userId)return false;
+        if(Math.abs(new Date(existing.createdAt).getTime()-t)>5000)return false;
+        if(existing.entityId&&item.entityId&&String(existing.entityId)===String(item.entityId))return true;
+        return existing.type===item.type&&existing.action===item.action&&existing.title===item.title;
+      });
+      if(!duplicate)unique.push(item);
+    });
+    return unique.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   }
 
   async function loadOnline(workDate) {
