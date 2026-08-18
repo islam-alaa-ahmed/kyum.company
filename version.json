@@ -1,13 +1,13 @@
 {
-  "version": "18.54.13",
-  "build": 185413,
+  "version": "18.54.14",
+  "build": 185414,
   "forceUpdate": true,
   "releaseDate": "2026-08-18",
-  "title": "Employee Activity Search & Execution Semantic Tracking — Phase A1",
+  "title": "Daily Suggestions Representative Scope Alignment — Phase M15.25.2",
   "notes": [
-    "تسجيل عمليات البحث الفعلية في الشاشات الرئيسية من خلال Business Activity owner موحد بدون تسجيل كل ضغطة حرف.",
-    "تسجيل التحقق من رقم العميل بنتيجة البحث وربط العميل عند السماح بالصلاحية.",
-    "تسجيل مراحل تنفيذ التركيبات كأحداث دلالية وتحسين Dedup في خط سير الموظف لتقليل الأحداث المكررة."
+    "توحيد نطاق العملاء المقترح التواصل معهم مع صلاحيات البيانات own/selected/all للمستخدم.",
+    "إدراج عملاء المندوب الأساسي والمندوبين المسموحين له ضمن نفس محرك الدوران اليومي بدون تغيير قواعد 10 شركة و10 فردي.",
+    "تثبيت أن أزرار عرض/متابعة والتواصل في شاشة العملاء لا تُحجب بسبب مالك العميل طالما العميل داخل نطاق البيانات المسموح."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-13-employee-activity-search-execution-a1"
+  "cacheToken": "kyum-crm-pwa-18-54-14-daily-suggestions-selected-scope-m15-25-2"
 }
