@@ -116,6 +116,11 @@
       "file": "assets/js/advertising-reference-service.js",
       "mode": "full_offline_create_update_delete",
       "status": "compliant"
+    },
+    "advertising_projects": {
+      "file": "assets/js/advertising-projects-service.js",
+      "mode": "full_offline_create_update_delete",
+      "status": "compliant"
     }
   },
   "registeredDirectDataFiles": [
@@ -147,7 +152,8 @@
     "assets/js/system-health-service.js",
     "assets/js/system-settings-service.js",
     "assets/js/users-service.js",
-    "assets/js/whatsapp-template-service.js"
+    "assets/js/whatsapp-template-service.js",
+    "assets/js/advertising-projects-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [

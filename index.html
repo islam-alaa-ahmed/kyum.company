@@ -34,29 +34,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/mobile.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/desktop-visual-identity-canonical.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/installation-costs.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/notification-center.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/sidebar-canonical.css?v=18.54.17" />
-  <link rel="stylesheet" href="assets/css/advertising-reference-data.css?v=18.54.17">
+  <link rel="stylesheet" href="assets/css/style.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/mobile.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/responsive-foundation.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/core-screens-responsive.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/desktop-visual-identity-canonical.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/daily-reports-responsive.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/mobile-shell-touch-certification.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/tablet-desktop-certification.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installations-foundation.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-requests.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-request-inline-dialogs.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-scheduling.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-execution.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-completion.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-operations-reports.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-dashboard-settings.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/installation-costs.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/mobile-theme-canonical.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/sales-invoices.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/global-typography-certification.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/notification-center.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/sidebar-canonical.css?v=18.54.18" />
+  <link rel="stylesheet" href="assets/css/advertising-reference-data.css?v=18.54.18">
+  <link rel="stylesheet" href="assets/css/advertising-projects.css?v=18.54.18">
 </head>
 <body>
   <div id="authLoadingOverlay" class="auth-loading-overlay">
@@ -2809,11 +2810,18 @@
         </div>
       </section>
       <section id="advertisingProjectsView" class="view-section hidden" aria-hidden="true">
+        <div id="advertisingProjectsStatus" class="data-status hidden" aria-live="polite"></div>
         <div class="panel">
           <div class="section-heading">
-            <div><h3 class="section-title">المشاريع</h3><p class="section-subtitle">إدارة دورة حياة مشاريع قسم الدعاية والإعلان من الإنشاء حتى الإغلاق المالي.</p></div>
+            <div><h3 class="section-title">المشاريع</h3><p class="section-subtitle">إدارة بيانات المشروع ودورة حالته التشغيلية قبل مراحل المخزون والتكلفة والربحية.</p></div>
           </div>
-          <div class="data-status">تم تجهيز أساس الشاشة في Phase ADV-01. سيتم تفعيل وظائفها تدريجيًا وفق خطة القسم المعتمدة.</div>
+          <div class="adv-project-toolbar">
+            <label>بحث<input id="advertisingProjectsSearch" type="search" placeholder="رقم المشروع، الاسم، العميل، الموقع أو المسؤول"></label>
+            <label>الحالة<select id="advertisingProjectsStatusFilter"><option value="">كل الحالات</option><option>جديد</option><option>جاري التجهيز</option><option>جاري التصنيع</option><option>جاهز للتركيب</option><option>جاري التركيب</option><option>مكتمل</option><option>متوقف</option><option>ملغي</option></select></label>
+            <button id="advertisingProjectsAddBtn" class="primary-btn" type="button">إضافة مشروع</button>
+          </div>
+          <div class="adv-project-summary"><div><strong>المشاريع المسجلة</strong><div class="section-subtitle">القيمة والتكلفة الحالية بيانات تأسيسية؛ التكلفة الفعلية ستأتي من Ledger في المراحل التالية.</div></div><strong id="advertisingProjectsCount">0 مشروع</strong></div>
+          <div class="table-card adv-project-table-wrap"><table><thead><tr><th>رقم المشروع</th><th>اسم المشروع</th><th>النوع</th><th>العميل</th><th>المسؤول</th><th>الحالة</th><th>قيمة البيع</th><th>التكلفة التقديرية</th><th>التسليم المتوقع</th><th>الإجراءات</th></tr></thead><tbody id="advertisingProjectsTableBody"><tr><td colspan="10" class="empty-state">جاري التحميل...</td></tr></tbody></table></div>
         </div>
       </section>
       <section id="advertisingMaterialIssueView" class="view-section hidden" aria-hidden="true">
@@ -3567,10 +3575,10 @@
     </form>
   </dialog>
 
-  <script src="assets/js/performance-monitor.js?v=18.54.17"></script>
-  <script src="assets/js/health-alerts-engine.js?v=18.54.17"></script>
-  <script src="assets/js/diagnostics-service.js?v=18.54.17"></script>
-  <script src="assets/js/diagnostics-engine.js?v=18.54.17"></script>
+  <script src="assets/js/performance-monitor.js?v=18.54.18"></script>
+  <script src="assets/js/health-alerts-engine.js?v=18.54.18"></script>
+  <script src="assets/js/diagnostics-service.js?v=18.54.18"></script>
+  <script src="assets/js/diagnostics-engine.js?v=18.54.18"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <dialog id="representativeImportDialog" class="glass-dialog customer-import-dialog representative-import-dialog">
     <form method="dialog" class="dialog-shell">
@@ -3960,6 +3968,36 @@
     </form>
   </dialog>
 
+  <dialog id="advertisingProjectDialog" class="glass-dialog">
+    <form id="advertisingProjectForm" class="dialog-shell">
+      <div class="dialog-header"><div><h3 id="advertisingProjectDialogTitle">إضافة مشروع</h3><p>بيانات المشروع الأساسية ودورة حالته التشغيلية.</p></div><button id="closeAdvertisingProjectDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
+      <div class="form-grid">
+        <label>اسم المشروع *<input id="advProjectName" type="text" maxlength="200" required></label>
+        <label>نوع المشروع<select id="advProjectType"></select></label>
+        <label>اسم العميل *<input id="advProjectCustomerName" type="text" maxlength="200" required></label>
+        <label>رقم العميل<input id="advProjectCustomerPhone" type="tel" maxlength="40"></label>
+        <label>الموقع<input id="advProjectLocation" type="text" maxlength="250"></label>
+        <label>المول / الموقع التجاري<input id="advProjectMall" type="text" maxlength="200"></label>
+        <label>قيمة البيع<input id="advProjectSellingValue" type="number" min="0" step="0.01"></label>
+        <label>التكلفة التقديرية<input id="advProjectEstimatedCost" type="number" min="0" step="0.01"></label>
+        <label>تاريخ البداية<input id="advProjectStartDate" type="date"></label>
+        <label>التسليم المتوقع<input id="advProjectExpectedDelivery" type="date"></label>
+        <label>التسليم الفعلي<input id="advProjectActualDelivery" type="date"></label>
+        <label>المسؤول<select id="advProjectResponsible"></select></label>
+        <label>الحالة<select id="advProjectStatus"></select></label>
+        <label class="full-span">ملاحظات<textarea id="advProjectNotes" maxlength="2000"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button id="cancelAdvertisingProjectDialog" class="secondary-btn" type="button">إلغاء</button><button id="advertisingProjectSaveBtn" class="primary-btn" type="submit">حفظ</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="advertisingProjectHistoryDialog" class="glass-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-header"><div><h3 id="advertisingProjectHistoryTitle">سجل المشروع</h3><p>تاريخ تغييرات الحالة التشغيلية للمشروع.</p></div><button id="closeAdvertisingProjectHistory" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
+      <div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>من</th><th>إلى</th></tr></thead><tbody id="advertisingProjectHistoryBody"></tbody></table></div>
+    </div>
+  </dialog>
+
   <dialog id="advertisingReferenceDialog" class="glass-dialog">
     <form id="advertisingReferenceForm" class="dialog-shell">
       <div class="dialog-header"><div><h3 id="advertisingReferenceDialogTitle">إضافة بيانات مرجعية</h3><p id="advertisingReferenceDialogNote"></p></div><button id="closeAdvertisingReferenceDialog" class="icon-btn" type="button" aria-label="إغلاق">×</button></div>
@@ -4009,65 +4047,67 @@
     </form>
   </dialog>
 
-  <script src="assets/js/supabase-config.js?v=18.54.17"></script>
-  <script src="assets/js/offline-session-store.js?v=18.54.17"></script>
-  <script src="assets/js/supabase-client.js?v=18.54.17"></script>
-  <script src="assets/js/geographic-address.js?v=18.54.17"></script>
-  <script src="assets/js/permissions.js?v=18.54.17"></script>
-  <script src="assets/js/permission-engine.js?v=18.54.17"></script>
-  <script src="assets/js/data-access-scope.js?v=18.54.17"></script>
-  <script src="assets/js/smart-cache.js?v=18.54.17"></script>
-  <script src="assets/js/sync-engine.js?v=18.54.17"></script>
-  <script src="assets/js/offline-queue.js?v=18.54.17"></script>
-  <script src="assets/js/permissions-service.js?v=18.54.17"></script>
-  <script src="assets/js/auth-session.js?v=18.54.17"></script>
-  <script src="assets/js/reference-data-service.js?v=18.54.17"></script>
-  <script src="assets/js/advertising-reference-service.js?v=18.54.17"></script>
-  <script src="assets/js/advertising-reference-module.js?v=18.54.17"></script>
-  <script src="assets/js/customers-service.js?v=18.54.17"></script>
-  <script src="assets/js/followups-service.js?v=18.54.17"></script>
-  <script src="assets/js/quotations-service.js?v=18.54.17"></script>
-  <script src="assets/js/sales-invoices-service.js?v=18.54.17"></script>
-  <script src="assets/js/users-service.js?v=18.54.17"></script>
-  <script src="assets/js/activity-service.js?v=18.54.17"></script>
-  <script src="assets/js/backup-service.js?v=18.54.17"></script>
-  <script src="assets/js/system-settings-service.js?v=18.54.17"></script>
-  <script src="assets/js/system-health-service.js?v=18.54.17"></script>
-  <script src="assets/js/offline-read-cache.js?v=18.54.17"></script>
-  <script src="assets/js/cache-dependency-engine.js?v=18.54.17"></script>
-  <script src="assets/js/daily-operations-service.js?v=18.54.17"></script>
-  <script src="assets/js/business-activity-service.js?v=18.54.17"></script>
-  <script src="assets/js/installations-service.js?v=18.54.17"></script>
-  <script src="assets/js/installations-service-contract.js?v=18.54.17"></script>
-  <script src="assets/js/employee-report-settings-service.js?v=18.54.17"></script>
-  <script src="assets/js/whatsapp-template-service.js?v=18.54.17"></script>
-  <script src="assets/js/daily-suggestions-service.js?v=18.54.17"></script>
+  <script src="assets/js/supabase-config.js?v=18.54.18"></script>
+  <script src="assets/js/offline-session-store.js?v=18.54.18"></script>
+  <script src="assets/js/supabase-client.js?v=18.54.18"></script>
+  <script src="assets/js/geographic-address.js?v=18.54.18"></script>
+  <script src="assets/js/permissions.js?v=18.54.18"></script>
+  <script src="assets/js/permission-engine.js?v=18.54.18"></script>
+  <script src="assets/js/data-access-scope.js?v=18.54.18"></script>
+  <script src="assets/js/smart-cache.js?v=18.54.18"></script>
+  <script src="assets/js/sync-engine.js?v=18.54.18"></script>
+  <script src="assets/js/offline-queue.js?v=18.54.18"></script>
+  <script src="assets/js/permissions-service.js?v=18.54.18"></script>
+  <script src="assets/js/auth-session.js?v=18.54.18"></script>
+  <script src="assets/js/reference-data-service.js?v=18.54.18"></script>
+  <script src="assets/js/advertising-reference-service.js?v=18.54.18"></script>
+  <script src="assets/js/advertising-reference-module.js?v=18.54.18"></script>
+  <script src="assets/js/advertising-projects-service.js?v=18.54.18"></script>
+  <script src="assets/js/advertising-projects-module.js?v=18.54.18"></script>
+  <script src="assets/js/customers-service.js?v=18.54.18"></script>
+  <script src="assets/js/followups-service.js?v=18.54.18"></script>
+  <script src="assets/js/quotations-service.js?v=18.54.18"></script>
+  <script src="assets/js/sales-invoices-service.js?v=18.54.18"></script>
+  <script src="assets/js/users-service.js?v=18.54.18"></script>
+  <script src="assets/js/activity-service.js?v=18.54.18"></script>
+  <script src="assets/js/backup-service.js?v=18.54.18"></script>
+  <script src="assets/js/system-settings-service.js?v=18.54.18"></script>
+  <script src="assets/js/system-health-service.js?v=18.54.18"></script>
+  <script src="assets/js/offline-read-cache.js?v=18.54.18"></script>
+  <script src="assets/js/cache-dependency-engine.js?v=18.54.18"></script>
+  <script src="assets/js/daily-operations-service.js?v=18.54.18"></script>
+  <script src="assets/js/business-activity-service.js?v=18.54.18"></script>
+  <script src="assets/js/installations-service.js?v=18.54.18"></script>
+  <script src="assets/js/installations-service-contract.js?v=18.54.18"></script>
+  <script src="assets/js/employee-report-settings-service.js?v=18.54.18"></script>
+  <script src="assets/js/whatsapp-template-service.js?v=18.54.18"></script>
+  <script src="assets/js/daily-suggestions-service.js?v=18.54.18"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="assets/js/reports-engine.js?v=18.54.17"></script>
-  <script src="assets/js/export-center.js?v=18.54.17"></script>
-  <script src="assets/js/customer360-engine.js?v=18.54.17"></script>
-  <script src="assets/js/customer360-export.js?v=18.54.17"></script>
-  <script src="assets/js/representative-excel-center.js?v=18.54.17"></script>
-  <script src="assets/js/customer-excel-center.js?v=18.54.17"></script>
-  <script src="assets/js/daily-performance-service.js?v=18.54.17"></script>
-  <script src="assets/js/daily-alerts-service.js?v=18.54.17"></script>
-  <script src="assets/js/daily-activity-service.js?v=18.54.17"></script>
-  <script src="assets/js/notification-center-service.js?v=18.54.17"></script>
-  <script src="assets/js/app.js?v=18.54.17"></script>
-  <script src="assets/js/notification-center.js?v=18.54.17"></script>
-  <script src="assets/js/sales-invoices.js?v=18.54.17"></script>
-  <script src="assets/js/installations-module.js?v=18.54.17"></script>
-  <script src="assets/js/installation-scheduling.js?v=18.54.17"></script>
-  <script src="assets/js/installation-execution.js?v=18.54.17"></script>
-  <script src="assets/js/installation-completion.js?v=18.54.17"></script>
-  <script src="assets/js/installation-operations-reports.js?v=18.54.17"></script>
-  <script src="assets/js/installation-dashboard-settings.js?v=18.54.17"></script>
-  <script src="assets/js/installation-settings-management.js?v=18.54.17"></script>
-  <script src="assets/js/installation-costs.js?v=18.54.17"></script>
-  <script src="assets/js/mobile.js?v=18.54.17"></script>
-  <script src="assets/js/pwa.js?v=18.54.17"></script>
-  <script src="assets/js/native.js?v=18.54.17"></script>
+  <script src="assets/js/reports-engine.js?v=18.54.18"></script>
+  <script src="assets/js/export-center.js?v=18.54.18"></script>
+  <script src="assets/js/customer360-engine.js?v=18.54.18"></script>
+  <script src="assets/js/customer360-export.js?v=18.54.18"></script>
+  <script src="assets/js/representative-excel-center.js?v=18.54.18"></script>
+  <script src="assets/js/customer-excel-center.js?v=18.54.18"></script>
+  <script src="assets/js/daily-performance-service.js?v=18.54.18"></script>
+  <script src="assets/js/daily-alerts-service.js?v=18.54.18"></script>
+  <script src="assets/js/daily-activity-service.js?v=18.54.18"></script>
+  <script src="assets/js/notification-center-service.js?v=18.54.18"></script>
+  <script src="assets/js/app.js?v=18.54.18"></script>
+  <script src="assets/js/notification-center.js?v=18.54.18"></script>
+  <script src="assets/js/sales-invoices.js?v=18.54.18"></script>
+  <script src="assets/js/installations-module.js?v=18.54.18"></script>
+  <script src="assets/js/installation-scheduling.js?v=18.54.18"></script>
+  <script src="assets/js/installation-execution.js?v=18.54.18"></script>
+  <script src="assets/js/installation-completion.js?v=18.54.18"></script>
+  <script src="assets/js/installation-operations-reports.js?v=18.54.18"></script>
+  <script src="assets/js/installation-dashboard-settings.js?v=18.54.18"></script>
+  <script src="assets/js/installation-settings-management.js?v=18.54.18"></script>
+  <script src="assets/js/installation-costs.js?v=18.54.18"></script>
+  <script src="assets/js/mobile.js?v=18.54.18"></script>
+  <script src="assets/js/pwa.js?v=18.54.18"></script>
+  <script src="assets/js/native.js?v=18.54.18"></script>
 </body>
 </html>

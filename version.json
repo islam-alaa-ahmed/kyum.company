@@ -1,13 +1,13 @@
 {
-  "version": "18.54.17",
-  "build": 185417,
+  "version": "18.54.18",
+  "build": 185418,
   "forceUpdate": true,
   "releaseDate": "2026-08-20",
-  "title": "Advertising Reference Data — Phase ADV-02",
+  "title": "Advertising Projects Core — Phase ADV-03",
   "notes": [
-    "تفعيل البيانات المرجعية لقسم الدعاية والإعلان: الأصناف والتصنيفات والوحدات والموظفون والموردون وأنواع المشاريع والمصروفات وطرق الدفع.",
-    "إضافة CRUD بصلاحيات View/Add/Edit/Delete مع منع حذف السجل المرتبط ببيانات أخرى.",
-    "دعم Smart Cache وOffline Queue موحد للبيانات المرجعية مع مزامنة آمنة بعد عودة الاتصال."
+    "تفعيل شاشة المشاريع الأساسية لقسم الدعاية والإعلان مع الترقيم التلقائي ودورة الحالة.",
+    "إضافة سجل تاريخ حالة المشروع وصلاحيات CRUD كاملة مع حماية الإغلاق المالي للمراحل التالية.",
+    "دعم Smart Cache وOffline Create/Edit/Delete مع حل تبعيات أنواع المشاريع والموظفين المرجعيين."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-17-advertising-reference-data-adv-02"
+  "cacheToken": "kyum-crm-pwa-18-54-18-advertising-projects-adv-03"
 }

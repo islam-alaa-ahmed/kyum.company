@@ -1,0 +1,18 @@
+#advertisingProjectsView .adv-project-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,240px) auto;gap:12px;align-items:end;margin-bottom:16px}
+#advertisingProjectsView .adv-project-toolbar label{display:grid;gap:6px}
+#advertisingProjectsView .adv-project-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}
+#advertisingProjectsView .adv-project-summary strong{font-size:1rem}
+#advertisingProjectsView .adv-project-table-wrap{overflow:auto}
+#advertisingProjectsView table{min-width:1180px}
+#advertisingProjectsView .adv-project-pending{opacity:.82}
+#advertisingProjectsView .adv-project-small{padding:7px 10px;min-height:34px}
+#advertisingProjectHistoryDialog .dialog-shell{max-width:760px}
+#advertisingProjectHistoryDialog .table-wrap{max-height:55vh;overflow:auto}
+#advertisingProjectDialog .dialog-shell{max-width:900px}
+#advertisingProjectDialog textarea{min-height:96px}
+@media(max-width:767px){
+  #advertisingProjectsView .adv-project-toolbar{grid-template-columns:1fr}
+  #advertisingProjectsView .adv-project-toolbar .primary-btn{width:100%}
+  #advertisingProjectsView .adv-project-summary{align-items:flex-start;flex-direction:column}
+  #advertisingProjectDialog .form-grid{grid-template-columns:1fr}
+}
