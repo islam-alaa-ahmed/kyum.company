@@ -2,8 +2,8 @@
 (function () {
   "use strict";
 
-  const GEO_CACHE_KEY = "geography:canonical-catalog:v1";
-  const GEO_CACHE_SCHEMA_VERSION = 1;
+  const GEO_CACHE_KEY = "geography:canonical-catalog:v2";
+  const GEO_CACHE_SCHEMA_VERSION = 2;
   const GEO_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
   const GEO_CACHE_STALE_MAX_MS = 365 * 24 * 60 * 60 * 1000;
 
