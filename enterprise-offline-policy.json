@@ -127,6 +127,12 @@
       "mode": "cached_reads_server_authoritative_posting",
       "status": "compliant",
       "notes": "Inventory reads are cached; balance-affecting posting/reversal requires server atomic RPC and is not queued offline."
+    },
+    "advertising_material_issue": {
+      "file": "assets/js/advertising-material-service.js",
+      "mode": "cached_reads_server_authoritative_posting",
+      "status": "compliant",
+      "notes": "Open projects, item balances and material history are cached. Issue/return/reversal must post through atomic server RPCs and are never locally balance-authoritative."
     }
   },
   "registeredDirectDataFiles": [
@@ -160,7 +166,8 @@
     "assets/js/users-service.js",
     "assets/js/whatsapp-template-service.js",
     "assets/js/advertising-projects-service.js",
-    "assets/js/advertising-inventory-service.js"
+    "assets/js/advertising-inventory-service.js",
+    "assets/js/advertising-material-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [

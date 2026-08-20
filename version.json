@@ -1,13 +1,13 @@
 {
-  "version": "18.54.19",
-  "build": 185419,
+  "version": "18.54.20",
+  "build": 185420,
   "forceUpdate": true,
   "releaseDate": "2026-08-20",
-  "title": "Advertising Inventory Foundation — Phase ADV-04",
+  "title": "Project Material Issue & Returns — Phase ADV-05",
   "notes": [
-    "تفعيل Inventory Ledger وأرصدة المخزون ومتوسط التكلفة المرجح.",
-    "إضافة الرصيد الافتتاحي والتسويات وعكس الحركات بصلاحيات الخادم.",
-    "الحفاظ على الأرصدة Server-authoritative مع Smart Cache للقراءة دون اعتماد حركات مخزون Offline."
+    "ربط صرف مواد المخزون بالمشاريع المفتوحة مع تثبيت متوسط التكلفة لحظة الصرف.",
+    "إضافة مرتجعات المشروع بالقيمة الأصلية للصرف وقيد تكلفة مواد موحد للمشروع.",
+    "إضافة عكس ذري لحركات المواد يعيد المخزون وتكلفة المشروع معًا وحماية العكس من شاشة المخزون العامة."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-19-advertising-inventory-adv-04"
+  "cacheToken": "kyum-crm-pwa-18-54-20-project-material-adv-05"
 }

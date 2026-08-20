@@ -1,0 +1,30 @@
+(function(){
+const SCREEN='advertisingMaterialIssue',CACHE='advertising-material:snapshot',TTL=5*60*1000,STALE=30*24*60*60*1000;let mem=null,inflight=null;
+const db=()=>{if(!window.customerSupabase)throw new Error('اتصال Supabase غير جاهز.');return window.customerSupabase};
+const can=a=>window.PermissionEngine?.can?.(SCREEN,a)??window.CustomerPermissions?.canScreen?.(SCREEN,a)??false;
+function req(a){if(!can(a))throw new Error('لا توجد صلاحية '+({view:'عرض',add:'إضافة',edit:'تعديل',delete:'حذف'}[a]||a)+' صرف المواد.')}
+async function ns(){return `user:${window.KYUMOfflineSessionStore?.currentUserId?.()||'anonymous'}`}
+async function unwrap(q,msg){const {data,error}=await q;if(error)throw new Error(`${msg}: ${error.message}`);return data}
+async function network(){
+  const [projects,items,balances,movements,costs]=await Promise.all([
+    unwrap(db().from('adv_projects').select('id,project_number,project_name,customer_name,status,financial_closed_at').is('financial_closed_at',null).neq('status','مغلق ماليًا').order('created_at',{ascending:false}),'تعذر تحميل المشاريع المفتوحة'),
+    unwrap(db().from('adv_items').select('id,item_code,name,is_active,reorder_level,unit_id,unit:adv_units(id,name,symbol),category:adv_item_categories(id,name)').eq('is_active',true).order('name'),'تعذر تحميل الأصناف'),
+    unwrap(db().from('adv_inventory_balances').select('item_id,quantity_on_hand,average_cost,inventory_value,last_transaction_at').order('updated_at',{ascending:false}),'تعذر تحميل أرصدة المخزون'),
+    unwrap(db().from('adv_inventory_transactions').select('id,transaction_number,transaction_date,transaction_type,item_id,project_id,quantity,quantity_effect,unit_cost,total_cost,balance_quantity_after,average_cost_after,reference_type,reference_id,notes,is_reversed,reversed_transaction_id,created_at,project:adv_projects(id,project_number,project_name),item:adv_items(id,item_code,name,unit:adv_units(id,name,symbol))').not('project_id','is',null).order('created_at',{ascending:false}).limit(800),'تعذر تحميل حركات مواد المشاريع'),
+    unwrap(db().from('adv_project_cost_entries').select('id,project_id,inventory_transaction_id,item_id,quantity,unit_cost,amount,is_reversed,created_at').eq('cost_type','material').order('created_at',{ascending:false}).limit(1200),'تعذر تحميل قيود تكلفة المواد')
+  ]);
+  const x={projects,items,balances,movements,costs,loadedAt:new Date().toISOString()};
+  mem={x,t:Date.now()};
+  await window.KYUMSmartCache?.set?.(CACHE,x,{namespace:await ns(),ttlMs:24*60*60*1000,staleMaxMs:STALE,source:'supabase',schemaVersion:1}).catch(()=>{});
+  return x;
+}
+async function snapshot({force=false}={}){req('view');if(!force&&mem&&Date.now()-mem.t<TTL)return mem.x;if(!force&&inflight)return inflight;inflight=(async()=>{if(!force){const c=await window.KYUMSmartCache?.get?.(CACHE,{namespace:await ns(),allowStale:true,allowStaleAnyAge:true,staleMaxMs:STALE}).catch(()=>null);if(c?.hit){mem={x:c.data,t:Date.now()};if(navigator.onLine!==false)network().catch(()=>{});return c.data}}return network()})();try{return await inflight}finally{inflight=null}}
+async function clear(){mem=null;await window.KYUMSmartCache?.removePrefix?.(CACHE,{namespace:await ns()}).catch(()=>{})}
+function uuid(){return crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(16).slice(2)}`}
+function requireOnline(){if(navigator.onLine===false)throw new Error('اعتماد صرف أو مرتجع المواد يحتاج اتصالًا بالخادم لأن الرصيد ومتوسط التكلفة وتكلفة المشروع تُحدّث معًا.')}
+async function issue(data){req('add');requireOnline();if(String(data.item_id||'').startsWith('local:'))throw new Error('الصنف الجديد لم تتم مزامنته مع الخادم بعد.');const {data:row,error}=await db().rpc('adv_post_project_material_issue',{p_project_id:data.project_id,p_item_id:data.item_id,p_quantity:Number(data.quantity),p_transaction_date:data.transaction_date||null,p_notes:data.notes||null,p_client_transaction_id:data.client_transaction_id||uuid()});if(error)throw new Error(error.message);await clear();void window.BusinessActivityService?.log?.({eventType:'activity',sectionKey:SCREEN,actionKey:'material_issue',entityType:'adv_inventory_transactions',entityId:row?.id||null,entityDisplayName:row?.transaction_number||'',requestNumber:null,details:{project_id:data.project_id,item_id:data.item_id,quantity:Number(data.quantity),unit_cost:row?.unit_cost,total_cost:row?.total_cost}});return row}
+async function returnMaterial(data){req('add');requireOnline();const {data:row,error}=await db().rpc('adv_post_project_material_return',{p_issue_transaction_id:data.issue_transaction_id,p_quantity:Number(data.quantity),p_transaction_date:data.transaction_date||null,p_notes:data.notes||null,p_client_transaction_id:data.client_transaction_id||uuid()});if(error)throw new Error(error.message);await clear();void window.BusinessActivityService?.log?.({eventType:'activity',sectionKey:SCREEN,actionKey:'material_return',entityType:'adv_inventory_transactions',entityId:row?.id||null,entityDisplayName:row?.transaction_number||'',details:{issue_transaction_id:data.issue_transaction_id,quantity:Number(data.quantity),unit_cost:row?.unit_cost,total_cost:row?.total_cost}});return row}
+async function reverse(row,reason){req('delete');requireOnline();const {data,error}=await db().rpc('adv_reverse_project_material_transaction',{p_transaction_id:row.id,p_reason:reason,p_client_transaction_id:uuid()});if(error)throw new Error(error.message);await clear();void window.BusinessActivityService?.log?.({eventType:'activity',sectionKey:SCREEN,actionKey:'material_reverse',entityType:'adv_inventory_transactions',entityId:row.id,entityDisplayName:row.transaction_number,details:{reason,transaction_type:row.transaction_type}});return data}
+window.KYUMSyncEngine?.register?.('advertising_material_issue',()=>network().catch(()=>null));
+window.AdvertisingMaterialService=Object.freeze({snapshot,issue,returnMaterial,reverse,can,invalidate:clear});
+})();
