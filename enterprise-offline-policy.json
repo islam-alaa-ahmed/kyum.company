@@ -111,10 +111,16 @@
       "file": "assets/js/geographic-address.js",
       "mode": "offline_read_online_refresh",
       "status": "compliant"
+    },
+    "advertising_reference_data": {
+      "file": "assets/js/advertising-reference-service.js",
+      "mode": "full_offline_create_update_delete",
+      "status": "compliant"
     }
   },
   "registeredDirectDataFiles": [
     "assets/js/activity-service.js",
+    "assets/js/advertising-reference-service.js",
     "assets/js/app.js",
     "assets/js/auth-session.js",
     "assets/js/backup-service.js",

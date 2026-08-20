@@ -1,0 +1,20 @@
+#advertisingReferenceDataView{--adv-ref-gap:14px}
+#advertisingReferenceDataView .adv-ref-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding:6px;border:1px solid var(--border);border-radius:16px;background:var(--surface-2)}
+#advertisingReferenceDataView .adv-ref-tab{border:0;border-radius:11px;padding:9px 13px;background:transparent;color:var(--muted);font-weight:800}
+#advertisingReferenceDataView .adv-ref-tab.is-active{background:var(--surface);color:var(--primary);box-shadow:0 5px 16px rgba(15,23,42,.08)}
+#advertisingReferenceDataView .adv-ref-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) minmax(160px,220px) auto;gap:12px;align-items:end;margin-bottom:14px}
+#advertisingReferenceDataView .adv-ref-toolbar label{color:var(--muted)}
+#advertisingReferenceDataView .adv-ref-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+#advertisingReferenceDataView .adv-ref-heading h4{margin:0;font-size:18px}
+#advertisingReferenceDataView .adv-ref-heading span{color:var(--muted);font-size:13px;font-weight:700}
+#advertisingReferenceDataView .table-card{box-shadow:none}
+#advertisingReferenceDataView table{min-width:860px}
+#advertisingReferenceDataView .adv-ref-pending{opacity:.82}
+#advertisingReferenceDataView .record-status{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+#advertisingReferenceDataView .record-status.active{background:#ecfdf5;color:#047857}
+#advertisingReferenceDataView .record-status.inactive{background:#f1f5f9;color:#64748b}
+html[data-theme="dark"] #advertisingReferenceDataView .record-status.active,body.dark-mode #advertisingReferenceDataView .record-status.active{background:rgba(16,185,129,.14);color:#6ee7b7}
+html[data-theme="dark"] #advertisingReferenceDataView .record-status.inactive,body.dark-mode #advertisingReferenceDataView .record-status.inactive{background:rgba(148,163,184,.12);color:#cbd5e1}
+#advertisingReferenceDialog .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#advertisingReferenceDialog .full-span{grid-column:1/-1}
+@media(max-width:768px){#advertisingReferenceDataView .adv-ref-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#advertisingReferenceDataView .adv-ref-tab{text-align:center}#advertisingReferenceDataView .adv-ref-toolbar{grid-template-columns:1fr}#advertisingReferenceDataView .adv-ref-toolbar .primary-btn{width:100%}#advertisingReferenceDataView .adv-ref-heading{align-items:flex-start;flex-direction:column}#advertisingReferenceDialog .form-grid{grid-template-columns:1fr}#advertisingReferenceDialog .full-span{grid-column:auto}}
