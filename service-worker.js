@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-54-15-al-ahsa-canonical-geography-m15-25-3";
+const CACHE_VERSION = "kyum-crm-pwa-18-54-16-advertising-foundation-adv-01";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
