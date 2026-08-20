@@ -1,13 +1,13 @@
 {
-  "version": "18.54.18",
-  "build": 185418,
+  "version": "18.54.19",
+  "build": 185419,
   "forceUpdate": true,
   "releaseDate": "2026-08-20",
-  "title": "Advertising Projects Core — Phase ADV-03",
+  "title": "Advertising Inventory Foundation — Phase ADV-04",
   "notes": [
-    "تفعيل شاشة المشاريع الأساسية لقسم الدعاية والإعلان مع الترقيم التلقائي ودورة الحالة.",
-    "إضافة سجل تاريخ حالة المشروع وصلاحيات CRUD كاملة مع حماية الإغلاق المالي للمراحل التالية.",
-    "دعم Smart Cache وOffline Create/Edit/Delete مع حل تبعيات أنواع المشاريع والموظفين المرجعيين."
+    "تفعيل Inventory Ledger وأرصدة المخزون ومتوسط التكلفة المرجح.",
+    "إضافة الرصيد الافتتاحي والتسويات وعكس الحركات بصلاحيات الخادم.",
+    "الحفاظ على الأرصدة Server-authoritative مع Smart Cache للقراءة دون اعتماد حركات مخزون Offline."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-18-advertising-projects-adv-03"
+  "cacheToken": "kyum-crm-pwa-18-54-19-advertising-inventory-adv-04"
 }

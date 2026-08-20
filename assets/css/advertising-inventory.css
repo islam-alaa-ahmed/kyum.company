@@ -1,0 +1,9 @@
+#advertisingInventoryView .adv-inventory-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:12px;align-items:end;margin-bottom:16px}
+#advertisingInventoryView .adv-inventory-summary{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+#advertisingInventoryView .adv-inventory-summary .panel{padding:14px}
+#advertisingInventoryView .adv-inventory-summary strong{display:block;font-size:1.15rem;margin-top:4px}
+#advertisingInventoryView .adv-inventory-table{overflow:auto;margin-bottom:18px}
+#advertisingInventoryView table{min-width:980px}
+#advertisingInventoryDialog .dialog-shell{max-width:780px}
+#advertisingInventoryDialog .adv-inventory-hint{font-size:.82rem;opacity:.78}
+@media(max-width:767px){#advertisingInventoryView .adv-inventory-toolbar,#advertisingInventoryView .adv-inventory-summary{grid-template-columns:1fr}#advertisingInventoryView .adv-inventory-toolbar .primary-btn{width:100%}#advertisingInventoryDialog .form-grid{grid-template-columns:1fr}}
