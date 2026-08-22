@@ -1,0 +1,11 @@
+#advertisingCustodyPurchasesView .adv-custody-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#advertisingCustodyPurchasesView .adv-custody-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) minmax(210px,320px) auto;gap:12px;align-items:end;margin-bottom:16px}
+#advertisingCustodyPurchasesView .adv-custody-summary{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+#advertisingCustodyPurchasesView .adv-custody-summary .panel{padding:14px}
+#advertisingCustodyPurchasesView .adv-custody-summary strong{display:block;font-size:1.15rem;margin-top:4px}
+#advertisingCustodyPurchasesView .adv-custody-table{overflow:auto;margin-bottom:18px}
+#advertisingCustodyPurchasesView table{min-width:1050px}
+#advertisingCustodyDialog .dialog-shell{max-width:850px}
+#advertisingCustodyDialog .adv-custody-inline{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+#advertisingCustodyDialog .adv-custody-hint{font-size:.82rem;opacity:.78}
+@media(max-width:767px){#advertisingCustodyPurchasesView .adv-custody-toolbar,#advertisingCustodyPurchasesView .adv-custody-summary{grid-template-columns:1fr}#advertisingCustodyPurchasesView .adv-custody-toolbar .primary-btn{width:100%}#advertisingCustodyDialog .form-grid,#advertisingCustodyDialog .adv-custody-inline{grid-template-columns:1fr}}
