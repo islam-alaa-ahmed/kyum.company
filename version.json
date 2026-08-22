@@ -1,13 +1,13 @@
 {
-  "version": "18.54.23",
-  "build": 185423,
+  "version": "18.54.24",
+  "build": 185424,
   "forceUpdate": true,
   "releaseDate": "2026-08-22",
-  "title": "Project Expenses — Phase ADV-08",
+  "title": "Profitability & Financial Close — Phase ADV-09",
   "notes": [
-    "تفعيل مصروفات المشاريع وربطها بأنواع المصروفات المرجعية.",
-    "تحميل المصروف على Project Cost Ledger ودعم الدفع الخارجي أو من عهدة الموظف.",
-    "إضافة عكس ذري للمصروف مع إعادة العهدة وحماية حركة العهدة المرتبطة من العكس خارج مالكها."
+    "تفعيل الربحية الفعلية للمشاريع من Project Cost Ledger.",
+    "عرض مواد المخزون والشراء المباشر والمصروفات والربح والهامش وانحراف التكلفة.",
+    "إغلاق مالي بلقطة مثبتة وإعادة فتح بسبب إلزامي وسجل تدقيق."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-23-project-expenses-adv-08"
+  "cacheToken": "kyum-crm-pwa-18-54-24-profitability-adv-09"
 }

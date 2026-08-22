@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-54-23-project-expenses-adv-08";
+const CACHE_VERSION = "kyum-crm-pwa-18-54-24-profitability-adv-09";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;
@@ -41,6 +41,7 @@ const CORE_APP_SHELL = [
   "./assets/css/advertising-custody.css",
   "./assets/css/advertising-purchases.css",
   "./assets/css/advertising-project-expenses.css",
+  "./assets/css/advertising-profitability.css",
   "./assets/js/offline-session-store.js",
   "./assets/js/supabase-client.js",
   "./assets/js/geographic-address.js",
@@ -71,6 +72,8 @@ const CORE_APP_SHELL = [
   "./assets/js/advertising-purchases-module.js",
   "./assets/js/advertising-expenses-service.js",
   "./assets/js/advertising-expenses-module.js",
+  "./assets/js/advertising-profitability-service.js",
+  "./assets/js/advertising-profitability-module.js",
   "./assets/js/customers-service.js",
   "./assets/js/followups-service.js",
   "./assets/js/quotations-service.js",

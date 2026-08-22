@@ -151,6 +151,12 @@
       "mode": "cached_reads_server_authoritative_posting",
       "status": "compliant",
       "notes": "Expense history/reference reads are cached; posting and reversal are atomic server operations across project cost and custody."
+    },
+    "advertising_project_profitability": {
+      "file": "assets/js/advertising-profitability-service.js",
+      "mode": "cached_reads_server_authoritative_financial_close",
+      "status": "compliant",
+      "notes": "Profitability reads are cached; close/reopen remain server-authoritative and auditable."
     }
   },
   "registeredDirectDataFiles": [
@@ -188,7 +194,8 @@
     "assets/js/advertising-material-service.js",
     "assets/js/advertising-custody-service.js",
     "assets/js/advertising-purchases-service.js",
-    "assets/js/advertising-expenses-service.js"
+    "assets/js/advertising-expenses-service.js",
+    "assets/js/advertising-profitability-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [
