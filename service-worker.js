@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kyum-crm-pwa-18-54-25-dashboard-reports-adv-10";
+const CACHE_VERSION = "kyum-crm-pwa-18-54-26-final-integration-adv-11";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const VENDOR_CACHE = `${CACHE_VERSION}-vendor`;

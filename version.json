@@ -1,13 +1,13 @@
 {
-  "version": "18.54.25",
-  "build": 185425,
+  "version": "18.54.26",
+  "build": 185426,
   "forceUpdate": true,
   "releaseDate": "2026-08-22",
-  "title": "Advertising Dashboard & Reports — Phase ADV-10",
+  "title": "Advertising Final Integration & Certification — Phase ADV-11",
   "notes": [
-    "تفعيل لوحة متابعة قسم الدعاية والإعلان من المصادر المحاسبية والتشغيلية المعتمدة.",
-    "إضافة تقارير المشاريع والمخزون وحركات المواد والعهد والمشتريات والمصروفات مع فلاتر موحدة.",
-    "إضافة تصدير CSV بصلاحية Export مع Smart Cache للقراءة Offline."
+    "تصحيح احتساب الربحية ليعتمد صافي قيود Project Cost Ledger بما في ذلك قيود العكس.",
+    "إصلاح مسار الإغلاق وإعادة الفتح المالي ليمر حصريًا عبر RPCs المعتمدة مع حماية Trigger.",
+    "دعم مشتريات المشروع متعددة الأصناف دون كسر قيد مصدر التكلفة، مع Final Integration Certification."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-25-dashboard-reports-adv-10"
+  "cacheToken": "kyum-crm-pwa-18-54-26-final-integration-adv-11"
 }
