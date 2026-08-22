@@ -1,0 +1,9 @@
+#advertisingProjectCostsView .adv-expense-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#advertisingProjectCostsView .adv-expense-toolbar{display:grid;grid-template-columns:minmax(240px,1fr) minmax(220px,330px) auto;gap:12px;align-items:end;margin-bottom:16px}
+#advertisingProjectCostsView .adv-expense-summary{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+#advertisingProjectCostsView .adv-expense-summary .panel{padding:14px}
+#advertisingProjectCostsView .adv-expense-summary strong{display:block;font-size:1.15rem;margin-top:4px}
+#advertisingProjectCostsView .adv-expense-table{overflow:auto}
+#advertisingProjectCostsView table{min-width:1050px}
+#advertisingExpenseDialog .dialog-shell{max-width:850px}
+@media(max-width:767px){#advertisingProjectCostsView .adv-expense-toolbar,#advertisingProjectCostsView .adv-expense-summary{grid-template-columns:1fr}#advertisingProjectCostsView .adv-expense-toolbar .primary-btn{width:100%}#advertisingExpenseDialog .form-grid{grid-template-columns:1fr}}
