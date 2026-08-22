@@ -157,6 +157,12 @@
       "mode": "cached_reads_server_authoritative_financial_close",
       "status": "compliant",
       "notes": "Profitability reads are cached; close/reopen remain server-authoritative and auditable."
+    },
+    "advertising_reporting": {
+      "file": "assets/js/advertising-reporting-service.js",
+      "mode": "cached_readonly_reports",
+      "status": "compliant",
+      "notes": "Dashboard and report snapshots come from permission-checked canonical server RPCs and are cached for offline reading."
     }
   },
   "registeredDirectDataFiles": [
@@ -195,7 +201,8 @@
     "assets/js/advertising-custody-service.js",
     "assets/js/advertising-purchases-service.js",
     "assets/js/advertising-expenses-service.js",
-    "assets/js/advertising-profitability-service.js"
+    "assets/js/advertising-profitability-service.js",
+    "assets/js/advertising-reporting-service.js"
   ],
   "temporaryDirectUiDebt": {
     "assets/js/app.js": [

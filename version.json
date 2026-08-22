@@ -1,13 +1,13 @@
 {
-  "version": "18.54.24",
-  "build": 185424,
+  "version": "18.54.25",
+  "build": 185425,
   "forceUpdate": true,
   "releaseDate": "2026-08-22",
-  "title": "Profitability & Financial Close — Phase ADV-09",
+  "title": "Advertising Dashboard & Reports — Phase ADV-10",
   "notes": [
-    "تفعيل الربحية الفعلية للمشاريع من Project Cost Ledger.",
-    "عرض مواد المخزون والشراء المباشر والمصروفات والربح والهامش وانحراف التكلفة.",
-    "إغلاق مالي بلقطة مثبتة وإعادة فتح بسبب إلزامي وسجل تدقيق."
+    "تفعيل لوحة متابعة قسم الدعاية والإعلان من المصادر المحاسبية والتشغيلية المعتمدة.",
+    "إضافة تقارير المشاريع والمخزون وحركات المواد والعهد والمشتريات والمصروفات مع فلاتر موحدة.",
+    "إضافة تصدير CSV بصلاحية Export مع Smart Cache للقراءة Offline."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-24-profitability-adv-09"
+  "cacheToken": "kyum-crm-pwa-18-54-25-dashboard-reports-adv-10"
 }
