@@ -1,13 +1,13 @@
 {
-  "version": "18.54.21",
-  "build": 185421,
+  "version": "18.54.22",
+  "build": 185422,
   "forceUpdate": true,
-  "releaseDate": "2026-08-20",
-  "title": "Employee Custody Ledger — Phase ADV-06",
+  "releaseDate": "2026-08-22",
+  "title": "Purchases — Phase ADV-07",
   "notes": [
-    "تفعيل عهد الموظفين كرصد وحركات Ledger مع رصيد Server-authoritative.",
-    "إضافة استلام عهدة ورد نقدية وتسويات وصرف مباشر على مشروع مفتوح.",
-    "ربط الصرف المباشر بتكلفة المشروع وعكس الحركات بصورة ذرية حسب صلاحية الحذف."
+    "تفعيل مشتريات المخزون والمشاريع وربطها بالمورد والعهدة.",
+    "تحديث متوسط تكلفة المخزون ذريًا عند الشراء للمخزون.",
+    "تحميل الشراء المباشر على تكلفة المشروع ودعم العكس المنضبط."
   ],
-  "cacheToken": "kyum-crm-pwa-18-54-21-custody-ledger-adv-06"
+  "cacheToken": "kyum-crm-pwa-18-54-22-purchases-adv-07"
 }
